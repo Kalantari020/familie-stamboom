@@ -2928,30 +2928,21 @@ function openDetailModal(id) {
 
       <!-- ENKELVOUDIG FORMULIER -->
       <form id="form-quick-add" autocomplete="off">
-        <!-- Modus-toggle: Nieuwe persoon / Bestaande persoon -->
-        <div class="qa-mode-toggle-row">
-          <button type="button" id="qa-btn-new" class="qa-mode-btn active">+ Nieuwe persoon</button>
-          <button type="button" id="qa-btn-existing" class="qa-mode-btn">Bestaande persoon</button>
-        </div>
-
-        <!-- Velden voor NIEUWE persoon -->
-        <div id="qa-new-fields">
-          <div class="quick-row">
-            <input type="text" id="qa-name" placeholder="Naam" style="flex:2">
+        <!-- Naamveld met autocomplete: bestaande én nieuwe personen -->
+        <div style="position:relative;margin-bottom:6px">
+          <div class="quick-row" style="margin-bottom:0">
+            <input type="text" id="qa-name" placeholder="Naam (bestaand of nieuw)" style="flex:2" autocomplete="off">
             <select id="qa-gender">
               <option value="m">Man</option>
               <option value="f">Vrouw</option>
               <option value="?">?</option>
             </select>
           </div>
-          <div class="quick-row">
-            <input type="text" id="qa-birthdate" placeholder="Geboortedatum (bijv. 15-05-1990)" style="flex:2">
-          </div>
+          <div id="qa-autocomplete-list" style="display:none;position:absolute;left:0;right:0;z-index:200;background:#1e293b;border:1px solid var(--border);border-radius:6px;max-height:180px;overflow-y:auto;margin-top:2px"></div>
         </div>
-
-        <!-- Velden voor BESTAANDE persoon -->
-        <div id="qa-existing-fields" class="hidden">
-          <div id="qa-person-picker-container" style="margin-bottom:4px"></div>
+        <input type="hidden" id="qa-existing-id">
+        <div class="quick-row" id="qa-birthdate-row">
+          <input type="text" id="qa-birthdate" placeholder="Geboortedatum (bijv. 15-05-1990)" style="flex:2">
         </div>
 
         <div class="quick-row">
@@ -3066,33 +3057,52 @@ function openDetailModal(id) {
     });
   }
 
-  // Toggle Nieuw / Bestaand in enkelvoudig formulier
-  const qaBtnNew      = modal.querySelector('#qa-btn-new');
-  const qaBtnExisting = modal.querySelector('#qa-btn-existing');
-  const qaNewFields   = modal.querySelector('#qa-new-fields');
-  const qaExistFields = modal.querySelector('#qa-existing-fields');
+  // Autocomplete op het naamveld — toont bestaande personen als suggesties
   let qaPickerSelectedId = null;
+  const qaNameInput    = modal.querySelector('#qa-name');
+  const qaAutoList     = modal.querySelector('#qa-autocomplete-list');
+  const qaExistingId   = modal.querySelector('#qa-existing-id');
+  const qaBirthdateRow = modal.querySelector('#qa-birthdate-row');
+  const qaGender       = modal.querySelector('#qa-gender');
 
-  // Build the person picker inside the container
-  if (qaExistFields) {
-    const pickerContainer = modal.querySelector('#qa-person-picker-container');
-    buildPersonPicker(pickerContainer, (selId) => { qaPickerSelectedId = selId; }, id);
-  }
+  function closeAutoList() { if (qaAutoList) qaAutoList.style.display = 'none'; }
 
-  if (qaBtnNew && qaBtnExisting) {
-    qaBtnNew.addEventListener('click', () => {
-      qaBtnNew.classList.add('active');
-      qaBtnExisting.classList.remove('active');
-      qaNewFields.classList.remove('hidden');
-      qaExistFields.classList.add('hidden');
+  if (qaNameInput && qaAutoList) {
+    qaNameInput.addEventListener('input', () => {
+      const q = qaNameInput.value.trim().toLowerCase();
       qaPickerSelectedId = null;
+      qaExistingId.value = '';
+      if (qaBirthdateRow) qaBirthdateRow.style.display = '';
+      if (qaGender) qaGender.style.display = '';
+      if (!q) { closeAutoList(); return; }
+      const matches = state.persons
+        .filter(p => p.id !== id && p.name.toLowerCase().includes(q))
+        .slice(0, 8);
+      if (!matches.length) { closeAutoList(); return; }
+      qaAutoList.innerHTML = matches.map(p =>
+        `<div class="person-picker-item" data-id="${p.id}">
+          <span>${genderIcon(p.gender)}</span>
+          <span>${escHtml(p.name)}</span>
+          ${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}
+        </div>`
+      ).join('');
+      qaAutoList.style.display = 'block';
+      qaAutoList.querySelectorAll('.person-picker-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          const pid = item.dataset.id;
+          const person = state.persons.find(p => p.id === pid);
+          if (!person) return;
+          qaPickerSelectedId = pid;
+          qaExistingId.value = pid;
+          qaNameInput.value = person.name + (person.family ? ` (${person.family})` : '');
+          if (qaBirthdateRow) qaBirthdateRow.style.display = 'none';
+          if (qaGender) qaGender.style.display = 'none';
+          closeAutoList();
+        });
+      });
     });
-    qaBtnExisting.addEventListener('click', () => {
-      qaBtnExisting.classList.add('active');
-      qaBtnNew.classList.remove('active');
-      qaExistFields.classList.remove('hidden');
-      qaNewFields.classList.add('hidden');
-    });
+    qaNameInput.addEventListener('blur', () => setTimeout(closeAutoList, 150));
   }
 
   // Show/hide "andere ouder" row in enkelvoudig formulier
@@ -3109,12 +3119,11 @@ function openDetailModal(id) {
     singleForm.addEventListener('submit', e => {
       e.preventDefault();
       const relation = modal.querySelector('#qa-relation').value;
-      const isExisting = qaBtnExisting && qaBtnExisting.classList.contains('active');
+      const isExisting = !!(qaExistingId && qaExistingId.value);
 
       if (isExisting) {
-        // --- Bestaande persoon: alleen relatie aanmaken ---
-        if (!qaPickerSelectedId) { alert('Selecteer een bestaande persoon.'); return; }
-        const targetId = qaPickerSelectedId;
+        // --- Bestaande persoon geselecteerd via autocomplete ---
+        const targetId = qaExistingId.value;
 
         // Duplicate check
         if (relation === 'partner') {
