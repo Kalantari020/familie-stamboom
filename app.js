@@ -3146,9 +3146,11 @@ function showToast(msg, type = '', duration = 4000) {
 // ============================================================
 // PUBLICEER — via GitHub API → GitHub Actions → Netlify
 // ============================================================
-const GH_TOKEN = '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';
+// Token wordt opgeslagen via de browser console: setGhToken('ghp_...')
+const GH_TOKEN = localStorage.getItem('fb_gh_token') || '';
 const GH_REPO  = 'Kalantari020/familie-stamboom';
 const GH_FILE  = 'data/publish-state.json';
+window.setGhToken = t => { localStorage.setItem('fb_gh_token', t); location.reload(); };
 
 document.getElementById('btn-publish').addEventListener('click', () => {
   document.getElementById('publish-status').style.display = 'none';
