@@ -18,8 +18,10 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
 // Wijzig de PIN via de browser console: setPinCode('jouwnieuwepin')
 // ============================================================
 (function pinGuard() {
-  const SESSION_KEY = 'fb_sess';
-  const STORE_KEY   = 'fb_pin_v2';
+  const IS_VIEW     = new URLSearchParams(window.location.search).get('view') === '1';
+  const SESSION_KEY = IS_VIEW ? 'fb_sess_view' : 'fb_sess';
+  const STORE_KEY   = IS_VIEW ? 'fb_pin_view'  : 'fb_pin_v2';
+  const DEFAULT_PIN = IS_VIEW ? '1993'          : '5768';
 
   // Versleutel PIN via PBKDF2-SHA256 (100k iteraties)
   async function deriveKey(pin, salt) {
@@ -41,7 +43,7 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
   // Initialiseer standaard PIN (2805) als er nog geen is opgeslagen
   async function ensureDefaultPin() {
     if (!localStorage.getItem(STORE_KEY)) {
-      const { hash, salt } = await hashPin('5768');
+      const { hash, salt } = await hashPin(DEFAULT_PIN);
       localStorage.setItem(STORE_KEY, JSON.stringify({ hash, salt }));
     }
   }
