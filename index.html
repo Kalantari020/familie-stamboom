@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Familie Stamboom</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- TOEGANGSSCHERM -->
+  <div id="pin-screen">
+    <div id="pin-box">
+      <div id="pin-logo">🌳</div>
+      <h1 id="pin-title">Familie Stamboom</h1>
+      <p id="pin-subtitle">Voer de toegangscode in</p>
+      <div id="pin-dots">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+      <div id="pin-error"></div>
+      <div id="pin-keypad">
+        <button class="pin-key" data-val="1">1</button>
+        <button class="pin-key" data-val="2">2</button>
+        <button class="pin-key" data-val="3">3</button>
+        <button class="pin-key" data-val="4">4</button>
+        <button class="pin-key" data-val="5">5</button>
+        <button class="pin-key" data-val="6">6</button>
+        <button class="pin-key" data-val="7">7</button>
+        <button class="pin-key" data-val="8">8</button>
+        <button class="pin-key" data-val="9">9</button>
+        <button class="pin-key pin-clear" data-val="clear">⌫</button>
+        <button class="pin-key" data-val="0">0</button>
+        <button class="pin-key pin-ok" data-val="ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <div class="toolbar-left">
+      <button id="btn-sidebar-toggle" class="btn icon mobile-only" title="Menu">☰</button>
+      <span class="app-title">Familie Stamboom</span>
+      <button id="btn-add-person" class="btn primary desktop-only">+ Persoon</button>
+      <button id="btn-add-relation" class="btn secondary desktop-only">+ Relatie</button>
+    </div>
+    <div class="toolbar-center">
+      <button id="btn-zoom-out" class="btn icon" title="Uitzoomen">−</button>
+      <span id="zoom-label">100%</span>
+      <button id="btn-zoom-in" class="btn icon" title="Inzoomen">+</button>
+      <button id="btn-zoom-fit" class="btn small" title="Alles tonen">Passend</button>
+    </div>
+    <div class="toolbar-right desktop-only">
+      <button id="btn-publish" class="btn small publish" title="Exporteer en publiceer wijzigingen voor de familie">📤 Publiceer</button>
+      <button id="btn-export" class="btn small">Exporteer JSON</button>
+      <button id="btn-import" class="btn small">Importeer JSON</button>
+      <input type="file" id="file-input" accept=".json" style="display:none">
+      <button id="btn-reset" class="btn small danger" title="Reset naar startdata">Reset</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast-container"></div>
+
+  <!-- PUBLICEER MODAL -->
+  <div id="modal-publish" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content small">
+      <h2>📤 Wijzigingen publiceren</h2>
+      <p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin:12px 0">
+        Jouw wijzigingen direct live zetten voor de hele familie.<br>
+        Dit duurt 5–10 seconden.
+      </p>
+      <div id="publish-status" style="display:none;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center"></div>
+      <div class="form-actions">
+        <button id="btn-publish-now" class="btn publish">🚀 Nu publiceren</button>
+        <button id="btn-publish-export" class="btn small secondary">↓ Alleen downloaden</button>
+        <button id="btn-publish-close" class="btn secondary">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIM KOPPELEN MODAL -->
+  <div id="modal-smartlink" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2>🔗 Slim koppelen</h2>
+      <p id="smartlink-intro" style="color:var(--text-muted);font-size:13px;margin-bottom:16px"></p>
+      <div id="smartlink-list"></div>
+      <div class="form-actions">
+        <button id="btn-smartlink-close" class="btn secondary">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR OVERLAY (mobiel) -->
+  <div id="sidebar-overlay"></div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <input type="text" id="search" placeholder="Zoek persoon of stamboom..." autocomplete="off">
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">STAMBOMEN</span>
+          <button id="btn-new-family" class="btn small" title="Nieuwe familie starten">+ Nieuw</button>
+        </div>
+        <div id="tree-list"></div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section grows">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">Verjaardagen</span>
+          <span class="sidebar-section-sub">🌟 deze week</span>
+        </div>
+        <div id="birthday-list"></div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section grows">
+        <div class="sidebar-section-header">
+          <span class="sidebar-section-title">PERSONEN</span>
+          <span id="stats"></span>
+        </div>
+        <div id="person-list"></div>
+      </div>
+    </div>
+
+    <!-- CANVAS WRAPPER -->
+    <div id="canvas-wrapper">
+      <div id="canvas">
+        <svg id="svg-lines" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="cards-container"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: PERSOON TOEVOEGEN / BEWERKEN -->
+  <div id="modal-person" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2 id="modal-person-title">Persoon toevoegen</h2>
+      <form id="form-person" autocomplete="off">
+        <div class="form-row photo-row">
+          <div id="photo-preview" class="photo-preview"></div>
+          <label class="photo-label">
+            <input type="file" id="photo-input" accept="image/*" style="display:none">
+            <span id="photo-btn" class="btn small">Foto kiezen</span>
+            <span id="photo-remove" class="btn small danger" style="display:none">Verwijder foto</span>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            Volledige naam *
+            <input type="text" name="name" required placeholder="Voornaam Achternaam">
+          </label>
+        </div>
+        <div class="form-row two-col">
+          <label>
+            Geslacht
+            <select name="gender">
+              <option value="m">Man</option>
+              <option value="f">Vrouw</option>
+              <option value="?">Onbekend</option>
+            </select>
+          </label>
+          <label>
+            Familie
+            <input type="text" name="family" placeholder="bijv. Sayedi">
+          </label>
+        </div>
+        <div class="form-row two-col">
+          <label>
+            Geboortedatum
+            <input type="text" name="birthdate" placeholder="1990, 15-05-1990 of 1990-05-15">
+          </label>
+          <label>
+            Overlijdensdatum
+            <input type="text" name="deathdate" placeholder="Leeg = nog in leven">
+          </label>
+        </div>
+        <div class="form-row">
+          <label class="checkbox-label">
+            <input type="checkbox" name="deceased" id="chk-deceased">
+            Overleden
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            Notities
+            <textarea name="notes" rows="2" placeholder="Extra informatie..."></textarea>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn primary" id="btn-person-submit">Opslaan</button>
+          <button type="button" class="btn secondary" id="btn-person-cancel">Annuleer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RELATIE TOEVOEGEN -->
+  <div id="modal-relation" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <h2>Relatie toevoegen</h2>
+      <form id="form-relation" autocomplete="off">
+        <div class="form-row">
+          <label>
+            Type relatie
+            <select name="type" id="rel-type">
+              <option value="parent-child">Ouder → Kind</option>
+              <option value="partner">Partner / Huwelijk</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="rel-fields-parent-child">
+          <div class="form-row">
+            <label>
+              Ouder
+              <select name="parentId" id="sel-parent"></select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Kind
+              <select name="childId" id="sel-child"></select>
+            </label>
+          </div>
+        </div>
+
+        <div id="rel-fields-partner" class="hidden">
+          <div class="form-row">
+            <label>
+              Persoon 1
+              <select name="person1Id" id="sel-p1"></select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label>
+              Persoon 2
+              <select name="person2Id" id="sel-p2"></select>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Toevoegen</button>
+          <button type="button" class="btn secondary" id="btn-relation-cancel">Annuleer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: BEVESTIGING VERWIJDEREN -->
+  <div id="modal-confirm" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content small">
+      <h2>Bevestigen</h2>
+      <p id="confirm-message"></p>
+      <div class="form-actions">
+        <button id="btn-confirm-yes" class="btn danger">Verwijderen</button>
+        <button id="btn-confirm-no" class="btn secondary">Annuleer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PERSOON DETAIL -->
+  <div id="modal-detail" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div id="detail-content"></div>
+      <div class="form-actions">
+        <button id="btn-detail-edit" class="btn primary">Bewerken</button>
+        <button id="btn-detail-close" class="btn secondary">Sluiten</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
