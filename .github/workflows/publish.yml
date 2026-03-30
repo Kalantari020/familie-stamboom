@@ -42,12 +42,40 @@ jobs:
             );
 
             fs.writeFileSync('app.js', newJs, 'utf8');
-            console.log('app.js bijgewerkt ✅');
+            console.log('app.js bijgewerkt');
           "
 
-      - name: Deploy naar Netlify
+      - name: Maak ZIP en deploy naar Netlify
         run: |
-          npx netlify-cli@latest deploy --prod \
-            --dir . \
-            --auth ${{ secrets.NETLIFY_TOKEN }} \
-            --site ${{ secrets.NETLIFY_SITE_ID }}
+          # Maak netlify/functions map
+          mkdir -p netlify/functions
+
+          # Maak ZIP van de site bestanden
+          zip -j deploy.zip index.html style.css app.js netlify.toml
+          zip deploy.zip netlify/functions/publish.js
+
+          echo "ZIP gemaakt ($(du -sh deploy.zip | cut -f1))"
+
+          # Deploy via Netlify API
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.NETLIFY_TOKEN }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @deploy.zip \
+            "https://api.netlify.com/api/v1/sites/${{ secrets.NETLIFY_SITE_ID }}/deploys")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response: $BODY" | head -c 300
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Deploy mislukt!"
+            exit 1
+          fi
+
+          echo "Gepubliceerd!"
+        env:
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
