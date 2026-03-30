@@ -289,6 +289,23 @@
     </div>
   </div>
 
+  <!-- MODAL: SAMENVOEGEN -->
+  <div id="modal-merge" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content small">
+      <h2>🔗 Samenvoegen</h2>
+      <div id="merge-person-a"></div>
+      <p style="color:var(--text-muted);font-size:13px;margin:12px 0">Zoek de dubbele persoon om samen te voegen:</p>
+      <input id="merge-search" type="text" placeholder="Naam zoeken..." class="form-input">
+      <div id="merge-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
+      <div id="merge-preview" style="display:none;margin-top:12px;padding:10px;background:#1e3a5f;border-radius:8px;font-size:13px"></div>
+      <div class="form-actions" style="margin-top:12px">
+        <button id="btn-merge-confirm" class="btn danger" style="display:none">✓ Samenvoegen</button>
+        <button id="btn-merge-cancel" class="btn secondary">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: PERSOON DETAIL -->
   <div id="modal-detail" class="modal hidden">
     <div class="modal-backdrop"></div>

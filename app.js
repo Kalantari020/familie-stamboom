@@ -2865,6 +2865,7 @@ function openDetailModal(id) {
     <div class="form-actions" style="margin-top:8px">
       ${READ_ONLY ? '' : `
       <button id="btn-detail-edit" class="btn secondary">✏ Bewerken</button>
+      <button id="btn-detail-merge" class="btn secondary">🔗 Samenvoegen</button>
       <button id="btn-detail-delete" class="btn danger">✕ Verwijderen</button>
       `}
       <button id="btn-detail-close" class="btn secondary">Sluiten</button>
@@ -2886,6 +2887,13 @@ function openDetailModal(id) {
   if (btnEdit) btnEdit.addEventListener('click', () => {
     modal.classList.add('hidden');
     openEditModal(id);
+  });
+
+  // Merge button (alleen in beheer-modus)
+  const btnMerge = modal.querySelector('#btn-detail-merge');
+  if (btnMerge) btnMerge.addEventListener('click', () => {
+    modal.classList.add('hidden');
+    openMergeModal(id);
   });
 
   // Delete button (alleen in beheer-modus)
@@ -3262,6 +3270,160 @@ document.getElementById('btn-publish-now').addEventListener('click', async () =>
     btn.textContent = '🚀 Nu publiceren';
   }
 });
+
+// ============================================================
+// SAMENVOEGEN — MERGE PERSONS
+// ============================================================
+function openMergeModal(keepId) {
+  const keepPerson = getPerson(keepId);
+  if (!keepPerson) return;
+
+  const modal = document.getElementById('modal-merge');
+  let selectedRemoveId = null;
+
+  // Toon persoon A info
+  const gClass = keepPerson.gender === 'm' ? 'male' : keepPerson.gender === 'f' ? 'female' : 'unknown';
+  const uClass = keepPerson.id === USER_ID ? 'user' : gClass;
+  document.getElementById('merge-person-a').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#0f172a;border-radius:8px;margin-bottom:4px">
+      <div class="detail-avatar ${uClass}" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${initials(keepPerson.name)}</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(keepPerson.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${[keepPerson.family, lifespan(keepPerson)].filter(Boolean).join(' · ') || 'Geen extra info'}</div>
+      </div>
+    </div>`;
+
+  // Reset zoek- en preview-velden
+  const searchInput  = document.getElementById('merge-search');
+  const resultsDiv   = document.getElementById('merge-results');
+  const previewDiv   = document.getElementById('merge-preview');
+  const confirmBtn   = document.getElementById('btn-merge-confirm');
+  searchInput.value  = '';
+  resultsDiv.innerHTML = '';
+  previewDiv.style.display = 'none';
+  confirmBtn.style.display = 'none';
+  selectedRemoveId = null;
+
+  // Zoekfunctie
+  function doSearch(query) {
+    const q = query.trim().toLowerCase();
+    resultsDiv.innerHTML = '';
+    selectedRemoveId = null;
+    previewDiv.style.display = 'none';
+    confirmBtn.style.display = 'none';
+
+    if (q.length < 1) return;
+
+    const matches = state.persons.filter(p =>
+      p.id !== keepId &&
+      p.name.toLowerCase().includes(q)
+    );
+
+    if (!matches.length) {
+      resultsDiv.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 4px">Geen resultaten gevonden</div>';
+      return;
+    }
+
+    matches.forEach(p => {
+      const pGClass = p.gender === 'm' ? 'male' : p.gender === 'f' ? 'female' : 'unknown';
+      const item = document.createElement('div');
+      item.className = 'merge-result-item';
+      item.dataset.id = p.id;
+      item.innerHTML = `
+        <div>${escHtml(p.name)}</div>
+        <div class="merge-result-family">${[p.family, lifespan(p)].filter(Boolean).join(' · ') || 'Geen extra info'}</div>`;
+      item.addEventListener('click', () => {
+        // Deselect previous
+        resultsDiv.querySelectorAll('.merge-result-item').forEach(el => el.classList.remove('selected'));
+        item.classList.add('selected');
+        selectedRemoveId = p.id;
+
+        // Toon preview
+        previewDiv.style.display = 'block';
+        previewDiv.innerHTML = `
+          <strong style="color:var(--text)">Samenvoegen:</strong><br>
+          <span style="color:#93c5fd">${escHtml(keepPerson.name)}</span>
+          <span style="color:var(--text-muted)"> + </span>
+          <span style="color:#f9a8d4">${escHtml(p.name)}</span>
+          <span style="color:var(--text-muted)"> → </span>
+          <span style="color:#86efac">${escHtml(keepPerson.name)}</span>
+          <br><span style="color:var(--text-muted);font-size:11px;margin-top:4px;display:block">De persoon "${escHtml(p.name)}" wordt verwijderd. Alle relaties worden overgenomen door "${escHtml(keepPerson.name)}".</span>`;
+        confirmBtn.style.display = 'inline-flex';
+      });
+      resultsDiv.appendChild(item);
+    });
+  }
+
+  searchInput.addEventListener('input', e => doSearch(e.target.value));
+
+  // Bevestig knop
+  confirmBtn.onclick = () => {
+    if (!selectedRemoveId) return;
+    mergePersons(keepId, selectedRemoveId);
+    modal.classList.add('hidden');
+  };
+
+  // Annuleer knop
+  document.getElementById('btn-merge-cancel').onclick = () => {
+    modal.classList.add('hidden');
+  };
+
+  modal.classList.remove('hidden');
+  searchInput.focus();
+}
+
+function mergePersons(keepId, removeId) {
+  if (keepId === removeId) return;
+
+  const removePerson = getPerson(removeId);
+  const keepPerson   = getPerson(keepId);
+  if (!removePerson || !keepPerson) return;
+
+  // Vervang alle verwijzingen naar removeId door keepId in relationships
+  state.relationships = state.relationships.map(rel => {
+    const r = { ...rel };
+    if (r.type === 'parent-child') {
+      if (r.parentId === removeId) r.parentId = keepId;
+      if (r.childId  === removeId) r.childId  = keepId;
+    } else if (r.type === 'partner') {
+      if (r.person1Id === removeId) r.person1Id = keepId;
+      if (r.person2Id === removeId) r.person2Id = keepId;
+    }
+    return r;
+  });
+
+  // Verwijder zelf-referentiële relaties (bijv. keepId is ouder van keepId)
+  state.relationships = state.relationships.filter(rel => {
+    if (rel.type === 'parent-child') return rel.parentId !== rel.childId;
+    if (rel.type === 'partner')      return rel.person1Id !== rel.person2Id;
+    return true;
+  });
+
+  // Verwijder duplicaten
+  const seen = new Set();
+  state.relationships = state.relationships.filter(rel => {
+    let key;
+    if (rel.type === 'parent-child') {
+      key = `pc:${rel.parentId}:${rel.childId}`;
+    } else if (rel.type === 'partner') {
+      // partner is symmetrisch: sorteer IDs zodat A-B en B-A als duplicaat worden herkend
+      const ids = [rel.person1Id, rel.person2Id].sort();
+      key = `partner:${ids[0]}:${ids[1]}`;
+    } else {
+      key = JSON.stringify(rel);
+    }
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // Verwijder de persoon met removeId
+  state.persons = state.persons.filter(p => p.id !== removeId);
+
+  saveState();
+  render();
+  showToast(`✅ ${escHtml(removePerson.name)} samengevoegd met ${escHtml(keepPerson.name)}`, 'success');
+}
 
 // ============================================================
 // UTILITY

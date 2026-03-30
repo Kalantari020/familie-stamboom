@@ -917,6 +917,37 @@ body.readonly .card:hover   { cursor: default; }
 }
 
 /* ============================================================
+   SAMENVOEGEN MODAL
+   ============================================================ */
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #0f172a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-muted); }
+
+.merge-result-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  border: 1px solid transparent;
+}
+.merge-result-item:hover { background: #1e3a5f; border-color: var(--accent); }
+.merge-result-item.selected { background: #1e3a5f; border-color: var(--accent); }
+.merge-result-family { font-size: 11px; color: var(--text-muted); }
+
+/* ============================================================
    RESPONSIVE — MOBIEL
    ============================================================ */
 .mobile-only  { display: none !important; }
