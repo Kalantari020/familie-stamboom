@@ -444,6 +444,7 @@ html, body {
   overflow: auto;
   background: var(--canvas-bg);
   position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 #canvas-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
 #canvas-wrapper::-webkit-scrollbar-track { background: #e2e8f0; }
@@ -483,6 +484,7 @@ html, body {
   flex-direction: column;
   padding: 8px 10px 6px;
   cursor: pointer;
+  touch-action: manipulation;
   transition: transform 0.15s, box-shadow 0.15s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   background: var(--unknown-bg);
