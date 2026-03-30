@@ -3646,6 +3646,12 @@ function mergePersons(keepId, removeId) {
 // ============================================================
 // UTILITY
 // ============================================================
+function genderIcon(g) {
+  if (g === 'm') return '♂';
+  if (g === 'f') return '♀';
+  return '⚧';
+}
+
 function escHtml(str) {
   return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
