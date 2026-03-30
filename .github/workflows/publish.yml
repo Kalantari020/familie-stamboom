@@ -21,14 +21,33 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
-            const state = JSON.parse(fs.readFileSync('data/publish-state.json', 'utf8'));
-            const js    = fs.readFileSync('app.js', 'utf8');
-            const newData = '// __START_DATA_BEGIN__\nconst START_DATA = ' + JSON.stringify(state, null, 2) + ';\n// __START_DATA_END__';
-            const newJs = js.replace(/\/\/ __START_DATA_BEGIN__[\s\S]*?\/\/ __START_DATA_END__/, newData);
-            if (newJs === js) { console.error('Marker niet gevonden!'); process.exit(1); }
-            fs.writeFileSync('app.js', newJs);
-            console.log('app.js bijgewerkt met', state.persons?.length, 'personen');
+            const raw = fs.readFileSync('data/publish-state.json', 'utf8');
+            const state = JSON.parse(raw);
+            console.log('Personen:', state.persons?.length, '| Relaties:', state.relationships?.length);
+
+            const js = fs.readFileSync('app.js', 'utf8');
+            if (!js.includes('__START_DATA_BEGIN__')) {
+              console.error('FOUT: marker niet gevonden in app.js');
+              process.exit(1);
+            }
+
+            const newData =
+              '// __START_DATA_BEGIN__\n' +
+              'const START_DATA = ' + JSON.stringify(state, null, 2) + ';\n' +
+              '// __START_DATA_END__';
+
+            const newJs = js.replace(
+              /\/\/ __START_DATA_BEGIN__[\s\S]*?\/\/ __START_DATA_END__/,
+              newData
+            );
+
+            fs.writeFileSync('app.js', newJs, 'utf8');
+            console.log('app.js bijgewerkt ✅');
           "
 
       - name: Deploy naar Netlify
-        run: npx netlify-cli@latest deploy --prod --dir . --auth ${{ secrets.NETLIFY_TOKEN }} --site ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npx netlify-cli@latest deploy --prod \
+            --dir . \
+            --auth ${{ secrets.NETLIFY_TOKEN }} \
+            --site ${{ secrets.NETLIFY_SITE_ID }}

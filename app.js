@@ -1762,19 +1762,37 @@ document.getElementById('btn-publish-now').addEventListener('click', async () =>
   setStatus('Verbinden met GitHub...', '#1e3a5f');
 
   try {
-    // 1. Haal huidige SHA op van het bestand (nodig voor update)
+    // 1. Haal huidige SHA op (nodig voor update)
+    setStatus('Verbinden met GitHub...', '#1e3a5f');
     const getResp = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
       headers: { 'Authorization': `Bearer ${GH_TOKEN}`, 'Accept': 'application/vnd.github+json' }
     });
-    const fileInfo = await getResp.json();
+    if (!getResp.ok && getResp.status !== 404) {
+      throw new Error(`GitHub verbinding mislukt (${getResp.status})`);
+    }
+    const fileInfo = getResp.ok ? await getResp.json() : {};
     const sha = fileInfo.sha || null;
 
-    setStatus('Data uploaden...', '#1e3a5f');
+    setStatus('Data klaarmaken...', '#1e3a5f');
 
-    // 2. Schrijf huidige state naar data/publish-state.json in de repo
+    // 2. Strip fotos (te groot) en maak publish state
     const newVersion = Date.now();
-    const newState   = Object.assign({}, state, { _version: newVersion });
-    const content    = btoa(unescape(encodeURIComponent(JSON.stringify(newState, null, 2))));
+    const publishState = {
+      _version: newVersion,
+      persons: (state.persons || []).map(p => {
+        const { photo, ...rest } = p;
+        return rest;
+      }),
+      relationships: state.relationships || []
+    };
+
+    // Base64 encode via TextEncoder (werkt met alle Unicode tekens)
+    const jsonStr  = JSON.stringify(publishState, null, 2);
+    const bytes    = new TextEncoder().encode(jsonStr);
+    const binStr   = Array.from(bytes).map(b => String.fromCharCode(b)).join('');
+    const content  = btoa(binStr);
+
+    setStatus('Uploaden naar GitHub...', '#1e3a5f');
 
     const putBody = {
       message: `Publiceer stamboom ${new Date().toLocaleString('nl-NL')}`,
@@ -1792,10 +1810,11 @@ document.getElementById('btn-publish-now').addEventListener('click', async () =>
       body: JSON.stringify(putBody)
     });
 
+    const putResult = await putResp.json();
     if (!putResp.ok) {
-      const err = await putResp.json();
-      throw new Error(err.message || 'GitHub upload mislukt');
+      throw new Error(putResult.message || `GitHub fout (${putResp.status})`);
     }
+    console.log('[publish] GitHub response:', putResp.status, putResult?.commit?.sha);
 
     // 3. Sla versie op
     state._version = newVersion;
