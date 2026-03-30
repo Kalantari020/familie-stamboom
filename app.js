@@ -890,35 +890,6 @@ const START_DATA = {
       "notes": ""
     },
     {
-      "id": "pmndn4sw3j1fb",
-      "name": "Husna Amiri",
-      "gender": "f",
-      "family": "Amiri",
-      "birthdate": "24-11-2001",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false
-    },
-    {
-      "id": "pmndn6f9u1nld",
-      "name": "Hemat Faizi",
-      "gender": "m",
-      "family": "Amiri",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": ""
-    },
-    {
-      "id": "pmndn78he1ui6",
-      "name": "Amina Faizi",
-      "gender": "f",
-      "family": "Amiri",
-      "birthdate": "17-01-2024",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false
-    },
-    {
       "id": "pmndn7m9expkq",
       "name": "Aisya Faizi",
       "gender": "f",
@@ -951,15 +922,6 @@ const START_DATA = {
     {
       "id": "pmndnrdrc68lf",
       "name": "Sejad Rashid",
-      "gender": "m",
-      "family": "",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": ""
-    },
-    {
-      "id": "pmndnrn9438x5",
-      "name": "Noman Rashid",
       "gender": "m",
       "family": "",
       "birthdate": "",
@@ -1611,36 +1573,21 @@ const START_DATA = {
     {
       "type": "parent-child",
       "parentId": "pmndmv0pe6bnt",
-      "childId": "pmndn4sw3j1fb"
+      "childId": "f04"
     },
     {
       "type": "parent-child",
       "parentId": "pmndmvgb61us6",
-      "childId": "pmndn4sw3j1fb"
-    },
-    {
-      "type": "partner",
-      "person1Id": "pmndn4sw3j1fb",
-      "person2Id": "pmndn6f9u1nld"
+      "childId": "f04"
     },
     {
       "type": "parent-child",
-      "parentId": "pmndn6f9u1nld",
-      "childId": "pmndn78he1ui6"
-    },
-    {
-      "type": "parent-child",
-      "parentId": "pmndn4sw3j1fb",
-      "childId": "pmndn78he1ui6"
-    },
-    {
-      "type": "parent-child",
-      "parentId": "pmndn6f9u1nld",
+      "parentId": "f03",
       "childId": "pmndn7m9expkq"
     },
     {
       "type": "parent-child",
-      "parentId": "pmndn4sw3j1fb",
+      "parentId": "f04",
       "childId": "pmndn7m9expkq"
     },
     {
@@ -1661,12 +1608,12 @@ const START_DATA = {
     {
       "type": "parent-child",
       "parentId": "pmndnoxx6ndgz",
-      "childId": "pmndnrn9438x5"
+      "childId": "pmnd50hsephva"
     },
     {
       "type": "parent-child",
       "parentId": "pmndnpzkp3vwu",
-      "childId": "pmndnrn9438x5"
+      "childId": "pmnd50hsephva"
     },
     {
       "type": "parent-child",
