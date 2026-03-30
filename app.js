@@ -19,7 +19,7 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
 // ============================================================
 (function pinGuard() {
   const SESSION_KEY = 'fb_sess';
-  const STORE_KEY   = 'fb_pin_v1';
+  const STORE_KEY   = 'fb_pin_v2';
 
   // Versleutel PIN via PBKDF2-SHA256 (100k iteraties)
   async function deriveKey(pin, salt) {
@@ -41,7 +41,7 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
   // Initialiseer standaard PIN (2805) als er nog geen is opgeslagen
   async function ensureDefaultPin() {
     if (!localStorage.getItem(STORE_KEY)) {
-      const { hash, salt } = await hashPin('1993');
+      const { hash, salt } = await hashPin('5768');
       localStorage.setItem(STORE_KEY, JSON.stringify({ hash, salt }));
     }
   }
