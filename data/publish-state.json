@@ -1,5 +1,5 @@
 {
-  "_version": 20260330010,
+  "_version": 20260330011,
   "persons": [
     { "id": "s01", "name": "Wali Mohammad Sayedi",  "gender": "m", "birthdate": "01-07-1959", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
     { "id": "s02", "name": "Malika Durrani",         "gender": "f", "birthdate": "01-07-1962", "deathdate": "", "family": "Durrani",   "notes": "", "deceased": false },
