@@ -2061,6 +2061,24 @@ function renderLines(pos) {
   const botY = id => (pos[id]?.y || 0) + NODE_H;
   const topY = id => pos[id]?.y || 0;
 
+  // In "alle families" modus: bouw een lookup van persoon → primaire boom
+  // zodat we geen lijnen tekenen tussen personen uit verschillende bomen
+  let personPrimaryTree = null;
+  if (activeTreeId === null) {
+    personPrimaryTree = {};
+    const stambomen = computeStambomen();
+    stambomen.forEach(s => {
+      getStamboomPersons(s.headId).forEach(pid => {
+        if (!personPrimaryTree[pid]) personPrimaryTree[pid] = s.headId;
+      });
+    });
+  }
+
+  function samePrimaryTree(idA, idB) {
+    if (!personPrimaryTree) return true; // single-tree modus: altijd tekenen
+    return personPrimaryTree[idA] === personPrimaryTree[idB];
+  }
+
   // --- Partner lines ---
   const drawnPartners = new Set();
   state.relationships.forEach(r => {
@@ -2069,6 +2087,7 @@ function renderLines(pos) {
     if (drawnPartners.has(key)) return;
     drawnPartners.add(key);
     if (!pos[r.person1Id] || !pos[r.person2Id]) return;
+    if (!samePrimaryTree(r.person1Id, r.person2Id)) return;
 
     const leftId  = pos[r.person1Id].x <= pos[r.person2Id].x ? r.person1Id : r.person2Id;
     const rightId = leftId === r.person1Id ? r.person2Id : r.person1Id;
@@ -2098,9 +2117,18 @@ function renderLines(pos) {
   });
 
   familyGroups.forEach(({ parents, children }) => {
-    const validParents  = parents.filter(pid => pos[pid]);
-    const validChildren = [...children].filter(cid => pos[cid]);
+    // In alle-families modus: filter ouders en kinderen op dezelfde primaire boom
+    let validParents  = parents.filter(pid => pos[pid]);
+    let validChildren = [...children].filter(cid => pos[cid]);
     if (!validParents.length || !validChildren.length) return;
+
+    // Bepaal de primaire boom op basis van de eerste geldige ouder
+    if (personPrimaryTree) {
+      const primaryTree = personPrimaryTree[validParents[0]];
+      validParents  = validParents.filter(pid => personPrimaryTree[pid] === primaryTree);
+      validChildren = validChildren.filter(cid => personPrimaryTree[cid] === primaryTree);
+      if (!validParents.length || !validChildren.length) return;
+    }
 
     // Connection point: center of parents, bottom of lowest parent
     const parentCXs = validParents.map(pid => cx(pid));

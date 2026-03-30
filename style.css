@@ -619,6 +619,7 @@ body.readonly .card:hover   { cursor: default; }
   justify-content: center;
 }
 .modal.hidden { display: none; }
+.hidden { display: none !important; }
 
 .modal-backdrop {
   position: absolute;
