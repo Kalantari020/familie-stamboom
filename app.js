@@ -3138,7 +3138,7 @@ function showToast(msg, type = '', duration = 4000) {
 // ============================================================
 // PUBLICEER — via GitHub API → GitHub Actions → Netlify
 // ============================================================
-const GH_TOKEN = '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';
+const GH_TOKEN = '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';
 const GH_REPO  = 'Kalantari020/familie-stamboom';
 const GH_FILE  = 'data/publish-state.json';
 
