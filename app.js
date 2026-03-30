@@ -1887,6 +1887,7 @@ function computeLayout() {
 
   // --- Place gen 0 (roots + their partners) ---
   {
+    const TREE_EXTRA_GAP = 150; // extra ruimte tussen verschillende stambomen
     const gen0 = byGen[0] || [];
     const seen = new Set();
     const ordered = [];
@@ -1901,8 +1902,28 @@ function computeLayout() {
       if (seen.has(id)) return;
       seen.add(id); ordered.push(id);
     });
-    ordered.forEach((id, i) => {
-      pos[id] = { x: PADDING + i * (NODE_W + H_GAP), y: PADDING };
+
+    // Build a map from person id → tree head id (for detecting tree boundaries)
+    const personToTreeHead = {};
+    if (!activeTreeId) {
+      const stambomen = computeStambomen();
+      stambomen.forEach(s => {
+        getStamboomPersons(s.headId).forEach(pid => {
+          if (!personToTreeHead[pid]) personToTreeHead[pid] = s.headId;
+        });
+      });
+    }
+
+    let curX = PADDING;
+    let prevTreeHead = null;
+    ordered.forEach(id => {
+      const treeHead = personToTreeHead[id] || null;
+      if (prevTreeHead !== null && treeHead !== null && treeHead !== prevTreeHead) {
+        curX += TREE_EXTRA_GAP;
+      }
+      pos[id] = { x: curX, y: PADDING };
+      curX += NODE_W + H_GAP;
+      if (treeHead !== null) prevTreeHead = treeHead;
     });
   }
 
@@ -2199,13 +2220,29 @@ function renderCards(pos) {
     canvas.style.height = maxY + 'px';
   }
 
+  // Detect connector persons (appear in multiple tree groups) — only in all-families mode
+  const connectorPersonIds = new Set();
+  if (activeTreeId === null) {
+    const stambomen = computeStambomen();
+    const personTreeCount = {};
+    stambomen.forEach(s => {
+      getStamboomPersons(s.headId).forEach(pid => {
+        personTreeCount[pid] = (personTreeCount[pid] || 0) + 1;
+      });
+    });
+    Object.entries(personTreeCount).forEach(([pid, count]) => {
+      if (count > 1) connectorPersonIds.add(pid);
+    });
+  }
+
   state.persons.forEach(person => {
     const p = pos[person.id];
     if (!p) return;
 
     const gClass   = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
     const isUser   = person.id === USER_ID;
-    const cardClass = `card ${gClass}${isUser ? ' user' : ''}`;
+    const isConnector = connectorPersonIds.has(person.id);
+    const cardClass = `card ${gClass}${isUser ? ' user' : ''}${isConnector ? ' connector-person' : ''}`;
     const span = lifespan(person);
 
     const div = document.createElement('div');
@@ -2217,6 +2254,7 @@ function renderCards(pos) {
       ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
       : `<div class="card-avatar">${initials(person.name)}</div>`;
     div.innerHTML = `
+      ${isConnector && activeTreeId === null ? '<div class="connector-badge">🔗</div>' : ''}
       <div class="card-top">
         ${avatarHtml}
         <div class="card-info">
@@ -2358,12 +2396,45 @@ function scrollToCard(id) {
 }
 
 // ============================================================
+// TREE GROUP LABELS
+// ============================================================
+function renderTreeLabels(positions) {
+  // Remove old labels
+  const canvas = document.getElementById('canvas');
+  canvas.querySelectorAll('.tree-group-label').forEach(el => el.remove());
+
+  if (activeTreeId !== null) return; // alleen in alle-families modus
+
+  const stambomen = computeStambomen();
+  stambomen.forEach(s => {
+    const persons = getStamboomPersons(s.headId);
+    const xs = [], ys = [];
+    persons.forEach(pid => {
+      const p = positions[pid];
+      if (p) { xs.push(p.x); ys.push(p.y); }
+    });
+    if (!xs.length) return;
+
+    const minX = Math.min(...xs);
+    const minY = Math.min(...ys);
+
+    const label = document.createElement('div');
+    label.className = 'tree-group-label';
+    label.style.left = minX + 'px';
+    label.style.top  = (minY - 35) + 'px';
+    label.textContent = '🌳 Familie ' + s.label;
+    canvas.appendChild(label);
+  });
+}
+
+// ============================================================
 // FULL RENDER
 // ============================================================
 function render() {
   lastPositions = computeLayout();
   renderLines(lastPositions);
   renderCards(lastPositions);
+  renderTreeLabels(lastPositions);
   renderSidebar(document.getElementById('search').value);
 }
 

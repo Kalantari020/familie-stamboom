@@ -948,6 +948,44 @@ body.readonly .card:hover   { cursor: default; }
 .merge-result-family { font-size: 11px; color: var(--text-muted); }
 
 /* ============================================================
+   VERBINDINGSPERSONEN
+   ============================================================ */
+.card.connector-person {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3), 0 2px 8px rgba(0,0,0,0.12);
+}
+.connector-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Tree group labels */
+.tree-group-label {
+  position: absolute;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================
    RESPONSIVE — MOBIEL
    ============================================================ */
 .mobile-only  { display: none !important; }
