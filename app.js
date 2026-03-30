@@ -2921,73 +2921,32 @@ function openDetailModal(id) {
 
     ${READ_ONLY ? '' : `
     <div class="detail-section">
-      <div class="detail-section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>Toevoegen aan ${escHtml(person.name)}</span>
-        <button id="qa-mode-toggle" class="btn small secondary" style="font-size:11px">Meerdere kinderen</button>
+      <div class="detail-section-title">Toevoegen aan ${escHtml(person.name)}</div>
+
+      <!-- RELATIETYPE + ANDERE OUDER -->
+      <div class="quick-row" style="margin-bottom:6px">
+        <select id="qa-relation" style="flex:1">
+          <option value="child">Kind van ${escHtml(person.name)}</option>
+          <option value="partner">Partner van ${escHtml(person.name)}</option>
+          <option value="parent">Ouder van ${escHtml(person.name)}</option>
+        </select>
+      </div>
+      <div id="qa-other-parent-row" class="quick-row" style="margin-bottom:6px;display:none">
+        <label style="font-size:12px;color:var(--text-muted);flex:1;display:flex;align-items:center;gap:6px">
+          Andere ouder:
+          <select id="qa-other-parent" style="flex:1">
+            <option value="">— geen / onbekend —</option>
+            ${partners.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
+            ${state.persons.filter(p => p.id !== id && !partners.find(pp=>pp.id===p.id)).map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
+          </select>
+        </label>
       </div>
 
-      <!-- ENKELVOUDIG FORMULIER -->
-      <form id="form-quick-add" autocomplete="off">
-        <!-- Naamveld met autocomplete: bestaande én nieuwe personen -->
-        <div style="position:relative;margin-bottom:6px">
-          <div class="quick-row" style="margin-bottom:0">
-            <input type="text" id="qa-name" placeholder="Naam (bestaand of nieuw)" style="flex:2" autocomplete="off">
-            <select id="qa-gender">
-              <option value="m">Man</option>
-              <option value="f">Vrouw</option>
-              <option value="?">?</option>
-            </select>
-          </div>
-          <div id="qa-autocomplete-list" style="display:none;position:absolute;left:0;right:0;z-index:200;background:#1e293b;border:1px solid var(--border);border-radius:6px;max-height:180px;overflow-y:auto;margin-top:2px"></div>
-        </div>
-        <input type="hidden" id="qa-existing-id">
-        <div class="quick-row" id="qa-birthdate-row">
-          <input type="text" id="qa-birthdate" placeholder="Geboortedatum (bijv. 15-05-1990)" style="flex:2">
-        </div>
-
-        <div class="quick-row">
-          <select id="qa-relation">
-            <option value="partner">Partner van ${escHtml(person.name)}</option>
-            <option value="child">Kind van ${escHtml(person.name)}</option>
-            <option value="parent">Ouder van ${escHtml(person.name)}</option>
-          </select>
-          <button type="submit" class="btn primary">Toevoegen</button>
-        </div>
-        <div id="qa-other-parent-row" class="quick-row hidden">
-          <label style="font-size:13px;color:var(--text-muted);flex:1">
-            Andere ouder:
-            <select id="qa-other-parent" style="margin-left:6px">
-              <option value="">— geen / onbekend —</option>
-              ${partners.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
-              ${state.persons.filter(p => p.id !== id && !partners.find(pp=>pp.id===p.id)).map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
-            </select>
-          </label>
-        </div>
-      </form>
-
-      <!-- BULK KINDEREN FORMULIER -->
-      <div id="qa-bulk-section" class="hidden">
-        <div class="quick-row" style="margin-bottom:4px">
-          <label style="font-size:13px;color:var(--text-muted);flex:1">
-            Andere ouder:
-            <select id="qa-bulk-other-parent" style="margin-left:6px">
-              <option value="">— geen / onbekend —</option>
-              ${partners.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
-              ${state.persons.filter(p => p.id !== id && !partners.find(pp=>pp.id===p.id)).map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('')}
-            </select>
-          </label>
-        </div>
-        <div id="qa-bulk-rows">
-          <div class="quick-row qa-bulk-row">
-            <input type="text" class="qa-bulk-name" placeholder="Naam kind" style="flex:2">
-            <select class="qa-bulk-gender"><option value="m">M</option><option value="f">V</option><option value="?">?</option></select>
-            <input type="text" class="qa-bulk-bd" placeholder="Geboortedatum" style="flex:2">
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="qa-bulk-add-row" class="btn small secondary">+ Rij toevoegen</button>
-          <button id="qa-bulk-submit" class="btn primary">Alle kinderen opslaan</button>
-        </div>
+      <!-- RIJEN MET AUTOCOMPLETE -->
+      <div id="qa-rows-container"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="qa-add-row" class="btn small secondary">+ Rij toevoegen</button>
+        <button id="qa-save-all" class="btn primary">Opslaan</button>
       </div>
     </div>
     `}
@@ -3038,196 +2997,164 @@ function openDetailModal(id) {
     modal.classList.add('hidden');
   });
 
-  // Toggle enkelvoudig ↔ bulk modus
-  const modeToggle = modal.querySelector('#qa-mode-toggle');
-  const singleForm = modal.querySelector('#form-quick-add');
-  const bulkSection = modal.querySelector('#qa-bulk-section');
-  if (modeToggle) {
-    modeToggle.addEventListener('click', () => {
-      const isBulk = !bulkSection.classList.contains('hidden');
-      if (isBulk) {
-        bulkSection.classList.add('hidden');
-        singleForm.classList.remove('hidden');
-        modeToggle.textContent = 'Meerdere kinderen';
-      } else {
-        singleForm.classList.add('hidden');
-        bulkSection.classList.remove('hidden');
-        modeToggle.textContent = 'Één persoon';
-      }
-    });
-  }
-
-  // Autocomplete op het naamveld — toont bestaande personen als suggesties
-  let qaPickerSelectedId = null;
-  const qaNameInput    = modal.querySelector('#qa-name');
-  const qaAutoList     = modal.querySelector('#qa-autocomplete-list');
-  const qaExistingId   = modal.querySelector('#qa-existing-id');
-  const qaBirthdateRow = modal.querySelector('#qa-birthdate-row');
-  const qaGender       = modal.querySelector('#qa-gender');
-
-  function closeAutoList() { if (qaAutoList) qaAutoList.style.display = 'none'; }
-
-  if (qaNameInput && qaAutoList) {
-    qaNameInput.addEventListener('input', () => {
-      const q = qaNameInput.value.trim().toLowerCase();
-      qaPickerSelectedId = null;
-      qaExistingId.value = '';
-      if (qaBirthdateRow) qaBirthdateRow.style.display = '';
-      if (qaGender) qaGender.style.display = '';
-      if (!q) { closeAutoList(); return; }
-      const matches = state.persons
-        .filter(p => p.id !== id && p.name.toLowerCase().includes(q))
-        .slice(0, 8);
-      if (!matches.length) { closeAutoList(); return; }
-      qaAutoList.innerHTML = matches.map(p => {
-        const gi = p.gender === 'm' ? '♂' : p.gender === 'f' ? '♀' : '⚧';
-        return `<div class="person-picker-item" data-id="${p.id}">
-          <span>${gi}</span>
-          <span>${escHtml(p.name)}</span>
-          ${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}
-        </div>`;
-      }).join('');
-      qaAutoList.style.display = 'block';
-      qaAutoList.querySelectorAll('.person-picker-item').forEach(item => {
-        item.addEventListener('mousedown', e => {
-          e.preventDefault();
-          const pid = item.dataset.id;
-          const person = state.persons.find(p => p.id === pid);
-          if (!person) return;
-          qaPickerSelectedId = pid;
-          qaExistingId.value = pid;
-          qaNameInput.value = person.name + (person.family ? ` (${person.family})` : '');
-          if (qaBirthdateRow) qaBirthdateRow.style.display = 'none';
-          if (qaGender) qaGender.style.display = 'none';
-          closeAutoList();
-        });
-      });
-    });
-    qaNameInput.addEventListener('blur', () => setTimeout(closeAutoList, 150));
-  }
-
-  // Show/hide "andere ouder" row in enkelvoudig formulier
-  const qaRelation = modal.querySelector('#qa-relation');
+  // ── Show/hide "andere ouder" row ──────────────────────────────
+  const qaRelation     = modal.querySelector('#qa-relation');
   const qaOtherParentRow = modal.querySelector('#qa-other-parent-row');
   if (qaRelation && qaOtherParentRow) {
     qaRelation.addEventListener('change', () => {
-      qaOtherParentRow.classList.toggle('hidden', qaRelation.value !== 'child');
+      qaOtherParentRow.style.display = qaRelation.value === 'child' ? '' : 'none';
     });
   }
 
-  // Enkelvoudig form submit
-  if (singleForm) {
-    singleForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const relation = modal.querySelector('#qa-relation').value;
-      const isExisting = !!(qaExistingId && qaExistingId.value);
+  // ── Helper: maak één autocomplete-rij ─────────────────────────
+  function createQaRow() {
+    const row = document.createElement('div');
+    row.className = 'quick-row qa-multi-row';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;position:relative;flex-wrap:wrap';
+    row.innerHTML = `
+      <div style="position:relative;flex:3;min-width:140px">
+        <input type="text" class="qa-row-name" placeholder="Naam (bestaand of nieuw)" style="width:100%;box-sizing:border-box">
+        <input type="hidden" class="qa-row-existing-id">
+        <div class="qa-row-autocomplete" style="display:none;position:absolute;left:0;right:0;top:100%;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;z-index:9999;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
+      </div>
+      <select class="qa-row-gender" style="width:62px;flex-shrink:0">
+        <option value="m">Man</option>
+        <option value="f">Vrouw</option>
+        <option value="?">?</option>
+      </select>
+      <input type="text" class="qa-row-bd" placeholder="Geboortejaar" style="flex:2;min-width:90px">
+      <button type="button" class="btn small danger qa-row-remove" style="flex-shrink:0;padding:4px 8px">✕</button>
+    `;
 
-      if (isExisting) {
-        // --- Bestaande persoon geselecteerd via autocomplete ---
-        const targetId = qaExistingId.value;
+    const nameInput  = row.querySelector('.qa-row-name');
+    const existingId = row.querySelector('.qa-row-existing-id');
+    const autoList   = row.querySelector('.qa-row-autocomplete');
+    const genderSel  = row.querySelector('.qa-row-gender');
+    const bdInput    = row.querySelector('.qa-row-bd');
+    const removeBtn  = row.querySelector('.qa-row-remove');
 
-        // Duplicate check
-        if (relation === 'partner') {
-          const exists = state.relationships.some(r =>
-            r.type === 'partner' &&
-            ((r.person1Id === id && r.person2Id === targetId) || (r.person1Id === targetId && r.person2Id === id))
-          );
-          if (exists) { alert('Deze partnerrelatie bestaat al.'); return; }
-          state.relationships.push({ type: 'partner', person1Id: id, person2Id: targetId });
-        } else if (relation === 'child') {
-          const exists = state.relationships.some(r =>
-            r.type === 'parent-child' && r.parentId === id && r.childId === targetId
-          );
-          if (exists) { alert('Deze ouder-kind relatie bestaat al.'); return; }
-          state.relationships.push({ type: 'parent-child', parentId: id, childId: targetId });
-          const otherParentEl = modal.querySelector('#qa-other-parent');
-          if (otherParentEl && otherParentEl.value) {
-            state.relationships.push({ type: 'parent-child', parentId: otherParentEl.value, childId: targetId });
-          }
-        } else if (relation === 'parent') {
-          const exists = state.relationships.some(r =>
-            r.type === 'parent-child' && r.parentId === targetId && r.childId === id
-          );
-          if (exists) { alert('Deze ouder-kind relatie bestaat al.'); return; }
-          state.relationships.push({ type: 'parent-child', parentId: targetId, childId: id });
-        }
+    removeBtn.addEventListener('click', () => row.remove());
 
-        saveState();
-        modal.classList.add('hidden');
-        render();
-        setTimeout(() => scrollToCard(targetId), 100);
+    nameInput.addEventListener('input', () => {
+      const q = nameInput.value.trim().toLowerCase();
+      existingId.value = '';
+      row.dataset.locked = '';
+      genderSel.disabled = false;
+      bdInput.disabled   = false;
+      if (!q) { autoList.style.display = 'none'; return; }
+      const matches = state.persons
+        .filter(p => p.id !== id && p.name.toLowerCase().includes(q))
+        .slice(0, 10);
+      if (!matches.length) { autoList.style.display = 'none'; return; }
+      autoList.innerHTML = matches.map(p => {
+        const gi = p.gender === 'm' ? '♂' : p.gender === 'f' ? '♀' : '⚧';
+        const bd = p.birthdate ? ` · ${p.birthdate}` : '';
+        return `<div class="person-picker-item" data-id="${p.id}" style="padding:8px 10px;cursor:pointer;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border)">
+          <span>${gi}</span>
+          <span style="flex:1">${escHtml(p.name)}</span>
+          ${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}
+          <span style="color:var(--text-muted);font-size:11px">${bd}</span>
+        </div>`;
+      }).join('');
+      autoList.style.display = 'block';
+      autoList.querySelectorAll('.person-picker-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          const pid = item.dataset.id;
+          const p   = state.persons.find(x => x.id === pid);
+          if (!p) return;
+          existingId.value   = pid;
+          nameInput.value    = p.name;
+          genderSel.value    = p.gender || '?';
+          bdInput.value      = p.birthdate || '';
+          genderSel.disabled = true;
+          bdInput.disabled   = true;
+          row.dataset.locked = '1';
+          autoList.style.display = 'none';
+        });
+      });
+    });
 
-      } else {
-        // --- Nieuwe persoon aanmaken ---
-        const name      = modal.querySelector('#qa-name').value.trim();
-        const gender    = modal.querySelector('#qa-gender').value;
-        const birthdate = modal.querySelector('#qa-birthdate').value.trim();
-        if (!name) return;
+    nameInput.addEventListener('blur', () => setTimeout(() => { autoList.style.display = 'none'; }, 200));
 
-        const newPerson = { id: uid(), name, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
-        state.persons.push(newPerson);
+    return row;
+  }
 
-        if (relation === 'partner') {
-          state.relationships.push({ type: 'partner', person1Id: id, person2Id: newPerson.id });
-        } else if (relation === 'child') {
-          state.relationships.push({ type: 'parent-child', parentId: id, childId: newPerson.id });
-          const otherParentEl = modal.querySelector('#qa-other-parent');
-          if (otherParentEl && otherParentEl.value) {
-            state.relationships.push({ type: 'parent-child', parentId: otherParentEl.value, childId: newPerson.id });
-          }
-        } else if (relation === 'parent') {
-          state.relationships.push({ type: 'parent-child', parentId: newPerson.id, childId: id });
-        }
+  // ── Render 6 standaard rijen ───────────────────────────────────
+  const qaRowsContainer = modal.querySelector('#qa-rows-container');
+  if (qaRowsContainer) {
+    for (let i = 0; i < 6; i++) {
+      qaRowsContainer.appendChild(createQaRow());
+    }
+  }
 
-        saveState();
-        modal.classList.add('hidden');
-        render();
-        setTimeout(() => scrollToCard(newPerson.id), 100);
-        checkSmartLink(newPerson.id);
-      }
+  // ── + Rij toevoegen ───────────────────────────────────────────
+  const qaAddRow = modal.querySelector('#qa-add-row');
+  if (qaAddRow && qaRowsContainer) {
+    qaAddRow.addEventListener('click', () => {
+      const newRow = createQaRow();
+      qaRowsContainer.appendChild(newRow);
+      newRow.querySelector('.qa-row-name').focus();
     });
   }
 
-  // Bulk: rij toevoegen
-  const bulkRowsContainer = modal.querySelector('#qa-bulk-rows');
-  const addRowBtn = modal.querySelector('#qa-bulk-add-row');
-  if (addRowBtn) {
-    addRowBtn.addEventListener('click', () => {
-      const row = document.createElement('div');
-      row.className = 'quick-row qa-bulk-row';
-      row.innerHTML = `
-        <input type="text" class="qa-bulk-name" placeholder="Naam kind" style="flex:2">
-        <select class="qa-bulk-gender"><option value="m">M</option><option value="f">V</option><option value="?">?</option></select>
-        <input type="text" class="qa-bulk-bd" placeholder="Geboortedatum" style="flex:2">
-        <button type="button" class="btn small danger qa-bulk-remove" style="flex-shrink:0">✕</button>
-      `;
-      row.querySelector('.qa-bulk-remove').addEventListener('click', () => row.remove());
-      bulkRowsContainer.appendChild(row);
-    });
-  }
-
-  // Bulk: opslaan
-  const bulkSubmit = modal.querySelector('#qa-bulk-submit');
-  if (bulkSubmit) {
-    bulkSubmit.addEventListener('click', () => {
-      const otherParent = modal.querySelector('#qa-bulk-other-parent')?.value || '';
-      const rows = [...modal.querySelectorAll('.qa-bulk-row')];
-      const toScroll = [];
+  // ── Opslaan ───────────────────────────────────────────────────
+  const qaSaveAll = modal.querySelector('#qa-save-all');
+  if (qaSaveAll && qaRowsContainer) {
+    qaSaveAll.addEventListener('click', () => {
+      const relation    = qaRelation ? qaRelation.value : 'child';
+      const otherParent = modal.querySelector('#qa-other-parent')?.value || '';
+      const rows        = [...qaRowsContainer.querySelectorAll('.qa-multi-row')];
+      const toScroll    = [];
       let added = 0;
 
       rows.forEach(row => {
-        const name      = row.querySelector('.qa-bulk-name').value.trim();
-        const gender    = row.querySelector('.qa-bulk-gender').value;
-        const birthdate = row.querySelector('.qa-bulk-bd').value.trim();
-        if (!name) return;
+        const nameTxt    = row.querySelector('.qa-row-name').value.trim();
+        const existId    = row.querySelector('.qa-row-existing-id').value;
+        const gender     = row.querySelector('.qa-row-gender').value;
+        const birthdate  = row.querySelector('.qa-row-bd').value.trim();
+        if (!nameTxt) return;
 
-        const newPerson = { id: uid(), name, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
-        state.persons.push(newPerson);
-        state.relationships.push({ type: 'parent-child', parentId: id, childId: newPerson.id });
-        if (otherParent) {
-          state.relationships.push({ type: 'parent-child', parentId: otherParent, childId: newPerson.id });
+        if (existId) {
+          // ── Bestaande persoon: alleen relatie aanmaken ──────────
+          if (relation === 'partner') {
+            const exists = state.relationships.some(r =>
+              r.type === 'partner' &&
+              ((r.person1Id === id && r.person2Id === existId) || (r.person1Id === existId && r.person2Id === id))
+            );
+            if (!exists) state.relationships.push({ type: 'partner', person1Id: id, person2Id: existId });
+          } else if (relation === 'child') {
+            const exists = state.relationships.some(r =>
+              r.type === 'parent-child' && r.parentId === id && r.childId === existId
+            );
+            if (!exists) {
+              state.relationships.push({ type: 'parent-child', parentId: id, childId: existId });
+              if (otherParent) state.relationships.push({ type: 'parent-child', parentId: otherParent, childId: existId });
+            }
+          } else if (relation === 'parent') {
+            const exists = state.relationships.some(r =>
+              r.type === 'parent-child' && r.parentId === existId && r.childId === id
+            );
+            if (!exists) state.relationships.push({ type: 'parent-child', parentId: existId, childId: id });
+          }
+          toScroll.push(existId);
+
+        } else {
+          // ── Nieuwe persoon aanmaken + relatie ───────────────────
+          const newPerson = { id: uid(), name: nameTxt, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
+          state.persons.push(newPerson);
+
+          if (relation === 'partner') {
+            state.relationships.push({ type: 'partner', person1Id: id, person2Id: newPerson.id });
+          } else if (relation === 'child') {
+            state.relationships.push({ type: 'parent-child', parentId: id, childId: newPerson.id });
+            if (otherParent) state.relationships.push({ type: 'parent-child', parentId: otherParent, childId: newPerson.id });
+          } else if (relation === 'parent') {
+            state.relationships.push({ type: 'parent-child', parentId: newPerson.id, childId: id });
+          }
+          toScroll.push(newPerson.id);
+          checkSmartLink(newPerson.id);
         }
-        toScroll.push(newPerson.id);
         added++;
       });
 
@@ -3236,7 +3163,8 @@ function openDetailModal(id) {
       modal.classList.add('hidden');
       render();
       if (toScroll.length) setTimeout(() => scrollToCard(toScroll[0]), 100);
-      showToast(`✅ ${added} kind${added > 1 ? 'eren' : ''} toegevoegd`, 'success', 3000);
+      const relLabel = relation === 'child' ? 'kind' : relation === 'partner' ? 'partner' : 'ouder';
+      showToast(`✅ ${added} ${relLabel}${added > 1 && relation === 'child' ? 'eren' : added > 1 ? 's' : ''} toegevoegd`, 'success', 3000);
     });
   }
 }
