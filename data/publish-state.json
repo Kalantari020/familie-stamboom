@@ -1,109 +1,717 @@
 {
-  "_version": 20260330011,
+  "_version": 1774906638567,
   "persons": [
-    { "id": "s01", "name": "Wali Mohammad Sayedi",  "gender": "m", "birthdate": "01-07-1959", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s02", "name": "Malika Durrani",         "gender": "f", "birthdate": "01-07-1962", "deathdate": "", "family": "Durrani",   "notes": "", "deceased": false },
-    { "id": "s03", "name": "Ajab Khan Sayedi",       "gender": "m", "birthdate": "10-12-1988", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s04", "name": "Sanga Hassanzai",        "gender": "f", "birthdate": "27-06-1990", "deathdate": "", "family": "Hassanzai", "notes": "", "deceased": false },
-    { "id": "s05", "name": "Ajmal Khan Sayedi",      "gender": "m", "birthdate": "09-11-1989", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s06", "name": "Helai Sayedi",           "gender": "f", "birthdate": "03-10-1991", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s07", "name": "Gaffar Khan Rashid",     "gender": "m", "birthdate": "02-02-1984", "deathdate": "", "family": "Rashid",    "notes": "", "deceased": false },
-    { "id": "s08", "name": "Benjamin Rahman Rashid", "gender": "m", "birthdate": "25-06-2019", "deathdate": "", "family": "Rashid",    "notes": "", "deceased": false },
-    { "id": "s09", "name": "Fereshta Sayedi",        "gender": "f", "birthdate": "27-08-1992", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s10", "name": "Jawed Sabur Alokozay",   "gender": "m", "birthdate": "15-03-1988", "deathdate": "", "family": "Alokozay",  "notes": "", "deceased": false },
-    { "id": "s11", "name": "Hakim Khan Sayedi",      "gender": "m", "birthdate": "15-07-1993", "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s12", "name": "Halima Sayedi",          "gender": "f", "birthdate": "",           "deathdate": "", "family": "Sayedi",    "notes": "", "deceased": false },
-    { "id": "s13", "name": "Saleh Mohammad Raoefi",  "gender": "m", "birthdate": "",           "deathdate": "", "family": "Raoefi",    "notes": "", "deceased": false },
-    { "id": "s14", "name": "Amira Nora Raoefi",      "gender": "f", "birthdate": "20-07-2022", "deathdate": "", "family": "Raoefi",    "notes": "", "deceased": false },
-    { "id": "s15", "name": "Lina Maryam Raoefi",     "gender": "f", "birthdate": "08-11-2023", "deathdate": "", "family": "Raoefi",    "notes": "", "deceased": false },
-    { "id": "f01", "name": "Khanaga Faizi",      "gender": "m", "birthdate": "05-01-1965", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f02", "name": "Benazier Rashid",    "gender": "f", "birthdate": "03-12-1967", "deathdate": "", "family": "Rashid", "notes": "", "deceased": false },
-    { "id": "f03", "name": "Hemat Faizi",        "gender": "m", "birthdate": "02-06-1996", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f04", "name": "Husna Amiri",        "gender": "f", "birthdate": "24-11-2001", "deathdate": "", "family": "Amiri",  "notes": "", "deceased": false },
-    { "id": "f05", "name": "Amina Faizi",        "gender": "f", "birthdate": "17-01-2024", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f06", "name": "Nilab Faizi",        "gender": "f", "birthdate": "21-03-1997", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f07", "name": "Emamuddin Salehi",   "gender": "m", "birthdate": "05-09-1989", "deathdate": "", "family": "Salehi", "notes": "", "deceased": false },
-    { "id": "f08", "name": "Muhammad Salehi",    "gender": "m", "birthdate": "10-05-2019", "deathdate": "", "family": "Salehi", "notes": "", "deceased": false },
-    { "id": "f09", "name": "Ahmad Salehi",       "gender": "m", "birthdate": "20-06-2020", "deathdate": "", "family": "Salehi", "notes": "", "deceased": false },
-    { "id": "f10", "name": "Alia Faizi",         "gender": "f", "birthdate": "28-09-1998", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f11", "name": "Rahimgul Salehi",    "gender": "m", "birthdate": "",           "deathdate": "", "family": "Salehi", "notes": "", "deceased": false },
-    { "id": "f12", "name": "Zainab Salehi",      "gender": "f", "birthdate": "",           "deathdate": "", "family": "Salehi", "notes": "", "deceased": false },
-    { "id": "f13", "name": "Meraj Faizi",        "gender": "m", "birthdate": "08-04-2003", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f14", "name": "Mona Saidi",         "gender": "f", "birthdate": "",           "deathdate": "", "family": "Saidi",  "notes": "", "deceased": false },
-    { "id": "f15", "name": "Erfan Faizi",        "gender": "m", "birthdate": "04-01-2006", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f16", "name": "Alina Faizi",        "gender": "f", "birthdate": "25-02-2008", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "f17", "name": "Hamza Faizi",        "gender": "m", "birthdate": "18-12-2009", "deathdate": "", "family": "Faizi",  "notes": "", "deceased": false },
-    { "id": "pmncyghyo65ha", "name": "Mirwais Khan Wazir Sayedi",  "gender": "m", "birthdate": "08-11-2025", "deathdate": "", "family": "Sayedi",  "notes": "", "deceased": false },
-    { "id": "pmnczpeoyc4hd", "name": "Arman Haydar Khan Alokozay", "gender": "m", "birthdate": "10-03-2025", "deathdate": "", "family": "Sayedi",  "notes": "", "deceased": false },
-    { "id": "r01",           "name": "Abed Rahmani",               "gender": "m", "birthdate": "01-01-1990", "deathdate": "", "family": "Rahmani", "notes": "", "deceased": false },
-    { "id": "r02",           "name": "Palwasha Faizi",             "gender": "f", "birthdate": "03-06-1991", "deathdate": "", "family": "Faizi",   "notes": "", "deceased": false },
-    { "id": "r03",           "name": "Yaqub Rahmani",              "gender": "m", "birthdate": "13-11-2019", "deathdate": "", "family": "Rahmani", "notes": "", "deceased": false },
-    { "id": "r04",           "name": "Muzammil Rahmani",           "gender": "m", "birthdate": "04-12-2020", "deathdate": "", "family": "Rahmani", "notes": "", "deceased": false },
-    { "id": "pmnd4qyb1ywgb", "name": "Asiya Faizi",               "gender": "f", "birthdate": "16-09-2025", "deathdate": "", "family": "Faizi",   "notes": "", "deceased": false },
-    { "id": "pmnd50hsephva", "name": "Noman Rashid",               "gender": "m", "birthdate": "",           "deathdate": "", "family": "Faizi",   "notes": "", "deceased": false }
+    {
+      "id": "s01",
+      "name": "Wali Mohammad Sayedi",
+      "gender": "m",
+      "birthdate": "01-07-1959",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s02",
+      "name": "Malika Durrani",
+      "gender": "f",
+      "birthdate": "01-07-1962",
+      "deathdate": "",
+      "family": "Durrani",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s03",
+      "name": "Ajab Khan Sayedi",
+      "gender": "m",
+      "birthdate": "10-12-1988",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s04",
+      "name": "Sanga Hassanzai",
+      "gender": "f",
+      "birthdate": "27-06-1990",
+      "deathdate": "",
+      "family": "Hassanzai",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s05",
+      "name": "Ajmal Khan Sayedi",
+      "gender": "m",
+      "birthdate": "09-11-1989",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s06",
+      "name": "Helai Sayedi",
+      "gender": "f",
+      "birthdate": "03-10-1991",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s07",
+      "name": "Gaffar Khan Rashid",
+      "gender": "m",
+      "birthdate": "02-02-1984",
+      "deathdate": "",
+      "family": "Rashid",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s08",
+      "name": "Benjamin Rahman Rashid",
+      "gender": "m",
+      "birthdate": "25-06-2019",
+      "deathdate": "",
+      "family": "Rashid",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s09",
+      "name": "Fereshta Sayedi",
+      "gender": "f",
+      "birthdate": "27-08-1992",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s10",
+      "name": "Jawed Sabur Alokozay",
+      "gender": "m",
+      "birthdate": "15-03-1988",
+      "deathdate": "",
+      "family": "Alokozay",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s11",
+      "name": "Hakim Khan Sayedi",
+      "gender": "m",
+      "birthdate": "15-07-1993",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s12",
+      "name": "Halima Sayedi",
+      "gender": "f",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s13",
+      "name": "Saleh Mohammad Raoefi",
+      "gender": "m",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Raoefi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s14",
+      "name": "Amira Nora Raoefi",
+      "gender": "f",
+      "birthdate": "20-07-2022",
+      "deathdate": "",
+      "family": "Raoefi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "s15",
+      "name": "Lina Maryam Raoefi",
+      "gender": "f",
+      "birthdate": "08-11-2023",
+      "deathdate": "",
+      "family": "Raoefi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f01",
+      "name": "Khanaga Faizi",
+      "gender": "m",
+      "birthdate": "05-01-1965",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f02",
+      "name": "Benazier Rashid",
+      "gender": "f",
+      "birthdate": "03-12-1967",
+      "deathdate": "",
+      "family": "Rashid",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f03",
+      "name": "Hemat Faizi",
+      "gender": "m",
+      "birthdate": "02-06-1996",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f04",
+      "name": "Husna Amiri",
+      "gender": "f",
+      "birthdate": "24-11-2001",
+      "deathdate": "",
+      "family": "Amiri",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f05",
+      "name": "Amina Faizi",
+      "gender": "f",
+      "birthdate": "17-01-2024",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f06",
+      "name": "Nilab Faizi",
+      "gender": "f",
+      "birthdate": "21-03-1997",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f07",
+      "name": "Emamuddin Salehi",
+      "gender": "m",
+      "birthdate": "05-09-1989",
+      "deathdate": "",
+      "family": "Salehi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f08",
+      "name": "Muhammad Salehi",
+      "gender": "m",
+      "birthdate": "10-05-2019",
+      "deathdate": "",
+      "family": "Salehi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f09",
+      "name": "Ahmad Salehi",
+      "gender": "m",
+      "birthdate": "20-06-2020",
+      "deathdate": "",
+      "family": "Salehi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f10",
+      "name": "Alia Faizi",
+      "gender": "f",
+      "birthdate": "28-09-1998",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f11",
+      "name": "Rahimgul Salehi",
+      "gender": "m",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Salehi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f12",
+      "name": "Zainab Salehi",
+      "gender": "f",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Salehi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f13",
+      "name": "Meraj Faizi",
+      "gender": "m",
+      "birthdate": "08-04-2003",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f14",
+      "name": "Mona Saidi",
+      "gender": "f",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Saidi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f15",
+      "name": "Erfan Faizi",
+      "gender": "m",
+      "birthdate": "04-01-2006",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f16",
+      "name": "Alina Faizi",
+      "gender": "f",
+      "birthdate": "25-02-2008",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "f17",
+      "name": "Hamza Faizi",
+      "gender": "m",
+      "birthdate": "18-12-2009",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmncyghyo65ha",
+      "name": "Mirwais Khan Wazir Sayedi",
+      "gender": "m",
+      "birthdate": "08-11-2025",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnczpeoyc4hd",
+      "name": "Arman Haydar Khan Alokozay",
+      "gender": "m",
+      "birthdate": "10-03-2025",
+      "deathdate": "",
+      "family": "Sayedi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "r01",
+      "name": "Abed Rahmani",
+      "gender": "m",
+      "birthdate": "01-01-1990",
+      "deathdate": "",
+      "family": "Rahmani",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "r02",
+      "name": "Palwasha Faizi",
+      "gender": "f",
+      "birthdate": "03-06-1991",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "r03",
+      "name": "Yaqub Rahmani",
+      "gender": "m",
+      "birthdate": "13-11-2019",
+      "deathdate": "",
+      "family": "Rahmani",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "r04",
+      "name": "Muzammil Rahmani",
+      "gender": "m",
+      "birthdate": "04-12-2020",
+      "deathdate": "",
+      "family": "Rahmani",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnd4qyb1ywgb",
+      "name": "Asiya Faizi",
+      "gender": "f",
+      "birthdate": "16-09-2025",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnd50hsephva",
+      "name": "Noman Rashid",
+      "gender": "m",
+      "birthdate": "",
+      "deathdate": "",
+      "family": "Faizi",
+      "notes": "",
+      "deceased": false
+    }
   ],
   "relationships": [
-    { "type": "partner",      "person1Id": "s01", "person2Id": "s02" },
-    { "type": "partner",      "person1Id": "s03", "person2Id": "s04" },
-    { "type": "partner",      "person1Id": "s06", "person2Id": "s07" },
-    { "type": "partner",      "person1Id": "s09", "person2Id": "s10" },
-    { "type": "partner",      "person1Id": "s12", "person2Id": "s13" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s03" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s03" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s05" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s05" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s06" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s06" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s09" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s09" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s11" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s11" },
-    { "type": "parent-child", "parentId": "s01", "childId": "s12" },
-    { "type": "parent-child", "parentId": "s02", "childId": "s12" },
-    { "type": "parent-child", "parentId": "s06", "childId": "s08" },
-    { "type": "parent-child", "parentId": "s07", "childId": "s08" },
-    { "type": "parent-child", "parentId": "s12", "childId": "s14" },
-    { "type": "parent-child", "parentId": "s13", "childId": "s14" },
-    { "type": "parent-child", "parentId": "s12", "childId": "s15" },
-    { "type": "parent-child", "parentId": "s13", "childId": "s15" },
-    { "type": "parent-child", "parentId": "s03", "childId": "pmncyghyo65ha" },
-    { "type": "parent-child", "parentId": "s04", "childId": "pmncyghyo65ha" },
-    { "type": "parent-child", "parentId": "s09", "childId": "pmnczpeoyc4hd" },
-    { "type": "parent-child", "parentId": "s10", "childId": "pmnczpeoyc4hd" },
-    { "type": "partner",      "person1Id": "f01", "person2Id": "f02" },
-    { "type": "partner",      "person1Id": "f03", "person2Id": "f04" },
-    { "type": "partner",      "person1Id": "f06", "person2Id": "f07" },
-    { "type": "partner",      "person1Id": "f10", "person2Id": "f11" },
-    { "type": "partner",      "person1Id": "f13", "person2Id": "f14" },
-    { "type": "partner",      "person1Id": "f16", "person2Id": "pmnd50hsephva" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f03" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f03" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f06" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f06" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f10" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f10" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f13" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f13" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f15" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f15" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f16" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f16" },
-    { "type": "parent-child", "parentId": "f01", "childId": "f17" },
-    { "type": "parent-child", "parentId": "f02", "childId": "f17" },
-    { "type": "parent-child", "parentId": "f03", "childId": "f05" },
-    { "type": "parent-child", "parentId": "f04", "childId": "f05" },
-    { "type": "parent-child", "parentId": "f06", "childId": "f08" },
-    { "type": "parent-child", "parentId": "f07", "childId": "f08" },
-    { "type": "parent-child", "parentId": "f06", "childId": "f09" },
-    { "type": "parent-child", "parentId": "f07", "childId": "f09" },
-    { "type": "parent-child", "parentId": "f10", "childId": "f12" },
-    { "type": "parent-child", "parentId": "f11", "childId": "f12" },
-    { "type": "parent-child", "parentId": "f03", "childId": "pmnd4qyb1ywgb" },
-    { "type": "parent-child", "parentId": "f04", "childId": "pmnd4qyb1ywgb" },
-    { "type": "partner",      "person1Id": "r01", "person2Id": "r02" },
-    { "type": "parent-child", "parentId": "r01", "childId": "r03" },
-    { "type": "parent-child", "parentId": "r02", "childId": "r03" },
-    { "type": "parent-child", "parentId": "r01", "childId": "r04" },
-    { "type": "parent-child", "parentId": "r02", "childId": "r04" }
+    {
+      "type": "partner",
+      "person1Id": "s01",
+      "person2Id": "s02"
+    },
+    {
+      "type": "partner",
+      "person1Id": "s03",
+      "person2Id": "s04"
+    },
+    {
+      "type": "partner",
+      "person1Id": "s06",
+      "person2Id": "s07"
+    },
+    {
+      "type": "partner",
+      "person1Id": "s09",
+      "person2Id": "s10"
+    },
+    {
+      "type": "partner",
+      "person1Id": "s12",
+      "person2Id": "s13"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s05"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s05"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s06"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s06"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s09"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s09"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s11"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s11"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s01",
+      "childId": "s12"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s02",
+      "childId": "s12"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s06",
+      "childId": "s08"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s07",
+      "childId": "s08"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s12",
+      "childId": "s14"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s13",
+      "childId": "s14"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s12",
+      "childId": "s15"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s13",
+      "childId": "s15"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s03",
+      "childId": "pmncyghyo65ha"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s04",
+      "childId": "pmncyghyo65ha"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s09",
+      "childId": "pmnczpeoyc4hd"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "s10",
+      "childId": "pmnczpeoyc4hd"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f01",
+      "person2Id": "f02"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f03",
+      "person2Id": "f04"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f06",
+      "person2Id": "f07"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f10",
+      "person2Id": "f11"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f13",
+      "person2Id": "f14"
+    },
+    {
+      "type": "partner",
+      "person1Id": "f16",
+      "person2Id": "pmnd50hsephva"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f06"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f06"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f10"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f10"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f13"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f13"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f15"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f15"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f16"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f16"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f01",
+      "childId": "f17"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f02",
+      "childId": "f17"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f03",
+      "childId": "f05"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f04",
+      "childId": "f05"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f06",
+      "childId": "f08"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f07",
+      "childId": "f08"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f06",
+      "childId": "f09"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f07",
+      "childId": "f09"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f10",
+      "childId": "f12"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f11",
+      "childId": "f12"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f03",
+      "childId": "pmnd4qyb1ywgb"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f04",
+      "childId": "pmnd4qyb1ywgb"
+    },
+    {
+      "type": "partner",
+      "person1Id": "r01",
+      "person2Id": "r02"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "r01",
+      "childId": "r03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "r02",
+      "childId": "r03"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "r01",
+      "childId": "r04"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "r02",
+      "childId": "r04"
+    }
   ]
 }
