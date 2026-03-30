@@ -2276,17 +2276,19 @@ function renderCards(pos) {
           ${person.family ? `<div class="card-years">${escHtml(person.family)}</div>` : ''}
         </div>
       </div>
-      <div class="card-actions">
+      ${READ_ONLY ? '' : `<div class="card-actions">
         <button class="btn-card-edit"   title="Bewerken">✏</button>
         <button class="btn-card-delete" title="Verwijderen">✕</button>
-      </div>`;
+      </div>`}`;
 
-    div.querySelector('.btn-card-edit').addEventListener('click', e => {
-      e.stopPropagation(); openEditModal(person.id);
-    });
-    div.querySelector('.btn-card-delete').addEventListener('click', e => {
-      e.stopPropagation(); confirmDeletePerson(person.id);
-    });
+    if (!READ_ONLY) {
+      div.querySelector('.btn-card-edit').addEventListener('click', e => {
+        e.stopPropagation(); openEditModal(person.id);
+      });
+      div.querySelector('.btn-card-delete').addEventListener('click', e => {
+        e.stopPropagation(); confirmDeletePerson(person.id);
+      });
+    }
     div.addEventListener('click', () => openDetailModal(person.id));
 
     container.appendChild(div);
@@ -2466,6 +2468,7 @@ function setPhotoPreview(dataUrl) {
 }
 
 function openAddModal() {
+  if (READ_ONLY) return;
   currentEditId = null;
   document.getElementById('modal-person-title').textContent = 'Persoon toevoegen';
   document.getElementById('btn-person-submit').textContent  = 'Toevoegen';
@@ -2476,6 +2479,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
+  if (READ_ONLY) return;
   const person = getPerson(id);
   if (!person) return;
   currentEditId = id;
