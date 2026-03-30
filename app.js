@@ -3001,9 +3001,11 @@ function openDetailModal(id) {
   const qaRelation     = modal.querySelector('#qa-relation');
   const qaOtherParentRow = modal.querySelector('#qa-other-parent-row');
   if (qaRelation && qaOtherParentRow) {
-    qaRelation.addEventListener('change', () => {
+    const updateOtherParentRow = () => {
       qaOtherParentRow.style.display = qaRelation.value === 'child' ? '' : 'none';
-    });
+    };
+    qaRelation.addEventListener('change', updateOtherParentRow);
+    updateOtherParentRow(); // direct tonen als "kind" al geselecteerd is
   }
 
   // ── Helper: maak één autocomplete-rij ─────────────────────────
