@@ -1068,3 +1068,50 @@ body.readonly .card:hover   { cursor: default; }
     padding: 32px 20px;
   }
 }
+
+/* ============================================================
+   PERSON PICKER (bestaande persoon selecteren)
+   ============================================================ */
+.person-picker-results {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-top: 4px;
+  background: #0f172a;
+}
+.person-picker-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.person-picker-item:last-child { border-bottom: none; }
+.person-picker-item:hover { background: #1e3a5f; }
+.person-picker-item.picked { background: #1e3a5f; border-left: 3px solid var(--accent); }
+.person-picker-tag { font-size: 10px; color: var(--text-muted); }
+
+.qa-mode-toggle-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.qa-mode-btn {
+  flex: 1;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.qa-mode-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}

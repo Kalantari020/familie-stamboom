@@ -2464,11 +2464,89 @@ function zoomFit() {
 // ============================================================
 function populatePersonSelects() {
   const sorted = [...state.persons].sort((a, b) => a.name.localeCompare(b.name));
-  const opts   = sorted.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('');
+  const opts   = sorted.map(p => `<option value="${p.id}">${escHtml(p.name)}${p.family ? ' (' + escHtml(p.family) + ')' : ''}</option>`).join('');
   ['sel-parent', 'sel-child', 'sel-p1', 'sel-p2'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
+}
+
+// ============================================================
+// PERSON PICKER — herbruikbaar component
+// ============================================================
+function buildPersonPicker(container, onSelect, excludeId) {
+  let selectedId = null;
+
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Zoek persoon...';
+  searchInput.style.cssText = 'width:100%;box-sizing:border-box;';
+
+  const resultsList = document.createElement('div');
+  resultsList.className = 'person-picker-results';
+
+  container.appendChild(searchInput);
+  container.appendChild(resultsList);
+
+  function genderIcon(g) {
+    if (g === 'm') return '♂';
+    if (g === 'f') return '♀';
+    return '⚧';
+  }
+
+  function renderResults(query) {
+    const q = query.toLowerCase().trim();
+    const sorted = [...state.persons]
+      .filter(p => p.id !== excludeId)
+      .filter(p => !q || p.name.toLowerCase().includes(q) || (p.family || '').toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    resultsList.innerHTML = '';
+    if (!sorted.length) {
+      resultsList.innerHTML = '<div style="padding:8px 10px;font-size:13px;color:var(--text-muted)">Geen resultaten</div>';
+      return;
+    }
+    sorted.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'person-picker-item' + (p.id === selectedId ? ' picked' : '');
+      item.dataset.id = p.id;
+      item.innerHTML = `<span>${genderIcon(p.gender)}</span><span>${escHtml(p.name)}</span>${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}`;
+      item.addEventListener('click', () => {
+        selectedId = p.id;
+        searchInput.value = p.name + (p.family ? ` (${p.family})` : '');
+        resultsList.querySelectorAll('.person-picker-item').forEach(el => el.classList.remove('picked'));
+        item.classList.add('picked');
+        resultsList.innerHTML = '';
+        onSelect(p.id);
+      });
+      resultsList.appendChild(item);
+    });
+  }
+
+  searchInput.addEventListener('input', () => {
+    selectedId = null;
+    onSelect(null);
+    renderResults(searchInput.value);
+  });
+  searchInput.addEventListener('focus', () => {
+    renderResults(searchInput.value);
+  });
+  // Hide results when clicking outside
+  document.addEventListener('click', function hideOnOutside(e) {
+    if (!container.contains(e.target)) {
+      resultsList.innerHTML = '';
+    }
+  });
+
+  return {
+    getSelectedId: () => selectedId,
+    reset: () => {
+      selectedId = null;
+      searchInput.value = '';
+      resultsList.innerHTML = '';
+      onSelect(null);
+    }
+  };
 }
 
 // ============================================================
@@ -2822,17 +2900,32 @@ function openDetailModal(id) {
 
       <!-- ENKELVOUDIG FORMULIER -->
       <form id="form-quick-add" autocomplete="off">
-        <div class="quick-row">
-          <input type="text" id="qa-name" placeholder="Naam" required style="flex:2">
-          <select id="qa-gender">
-            <option value="m">Man</option>
-            <option value="f">Vrouw</option>
-            <option value="?">?</option>
-          </select>
+        <!-- Modus-toggle: Nieuwe persoon / Bestaande persoon -->
+        <div class="qa-mode-toggle-row">
+          <button type="button" id="qa-btn-new" class="qa-mode-btn active">+ Nieuwe persoon</button>
+          <button type="button" id="qa-btn-existing" class="qa-mode-btn">Bestaande persoon</button>
         </div>
-        <div class="quick-row">
-          <input type="text" id="qa-birthdate" placeholder="Geboortedatum (bijv. 15-05-1990)" style="flex:2">
+
+        <!-- Velden voor NIEUWE persoon -->
+        <div id="qa-new-fields">
+          <div class="quick-row">
+            <input type="text" id="qa-name" placeholder="Naam" style="flex:2">
+            <select id="qa-gender">
+              <option value="m">Man</option>
+              <option value="f">Vrouw</option>
+              <option value="?">?</option>
+            </select>
+          </div>
+          <div class="quick-row">
+            <input type="text" id="qa-birthdate" placeholder="Geboortedatum (bijv. 15-05-1990)" style="flex:2">
+          </div>
         </div>
+
+        <!-- Velden voor BESTAANDE persoon -->
+        <div id="qa-existing-fields" class="hidden">
+          <div id="qa-person-picker-container" style="margin-bottom:4px"></div>
+        </div>
+
         <div class="quick-row">
           <select id="qa-relation">
             <option value="partner">Partner van ${escHtml(person.name)}</option>
@@ -2945,6 +3038,35 @@ function openDetailModal(id) {
     });
   }
 
+  // Toggle Nieuw / Bestaand in enkelvoudig formulier
+  const qaBtnNew      = modal.querySelector('#qa-btn-new');
+  const qaBtnExisting = modal.querySelector('#qa-btn-existing');
+  const qaNewFields   = modal.querySelector('#qa-new-fields');
+  const qaExistFields = modal.querySelector('#qa-existing-fields');
+  let qaPickerSelectedId = null;
+
+  // Build the person picker inside the container
+  if (qaExistFields) {
+    const pickerContainer = modal.querySelector('#qa-person-picker-container');
+    buildPersonPicker(pickerContainer, (selId) => { qaPickerSelectedId = selId; }, id);
+  }
+
+  if (qaBtnNew && qaBtnExisting) {
+    qaBtnNew.addEventListener('click', () => {
+      qaBtnNew.classList.add('active');
+      qaBtnExisting.classList.remove('active');
+      qaNewFields.classList.remove('hidden');
+      qaExistFields.classList.add('hidden');
+      qaPickerSelectedId = null;
+    });
+    qaBtnExisting.addEventListener('click', () => {
+      qaBtnExisting.classList.add('active');
+      qaBtnNew.classList.remove('active');
+      qaExistFields.classList.remove('hidden');
+      qaNewFields.classList.add('hidden');
+    });
+  }
+
   // Show/hide "andere ouder" row in enkelvoudig formulier
   const qaRelation = modal.querySelector('#qa-relation');
   const qaOtherParentRow = modal.querySelector('#qa-other-parent-row');
@@ -2958,32 +3080,73 @@ function openDetailModal(id) {
   if (singleForm) {
     singleForm.addEventListener('submit', e => {
       e.preventDefault();
-      const name      = modal.querySelector('#qa-name').value.trim();
-      const gender    = modal.querySelector('#qa-gender').value;
-      const birthdate = modal.querySelector('#qa-birthdate').value.trim();
-      const relation  = modal.querySelector('#qa-relation').value;
-      if (!name) return;
+      const relation = modal.querySelector('#qa-relation').value;
+      const isExisting = qaBtnExisting && qaBtnExisting.classList.contains('active');
 
-      const newPerson = { id: uid(), name, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
-      state.persons.push(newPerson);
+      if (isExisting) {
+        // --- Bestaande persoon: alleen relatie aanmaken ---
+        if (!qaPickerSelectedId) { alert('Selecteer een bestaande persoon.'); return; }
+        const targetId = qaPickerSelectedId;
 
-      if (relation === 'partner') {
-        state.relationships.push({ type: 'partner', person1Id: id, person2Id: newPerson.id });
-      } else if (relation === 'child') {
-        state.relationships.push({ type: 'parent-child', parentId: id, childId: newPerson.id });
-        const otherParentEl = modal.querySelector('#qa-other-parent');
-        if (otherParentEl && otherParentEl.value) {
-          state.relationships.push({ type: 'parent-child', parentId: otherParentEl.value, childId: newPerson.id });
+        // Duplicate check
+        if (relation === 'partner') {
+          const exists = state.relationships.some(r =>
+            r.type === 'partner' &&
+            ((r.person1Id === id && r.person2Id === targetId) || (r.person1Id === targetId && r.person2Id === id))
+          );
+          if (exists) { alert('Deze partnerrelatie bestaat al.'); return; }
+          state.relationships.push({ type: 'partner', person1Id: id, person2Id: targetId });
+        } else if (relation === 'child') {
+          const exists = state.relationships.some(r =>
+            r.type === 'parent-child' && r.parentId === id && r.childId === targetId
+          );
+          if (exists) { alert('Deze ouder-kind relatie bestaat al.'); return; }
+          state.relationships.push({ type: 'parent-child', parentId: id, childId: targetId });
+          const otherParentEl = modal.querySelector('#qa-other-parent');
+          if (otherParentEl && otherParentEl.value) {
+            state.relationships.push({ type: 'parent-child', parentId: otherParentEl.value, childId: targetId });
+          }
+        } else if (relation === 'parent') {
+          const exists = state.relationships.some(r =>
+            r.type === 'parent-child' && r.parentId === targetId && r.childId === id
+          );
+          if (exists) { alert('Deze ouder-kind relatie bestaat al.'); return; }
+          state.relationships.push({ type: 'parent-child', parentId: targetId, childId: id });
         }
-      } else if (relation === 'parent') {
-        state.relationships.push({ type: 'parent-child', parentId: newPerson.id, childId: id });
-      }
 
-      saveState();
-      modal.classList.add('hidden');
-      render();
-      setTimeout(() => scrollToCard(newPerson.id), 100);
-      checkSmartLink(newPerson.id);
+        saveState();
+        modal.classList.add('hidden');
+        render();
+        setTimeout(() => scrollToCard(targetId), 100);
+
+      } else {
+        // --- Nieuwe persoon aanmaken ---
+        const name      = modal.querySelector('#qa-name').value.trim();
+        const gender    = modal.querySelector('#qa-gender').value;
+        const birthdate = modal.querySelector('#qa-birthdate').value.trim();
+        if (!name) return;
+
+        const newPerson = { id: uid(), name, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
+        state.persons.push(newPerson);
+
+        if (relation === 'partner') {
+          state.relationships.push({ type: 'partner', person1Id: id, person2Id: newPerson.id });
+        } else if (relation === 'child') {
+          state.relationships.push({ type: 'parent-child', parentId: id, childId: newPerson.id });
+          const otherParentEl = modal.querySelector('#qa-other-parent');
+          if (otherParentEl && otherParentEl.value) {
+            state.relationships.push({ type: 'parent-child', parentId: otherParentEl.value, childId: newPerson.id });
+          }
+        } else if (relation === 'parent') {
+          state.relationships.push({ type: 'parent-child', parentId: newPerson.id, childId: id });
+        }
+
+        saveState();
+        modal.classList.add('hidden');
+        render();
+        setTimeout(() => scrollToCard(newPerson.id), 100);
+        checkSmartLink(newPerson.id);
+      }
     });
   }
 
