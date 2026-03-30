@@ -588,8 +588,7 @@ body.readonly #btn-export,
 body.readonly #btn-import,
 body.readonly #btn-reset,
 body.readonly #btn-new-family,
-body.readonly #btn-publish,
-body.readonly #btn-sidebar-toggle { display: none !important; }
+body.readonly #btn-publish { display: none !important; }
 
 body.readonly .card:hover   { cursor: default; }
 
