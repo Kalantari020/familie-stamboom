@@ -3079,13 +3079,14 @@ function openDetailModal(id) {
         .filter(p => p.id !== id && p.name.toLowerCase().includes(q))
         .slice(0, 8);
       if (!matches.length) { closeAutoList(); return; }
-      qaAutoList.innerHTML = matches.map(p =>
-        `<div class="person-picker-item" data-id="${p.id}">
-          <span>${genderIcon(p.gender)}</span>
+      qaAutoList.innerHTML = matches.map(p => {
+        const gi = p.gender === 'm' ? '♂' : p.gender === 'f' ? '♀' : '⚧';
+        return `<div class="person-picker-item" data-id="${p.id}">
+          <span>${gi}</span>
           <span>${escHtml(p.name)}</span>
           ${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}
-        </div>`
-      ).join('');
+        </div>`;
+      }).join('');
       qaAutoList.style.display = 'block';
       qaAutoList.querySelectorAll('.person-picker-item').forEach(item => {
         item.addEventListener('mousedown', e => {
