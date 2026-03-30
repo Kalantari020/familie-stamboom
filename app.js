@@ -2646,6 +2646,7 @@ document.getElementById('btn-person-cancel').addEventListener('click', () => {
 // MODAL: ADD RELATION
 // ============================================================
 function openAddRelationModal() {
+  if (READ_ONLY) return;
   openRelationModalFrom(null);
 }
 
@@ -2719,6 +2720,7 @@ function showConfirm(message, callback) {
 }
 
 function confirmDeletePerson(id) {
+  if (READ_ONLY) return;
   const person = getPerson(id);
   if (!person) return;
   showConfirm(

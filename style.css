@@ -573,6 +573,16 @@ html, body {
 
 /* Read-only modus */
 body.readonly .card-actions { display: none !important; }
+/* Read-only modus: verberg ALLE beheer-elementen (overschrijft desktop-only !important) */
+body.readonly #btn-add-person,
+body.readonly #btn-add-relation,
+body.readonly #btn-export,
+body.readonly #btn-import,
+body.readonly #btn-reset,
+body.readonly #btn-new-family,
+body.readonly #btn-publish,
+body.readonly #btn-sidebar-toggle { display: none !important; }
+
 body.readonly .card:hover   { cursor: default; }
 
 /* ============================================================
