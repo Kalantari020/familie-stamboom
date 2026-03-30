@@ -1,0 +1,8 @@
+.netlify
+netlify
+node_modules
+publiceer.ps1
+data
+.github
+.gitignore
+*.zip

@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
   <link rel="stylesheet" href="style.css">
+  <script>
+    window.onerror = function(msg, src, line, col, err) {
+      var d = document.createElement('div');
+      d.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;color:#c00;padding:20px;font:14px/1.5 monospace;z-index:99999;overflow:auto;';
+      d.textContent = 'FOUT: ' + msg + '\nBestand: ' + src + '\nRegel: ' + line + ':' + col + (err ? '\n' + err.stack : '');
+      document.body.appendChild(d);
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      var d = document.createElement('div');
+      d.style = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;color:#900;padding:20px;font:14px/1.5 monospace;z-index:99999;overflow:auto;';
+      d.textContent = 'PROMISE FOUT:\n' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason));
+      document.body.appendChild(d);
+    });
+  </script>
 </head>
 <body>
 
