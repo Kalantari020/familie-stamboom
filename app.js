@@ -2442,8 +2442,15 @@ function renderSidebar(filter = '') {
   const q         = filter.toLowerCase();
 
   // --- Stambomen ---
-  const stambomen = computeStambomen();
-  const filteredTrees = stambomen.filter(s =>
+  // Toon alleen root-stambomen (hoofd én partner nergens als kind) — zelfde logica als canvas
+  const allStambomenSidebar = computeStambomen();
+  const rootStambomen = allStambomenSidebar.filter(s => {
+    if (getParentsOf(s.headId).length > 0) return false;
+    const partners = getPartnersOf(s.headId);
+    if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
+    return true;
+  });
+  const filteredTrees = rootStambomen.filter(s =>
     !q || s.label.toLowerCase().includes(q)
   );
 
