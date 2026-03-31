@@ -3040,13 +3040,18 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         clusters[clusters.length - 1].push(cid);
       });
 
+      // Bepaal of er meerdere clusters zijn (= er is minstens 1 kind ver weg)
+      const hasDistantClusters = clusters.length > 1;
+      // Voor verre clusters: gebruik een offset-Y zodat de connector niet
+      // visueel samensmelt met horizontale balken van andere familiegroepen
+      const connectorOffsetY = 12;
+
       clusters.forEach(cluster => {
         if (cluster.length === 1) {
           const cid = cluster[0];
           const dist = Math.abs(lcx(cid) - dropX);
           if (dist > GAP_THRESHOLD) {
             // Kind is ver van de ouders (bijv. aangetrouwde partner elders geplaatst)
-            // → teken GEEN lange horizontale connector die andere groepen kruist.
             // Teken alleen een directe verticale lijn van boven het kind.
             parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
           } else {
@@ -3056,22 +3061,30 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         } else {
           const leftX  = lcx(cluster[0]);
           const rightX = lcx(cluster[cluster.length - 1]);
-          // Horizontale balk per cluster
-          parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
-          // Verbind cluster met drop point als het cluster niet al het drop point overlapt
-          const clusterCenterX = (leftX + rightX) / 2;
-          if (Math.abs(clusterCenterX - dropX) > 1) {
+          // Check of het drop point binnen het cluster valt
+          const dropInCluster = dropX >= leftX && dropX <= rightX;
+
+          if (dropInCluster || !hasDistantClusters) {
+            // Standaard: horizontale balk op midDropY (drop point zit in dit cluster)
+            parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+            cluster.forEach(cid => {
+              parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+            });
+          } else {
+            // Ver cluster: teken balk en connector op een offset-Y zodat ze
+            // niet overlappen met horizontale balken van andere familiegroepen.
+            const offsetY = midDropY + connectorOffsetY;
+            // Horizontale balk per cluster op offset-Y
+            parts.push(`<line x1="${leftX}" y1="${offsetY}" x2="${rightX}" y2="${offsetY}" class="child-line"/>`);
+            // Connector van drop punt naar cluster op offset-Y
             const connectX = dropX < leftX ? leftX : (dropX > rightX ? rightX : dropX);
-            const connectDist = Math.abs(connectX - dropX);
-            // Alleen verbindingslijn als het cluster dichtbij het drop point is
-            if (connectDist <= GAP_THRESHOLD) {
-              parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${connectX}" y2="${midDropY}" class="child-line"/>`);
-            }
+            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
+            parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${connectX}" y2="${offsetY}" class="child-line"/>`);
+            // Verticale lijnen van balk naar elk kind
+            cluster.forEach(cid => {
+              parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+            });
           }
-          // Verticale lijnen van balk naar elk kind
-          cluster.forEach(cid => {
-            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-          });
         }
       });
     });
