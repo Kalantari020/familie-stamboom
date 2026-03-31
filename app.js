@@ -1746,8 +1746,15 @@ function getStamboomPersons(headId) {
     result.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
     getChildrenOf(id).forEach(cid => {
-      // Co-ouder: voeg toe aan resultaat maar walk niet (voorkomt absorptie van andere bomen)
-      getParentsOf(cid).forEach(pid => { if (!result.has(pid)) result.add(pid); });
+      // Co-ouder: alleen toevoegen als ze GEEN eigen ouders hebben en niet al in een andere boom zitten
+      // (zo voorkomt we dat bijv. Rahimgul Salehi die al in de Salehi-boom zit ook hier opduikt)
+      getParentsOf(cid).forEach(pid => {
+        if (!result.has(pid) &&
+            getParentsOf(pid).length === 0 &&
+            !getPartnersOf(pid).some(pp => getParentsOf(pp).length > 0)) {
+          result.add(pid);
+        }
+      });
       walk(cid);
     });
     getSocialChildrenOf(id).forEach(cid => walk(cid));
@@ -1845,10 +1852,12 @@ function computeLayout(overrideIds) {
   });
 
   // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
+  // Alleen voor personen zonder eigen ouders in deze layout (vrij-zwevende co-ouders)
   persons.forEach(p => {
     (childrenOf[p.id] || []).forEach(cid => {
       (parentsOf[cid] || []).forEach(copid => {
         if (copid === p.id || partnersOf[copid] === undefined) return;
+        if (parentsOf[copid].length > 0) return; // niet infereren als co-ouder eigen ouders heeft
         if (!partnersOf[p.id].includes(copid)) partnersOf[p.id].push(copid);
         if (!partnersOf[copid].includes(p.id)) partnersOf[copid].push(p.id);
       });
@@ -1998,6 +2007,9 @@ function computeLayout(overrideIds) {
         return true;
       });
       rootSt2.forEach(s => {
+        // Alleen bomen waarvan het hoofd in deze layout zit — voorkomt dat personen
+        // van een andere familie hier een verkeerde treeHead-toewijzing krijgen
+        if (!activeIds.has(s.headId)) return;
         getStamboomPersons(s.headId).forEach(pid => {
           if (!personToTreeHead[pid]) personToTreeHead[pid] = s.headId;
         });
@@ -2196,6 +2208,8 @@ function renderLines(pos, treeRanges) {
       return true;
     });
     rootSt.forEach(s => {
+      // Alleen bomen verwerken waarvan het hoofd zichtbaar is in de huidige layout
+      if (!pos[s.headId]) return;
       getStamboomPersons(s.headId).forEach(pid => {
         if (!personPrimaryTree[pid]) personPrimaryTree[pid] = s.headId;
       });
