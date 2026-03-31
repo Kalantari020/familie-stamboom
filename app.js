@@ -1741,8 +1741,10 @@ function uid() {
 // (headId + partner(s) + alle nakomelingen + hun partners)
 function getStamboomPersons(headId) {
   const result = new Set();
+  const walked = new Set(); // bijhouden wie via walk() is verwerkt (niet alleen als partner)
   function walk(id) {
-    if (result.has(id)) return;
+    if (walked.has(id)) return;
+    walked.add(id);
     result.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
     getChildrenOf(id).forEach(cid => {
@@ -1755,7 +1757,18 @@ function getStamboomPersons(headId) {
           result.add(pid);
         }
       });
-      walk(cid);
+      // Niet doorlopen als het kind een externe root-patriarch als co-ouder heeft:
+      // iemand die al in result zit (als partner toegevoegd, niet gewandeld),
+      // zelf geen ouders heeft, ≥ 3 eigen kinderen heeft, én geen directe partner van headId is.
+      // Dit voorkomt dat bijv. Khanaga Faizi's familie wordt opgeslokt door Ali Ahmad's stamboom.
+      const hasExternalPatriarch = getParentsOf(cid).some(pid =>
+        pid !== id &&
+        result.has(pid) && !walked.has(pid) &&
+        getParentsOf(pid).length === 0 &&
+        getChildrenOf(pid).length >= 3 &&
+        !getPartnersOf(headId).includes(pid)
+      );
+      if (!hasExternalPatriarch) walk(cid);
     });
     getSocialChildrenOf(id).forEach(cid => walk(cid));
   }
@@ -2226,14 +2239,27 @@ function renderLines(pos, treeRanges) {
     const allSt = computeStambomen();
     const rootSt = allSt.filter(s => {
       if (getParentsOf(s.headId).length > 0) return false;
+      if (getChildrenOf(s.headId).length >= 2) return true;
       if (getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0)) return false;
       if (getChildrenOf(s.headId).some(cid =>
         getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
       )) return false;
       return true;
     });
+    // Pass 1: native members (heeft ouder in stamboom-personenset, of IS de head)
     rootSt.forEach(s => {
-      // Alleen bomen verwerken waarvan het hoofd zichtbaar is in de huidige layout
+      if (!pos[s.headId]) return;
+      const stPersons = new Set(getStamboomPersons(s.headId));
+      stPersons.forEach(pid => {
+        const isNative = pid === s.headId ||
+          getParentsOf(pid).some(parentId => stPersons.has(parentId));
+        if (isNative && !personPrimaryTree[pid]) {
+          personPrimaryTree[pid] = s.headId;
+        }
+      });
+    });
+    // Pass 2: niet-native (in-laws, co-ouders) → eerste stamboom die hen bevat
+    rootSt.forEach(s => {
       if (!pos[s.headId]) return;
       getStamboomPersons(s.headId).forEach(pid => {
         if (!personPrimaryTree[pid]) personPrimaryTree[pid] = s.headId;
@@ -2719,6 +2745,11 @@ function computeAllFamiliesLayout() {
   // andere boom zitten en houd je alleen de echte roots over.
   const stambomen = allStambomen.filter(s => {
     if (getParentsOf(s.headId).length > 0) return false;
+    // Patriarchen/matriarchs met ≥ 2 eigen kinderen worden nooit gefilterd op basis van
+    // de partner's ouders — zij zijn een eigen familiehoofd (bijv. Khanaga Faizi met 7 kinderen).
+    if (getChildrenOf(s.headId).length >= 2) return true;
+    // Voor hoofden met 0–1 kind: filter als partner of co-ouder eigen ouders heeft
+    // → dit hoofd is een in-law in een andere boom (bijv. Gaffar Khan Rashid, 1 kind)
     const partners = getPartnersOf(s.headId);
     if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
     // Filter co-ouder-bomen: hoofd deelt een kind met iemand die zelf ouders heeft
@@ -2869,25 +2900,27 @@ function computeAllFamiliesLayout() {
     curY += (rowH[lv] || 0) + NODE_H + LABEL_H + ISLAND_V_GAP;
   });
 
-  // ── Stap 7: combineer alle posities ──────────────────────────
+  // ── Stap 7: combineer alle posities (twee-passes) ────────────
+  // Pass 1: native members — persoon heeft een ouder in deze layout of IS de head
+  // Pass 2: niet-native (in-laws, co-ouders) — eerste stamboom die hen bevat
   const combined  = {};
   const ghosts    = {};
   const treeRanges = {};
   const primaryTree = {};
 
+  // Pass 1: native members
   stambomen.forEach(s => {
     const layout = treeLayouts[s.headId];
     if (!layout) return;
-    const ox = treeX[s.headId] - layout.minX; // x-offset
-    const oy = treeY[s.headId] - layout.minY + LABEL_H; // y-offset (ruimte voor label)
+    const ox = treeX[s.headId] - layout.minX;
+    const oy = treeY[s.headId] - layout.minY + LABEL_H;
 
     Object.entries(layout.pos).forEach(([pid, p]) => {
-      if (!primaryTree[pid]) {
+      const isNative = pid === s.headId ||
+        getParentsOf(pid).some(parentId => layout.personIds.has(parentId));
+      if (isNative && !primaryTree[pid]) {
         primaryTree[pid] = s.headId;
         combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
-      } else {
-        const key = `${pid}:${s.headId}`;
-        ghosts[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
       }
     });
 
@@ -2901,6 +2934,24 @@ function computeAllFamiliesLayout() {
       label: familyName,
       count: layout.personIds.size
     };
+  });
+
+  // Pass 2: niet-native personen (in-laws, partners zonder ouders)
+  stambomen.forEach(s => {
+    const layout = treeLayouts[s.headId];
+    if (!layout) return;
+    const ox = treeX[s.headId] - layout.minX;
+    const oy = treeY[s.headId] - layout.minY + LABEL_H;
+
+    Object.entries(layout.pos).forEach(([pid, p]) => {
+      if (!primaryTree[pid]) {
+        primaryTree[pid] = s.headId;
+        combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
+      } else if (primaryTree[pid] !== s.headId) {
+        const key = `${pid}:${s.headId}`;
+        ghosts[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
+      }
+    });
   });
 
   return { positions: combined, ghosts, treeRanges };
