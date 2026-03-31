@@ -2207,235 +2207,138 @@ function computeLayout(overrideIds) {
 // ============================================================
 // SVG LINE RENDERING
 // ============================================================
-function renderLines(pos, treeRanges) {
+function renderLines(pos, treeRanges, treePositions, duplicates) {
   const svg = document.getElementById('svg-lines');
   const parts = [];
 
-  const cx  = id => (pos[id]?.x || 0) + NODE_W / 2;
-  const midY = id => (pos[id]?.y || 0) + NODE_H / 2;
-  const botY = id => (pos[id]?.y || 0) + NODE_H;
-  const topY = id => pos[id]?.y || 0;
+  // ── Helper: teken alle relatielijnen voor een gegeven positie-map ──
+  function drawLinesForPositions(lpos) {
+    const pids = new Set(Object.keys(lpos));
+    const lcx   = id => (lpos[id]?.x || 0) + NODE_W / 2;
+    const lmidY = id => (lpos[id]?.y || 0) + NODE_H / 2;
+    const lbotY = id => (lpos[id]?.y || 0) + NODE_H;
+    const ltopY = id => lpos[id]?.y || 0;
 
-  // In "alle families" modus: bouw een lookup van persoon → primaire boom
-  // Gebruik dezelfde root-filter als het canvas, zodat sub-bomen niet als
-  // aparte primaire boom gelden en onnodige cross-tree lijnen vermeden worden.
-  let personPrimaryTree = null;
-  if (activeTreeId === null) {
-    personPrimaryTree = {};
-    const allSt = computeStambomen();
-    let rootSt = allSt.filter(s => {
-      if (getParentsOf(s.headId).length > 0) return false;
-      if (getChildrenOf(s.headId).length >= 2) return true;
-      if (getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0)) return false;
-      if (getChildrenOf(s.headId).some(cid =>
-        getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
-      )) return false;
-      return true;
-    });
-    // Consolidatie: verwijder bomen wiens kinderen al in grotere bomen voorkomen
-    {
-      const pSets = {};
-      rootSt.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
-      rootSt.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
-      const allKeptPersons = new Set();
-      rootSt = rootSt.filter(s => {
-        if (allKeptPersons.has(s.headId)) return false;
-        pSets[s.headId].forEach(pid => allKeptPersons.add(pid));
-        return true;
-      });
-    }
-    // Pass 1: native members (heeft ouder in stamboom-personenset, of IS de head)
-    rootSt.forEach(s => {
-      if (!pos[s.headId]) return;
-      const stPersons = new Set(getStamboomPersons(s.headId));
-      stPersons.forEach(pid => {
-        const isNative = pid === s.headId ||
-          getParentsOf(pid).some(parentId => stPersons.has(parentId));
-        if (isNative && !personPrimaryTree[pid]) {
-          personPrimaryTree[pid] = s.headId;
-        }
-      });
-    });
-    // Pass 2: niet-native (in-laws, co-ouders) → eerste stamboom die hen bevat
-    rootSt.forEach(s => {
-      if (!pos[s.headId]) return;
-      getStamboomPersons(s.headId).forEach(pid => {
-        if (!personPrimaryTree[pid]) personPrimaryTree[pid] = s.headId;
-      });
-    });
-  }
-
-  function samePrimaryTree(idA, idB) {
-    if (!personPrimaryTree) return true; // single-tree modus: altijd tekenen
-    return personPrimaryTree[idA] === personPrimaryTree[idB];
-  }
-
-  // --- Partner lines ---
-  // Direct naast elkaar (gap ≤ H_GAP + 2): rechte stippellijn
-  // Ver uit elkaar (siblings ertussen): boog die boven de kaarten langs gaat
-  const drawnPartners = new Set();
-  state.relationships.forEach(r => {
-    if (r.type !== 'partner') return;
-    const key = [r.person1Id, r.person2Id].sort().join('|');
-    if (drawnPartners.has(key)) return;
-    drawnPartners.add(key);
-    if (!pos[r.person1Id] || !pos[r.person2Id]) return;
-    if (!samePrimaryTree(r.person1Id, r.person2Id)) return;
-
-    const leftId  = pos[r.person1Id].x <= pos[r.person2Id].x ? r.person1Id : r.person2Id;
-    const rightId = leftId === r.person1Id ? r.person2Id : r.person1Id;
-    const y  = midY(leftId);
-    const x1 = pos[leftId].x + NODE_W;
-    const x2 = pos[rightId].x;
-    if (x2 <= x1) return;
-
-    const gap = x2 - x1;
-    if (gap <= H_GAP + 2) {
-      // Aaneengesloten: gewone rechte stippellijn
-      parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
-    } else {
-      // Niet-aaneengesloten (broers/zussen ertussen): boog boven de kaarten langs
-      const mx   = (x1 + x2) / 2;
-      const arcH = Math.min(60, 20 + gap * 0.08); // hoogte van de boog, max 60px
-      const cy   = y - NODE_H / 2 - arcH;         // controlepunt boven bovenkant kaart
-      parts.push(`<path d="M ${x1},${y} Q ${mx},${cy} ${x2},${y}" class="partner-arc"/>`);
-    }
-  });
-
-  // --- Parent-child lines ---
-  // Group children by their canonical parent set key
-  const familyGroups = new Map();
-  state.relationships.forEach(r => {
-    if (r.type !== 'parent-child') return;
-    const allParentsOfChild = state.relationships
-      .filter(rel => rel.type === 'parent-child' && rel.childId === r.childId)
-      .map(rel => rel.parentId)
-      .sort();
-    const key = allParentsOfChild.join(',');
-
-    if (!familyGroups.has(key)) {
-      familyGroups.set(key, { parents: allParentsOfChild, children: new Set() });
-    }
-    familyGroups.get(key).children.add(r.childId);
-  });
-
-  familyGroups.forEach(({ parents, children }) => {
-    // In alle-families modus: filter ouders en kinderen op dezelfde primaire boom
-    let validParents  = parents.filter(pid => pos[pid]);
-    let validChildren = [...children].filter(cid => pos[cid]);
-    if (!validParents.length || !validChildren.length) return;
-
-    // Bepaal de primaire boom op basis van de eerste geldige ouder
-    if (personPrimaryTree) {
-      const primaryTree = personPrimaryTree[validParents[0]];
-      validParents  = validParents.filter(pid => personPrimaryTree[pid] === primaryTree);
-      validChildren = validChildren.filter(cid => personPrimaryTree[cid] === primaryTree);
-      if (!validParents.length || !validChildren.length) return;
-    }
-
-    // Connection point: center of parents, bottom of lowest parent
-    const parentCXs = validParents.map(pid => cx(pid));
-    const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
-    const dropY = Math.max(...validParents.map(pid => botY(pid)));
-
-    const childTopY = Math.min(...validChildren.map(cid => topY(cid)));
-    const midDropY  = dropY + (childTopY - dropY) * 0.45;
-
-    // Vertical from parent bottom to midpoint
-    parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
-
-    // Sort children by x
-    validChildren.sort((a, b) => cx(a) - cx(b));
-
-    if (validChildren.length === 1) {
-      const cid = validChildren[0];
-      parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${cx(cid)}" y2="${midDropY}" class="child-line"/>`);
-      parts.push(`<line x1="${cx(cid)}" y1="${midDropY}" x2="${cx(cid)}" y2="${topY(cid)}" class="child-line"/>`);
-    } else {
-      const leftX  = cx(validChildren[0]);
-      const rightX = cx(validChildren[validChildren.length - 1]);
-      parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
-      validChildren.forEach(cid => {
-        parts.push(`<line x1="${cx(cid)}" y1="${midDropY}" x2="${cx(cid)}" y2="${topY(cid)}" class="child-line"/>`);
-      });
-    }
-  });
-
-  // Sociale lijnen (social-parent) worden NIET getekend — badge is voldoende.
-
-  // --- Broer/zus verbindingslijnen tussen VERSCHILLENDE stambomen ---
-  // Alleen getekend wanneer de broers/zussen elk hoofd zijn van een eigen stamboom
-  // (bijv. Wazir, Malika en Hagig die elk een eigen boom hebben maar broers/zussen zijn).
-  if (personPrimaryTree) {
-    const drawnSiblings = new Set();
-    state.relationships.forEach(r => {
-      if (r.type !== 'sibling') return;
-      if (!pos[r.person1Id] || !pos[r.person2Id]) return;
-      if (samePrimaryTree(r.person1Id, r.person2Id)) return; // zelfde boom: geen lijn nodig
-      const key = [r.person1Id, r.person2Id].sort().join('|');
-      if (drawnSiblings.has(key)) return;
-      drawnSiblings.add(key);
-      const x1 = cx(r.person1Id), y1 = topY(r.person1Id);
-      const x2 = cx(r.person2Id), y2 = topY(r.person2Id);
-      const arcY = Math.min(y1, y2) - 30;
-      parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${arcY}" class="sibling-line"/>`);
-      parts.push(`<line x1="${x1}" y1="${arcY}" x2="${x2}" y2="${arcY}" class="sibling-line"/>`);
-      parts.push(`<line x1="${x2}" y1="${arcY}" x2="${x2}" y2="${y2}" class="sibling-line"/>`);
-    });
-  }
-
-  // --- Cross-tree verbindingen: ouder→kind over stamboomgrenzen heen ---
-  // Tekent een boogvormige curve die onder de eilanden doorloopt
-  if (personPrimaryTree) {
-    let extraDepth = 0; // bijhouden hoe ver omlaag arcs gaan (voor SVG-grootte)
-
-    state.relationships.forEach(r => {
-      if (r.type !== 'parent-child') return;
-      if (!pos[r.parentId] || !pos[r.childId]) return;
-      if (samePrimaryTree(r.parentId, r.childId)) return; // normale lijn, al getekend
-
-      const x1 = cx(r.parentId);
-      const y1 = botY(r.parentId);
-      const x2 = cx(r.childId);
-      const y2 = topY(r.childId);
-
-      // De boog duikt OMLAAG, schaalt met horizontale afstand zodat de curve mooi is
-      const horizDist = Math.abs(x2 - x1);
-      const dip = Math.max(70, horizDist * 0.18);
-      const cp1y = y1 + dip;
-      const cp2y = y2 + dip;
-      extraDepth = Math.max(extraDepth, cp1y, cp2y);
-
-      parts.push(`<path d="M ${x1} ${y1} C ${x1} ${cp1y}, ${x2} ${cp2y}, ${x2} ${y2}" class="cross-tree-line"/>`);
-    });
-
-    // Cross-tree partnerlijnen (zelden, maar mogelijk)
-    const drawnCrossPartners = new Set();
+    // Partner lines
+    const drawnPartners = new Set();
     state.relationships.forEach(r => {
       if (r.type !== 'partner') return;
-      if (!pos[r.person1Id] || !pos[r.person2Id]) return;
-      if (samePrimaryTree(r.person1Id, r.person2Id)) return;
       const key = [r.person1Id, r.person2Id].sort().join('|');
-      if (drawnCrossPartners.has(key)) return;
-      drawnCrossPartners.add(key);
+      if (drawnPartners.has(key)) return;
+      drawnPartners.add(key);
+      if (!pids.has(r.person1Id) || !pids.has(r.person2Id)) return;
 
-      const x1 = cx(r.person1Id);
-      const y1 = midY(r.person1Id);
-      const x2 = cx(r.person2Id);
-      const y2 = midY(r.person2Id);
-      const dip  = Math.max(50, Math.abs(x2 - x1) * 0.12);
-      const midX = (x1 + x2) / 2;
-      parts.push(`<path d="M ${x1} ${y1} Q ${midX} ${y1 - dip}, ${x2} ${y2}" class="cross-tree-line cross-tree-partner"/>`);
+      const leftId  = lpos[r.person1Id].x <= lpos[r.person2Id].x ? r.person1Id : r.person2Id;
+      const rightId = leftId === r.person1Id ? r.person2Id : r.person1Id;
+      const y  = lmidY(leftId);
+      const x1 = lpos[leftId].x + NODE_W;
+      const x2 = lpos[rightId].x;
+      if (x2 <= x1) return;
+
+      const gap = x2 - x1;
+      if (gap <= H_GAP + 2) {
+        parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
+      } else {
+        const mx   = (x1 + x2) / 2;
+        const arcH = Math.min(60, 20 + gap * 0.08);
+        const cy   = y - NODE_H / 2 - arcH;
+        parts.push(`<path d="M ${x1},${y} Q ${mx},${cy} ${x2},${y}" class="partner-arc"/>`);
+      }
+    });
+
+    // Parent-child lines (gegroepeerd per ouder-set)
+    const familyGroups = new Map();
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!pids.has(r.parentId) || !pids.has(r.childId)) return;
+      const allParentsOfChild = state.relationships
+        .filter(rel => rel.type === 'parent-child' && rel.childId === r.childId)
+        .map(rel => rel.parentId)
+        .filter(pid => pids.has(pid))
+        .sort();
+      const key = allParentsOfChild.join(',');
+      if (!familyGroups.has(key)) {
+        familyGroups.set(key, { parents: allParentsOfChild, children: new Set() });
+      }
+      familyGroups.get(key).children.add(r.childId);
+    });
+
+    familyGroups.forEach(({ parents, children }) => {
+      const validParents  = parents.filter(pid => lpos[pid]);
+      const validChildren = [...children].filter(cid => lpos[cid]);
+      if (!validParents.length || !validChildren.length) return;
+
+      const parentCXs = validParents.map(pid => lcx(pid));
+      const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
+      const dropY = Math.max(...validParents.map(pid => lbotY(pid)));
+      const childTopY = Math.min(...validChildren.map(cid => ltopY(cid)));
+      const midDropY  = dropY + (childTopY - dropY) * 0.45;
+
+      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
+
+      validChildren.sort((a, b) => lcx(a) - lcx(b));
+
+      if (validChildren.length === 1) {
+        const cid = validChildren[0];
+        parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${lcx(cid)}" y2="${midDropY}" class="child-line"/>`);
+        parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+      } else {
+        const leftX  = lcx(validChildren[0]);
+        const rightX = lcx(validChildren[validChildren.length - 1]);
+        parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+        validChildren.forEach(cid => {
+          parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+        });
+      }
     });
   }
 
-  // Size the SVG — ruimte voor omlaagdippende cross-tree arcs
-  const allPositions = Object.values(pos);
-  if (allPositions.length) {
-    const maxX = Math.max(...allPositions.map(p => p.x + NODE_W)) + PADDING;
-    const rawMaxY = Math.max(...allPositions.map(p => p.y + NODE_H));
-    // Extra ruimte onder de onderste rij voor cross-tree bogen
-    const maxY = rawMaxY + 160 + PADDING;
+  // ── Lijnen tekenen ──
+  if (activeTreeId === null && treePositions && Object.keys(treePositions).length) {
+    // Alle-families modus: teken lijnen PER stamboom-eiland
+    Object.values(treePositions).forEach(treePos => drawLinesForPositions(treePos));
+
+    // Duplicaat-verbindingslijnen: lichtblauwe stippellijn tussen dezelfde persoon
+    // op verschillende plekken in het canvas
+    if (duplicates) {
+      const drawnDupLinks = new Set();
+      Object.values(duplicates).forEach(dup => {
+        if (!pos[dup.personId]) return;
+        // Teken lijn van primaire positie naar duplicaat-positie
+        const linkKey = dup.personId + ':' + dup.treeHeadId;
+        if (drawnDupLinks.has(linkKey)) return;
+        drawnDupLinks.add(linkKey);
+
+        const x1 = pos[dup.personId].x + NODE_W / 2;
+        const y1 = pos[dup.personId].y + NODE_H / 2;
+        const x2 = dup.x + NODE_W / 2;
+        const y2 = dup.y + NODE_H / 2;
+
+        // Gebogen lijn voor betere zichtbaarheid
+        const horizDist = Math.abs(x2 - x1);
+        const vertDist  = Math.abs(y2 - y1);
+        const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
+        const dip  = Math.max(40, dist * 0.1);
+        const mx   = (x1 + x2) / 2;
+        const my   = Math.min(y1, y2) - dip;
+
+        parts.push(`<path d="M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}" class="duplicate-link"/>`);
+      });
+    }
+  } else {
+    // Enkele stamboom modus: teken normaal
+    drawLinesForPositions(pos);
+  }
+
+  // Size the SVG
+  const allPos = Object.values(pos);
+  // Inclusief duplicaat-posities voor SVG sizing
+  if (duplicates) {
+    Object.values(duplicates).forEach(d => allPos.push(d));
+  }
+  if (allPos.length) {
+    const maxX = Math.max(...allPos.map(p => p.x + NODE_W)) + PADDING;
+    const maxY = Math.max(...allPos.map(p => p.y + NODE_H)) + PADDING + 60;
     svg.style.width  = maxX + 'px';
     svg.style.height = maxY + 'px';
     svg.setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);
@@ -2566,31 +2469,32 @@ function renderCards(pos, treeRanges, ghosts) {
     container.appendChild(div);
   });
 
-  // ── Ghost cards for social children in secondary trees ───────
+  // ── Duplicaat-kaarten: personen die in meerdere stambomen voorkomen ───────
   if (ghosts && Object.keys(ghosts).length) {
     Object.entries(ghosts).forEach(([key, g]) => {
       const person = getPerson(g.personId);
       if (!person) return;
       const gClass = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
-      const ghostDiv = document.createElement('div');
-      ghostDiv.className = `card ${gClass} social-ghost`;
-      ghostDiv.dataset.id = person.id;
-      ghostDiv.style.left = g.x + 'px';
-      ghostDiv.style.top  = g.y + 'px';
+      const dupDiv = document.createElement('div');
+      dupDiv.className = `card ${gClass} duplicate-card`;
+      dupDiv.dataset.id = person.id;
+      dupDiv.style.left = g.x + 'px';
+      dupDiv.style.top  = g.y + 'px';
       const avatarHtml = person.photo
         ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
         : `<div class="card-avatar">${initials(person.name)}</div>`;
-      ghostDiv.innerHTML = `
-        <div class="social-ghost-badge" title="Sociale familie">👨‍👩‍👧</div>
+      dupDiv.innerHTML = `
+        <div class="duplicate-badge" title="Komt ook voor in andere stamboom">🔗</div>
         <div class="card-top">
           ${avatarHtml}
           <div class="card-info">
             <div class="card-name">${escHtml(person.name)}</div>
-            <div class="card-years" style="font-style:italic;color:var(--text-muted)">Lid van dit gezin</div>
+            ${person.birthdate ? `<div class="card-years">${escHtml(formatBirthdate(person.birthdate))}${person.deathdate ? ` – ${escHtml(formatBirthdate(person.deathdate))}` : person.deceased ? ' – overleden' : ''}</div>` : ''}
+            ${person.family ? `<div class="card-years">${escHtml(person.family)}</div>` : ''}
           </div>
         </div>`;
-      ghostDiv.addEventListener('click', () => openDetailModal(person.id));
-      container.appendChild(ghostDiv);
+      dupDiv.addEventListener('click', () => openDetailModal(person.id));
+      container.appendChild(dupDiv);
     });
   }
 }
@@ -2758,22 +2662,7 @@ function computeAllFamiliesLayout() {
     return true;
   });
 
-  // ── Consolidatie: verwijder bomen die al opgaan in grotere bomen ──
-  // Als kinderen van een boom-hoofd al voorkomen in een grotere boom,
-  // is deze boom overbodig en creëert alleen visuele ruis (cross-tree arcs).
-  {
-    const pSets = {};
-    stambomen.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
-    stambomen.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
-    const allKeptPersons = new Set();
-    stambomen = stambomen.filter(s => {
-      if (allKeptPersons.has(s.headId)) return false;
-      pSets[s.headId].forEach(pid => allKeptPersons.add(pid));
-      return true;
-    });
-  }
-
-  if (!stambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
+  if (!stambomen.length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
 
   const ISLAND_H_GAP  = 120; // horizontale ruimte tussen eilanden in dezelfde rij
   const ISLAND_V_GAP  = 180; // verticale ruimte tussen rijen
@@ -2914,21 +2803,30 @@ function computeAllFamiliesLayout() {
     curY += (rowH[lv] || 0) + NODE_H + LABEL_H + ISLAND_V_GAP;
   });
 
-  // ── Stap 7: combineer alle posities (twee-passes) ────────────
-  // Pass 1: native members — persoon heeft een ouder in deze layout of IS de head
-  // Pass 2: niet-native (in-laws, co-ouders) — eerste stamboom die hen bevat
-  const combined  = {};
-  const ghosts    = {};
-  const treeRanges = {};
-  const primaryTree = {};
+  // ── Stap 7: combineer posities en bouw per-boom posities ────────────
+  // Elke persoon krijgt een primaire positie (combined) en eventueel
+  // duplicaat-posities als ze in meerdere bomen voorkomen.
+  // treePositions bevat per boom ALLE posities voor lijn-tekenen.
+  const combined      = {};
+  const duplicates    = {};
+  const treeRanges    = {};
+  const treePositions = {};
+  const primaryTree   = {};
 
-  // Pass 1: native members
+  // Pass 1: native members (heeft ouder in layout of IS het hoofd)
   stambomen.forEach(s => {
     const layout = treeLayouts[s.headId];
     if (!layout) return;
     const ox = treeX[s.headId] - layout.minX;
     const oy = treeY[s.headId] - layout.minY + LABEL_H;
 
+    // Bouw per-boom positie-map (voor lijn-tekenen)
+    treePositions[s.headId] = {};
+    Object.entries(layout.pos).forEach(([pid, p]) => {
+      treePositions[s.headId][pid] = { x: p.x + ox, y: p.y + oy };
+    });
+
+    // Wijs primaire posities toe (native first)
     Object.entries(layout.pos).forEach(([pid, p]) => {
       const isNative = pid === s.headId ||
         getParentsOf(pid).some(parentId => layout.personIds.has(parentId));
@@ -2963,29 +2861,31 @@ function computeAllFamiliesLayout() {
         combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
       } else if (primaryTree[pid] !== s.headId) {
         const key = `${pid}:${s.headId}`;
-        ghosts[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
+        duplicates[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
       }
     });
   });
 
-  return { positions: combined, ghosts, treeRanges };
+  return { positions: combined, duplicates, treePositions, treeRanges };
 }
 
 // ============================================================
 // FULL RENDER
 // ============================================================
 function render() {
-  let pos, ghosts = {}, treeRanges = null;
+  let pos, ghosts = {}, treeRanges = null, treePositions = null, duplicates = {};
   if (activeTreeId === null && state.persons.length > 0) {
     const result = computeAllFamiliesLayout();
     pos = result.positions;
-    ghosts = result.ghosts;
+    ghosts = result.duplicates || {};
+    duplicates = result.duplicates || {};
+    treePositions = result.treePositions || {};
     treeRanges = result.treeRanges;
   } else {
     pos = computeLayout();
   }
   lastPositions = pos;
-  renderLines(pos, treeRanges);
+  renderLines(pos, treeRanges, treePositions, duplicates);
   renderCards(pos, treeRanges, ghosts);
   renderTreeLabels(pos, treeRanges);
   renderSidebar(document.getElementById('search').value);

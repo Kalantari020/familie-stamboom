@@ -639,6 +639,13 @@ body.readonly .card:hover   { cursor: default; }
   stroke-dasharray: 5, 3;
   opacity: 0.6;
 }
+.duplicate-link {
+  stroke: #60a5fa;
+  stroke-width: 2;
+  stroke-dasharray: 6, 4;
+  fill: none;
+  opacity: 0.55;
+}
 
 /* ============================================================
    MODALS
@@ -996,20 +1003,21 @@ body.readonly .card:hover   { cursor: default; }
 }
 
 
-/* Social ghost cards */
-.card.social-ghost {
-  opacity: 0.65;
+/* Duplicaat-kaarten: personen die in meerdere stambomen voorkomen */
+.card.duplicate-card {
+  opacity: 0.85;
   border-style: dashed !important;
+  border-color: #60a5fa !important;
   border-width: 2px !important;
 }
 
-.social-ghost-badge {
+.duplicate-badge {
   position: absolute;
   top: -8px;
   left: -8px;
   width: 22px;
   height: 22px;
-  background: #10b981;
+  background: #3b82f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
