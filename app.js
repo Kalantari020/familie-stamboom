@@ -1840,11 +1840,18 @@ function computeLayout(overrideIds) {
 
   state.relationships.forEach(r => {
     if (r.type === 'parent-child') {
-      if (childrenOf[r.parentId] !== undefined) childrenOf[r.parentId].push(r.childId);
-      if (parentsOf[r.childId] !== undefined)   parentsOf[r.childId].push(r.parentId);
+      if (childrenOf[r.parentId] !== undefined) {
+        childrenOf[r.parentId].push(r.childId);
+        // Alleen aan parentsOf toevoegen als de OUDER ook in deze layout zit.
+        // Zo worden aangetrouwde familieleden (wier ouders buiten dit eiland vallen)
+        // niet als 'heeft-ouders-in-layout' behandeld en blijven ze gen0-roots.
+        if (parentsOf[r.childId] !== undefined) parentsOf[r.childId].push(r.parentId);
+      }
     } else if (r.type === 'social-parent') {
-      if (childrenOf[r.parentId] !== undefined) childrenOf[r.parentId].push(r.childId);
-      if (parentsOf[r.childId] !== undefined)   parentsOf[r.childId].push(r.parentId);
+      if (childrenOf[r.parentId] !== undefined) {
+        childrenOf[r.parentId].push(r.childId);
+        if (parentsOf[r.childId] !== undefined) parentsOf[r.childId].push(r.parentId);
+      }
     } else if (r.type === 'partner') {
       if (partnersOf[r.person1Id] !== undefined) partnersOf[r.person1Id].push(r.person2Id);
       if (partnersOf[r.person2Id] !== undefined) partnersOf[r.person2Id].push(r.person1Id);
