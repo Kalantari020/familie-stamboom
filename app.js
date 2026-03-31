@@ -1902,15 +1902,21 @@ function computeLayout(overrideIds) {
   };
 
   // Helper: push all nodes in a generation to the right if needed.
-  // Behandelt partner-paren als eenheid zodat ze nooit gesplitst worden.
+  // Behandelt AANEENGESLOTEN partner-paren als eenheid (nooit splitsen).
+  // Partners die ver uit elkaar staan (onder verschillende ouder-groepen) worden
+  // NIET samengevoegd — anders zou een schijn-brede eenheid alles tussen hen wegduwen.
+  const ADJACENT_THRESHOLD = NODE_W + H_GAP + 2; // 232 px tolerantie
   const fixOverlaps = gen => {
     const genMembers = (byGen[gen] || []).filter(id => pos[id]);
-    // Bouw units: elke persoon + zijn/haar partners vormen één eenheid
+    // Bouw units: alleen AANEENGESLOTEN partners vormen één eenheid
     const inUnit = new Set();
     const units = [];
     genMembers.forEach(id => {
       if (inUnit.has(id)) return;
-      const myPartners = (partnersOf[id] || []).filter(pid => genOf[pid] === gen && pos[pid]);
+      const myPartners = (partnersOf[id] || []).filter(pid =>
+        genOf[pid] === gen && pos[pid] &&
+        Math.abs(pos[id].x - pos[pid].x) <= ADJACENT_THRESHOLD
+      );
       const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
       unit.forEach(uid => inUnit.add(uid));
       units.push(unit);
