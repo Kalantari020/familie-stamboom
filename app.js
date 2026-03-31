@@ -769,11 +769,21 @@ function computeLayout(overrideIds) {
     const seen = new Set();
     const ordered = [];
     // roots first, then their in-law partners directly after
+    // Bij meerdere partners: partner1 — persoon — partner2 (man tussen vrouwen)
     gen0.filter(id => (parentsOf[id] || []).length === 0).forEach(id => {
       if (seen.has(id)) return;
-      seen.add(id); ordered.push(id);
-      (partnersOf[id] || []).filter(pid => gen0.includes(pid) && !seen.has(pid))
-        .forEach(pid => { seen.add(pid); ordered.push(pid); });
+      const myPartners = (partnersOf[id] || []).filter(pid => gen0.includes(pid) && !seen.has(pid));
+      if (myPartners.length >= 2) {
+        // Meerdere partners: eerste partner links, persoon midden, rest rechts
+        seen.add(myPartners[0]); ordered.push(myPartners[0]);
+        seen.add(id); ordered.push(id);
+        for (let i = 1; i < myPartners.length; i++) {
+          seen.add(myPartners[i]); ordered.push(myPartners[i]);
+        }
+      } else {
+        seen.add(id); ordered.push(id);
+        myPartners.forEach(pid => { seen.add(pid); ordered.push(pid); });
+      }
     });
     gen0.forEach(id => {
       if (seen.has(id)) return;
@@ -891,15 +901,33 @@ function computeLayout(overrideIds) {
       const parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
 
       // Bouw volgorde: elk kind gevolgd door aangetrouwde partner(s) en cross-family ghosts
+      // Bij meerdere partners: partner1 — kind — partner2 (persoon tussen partners)
       const expanded = [];
       group.children.forEach(cid => {
-        expanded.push(cid);
-        // Voeg aangetrouwde partners toe (in-laws, geen ouders in layout)
-        (partnersOf[cid] || []).forEach(pid => {
-          if (inlaws.includes(pid) && !placedInlaws.has(pid)) {
+        const inlawPartners = (partnersOf[cid] || []).filter(pid =>
+          inlaws.includes(pid) && !placedInlaws.has(pid)
+        );
+        if (inlawPartners.length >= 2) {
+          // Meerdere partners: eerste links, kind midden, rest rechts
+          placedInlaws.add(inlawPartners[0]);
+          expanded.push(inlawPartners[0]);
+          expanded.push(cid);
+          for (let i = 1; i < inlawPartners.length; i++) {
+            placedInlaws.add(inlawPartners[i]);
+            expanded.push(inlawPartners[i]);
+          }
+        } else {
+          expanded.push(cid);
+          inlawPartners.forEach(pid => {
             expanded.push(pid);
             placedInlaws.add(pid);
-          } else if (crossFamilyPartnerMap.has(cid) && crossFamilyPartnerMap.get(cid).has(pid)) {
+          });
+        }
+        // Voeg cross-family ghost partners toe
+        (partnersOf[cid] || []).forEach(pid => {
+          if (inlaws.includes(pid) && placedInlaws.has(pid)) return; // al geplaatst
+          if (inlaws.includes(pid) && !placedInlaws.has(pid)) return; // al afgehandeld hierboven
+          if (crossFamilyPartnerMap.has(cid) && crossFamilyPartnerMap.get(cid).has(pid)) {
             // Cross-family partner: heeft eigen ouders in layout
             // Voeg ghost-slot toe zodat er ruimte is naast het kind
             const ghostId = CROSS_GHOST_PREFIX + pid + '_' + cid;
