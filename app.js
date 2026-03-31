@@ -2845,6 +2845,29 @@ function computeLayout(overrideIds) {
     });
   });
 
+  // --- Compactie: schuif alles rechts van een gat naar links ---
+  // Simpele aanpak: per generatie, vind gaten > H_GAP en sluit ze.
+  // Alles met x >= het gat wordt verschoven. Dit behoudt relatieve posities.
+  for (let pass = 0; pass < 2; pass++) {
+    gens.forEach(gen => {
+      const genMembers = (byGen[gen] || []).filter(id => pos[id]);
+      if (genMembers.length < 2) return;
+      // Sorteer op x
+      genMembers.sort((a, b) => pos[a].x - pos[b].x);
+      // Vind paren met grote gap
+      for (let i = 1; i < genMembers.length; i++) {
+        const gap = pos[genMembers[i]].x - pos[genMembers[i - 1]].x - NODE_W;
+        if (gap <= H_GAP) continue;
+        const shift = gap - H_GAP;
+        const threshold = pos[genMembers[i]].x;
+        // Schuif ALLE posities (alle generaties) met x >= threshold naar links
+        for (const id of Object.keys(pos)) {
+          if (pos[id].x >= threshold) pos[id].x -= shift;
+        }
+      }
+    });
+  }
+
   // Normalize so minimum is at PADDING
   const allX = Object.values(pos).map(p => p.x);
   const minX = Math.min(...allX);
