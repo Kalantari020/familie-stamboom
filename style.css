@@ -602,6 +602,12 @@ body.readonly .card:hover   { cursor: default; }
   stroke-dasharray: 6 4;
   fill: none;
 }
+.partner-arc {
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  fill: none;
+}
 .child-line {
   stroke: #64748b;
   stroke-width: 1.5;

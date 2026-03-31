@@ -2143,6 +2143,8 @@ function renderLines(pos, treeRanges) {
   }
 
   // --- Partner lines ---
+  // Direct naast elkaar (gap ≤ H_GAP + 2): rechte stippellijn
+  // Ver uit elkaar (siblings ertussen): boog die boven de kaarten langs gaat
   const drawnPartners = new Set();
   state.relationships.forEach(r => {
     if (r.type !== 'partner') return;
@@ -2154,11 +2156,21 @@ function renderLines(pos, treeRanges) {
 
     const leftId  = pos[r.person1Id].x <= pos[r.person2Id].x ? r.person1Id : r.person2Id;
     const rightId = leftId === r.person1Id ? r.person2Id : r.person1Id;
-    const y = midY(leftId);
+    const y  = midY(leftId);
     const x1 = pos[leftId].x + NODE_W;
     const x2 = pos[rightId].x;
-    if (x2 > x1) {
+    if (x2 <= x1) return;
+
+    const gap = x2 - x1;
+    if (gap <= H_GAP + 2) {
+      // Aaneengesloten: gewone rechte stippellijn
       parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
+    } else {
+      // Niet-aaneengesloten (broers/zussen ertussen): boog boven de kaarten langs
+      const mx   = (x1 + x2) / 2;
+      const arcH = Math.min(60, 20 + gap * 0.08); // hoogte van de boog, max 60px
+      const cy   = y - NODE_H / 2 - arcH;         // controlepunt boven bovenkant kaart
+      parts.push(`<path d="M ${x1},${y} Q ${mx},${cy} ${x2},${y}" class="partner-arc"/>`);
     }
   });
 
@@ -2465,15 +2477,10 @@ function renderSidebar(filter = '') {
   const q         = filter.toLowerCase();
 
   // --- Stambomen ---
-  // Toon alleen root-stambomen (hoofd én partner nergens als kind) — zelfde logica als canvas
+  // Toon ALLE stambomen (root + sub) in de sidebar zodat je per gezinshoofd kunt navigeren.
+  // De root-filter zit alleen op het canvas (computeAllFamiliesLayout), niet hier.
   const allStambomenSidebar = computeStambomen();
-  const rootStambomen = allStambomenSidebar.filter(s => {
-    if (getParentsOf(s.headId).length > 0) return false;
-    const partners = getPartnersOf(s.headId);
-    if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
-    return true;
-  });
-  const filteredTrees = rootStambomen.filter(s =>
+  const filteredTrees = allStambomenSidebar.filter(s =>
     !q || s.label.toLowerCase().includes(q)
   );
 
