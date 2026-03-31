@@ -2570,7 +2570,18 @@ function renderTreeLabels(pos, treeRanges) {
 // ALL-FAMILIES LAYOUT
 // ============================================================
 function computeAllFamiliesLayout() {
-  const stambomen = computeStambomen();
+  const allStambomen = computeStambomen();
+  if (!allStambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
+
+  // Filter: toon alleen bomen waarvan het hoofd (en zijn/haar partners)
+  // NERGENS als kind voorkomen. Zo verdwijnen sub-bomen die al in een
+  // andere boom zitten en houd je alleen de echte roots over.
+  const stambomen = allStambomen.filter(s => {
+    if (getParentsOf(s.headId).length > 0) return false;
+    const partners = getPartnersOf(s.headId);
+    if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
+    return true;
+  });
   if (!stambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
 
   const ISLAND_H_GAP  = 120; // horizontale ruimte tussen eilanden in dezelfde rij
@@ -3216,6 +3227,12 @@ function checkSmartLink(personId) {
       if (r.type === 'parent-child')
         return (r.parentId === personId && r.childId === p.id) ||
                (r.parentId === p.id    && r.childId === personId);
+      if (r.type === 'sibling')
+        return (r.person1Id === personId && r.person2Id === p.id) ||
+               (r.person1Id === p.id    && r.person2Id === personId);
+      if (r.type === 'social-parent')
+        return (r.parentId === personId && r.childId === p.id) ||
+               (r.parentId === p.id    && r.childId === personId);
       return false;
     });
     return !linked;
@@ -3235,6 +3252,9 @@ function checkSmartLink(personId) {
         <option value="partner">Partner van</option>
         <option value="child-of">Kind van</option>
         <option value="parent-of">Ouder van</option>
+        <option value="sibling">Broer/Zus van</option>
+        <option value="social-child-of">Sociaal kind van</option>
+        <option value="social-parent-of">Sociale ouder van</option>
       </select>
       <button class="btn primary sl-add">+ Link</button>
     </div>
@@ -3261,6 +3281,23 @@ function checkSmartLink(personId) {
         if (!state.relationships.some(r =>
           r.type === 'parent-child' && r.parentId === personId && r.childId === pid
         )) state.relationships.push({ type: 'parent-child', parentId: personId, childId: pid });
+
+      } else if (type === 'sibling') {
+        if (!state.relationships.some(r =>
+          r.type === 'sibling' &&
+          ((r.person1Id === personId && r.person2Id === pid) ||
+           (r.person1Id === pid    && r.person2Id === personId))
+        )) state.relationships.push({ type: 'sibling', person1Id: personId, person2Id: pid });
+
+      } else if (type === 'social-child-of') {
+        if (!state.relationships.some(r =>
+          r.type === 'social-parent' && r.parentId === pid && r.childId === personId
+        )) state.relationships.push({ type: 'social-parent', parentId: pid, childId: personId });
+
+      } else if (type === 'social-parent-of') {
+        if (!state.relationships.some(r =>
+          r.type === 'social-parent' && r.parentId === personId && r.childId === pid
+        )) state.relationships.push({ type: 'social-parent', parentId: personId, childId: pid });
       }
 
       saveState();
