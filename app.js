@@ -1901,14 +1901,33 @@ function computeLayout(overrideIds) {
     return (Math.min(...xs) + Math.max(...xs) + NODE_W) / 2;
   };
 
-  // Helper: push all nodes in a generation that are >= startIdx to the right if needed
+  // Helper: push all nodes in a generation to the right if needed.
+  // Behandelt partner-paren als eenheid zodat ze nooit gesplitst worden.
   const fixOverlaps = gen => {
-    const sorted = (byGen[gen] || []).filter(id => pos[id]).sort((a, b) => pos[a].x - pos[b].x);
-    for (let i = 1; i < sorted.length; i++) {
-      const minX = pos[sorted[i - 1]].x + NODE_W + H_GAP;
-      if (pos[sorted[i]].x < minX) {
-        const shift = minX - pos[sorted[i]].x;
-        for (let j = i; j < sorted.length; j++) pos[sorted[j]].x += shift;
+    const genMembers = (byGen[gen] || []).filter(id => pos[id]);
+    // Bouw units: elke persoon + zijn/haar partners vormen één eenheid
+    const inUnit = new Set();
+    const units = [];
+    genMembers.forEach(id => {
+      if (inUnit.has(id)) return;
+      const myPartners = (partnersOf[id] || []).filter(pid => genOf[pid] === gen && pos[pid]);
+      const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
+      unit.forEach(uid => inUnit.add(uid));
+      units.push(unit);
+    });
+    // Sorteer units op de x van het meest linkse lid
+    units.sort((a, b) => pos[a[0]].x - pos[b[0]].x);
+    // Duw units naar rechts als ze overlappen met de vorige unit
+    for (let i = 1; i < units.length; i++) {
+      const prevRight = pos[units[i - 1][units[i - 1].length - 1]].x; // meest rechts vorige unit
+      const currLeft  = pos[units[i][0]].x;                            // meest links huidige unit
+      const minX = prevRight + NODE_W + H_GAP;
+      if (currLeft < minX) {
+        const shift = minX - currLeft;
+        // Schuif huidige én alle volgende units mee
+        for (let j = i; j < units.length; j++) {
+          units[j].forEach(uid => { pos[uid].x += shift; });
+        }
       }
     }
   };
@@ -2196,8 +2215,28 @@ function renderLines(pos, treeRanges) {
     }
   });
 
-  // Sociale lijnen (social-parent, broer/zus) worden NIET getekend —
-  // de badge op de kaart is voldoende visuele aanduiding.
+  // Sociale lijnen (social-parent) worden NIET getekend — badge is voldoende.
+
+  // --- Broer/zus verbindingslijnen tussen VERSCHILLENDE stambomen ---
+  // Alleen getekend wanneer de broers/zussen elk hoofd zijn van een eigen stamboom
+  // (bijv. Wazir, Malika en Hagig die elk een eigen boom hebben maar broers/zussen zijn).
+  if (personPrimaryTree) {
+    const drawnSiblings = new Set();
+    state.relationships.forEach(r => {
+      if (r.type !== 'sibling') return;
+      if (!pos[r.person1Id] || !pos[r.person2Id]) return;
+      if (samePrimaryTree(r.person1Id, r.person2Id)) return; // zelfde boom: geen lijn nodig
+      const key = [r.person1Id, r.person2Id].sort().join('|');
+      if (drawnSiblings.has(key)) return;
+      drawnSiblings.add(key);
+      const x1 = cx(r.person1Id), y1 = topY(r.person1Id);
+      const x2 = cx(r.person2Id), y2 = topY(r.person2Id);
+      const arcY = Math.min(y1, y2) - 30;
+      parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${arcY}" class="sibling-line"/>`);
+      parts.push(`<line x1="${x1}" y1="${arcY}" x2="${x2}" y2="${arcY}" class="sibling-line"/>`);
+      parts.push(`<line x1="${x2}" y1="${arcY}" x2="${x2}" y2="${y2}" class="sibling-line"/>`);
+    });
+  }
 
   // --- Cross-tree verbindingen: ouder→kind over stamboomgrenzen heen ---
   // Tekent een boogvormige curve die onder de eilanden doorloopt
