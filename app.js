@@ -2188,11 +2188,58 @@ function renderLines(pos, treeRanges) {
     parts.push(`<line x1="${x2}" y1="${midY2}" x2="${x2}" y2="${y2}" class="social-line"/>`);
   });
 
-  // Size the SVG — include all positions
+  // --- Cross-tree verbindingen: ouder→kind over stamboomgrenzen heen ---
+  // Tekent een boogvormige curve die onder de eilanden doorloopt
+  if (personPrimaryTree) {
+    let extraDepth = 0; // bijhouden hoe ver omlaag arcs gaan (voor SVG-grootte)
+
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!pos[r.parentId] || !pos[r.childId]) return;
+      if (samePrimaryTree(r.parentId, r.childId)) return; // normale lijn, al getekend
+
+      const x1 = cx(r.parentId);
+      const y1 = botY(r.parentId);
+      const x2 = cx(r.childId);
+      const y2 = topY(r.childId);
+
+      // De boog duikt OMLAAG, schaalt met horizontale afstand zodat de curve mooi is
+      const horizDist = Math.abs(x2 - x1);
+      const dip = Math.max(70, horizDist * 0.18);
+      const cp1y = y1 + dip;
+      const cp2y = y2 + dip;
+      extraDepth = Math.max(extraDepth, cp1y, cp2y);
+
+      parts.push(`<path d="M ${x1} ${y1} C ${x1} ${cp1y}, ${x2} ${cp2y}, ${x2} ${y2}" class="cross-tree-line"/>`);
+    });
+
+    // Cross-tree partnerlijnen (zelden, maar mogelijk)
+    const drawnCrossPartners = new Set();
+    state.relationships.forEach(r => {
+      if (r.type !== 'partner') return;
+      if (!pos[r.person1Id] || !pos[r.person2Id]) return;
+      if (samePrimaryTree(r.person1Id, r.person2Id)) return;
+      const key = [r.person1Id, r.person2Id].sort().join('|');
+      if (drawnCrossPartners.has(key)) return;
+      drawnCrossPartners.add(key);
+
+      const x1 = cx(r.person1Id);
+      const y1 = midY(r.person1Id);
+      const x2 = cx(r.person2Id);
+      const y2 = midY(r.person2Id);
+      const dip  = Math.max(50, Math.abs(x2 - x1) * 0.12);
+      const midX = (x1 + x2) / 2;
+      parts.push(`<path d="M ${x1} ${y1} Q ${midX} ${y1 - dip}, ${x2} ${y2}" class="cross-tree-line cross-tree-partner"/>`);
+    });
+  }
+
+  // Size the SVG — ruimte voor omlaagdippende cross-tree arcs
   const allPositions = Object.values(pos);
   if (allPositions.length) {
     const maxX = Math.max(...allPositions.map(p => p.x + NODE_W)) + PADDING;
-    const maxY = Math.max(...allPositions.map(p => p.y + NODE_H)) + PADDING;
+    const rawMaxY = Math.max(...allPositions.map(p => p.y + NODE_H));
+    // Extra ruimte onder de onderste rij voor cross-tree bogen
+    const maxY = rawMaxY + 160 + PADDING;
     svg.style.width  = maxX + 'px';
     svg.style.height = maxY + 'px';
     svg.setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);

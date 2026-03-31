@@ -614,6 +614,18 @@ body.readonly .card:hover   { cursor: default; }
   fill: none;
   opacity: 0.7;
 }
+.cross-tree-line {
+  stroke: #f59e0b;
+  stroke-width: 2.5;
+  stroke-dasharray: 10, 5;
+  fill: none;
+  opacity: 0.75;
+}
+.cross-tree-partner {
+  stroke: #f59e0b;
+  stroke-dasharray: 5, 3;
+  opacity: 0.6;
+}
 
 /* ============================================================
    MODALS
