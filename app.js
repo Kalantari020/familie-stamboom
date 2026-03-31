@@ -2073,7 +2073,8 @@ function computeLayout(overrideIds) {
   });
 
   // --- Bottom-up: shift parent couples to center over their children ---
-  // One clean pass per gen, bottom to top
+  // Na elke fixOverlaps worden de verschuivingen doorgegeven aan alle nakomelingen,
+  // zodat gen3/gen4 niet wegdrijft van hun ouders.
   [...gens].reverse().forEach(gen => {
     const processed = new Set();
     (byGen[gen] || []).forEach(id => {
@@ -2093,7 +2094,35 @@ function computeLayout(overrideIds) {
       const shift = childCenter - unitCenter;
       if (Math.abs(shift) > 1) unit.forEach(pid => { pos[pid].x += shift; });
     });
+
+    // Bewaar x-posities vóór fixOverlaps zodat we de verschuiving kunnen meten
+    const xBefore = {};
+    (byGen[gen] || []).forEach(id => { if (pos[id]) xBefore[id] = pos[id].x; });
+
     fixOverlaps(gen);
+
+    // Cascade: geef elke fixOverlaps-verschuiving door aan alle nakomelingen
+    const propagated = new Set();
+    function cascadeShift(id, delta) {
+      if (propagated.has(id) || !pos[id] || Math.abs(delta) < 1) return;
+      propagated.add(id);
+      pos[id].x += delta;
+      // Schuif aaneengesloten partners (in-laws) ook mee
+      (partnersOf[id] || []).forEach(pid => {
+        if (!propagated.has(pid) && pos[pid] && genOf[pid] !== gen &&
+            Math.abs((pos[id].x - delta) - pos[pid].x) <= ADJACENT_THRESHOLD) {
+          cascadeShift(pid, delta);
+        }
+      });
+      // Schuif kinderen mee
+      (childrenOf[id] || []).forEach(cid => cascadeShift(cid, delta));
+    }
+    (byGen[gen] || []).forEach(id => {
+      if (!pos[id] || xBefore[id] === undefined) return;
+      const delta = pos[id].x - xBefore[id];
+      if (Math.abs(delta) < 1) return;
+      (childrenOf[id] || []).forEach(cid => cascadeShift(cid, delta));
+    });
   });
 
   // Normalize so minimum is at PADDING
