@@ -2196,40 +2196,8 @@ function renderLines(pos, treeRanges) {
     }
   });
 
-  // --- Social-parent dashed lines ---
-  state.relationships.forEach(r => {
-    if (r.type !== 'social-parent') return;
-    if (!pos[r.parentId] || !pos[r.childId]) return;
-    const x1 = cx(r.parentId);
-    const y1 = botY(r.parentId);
-    const x2 = cx(r.childId);
-    const y2 = topY(r.childId);
-    const midY2 = y1 + (y2 - y1) * 0.45;
-    parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${midY2}" class="social-line"/>`);
-    parts.push(`<line x1="${x1}" y1="${midY2}" x2="${x2}" y2="${midY2}" class="social-line"/>`);
-    parts.push(`<line x1="${x2}" y1="${midY2}" x2="${x2}" y2="${y2}" class="social-line"/>`);
-  });
-
-  // --- Broer/zus lijnen ---
-  const drawnSiblings = new Set();
-  state.relationships.forEach(r => {
-    if (r.type !== 'sibling') return;
-    if (!pos[r.person1Id] || !pos[r.person2Id]) return;
-    const key = [r.person1Id, r.person2Id].sort().join('|');
-    if (drawnSiblings.has(key)) return;
-    drawnSiblings.add(key);
-
-    const x1 = cx(r.person1Id);
-    const x2 = cx(r.person2Id);
-    const y1 = topY(r.person1Id);
-    const y2 = topY(r.person2Id);
-    const arcY = Math.min(y1, y2) - 22; // lijn boven de kaarten
-
-    // Kleine vertical drops + horizontale balk
-    parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${arcY}" class="sibling-line"/>`);
-    parts.push(`<line x1="${x1}" y1="${arcY}" x2="${x2}" y2="${arcY}" class="sibling-line"/>`);
-    parts.push(`<line x1="${x2}" y1="${arcY}" x2="${x2}" y2="${y2}" class="sibling-line"/>`);
-  });
+  // Sociale lijnen (social-parent, broer/zus) worden NIET getekend —
+  // de badge op de kaart is voldoende visuele aanduiding.
 
   // --- Cross-tree verbindingen: ouder→kind over stamboomgrenzen heen ---
   // Tekent een boogvormige curve die onder de eilanden doorloopt
