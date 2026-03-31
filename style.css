@@ -496,6 +496,7 @@ html, body {
   background: var(--unknown-bg);
   border-color: var(--unknown-border);
   user-select: none;
+  overflow: visible;
 }
 .card:hover {
   transform: translateY(-2px);
@@ -605,6 +606,13 @@ body.readonly .card:hover   { cursor: default; }
   stroke: #64748b;
   stroke-width: 1.5;
   fill: none;
+}
+.social-line {
+  stroke: #10b981;
+  stroke-width: 2;
+  stroke-dasharray: 6,4;
+  fill: none;
+  opacity: 0.7;
 }
 
 /* ============================================================
@@ -957,18 +965,20 @@ body.readonly .card:hover   { cursor: default; }
 }
 .connector-badge {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -10px;
+  right: -10px;
+  width: 26px;
+  height: 26px;
   background: #8b5cf6;
-  color: white;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2;
+  font-size: 13px;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(139,92,246,0.5);
+  border: 2px solid #1e293b;
+  cursor: help;
 }
 
 /* Tree group labels */
@@ -984,6 +994,66 @@ body.readonly .card:hover   { cursor: default; }
   white-space: nowrap;
   pointer-events: none;
   z-index: 1;
+}
+
+/* ============================================================
+   TREE ISLAND LAYOUT (alle families modus)
+   ============================================================ */
+.tree-island-bg {
+  position: absolute;
+  border-radius: 16px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1.5px solid rgba(148, 163, 184, 0.15);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tree-island-label {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.9);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.tree-island-count {
+  font-size: 10px;
+  font-weight: 400;
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 10px;
+  padding: 1px 7px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Social ghost cards */
+.card.social-ghost {
+  opacity: 0.65;
+  border-style: dashed !important;
+  border-width: 2px !important;
+}
+
+.social-ghost-badge {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 22px;
+  height: 22px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ============================================================

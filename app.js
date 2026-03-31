@@ -1711,6 +1711,18 @@ function getPartnersOf(personId) {
     .map(r => r.person1Id === personId ? r.person2Id : r.person1Id);
 }
 
+function getSocialParentsOf(personId) {
+  return state.relationships
+    .filter(r => r.type === 'social-parent' && r.childId === personId)
+    .map(r => r.parentId);
+}
+
+function getSocialChildrenOf(personId) {
+  return state.relationships
+    .filter(r => r.type === 'social-parent' && r.parentId === personId)
+    .map(r => r.childId);
+}
+
 function uid() {
   return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
@@ -1728,6 +1740,7 @@ function getStamboomPersons(headId) {
     result.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
     getChildrenOf(id).forEach(cid => walk(cid));
+    getSocialChildrenOf(id).forEach(cid => walk(cid));
   }
   walk(headId);
   return [...result];
@@ -1792,8 +1805,8 @@ function getActivePersonIds() {
 // ============================================================
 // LAYOUT ALGORITHM
 // ============================================================
-function computeLayout() {
-  const activeIds = getActivePersonIds();
+function computeLayout(overrideIds) {
+  const activeIds = overrideIds || getActivePersonIds();
   const persons   = state.persons.filter(p => activeIds.has(p.id));
   if (persons.length === 0) return {};
 
@@ -1810,11 +1823,14 @@ function computeLayout() {
 
   state.relationships.forEach(r => {
     if (r.type === 'parent-child') {
-      if (childrenOf[r.parentId]) childrenOf[r.parentId].push(r.childId);
-      if (parentsOf[r.childId])   parentsOf[r.childId].push(r.parentId);
+      if (childrenOf[r.parentId] !== undefined) childrenOf[r.parentId].push(r.childId);
+      if (parentsOf[r.childId] !== undefined)   parentsOf[r.childId].push(r.parentId);
+    } else if (r.type === 'social-parent') {
+      if (childrenOf[r.parentId] !== undefined) childrenOf[r.parentId].push(r.childId);
+      if (parentsOf[r.childId] !== undefined)   parentsOf[r.childId].push(r.parentId);
     } else if (r.type === 'partner') {
-      if (partnersOf[r.person1Id]) partnersOf[r.person1Id].push(r.person2Id);
-      if (partnersOf[r.person2Id]) partnersOf[r.person2Id].push(r.person1Id);
+      if (partnersOf[r.person1Id] !== undefined) partnersOf[r.person1Id].push(r.person2Id);
+      if (partnersOf[r.person2Id] !== undefined) partnersOf[r.person2Id].push(r.person1Id);
     }
   });
 
@@ -2052,7 +2068,7 @@ function computeLayout() {
 // ============================================================
 // SVG LINE RENDERING
 // ============================================================
-function renderLines(pos) {
+function renderLines(pos, treeRanges) {
   const svg = document.getElementById('svg-lines');
   const parts = [];
 
@@ -2158,10 +2174,25 @@ function renderLines(pos) {
     }
   });
 
-  // Size the SVG
-  if (Object.keys(pos).length) {
-    const maxX = Math.max(...Object.values(pos).map(p => p.x + NODE_W)) + PADDING;
-    const maxY = Math.max(...Object.values(pos).map(p => p.y + NODE_H)) + PADDING;
+  // --- Social-parent dashed lines ---
+  state.relationships.forEach(r => {
+    if (r.type !== 'social-parent') return;
+    if (!pos[r.parentId] || !pos[r.childId]) return;
+    const x1 = cx(r.parentId);
+    const y1 = botY(r.parentId);
+    const x2 = cx(r.childId);
+    const y2 = topY(r.childId);
+    const midY2 = y1 + (y2 - y1) * 0.45;
+    parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${midY2}" class="social-line"/>`);
+    parts.push(`<line x1="${x1}" y1="${midY2}" x2="${x2}" y2="${midY2}" class="social-line"/>`);
+    parts.push(`<line x1="${x2}" y1="${midY2}" x2="${x2}" y2="${y2}" class="social-line"/>`);
+  });
+
+  // Size the SVG — include all positions
+  const allPositions = Object.values(pos);
+  if (allPositions.length) {
+    const maxX = Math.max(...allPositions.map(p => p.x + NODE_W)) + PADDING;
+    const maxY = Math.max(...allPositions.map(p => p.y + NODE_H)) + PADDING;
     svg.style.width  = maxX + 'px';
     svg.style.height = maxY + 'px';
     svg.setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);
@@ -2235,7 +2266,7 @@ function ageOnNextBirthday(dateStr) {
   return nextYear - d.year;
 }
 
-function renderCards(pos) {
+function renderCards(pos, treeRanges, ghosts) {
   const container = document.getElementById('cards-container');
   container.innerHTML = '';
 
@@ -2246,6 +2277,24 @@ function renderCards(pos) {
     const canvas = document.getElementById('canvas');
     canvas.style.width  = maxX + 'px';
     canvas.style.height = maxY + 'px';
+  }
+
+  // ── Tree background boxes (all-families mode) ───────────────
+  if (treeRanges && Object.keys(treeRanges).length) {
+    const LABEL_H = 44;
+    Object.entries(treeRanges).forEach(([headId, r]) => {
+      const box = document.createElement('div');
+      box.className = 'tree-island-bg';
+      box.style.left   = r.minX + 'px';
+      box.style.top    = (r.minY) + 'px';
+      box.style.width  = (r.maxX - r.minX) + 'px';
+      box.style.height = (r.maxY - r.minY + LABEL_H) + 'px';
+
+      const head = getPerson(headId);
+      const familyName = head?.family || head?.name?.split(' ').slice(-1)[0] || r.label;
+      box.innerHTML = `<div class="tree-island-label">🌳 Familie ${escHtml(familyName)}<span class="tree-island-count">${r.count} personen</span></div>`;
+      container.appendChild(box);
+    });
   }
 
   // Detect connector persons (appear in multiple tree groups) — only in all-families mode
@@ -2308,6 +2357,34 @@ function renderCards(pos) {
 
     container.appendChild(div);
   });
+
+  // ── Ghost cards for social children in secondary trees ───────
+  if (ghosts && Object.keys(ghosts).length) {
+    Object.entries(ghosts).forEach(([key, g]) => {
+      const person = getPerson(g.personId);
+      if (!person) return;
+      const gClass = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
+      const ghostDiv = document.createElement('div');
+      ghostDiv.className = `card ${gClass} social-ghost`;
+      ghostDiv.dataset.id = person.id;
+      ghostDiv.style.left = g.x + 'px';
+      ghostDiv.style.top  = g.y + 'px';
+      const avatarHtml = person.photo
+        ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
+        : `<div class="card-avatar">${initials(person.name)}</div>`;
+      ghostDiv.innerHTML = `
+        <div class="social-ghost-badge" title="Sociale familie">👨‍👩‍👧</div>
+        <div class="card-top">
+          ${avatarHtml}
+          <div class="card-info">
+            <div class="card-name">${escHtml(person.name)}</div>
+            <div class="card-years" style="font-style:italic;color:var(--text-muted)">Lid van dit gezin</div>
+          </div>
+        </div>`;
+      ghostDiv.addEventListener('click', () => openDetailModal(person.id));
+      container.appendChild(ghostDiv);
+    });
+  }
 }
 
 // ============================================================
@@ -2426,43 +2503,79 @@ function scrollToCard(id) {
 // ============================================================
 // TREE GROUP LABELS
 // ============================================================
-function renderTreeLabels(positions) {
-  // Remove old labels
+function renderTreeLabels(pos, treeRanges) {
   const canvas = document.getElementById('canvas');
   canvas.querySelectorAll('.tree-group-label').forEach(el => el.remove());
+  // Labels are now rendered as part of tree-island-bg boxes in renderCards
+  // This function is kept for single-tree mode labels (none needed)
+}
 
-  if (activeTreeId !== null) return; // alleen in alle-families modus
-
+// ============================================================
+// ALL-FAMILIES LAYOUT
+// ============================================================
+function computeAllFamiliesLayout() {
   const stambomen = computeStambomen();
+  const combined  = {};  // pid → { x, y, treeHeadId }
+  const ghosts    = {};  // `pid:treeHeadId` → { x, y, treeHeadId, personId }
+  const treeRanges = {}; // treeHeadId → { minX, maxX, minY, maxY, label, count }
+  const primaryTree = {}; // pid → first treeHeadId that claimed this person
+  let cursorX = PADDING;
+  const ISLAND_GAP = 280;
+
   stambomen.forEach(s => {
-    const persons = getStamboomPersons(s.headId);
-    const xs = [], ys = [];
-    persons.forEach(pid => {
-      const p = positions[pid];
-      if (p) { xs.push(p.x); ys.push(p.y); }
+    const treePersonIds = new Set(getStamboomPersons(s.headId));
+    const treePos = computeLayout(treePersonIds);
+    if (!Object.keys(treePos).length) return;
+
+    const xs = Object.values(treePos).map(p => p.x);
+    const ys = Object.values(treePos).map(p => p.y);
+    const treeMinX = Math.min(...xs);
+    const treeMaxX = Math.max(...xs);
+    const shift = cursorX - treeMinX;
+
+    Object.entries(treePos).forEach(([pid, p]) => {
+      if (!primaryTree[pid]) {
+        primaryTree[pid] = s.headId;
+        combined[pid] = { x: p.x + shift, y: p.y, treeHeadId: s.headId };
+      } else {
+        // Secondary appearance: social child in another tree → ghost card
+        const key = `${pid}:${s.headId}`;
+        ghosts[key] = { x: p.x + shift, y: p.y, treeHeadId: s.headId, personId: pid };
+      }
     });
-    if (!xs.length) return;
 
-    const minX = Math.min(...xs);
-    const minY = Math.min(...ys);
+    treeRanges[s.headId] = {
+      minX: cursorX - PADDING / 2,
+      maxX: treeMaxX + shift + NODE_W + PADDING / 2,
+      minY: Math.min(...ys) - 50,
+      maxY: Math.max(...ys) + NODE_H + PADDING / 2,
+      label: getPerson(s.headId)?.name || s.label,
+      count: treePersonIds.size
+    };
 
-    const label = document.createElement('div');
-    label.className = 'tree-group-label';
-    label.style.left = minX + 'px';
-    label.style.top  = (minY - 35) + 'px';
-    label.textContent = '🌳 Familie ' + s.label;
-    canvas.appendChild(label);
+    cursorX = treeMaxX + shift + NODE_W + ISLAND_GAP;
   });
+
+  return { positions: combined, ghosts, treeRanges };
 }
 
 // ============================================================
 // FULL RENDER
 // ============================================================
 function render() {
-  lastPositions = computeLayout();
-  renderLines(lastPositions);
-  renderCards(lastPositions);
-  renderTreeLabels(lastPositions);
+  let pos, ghosts = {}, treeRanges = null;
+  if (activeTreeId === null && state.persons.length > 0) {
+    const result = computeAllFamiliesLayout();
+    pos = result.positions;
+    ghosts = result.ghosts;
+    treeRanges = result.treeRanges;
+  } else {
+    pos = computeLayout();
+  }
+  lastPositions = pos;
+  renderLines(pos, treeRanges);
+  renderCards(pos, treeRanges, ghosts);
+  renderTreeLabels(pos, treeRanges);
   renderSidebar(document.getElementById('search').value);
 }
 
@@ -2628,9 +2741,11 @@ function openEditModal(id) {
   relSection.style.display = '';
 
   function renderRelSection() {
-    const partners = getPartnersOf(id).map(pid => getPerson(pid)).filter(Boolean);
-    const parents  = getParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
-    const children = getChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const partners       = getPartnersOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const parents        = getParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const children       = getChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const socialParents  = getSocialParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const socialChildren = getSocialChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
 
     function relGroup(label, persons, type) {
       const chips = persons.map(p => {
@@ -2654,11 +2769,15 @@ function openEditModal(id) {
       ${relGroup('Partners', partners, 'partner')}
       ${relGroup('Ouders', parents, 'parent')}
       ${relGroup('Kinderen', children, 'child')}
+      ${relGroup('Sociale ouders', socialParents, 'social-parent-remove')}
+      ${relGroup('Sociale kinderen', socialChildren, 'social-child-remove')}
       <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
-        <select id="rel-edit-type" style="width:110px;flex-shrink:0">
+        <select id="rel-edit-type" style="width:130px;flex-shrink:0">
           <option value="child">Kind</option>
           <option value="partner">Partner</option>
           <option value="parent">Ouder</option>
+          <option value="social-child">Sociale ouder van</option>
+          <option value="social-parent">Sociaal kind van</option>
         </select>
         <div style="position:relative;flex:1;min-width:150px">
           <input type="text" id="rel-edit-name" placeholder="Naam zoeken of typen..." style="width:100%;box-sizing:border-box">
@@ -2688,6 +2807,18 @@ function openEditModal(id) {
         } else if (type === 'parent') {
           const idx = state.relationships.findIndex(r =>
             r.type === 'parent-child' && r.parentId === pid && r.childId === id
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        } else if (type === 'social-parent-remove') {
+          // id is the social child, pid is the social parent
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'social-parent' && r.parentId === pid && r.childId === id
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        } else if (type === 'social-child-remove') {
+          // id is the social parent, pid is the social child
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'social-parent' && r.parentId === id && r.childId === pid
           );
           if (idx !== -1) state.relationships.splice(idx, 1);
         }
@@ -2760,6 +2891,18 @@ function openEditModal(id) {
             r.type === 'parent-child' && r.parentId === targetId && r.childId === id
           );
           if (!exists) state.relationships.push({ type: 'parent-child', parentId: targetId, childId: id });
+        } else if (type === 'social-child') {
+          // id is the social parent, targetId is the social child
+          const exists = state.relationships.some(r =>
+            r.type === 'social-parent' && r.parentId === id && r.childId === targetId
+          );
+          if (!exists) state.relationships.push({ type: 'social-parent', parentId: id, childId: targetId });
+        } else if (type === 'social-parent') {
+          // id is the social child, targetId is the social parent
+          const exists = state.relationships.some(r =>
+            r.type === 'social-parent' && r.parentId === targetId && r.childId === id
+          );
+          if (!exists) state.relationships.push({ type: 'social-parent', parentId: targetId, childId: id });
         }
       } else {
         // Nieuwe persoon
@@ -2771,6 +2914,12 @@ function openEditModal(id) {
           state.relationships.push({ type: 'parent-child', parentId: id, childId: newP.id });
         } else if (type === 'parent') {
           state.relationships.push({ type: 'parent-child', parentId: newP.id, childId: id });
+        } else if (type === 'social-child') {
+          // id is the social parent, newP is the social child
+          state.relationships.push({ type: 'social-parent', parentId: id, childId: newP.id });
+        } else if (type === 'social-parent') {
+          // id is the social child, newP is the social parent
+          state.relationships.push({ type: 'social-parent', parentId: newP.id, childId: id });
         }
         checkSmartLink(newP.id);
       }
@@ -2962,6 +3111,7 @@ document.getElementById('rel-type').addEventListener('change', function () {
   const isPartner = this.value === 'partner';
   document.getElementById('rel-fields-parent-child').classList.toggle('hidden',  isPartner);
   document.getElementById('rel-fields-partner').classList.toggle('hidden', !isPartner);
+  // social-parent reuses the parent-child fields (same parentId/childId structure)
 });
 
 document.getElementById('form-relation').addEventListener('submit', e => {
@@ -2980,6 +3130,15 @@ document.getElementById('form-relation').addEventListener('submit', e => {
     );
     if (exists) { alert('Deze partnerrelatie bestaat al.'); return; }
     state.relationships.push({ type: 'partner', person1Id: p1, person2Id: p2 });
+  } else if (type === 'social-parent') {
+    const parentId = form.parentId.value;
+    const childId  = form.childId.value;
+    if (parentId === childId) { alert('Sociale ouder en kind mogen niet dezelfde persoon zijn.'); return; }
+    const exists = state.relationships.some(r =>
+      r.type === 'social-parent' && r.parentId === parentId && r.childId === childId
+    );
+    if (exists) { alert('Deze sociale ouder-relatie bestaat al.'); return; }
+    state.relationships.push({ type: 'social-parent', parentId, childId });
   } else {
     const parentId = form.parentId.value;
     const childId  = form.childId.value;
@@ -3093,6 +3252,8 @@ function openDetailModal(id) {
           <option value="child">Kind van ${escHtml(person.name)}</option>
           <option value="partner">Partner van ${escHtml(person.name)}</option>
           <option value="parent">Ouder van ${escHtml(person.name)}</option>
+          <option value="social-child-of">Sociaal kind van ${escHtml(person.name)}</option>
+          <option value="social-parent-of">Sociale ouder van ${escHtml(person.name)}</option>
         </select>
       </div>
       <div id="qa-other-parent-row" class="quick-row" style="margin-bottom:6px;display:none">
@@ -3302,6 +3463,18 @@ function openDetailModal(id) {
               r.type === 'parent-child' && r.parentId === existId && r.childId === id
             );
             if (!exists) state.relationships.push({ type: 'parent-child', parentId: existId, childId: id });
+          } else if (relation === 'social-child-of') {
+            // id is the social parent, existId is the social child
+            const exists = state.relationships.some(r =>
+              r.type === 'social-parent' && r.parentId === id && r.childId === existId
+            );
+            if (!exists) state.relationships.push({ type: 'social-parent', parentId: id, childId: existId });
+          } else if (relation === 'social-parent-of') {
+            // id is the social child, existId is the social parent
+            const exists = state.relationships.some(r =>
+              r.type === 'social-parent' && r.parentId === existId && r.childId === id
+            );
+            if (!exists) state.relationships.push({ type: 'social-parent', parentId: existId, childId: id });
           }
           toScroll.push(existId);
 
@@ -3317,6 +3490,12 @@ function openDetailModal(id) {
             if (otherParent) state.relationships.push({ type: 'parent-child', parentId: otherParent, childId: newPerson.id });
           } else if (relation === 'parent') {
             state.relationships.push({ type: 'parent-child', parentId: newPerson.id, childId: id });
+          } else if (relation === 'social-child-of') {
+            // id is the social parent, newPerson is the social child
+            state.relationships.push({ type: 'social-parent', parentId: id, childId: newPerson.id });
+          } else if (relation === 'social-parent-of') {
+            // id is the social child, newPerson is the social parent
+            state.relationships.push({ type: 'social-parent', parentId: newPerson.id, childId: id });
           }
           toScroll.push(newPerson.id);
           checkSmartLink(newPerson.id);
@@ -3329,7 +3508,7 @@ function openDetailModal(id) {
       modal.classList.add('hidden');
       render();
       if (toScroll.length) setTimeout(() => scrollToCard(toScroll[0]), 100);
-      const relLabel = relation === 'child' ? 'kind' : relation === 'partner' ? 'partner' : 'ouder';
+      const relLabel = relation === 'child' ? 'kind' : relation === 'partner' ? 'partner' : relation === 'social-child-of' ? 'sociaal kind' : relation === 'social-parent-of' ? 'sociale ouder' : 'ouder';
       showToast(`✅ ${added} ${relLabel}${added > 1 && relation === 'child' ? 'eren' : added > 1 ? 's' : ''} toegevoegd`, 'success', 3000);
     });
   }
@@ -3373,8 +3552,9 @@ document.getElementById('file-input').addEventListener('change', e => {
       // Valideer: alle IDs in relaties moeten bestaan in persons
       const knownIds = new Set(imported.persons.map(p => p.id));
       const validRels = imported.relationships.filter(r => {
-        if (r.type === 'partner')      return knownIds.has(r.person1Id) && knownIds.has(r.person2Id);
-        if (r.type === 'parent-child') return knownIds.has(r.parentId)  && knownIds.has(r.childId);
+        if (r.type === 'partner')       return knownIds.has(r.person1Id) && knownIds.has(r.person2Id);
+        if (r.type === 'parent-child')  return knownIds.has(r.parentId)  && knownIds.has(r.childId);
+        if (r.type === 'social-parent') return knownIds.has(r.parentId)  && knownIds.has(r.childId);
         return false; // onbekend type verwijderen
       });
       const removed = imported.relationships.length - validRels.length;
