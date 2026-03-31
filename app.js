@@ -1741,15 +1741,12 @@ function uid() {
 // (headId + partner(s) + alle nakomelingen + hun partners)
 function getStamboomPersons(headId) {
   const result = new Set();
-  const walked = new Set(); // bijhouden wie via walk() is verwerkt (niet alleen als partner)
   function walk(id) {
-    if (walked.has(id)) return;
-    walked.add(id);
+    if (result.has(id)) return;
     result.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
     getChildrenOf(id).forEach(cid => {
       // Co-ouder: alleen toevoegen als ze GEEN eigen ouders hebben en niet al in een andere boom zitten
-      // (zo voorkomt we dat bijv. Rahimgul Salehi die al in de Salehi-boom zit ook hier opduikt)
       getParentsOf(cid).forEach(pid => {
         if (!result.has(pid) &&
             getParentsOf(pid).length === 0 &&
@@ -1757,18 +1754,7 @@ function getStamboomPersons(headId) {
           result.add(pid);
         }
       });
-      // Niet doorlopen als het kind een externe root-patriarch als co-ouder heeft:
-      // iemand die al in result zit (als partner toegevoegd, niet gewandeld),
-      // zelf geen ouders heeft, ≥ 3 eigen kinderen heeft, én geen directe partner van headId is.
-      // Dit voorkomt dat bijv. Khanaga Faizi's familie wordt opgeslokt door Ali Ahmad's stamboom.
-      const hasExternalPatriarch = getParentsOf(cid).some(pid =>
-        pid !== id &&
-        result.has(pid) && !walked.has(pid) &&
-        getParentsOf(pid).length === 0 &&
-        getChildrenOf(pid).length >= 3 &&
-        !getPartnersOf(headId).includes(pid)
-      );
-      if (!hasExternalPatriarch) walk(cid);
+      walk(cid);
     });
     getSocialChildrenOf(id).forEach(cid => walk(cid));
   }
@@ -2251,11 +2237,10 @@ function renderLines(pos, treeRanges) {
       const pSets = {};
       rootSt.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
       rootSt.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
-      const covered = new Set();
+      const allKeptPersons = new Set();
       rootSt = rootSt.filter(s => {
-        const headChildren = getChildrenOf(s.headId);
-        if (headChildren.some(cid => covered.has(cid))) return false;
-        pSets[s.headId].forEach(pid => covered.add(pid));
+        if (allKeptPersons.has(s.headId)) return false;
+        pSets[s.headId].forEach(pid => allKeptPersons.add(pid));
         return true;
       });
     }
@@ -2780,11 +2765,10 @@ function computeAllFamiliesLayout() {
     const pSets = {};
     stambomen.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
     stambomen.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
-    const covered = new Set();
+    const allKeptPersons = new Set();
     stambomen = stambomen.filter(s => {
-      const headChildren = getChildrenOf(s.headId);
-      if (headChildren.some(cid => covered.has(cid))) return false;
-      pSets[s.headId].forEach(pid => covered.add(pid));
+      if (allKeptPersons.has(s.headId)) return false;
+      pSets[s.headId].forEach(pid => allKeptPersons.add(pid));
       return true;
     });
   }
