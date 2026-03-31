@@ -167,6 +167,17 @@ let lastPositions = {};
 let activeTreeId = null; // null = toon alles
 let currentPhotoData = null; // base64 of huidige foto in modal
 
+// Ingeklapte gezinnen: Set van keys "parentId1,parentId2" (gesorteerd)
+let collapsedGezinnen = new Set();
+const COLLAPSED_KEY = 'fb_collapsed_gezinnen';
+try {
+  const saved = sessionStorage.getItem(COLLAPSED_KEY);
+  if (saved) collapsedGezinnen = new Set(JSON.parse(saved));
+} catch(e) {}
+function saveCollapsedState() {
+  try { sessionStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsedGezinnen])); } catch(e) {}
+}
+
 // Read-only modus: ?view=1 in de URL schakelt beheer uit
 const READ_ONLY = new URLSearchParams(window.location.search).get('view') === '1';
 
@@ -349,10 +360,70 @@ function getActivePersonIds() {
 }
 
 // ============================================================
+// GEZIN COLLAPSE/EXPAND
+// ============================================================
+function getHiddenByCollapse(activeIds) {
+  if (collapsedGezinnen.size === 0) return new Set();
+  const hidden = new Set();
+
+  function collectDescendants(id) {
+    if (hidden.has(id)) return;
+    hidden.add(id);
+    // Verberg partners van deze persoon (tenzij ze zelf ouder zijn in een niet-ingeklapt gezin)
+    getPartnersOf(id).forEach(pid => {
+      if (!hidden.has(pid)) hidden.add(pid);
+    });
+    // Verberg alle kinderen recursief
+    getChildrenOf(id).forEach(cid => collectDescendants(cid));
+    getSocialChildrenOf(id).forEach(cid => collectDescendants(cid));
+  }
+
+  collapsedGezinnen.forEach(key => {
+    const parentIds = key.split(',');
+    // Verifieer dat ouders in de actieve set zitten
+    if (!parentIds.every(pid => activeIds.has(pid))) return;
+
+    // Vind kinderen van dit ouderpaar
+    const firstParent = parentIds[0];
+    const children = getChildrenOf(firstParent).filter(cid => {
+      const cParents = getParentsOf(cid).sort();
+      return cParents.join(',') === key;
+    });
+
+    children.forEach(cid => collectDescendants(cid));
+  });
+
+  // Ouders zelf mogen nooit verborgen worden
+  collapsedGezinnen.forEach(key => {
+    key.split(',').forEach(pid => hidden.delete(pid));
+  });
+
+  return hidden;
+}
+
+function toggleGezin(key) {
+  if (collapsedGezinnen.has(key)) {
+    collapsedGezinnen.delete(key);
+  } else {
+    collapsedGezinnen.add(key);
+  }
+  saveCollapsedState();
+  render();
+}
+
+// ============================================================
 // LAYOUT ALGORITHM
 // ============================================================
 function computeLayout(overrideIds) {
-  const activeIds = overrideIds || getActivePersonIds();
+  let activeIds = overrideIds || getActivePersonIds();
+
+  // Filter verborgen personen door ingeklapte gezinnen
+  if (collapsedGezinnen.size > 0) {
+    activeIds = new Set(activeIds); // kopie zodat origineel niet gemuteerd wordt
+    const hidden = getHiddenByCollapse(activeIds);
+    hidden.forEach(id => activeIds.delete(id));
+  }
+
   const persons   = state.persons.filter(p => activeIds.has(p.id));
   if (persons.length === 0) return {};
 
@@ -1837,6 +1908,77 @@ function computeAllFamiliesLayout() {
 // ============================================================
 // FULL RENDER
 // ============================================================
+// ============================================================
+// COLLAPSE TOGGLES
+// ============================================================
+function renderCollapseToggles(pos) {
+  const container = document.getElementById('cards-container');
+  container.querySelectorAll('.gezin-toggle').forEach(el => el.remove());
+
+  // Verzamel alle gezinnen: groepeer kinderen per ouderpaar
+  const gezinMap = {}; // key → { parentIds, childIds }
+  state.relationships.forEach(r => {
+    if (r.type !== 'parent-child') return;
+    if (!pos[r.parentId]) return; // ouder niet in layout
+    const childParents = getParentsOf(r.childId).filter(pid => pos[pid] || collapsedGezinnen.size > 0).sort();
+    if (childParents.length === 0) return;
+    // Gebruik alleen ouders die in pos staan OF wiens gezin ingeklapt is
+    const visibleParents = childParents.filter(pid => pos[pid]);
+    if (visibleParents.length === 0) return;
+    const key = visibleParents.sort().join(',');
+    if (!gezinMap[key]) gezinMap[key] = { parentIds: visibleParents, childIds: new Set() };
+    gezinMap[key].childIds.add(r.childId);
+  });
+
+  Object.entries(gezinMap).forEach(([key, gezin]) => {
+    if (gezin.childIds.size === 0) return;
+    const isCollapsed = collapsedGezinnen.has(key);
+
+    // Bereken aantal verborgen personen als ingeklapt
+    let hiddenCount = 0;
+    if (isCollapsed) {
+      const tempActive = new Set(state.persons.map(p => p.id));
+      const tempCollapsed = new Set([key]);
+      const oldSet = collapsedGezinnen;
+      collapsedGezinnen = tempCollapsed;
+      hiddenCount = getHiddenByCollapse(tempActive).size;
+      collapsedGezinnen = oldSet;
+    }
+
+    // Heeft dit gezin zichtbare kinderen of verborgen kinderen?
+    const hasVisibleChildren = [...gezin.childIds].some(cid => pos[cid]);
+    if (!hasVisibleChildren && !isCollapsed) return; // geen kinderen in layout en niet ingeklapt
+
+    // Positie: midden-onder het ouderpaar
+    const parentPositions = gezin.parentIds.map(pid => pos[pid]).filter(Boolean);
+    if (!parentPositions.length) return;
+    const midX = parentPositions.reduce((sum, p) => sum + p.x + NODE_W / 2, 0) / parentPositions.length;
+    const bottomY = Math.max(...parentPositions.map(p => p.y + NODE_H));
+
+    const btn = document.createElement('div');
+    btn.className = 'gezin-toggle' + (isCollapsed ? ' collapsed' : '');
+    btn.style.left = (midX - 14) + 'px';
+    btn.style.top  = (bottomY + 6) + 'px';
+
+    if (isCollapsed) {
+      btn.innerHTML = `<span class="toggle-icon">▶</span><span class="toggle-count">+${hiddenCount}</span>`;
+      btn.title = `${hiddenCount} personen verborgen — klik om uit te klappen`;
+      btn.style.left = (midX - 24) + 'px'; // breder element, iets meer naar links
+    } else {
+      btn.innerHTML = `<span class="toggle-icon">▼</span>`;
+      btn.title = 'Klik om gezin in te klappen';
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      toggleGezin(key);
+    });
+
+    container.appendChild(btn);
+  });
+}
+
 function render() {
   let pos, ghosts = {}, treeRanges = null, treePositions = null, duplicates = {};
   if (activeTreeId === null && state.persons.length > 0) {
@@ -1860,6 +2002,7 @@ function render() {
   renderLines(pos, treeRanges, treePositions, duplicates);
   renderCards(pos, treeRanges, ghosts);
   renderTreeLabels(pos, treeRanges);
+  renderCollapseToggles(pos);
   renderSidebar(document.getElementById('search').value);
 }
 
