@@ -614,6 +614,13 @@ body.readonly .card:hover   { cursor: default; }
   fill: none;
   opacity: 0.7;
 }
+.sibling-line {
+  stroke: #06b6d4;
+  stroke-width: 2;
+  stroke-dasharray: 6, 3;
+  fill: none;
+  opacity: 0.8;
+}
 .cross-tree-line {
   stroke: #f59e0b;
   stroke-width: 2.5;

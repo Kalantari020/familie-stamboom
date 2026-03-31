@@ -1723,6 +1723,12 @@ function getSocialChildrenOf(personId) {
     .map(r => r.childId);
 }
 
+function getSiblingsOf(personId) {
+  return state.relationships
+    .filter(r => r.type === 'sibling' && (r.person1Id === personId || r.person2Id === personId))
+    .map(r => r.person1Id === personId ? r.person2Id : r.person1Id);
+}
+
 function uid() {
   return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
@@ -1866,6 +1872,12 @@ function computeLayout(overrideIds) {
         const g = Math.max(genOf[r.person1Id] || 0, genOf[r.person2Id] || 0);
         genOf[r.person1Id] = g;
         genOf[r.person2Id] = g;
+      }
+      // Broers/zussen op hetzelfde generatieniveau zetten
+      if (r.type === 'sibling') {
+        const g = Math.max(genOf[r.person1Id] ?? 0, genOf[r.person2Id] ?? 0);
+        if (genOf[r.person1Id] !== undefined) genOf[r.person1Id] = g;
+        if (genOf[r.person2Id] !== undefined) genOf[r.person2Id] = g;
       }
     });
   }
@@ -2186,6 +2198,27 @@ function renderLines(pos, treeRanges) {
     parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${midY2}" class="social-line"/>`);
     parts.push(`<line x1="${x1}" y1="${midY2}" x2="${x2}" y2="${midY2}" class="social-line"/>`);
     parts.push(`<line x1="${x2}" y1="${midY2}" x2="${x2}" y2="${y2}" class="social-line"/>`);
+  });
+
+  // --- Broer/zus lijnen ---
+  const drawnSiblings = new Set();
+  state.relationships.forEach(r => {
+    if (r.type !== 'sibling') return;
+    if (!pos[r.person1Id] || !pos[r.person2Id]) return;
+    const key = [r.person1Id, r.person2Id].sort().join('|');
+    if (drawnSiblings.has(key)) return;
+    drawnSiblings.add(key);
+
+    const x1 = cx(r.person1Id);
+    const x2 = cx(r.person2Id);
+    const y1 = topY(r.person1Id);
+    const y2 = topY(r.person2Id);
+    const arcY = Math.min(y1, y2) - 22; // lijn boven de kaarten
+
+    // Kleine vertical drops + horizontale balk
+    parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1}" y2="${arcY}" class="sibling-line"/>`);
+    parts.push(`<line x1="${x1}" y1="${arcY}" x2="${x2}" y2="${arcY}" class="sibling-line"/>`);
+    parts.push(`<line x1="${x2}" y1="${arcY}" x2="${x2}" y2="${y2}" class="sibling-line"/>`);
   });
 
   // --- Cross-tree verbindingen: ouder→kind over stamboomgrenzen heen ---
@@ -2901,6 +2934,7 @@ function openEditModal(id) {
     const partners       = getPartnersOf(id).map(pid => getPerson(pid)).filter(Boolean);
     const parents        = getParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
     const children       = getChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const siblings       = getSiblingsOf(id).map(pid => getPerson(pid)).filter(Boolean);
     const socialParents  = getSocialParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
     const socialChildren = getSocialChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
 
@@ -2925,6 +2959,7 @@ function openEditModal(id) {
     relContent.innerHTML = `
       ${relGroup('Partners', partners, 'partner')}
       ${relGroup('Ouders', parents, 'parent')}
+      ${relGroup('Broers & Zussen', siblings, 'sibling')}
       ${relGroup('Kinderen', children, 'child')}
       ${relGroup('Sociale ouders', socialParents, 'social-parent-remove')}
       ${relGroup('Sociale kinderen', socialChildren, 'social-child-remove')}
@@ -2933,6 +2968,7 @@ function openEditModal(id) {
           <option value="child">Kind</option>
           <option value="partner">Partner</option>
           <option value="parent">Ouder</option>
+          <option value="sibling">Broer/Zus</option>
           <option value="social-child">Sociale ouder van</option>
           <option value="social-parent">Sociaal kind van</option>
         </select>
@@ -2973,9 +3009,14 @@ function openEditModal(id) {
           );
           if (idx !== -1) state.relationships.splice(idx, 1);
         } else if (type === 'social-child-remove') {
-          // id is the social parent, pid is the social child
           const idx = state.relationships.findIndex(r =>
             r.type === 'social-parent' && r.parentId === id && r.childId === pid
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        } else if (type === 'sibling') {
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'sibling' &&
+            ((r.person1Id === id && r.person2Id === pid) || (r.person1Id === pid && r.person2Id === id))
           );
           if (idx !== -1) state.relationships.splice(idx, 1);
         }
@@ -3055,11 +3096,16 @@ function openEditModal(id) {
           );
           if (!exists) state.relationships.push({ type: 'social-parent', parentId: id, childId: targetId });
         } else if (type === 'social-parent') {
-          // id is the social child, targetId is the social parent
           const exists = state.relationships.some(r =>
             r.type === 'social-parent' && r.parentId === targetId && r.childId === id
           );
           if (!exists) state.relationships.push({ type: 'social-parent', parentId: targetId, childId: id });
+        } else if (type === 'sibling') {
+          const exists = state.relationships.some(r =>
+            r.type === 'sibling' &&
+            ((r.person1Id === id && r.person2Id === targetId) || (r.person1Id === targetId && r.person2Id === id))
+          );
+          if (!exists) state.relationships.push({ type: 'sibling', person1Id: id, person2Id: targetId });
         }
       } else {
         // Nieuwe persoon
@@ -3072,11 +3118,11 @@ function openEditModal(id) {
         } else if (type === 'parent') {
           state.relationships.push({ type: 'parent-child', parentId: newP.id, childId: id });
         } else if (type === 'social-child') {
-          // id is the social parent, newP is the social child
           state.relationships.push({ type: 'social-parent', parentId: id, childId: newP.id });
         } else if (type === 'social-parent') {
-          // id is the social child, newP is the social parent
           state.relationships.push({ type: 'social-parent', parentId: newP.id, childId: id });
+        } else if (type === 'sibling') {
+          state.relationships.push({ type: 'sibling', person1Id: id, person2Id: newP.id });
         }
         checkSmartLink(newP.id);
       }
@@ -3366,9 +3412,10 @@ function openDetailModal(id) {
   const uClass = person.id === USER_ID ? 'user' : gClass;
   const span   = lifespan(person);
 
-  const parents  = getParentsOf(id).map(getPerson).filter(Boolean);
-  const children = getChildrenOf(id).map(getPerson).filter(Boolean);
-  const partners = getPartnersOf(id).map(getPerson).filter(Boolean);
+  const parents   = getParentsOf(id).map(getPerson).filter(Boolean);
+  const children  = getChildrenOf(id).map(getPerson).filter(Boolean);
+  const partners  = getPartnersOf(id).map(getPerson).filter(Boolean);
+  const siblings  = getSiblingsOf(id).map(getPerson).filter(Boolean);
 
   const pillGroup = (label, list) => {
     if (!list.length) return '';
@@ -3395,6 +3442,7 @@ function openDetailModal(id) {
     ${person.notes ? `<div class="detail-section"><div class="detail-section-title">Notities</div><p class="detail-notes">${escHtml(person.notes)}</p></div>` : ''}
     ${pillGroup('Ouders', parents)}
     ${pillGroup('Partners', partners)}
+    ${pillGroup('Broers & Zussen', siblings)}
     ${pillGroup('Kinderen', children)}
 
     <div class="detail-divider"></div>
@@ -3409,6 +3457,7 @@ function openDetailModal(id) {
           <option value="child">Kind van ${escHtml(person.name)}</option>
           <option value="partner">Partner van ${escHtml(person.name)}</option>
           <option value="parent">Ouder van ${escHtml(person.name)}</option>
+          <option value="sibling">Broer/Zus van ${escHtml(person.name)}</option>
           <option value="social-child-of">Sociaal kind van ${escHtml(person.name)}</option>
           <option value="social-parent-of">Sociale ouder van ${escHtml(person.name)}</option>
         </select>
@@ -3632,6 +3681,12 @@ function openDetailModal(id) {
               r.type === 'social-parent' && r.parentId === existId && r.childId === id
             );
             if (!exists) state.relationships.push({ type: 'social-parent', parentId: existId, childId: id });
+          } else if (relation === 'sibling') {
+            const exists = state.relationships.some(r =>
+              r.type === 'sibling' &&
+              ((r.person1Id === id && r.person2Id === existId) || (r.person1Id === existId && r.person2Id === id))
+            );
+            if (!exists) state.relationships.push({ type: 'sibling', person1Id: id, person2Id: existId });
           }
           toScroll.push(existId);
 
@@ -3653,6 +3708,8 @@ function openDetailModal(id) {
           } else if (relation === 'social-parent-of') {
             // id is the social child, newPerson is the social parent
             state.relationships.push({ type: 'social-parent', parentId: newPerson.id, childId: id });
+          } else if (relation === 'sibling') {
+            state.relationships.push({ type: 'sibling', person1Id: id, person2Id: newPerson.id });
           }
           toScroll.push(newPerson.id);
           checkSmartLink(newPerson.id);
@@ -3665,7 +3722,7 @@ function openDetailModal(id) {
       modal.classList.add('hidden');
       render();
       if (toScroll.length) setTimeout(() => scrollToCard(toScroll[0]), 100);
-      const relLabel = relation === 'child' ? 'kind' : relation === 'partner' ? 'partner' : relation === 'social-child-of' ? 'sociaal kind' : relation === 'social-parent-of' ? 'sociale ouder' : 'ouder';
+      const relLabel = relation === 'child' ? 'kind' : relation === 'partner' ? 'partner' : relation === 'sibling' ? 'broer/zus' : relation === 'social-child-of' ? 'sociaal kind' : relation === 'social-parent-of' ? 'sociale ouder' : 'ouder';
       showToast(`✅ ${added} ${relLabel}${added > 1 && relation === 'child' ? 'eren' : added > 1 ? 's' : ''} toegevoegd`, 'success', 3000);
     });
   }
@@ -3712,6 +3769,7 @@ document.getElementById('file-input').addEventListener('change', e => {
         if (r.type === 'partner')       return knownIds.has(r.person1Id) && knownIds.has(r.person2Id);
         if (r.type === 'parent-child')  return knownIds.has(r.parentId)  && knownIds.has(r.childId);
         if (r.type === 'social-parent') return knownIds.has(r.parentId)  && knownIds.has(r.childId);
+        if (r.type === 'sibling')       return knownIds.has(r.person1Id) && knownIds.has(r.person2Id);
         return false; // onbekend type verwijderen
       });
       const removed = imported.relationships.length - validRels.length;
