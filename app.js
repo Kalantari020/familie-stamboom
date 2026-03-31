@@ -2795,21 +2795,54 @@ function computeLayout(overrideIds) {
   // --- Compactie (vóór bottom-up): sluit gaten op elke generatie ---
   // Door eerst te compacteren, worden kinderen dichter bij elkaar geplaatst.
   // De bottom-up centering die hierna volgt plaatst ouders dan ook dichter bij elkaar.
-  gens.filter(g => g > 0).forEach(gen => {
-    const genMembers = (byGen[gen] || []).filter(id => pos[id]);
-    if (genMembers.length < 2) return;
-    genMembers.sort((a, b) => pos[a].x - pos[b].x);
-    for (let i = 1; i < genMembers.length; i++) {
-      const gap = pos[genMembers[i]].x - pos[genMembers[i - 1]].x - NODE_W;
-      if (gap <= H_GAP) continue;
-      const shift = gap - H_GAP;
-      const threshold = pos[genMembers[i]].x;
-      // Schuif alle posities op ALLE generaties met x >= threshold naar links
-      for (const id of Object.keys(pos)) {
-        if (pos[id].x >= threshold) pos[id].x -= shift;
+  // Gebruik de verticale-snijlijn methode: schuif alleen als er op ALLE generaties
+  // voldoende ruimte is, zodat er geen overlaps ontstaan.
+  for (let cPass = 0; cPass < 3; cPass++) {
+    const allIds = Object.keys(pos);
+    const maxX = Math.max(...allIds.map(id => pos[id].x + NODE_W));
+
+    for (let scanX = PADDING + H_GAP; scanX < maxX; scanX += H_GAP) {
+      let minGap = Infinity;
+      let hasLeft = false, hasRight = false;
+
+      gens.forEach(gen => {
+        const members = (byGen[gen] || []).filter(id => pos[id]);
+        if (!members.length) return;
+        let maxRight = -Infinity;
+        let minLeft = Infinity;
+
+        members.forEach(id => {
+          const left = pos[id].x;
+          const right = left + NODE_W;
+          if (right <= scanX) {
+            maxRight = Math.max(maxRight, right);
+            hasLeft = true;
+          } else if (left >= scanX) {
+            minLeft = Math.min(minLeft, left);
+            hasRight = true;
+          } else {
+            // Node kruist de scanlijn → geen gap hier
+            minGap = 0;
+          }
+        });
+
+        if (maxRight > -Infinity && minLeft < Infinity) {
+          const genGap = minLeft - maxRight;
+          if (genGap < minGap) minGap = genGap;
+        }
+      });
+
+      if (!hasLeft || !hasRight || minGap <= H_GAP) continue;
+
+      const shift = minGap - H_GAP;
+      if (shift < 2) continue;
+
+      for (const id of allIds) {
+        if (pos[id].x >= scanX) pos[id].x -= shift;
       }
+      scanX -= shift;
     }
-  });
+  }
 
   // --- Bottom-up: shift parent couples to center over their children ---
   // Na elke fixOverlaps worden de verschuivingen doorgegeven aan alle nakomelingen,
