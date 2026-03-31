@@ -208,10 +208,41 @@ function loadState() {
       const parsed = JSON.parse(raw);
       // Altijd lokale data gebruiken als die bestaat — gebruikerswijzigingen gaan nooit verloren
       state = parsed;
+      // Smart merge: voeg ontbrekende personen en relaties toe uit START_DATA
+      // zodat updates aan START_DATA (bijv. 106→121 personen) automatisch verschijnen
+      mergeStartData();
       return true;
     } catch (e) {}
   }
   return false;
+}
+
+function mergeStartData() {
+  const existingIds = new Set(state.persons.map(p => p.id));
+  let added = 0;
+  // Voeg ontbrekende personen toe
+  START_DATA.persons.forEach(p => {
+    if (!existingIds.has(p.id)) {
+      state.persons.push(JSON.parse(JSON.stringify(p)));
+      existingIds.add(p.id);
+      added++;
+    }
+  });
+  // Voeg ontbrekende relaties toe
+  const relKey = r => `${r.type}|${r.parentId||r.person1Id}|${r.childId||r.person2Id}`;
+  const existingRels = new Set(state.relationships.map(relKey));
+  START_DATA.relationships.forEach(r => {
+    const key = relKey(r);
+    if (!existingRels.has(key)) {
+      state.relationships.push(JSON.parse(JSON.stringify(r)));
+      existingRels.add(key);
+      added++;
+    }
+  });
+  if (added > 0) {
+    saveState();
+    console.log(`[Stamboom] ${added} ontbrekende items uit START_DATA toegevoegd`);
+  }
 }
 
 // ============================================================
