@@ -2545,45 +2545,169 @@ function renderTreeLabels(pos, treeRanges) {
 // ============================================================
 function computeAllFamiliesLayout() {
   const stambomen = computeStambomen();
-  const combined  = {};  // pid → { x, y, treeHeadId }
-  const ghosts    = {};  // `pid:treeHeadId` → { x, y, treeHeadId, personId }
-  const treeRanges = {}; // treeHeadId → { minX, maxX, minY, maxY, label, count }
-  const primaryTree = {}; // pid → first treeHeadId that claimed this person
-  let cursorX = PADDING;
-  const ISLAND_GAP = 280;
+  if (!stambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
+
+  const ISLAND_H_GAP  = 120; // horizontale ruimte tussen eilanden in dezelfde rij
+  const ISLAND_V_GAP  = 180; // verticale ruimte tussen rijen
+  const LABEL_H       = 56;  // hoogte van het eiland-label boven de kaarten
+
+  // ── Stap 1: bereken individuele boom-layouts ─────────────────
+  const treeLayouts = {}; // headId → { pos, w, h, minX, minY }
+  stambomen.forEach(s => {
+    const ids = new Set(getStamboomPersons(s.headId));
+    const tp  = computeLayout(ids);
+    if (!Object.keys(tp).length) return;
+    const xs = Object.values(tp).map(p => p.x);
+    const ys = Object.values(tp).map(p => p.y);
+    treeLayouts[s.headId] = {
+      pos: tp,
+      w: Math.max(...xs) - Math.min(...xs) + NODE_W,
+      h: Math.max(...ys) - Math.min(...ys) + NODE_H,
+      minX: Math.min(...xs),
+      minY: Math.min(...ys),
+      personIds: ids
+    };
+  });
+
+  // ── Stap 2: bouw meta-graaf (welke boom is ouder van welke) ──
+  const treeParentOf = {}; // childHeadId → Set(parentHeadIds)
+  const treeChildOf  = {}; // parentHeadId → Set(childHeadIds)
+  stambomen.forEach(s => {
+    treeParentOf[s.headId] = new Set();
+    treeChildOf[s.headId]  = new Set();
+  });
+
+  state.relationships.forEach(r => {
+    if (r.type !== 'parent-child') return;
+    let pTree = null, cTree = null;
+    stambomen.forEach(s => {
+      const ids = treeLayouts[s.headId]?.personIds;
+      if (ids?.has(r.parentId)) pTree = s.headId;
+      if (ids?.has(r.childId))  cTree = s.headId;
+    });
+    if (!pTree || !cTree || pTree === cTree) return;
+    treeParentOf[cTree].add(pTree);
+    treeChildOf[pTree].add(cTree);
+  });
+
+  // ── Stap 3: BFS → meta-niveau per boom ───────────────────────
+  const metaLevel = {};
+  const metaRoots = stambomen.filter(s => treeParentOf[s.headId].size === 0).map(s => s.headId);
+  metaRoots.forEach(id => { metaLevel[id] = 0; });
+  const mq = [...metaRoots];
+  for (let i = 0; i < mq.length; i++) {
+    const id = mq[i];
+    treeChildOf[id].forEach(cid => {
+      const lv = (metaLevel[id] || 0) + 1;
+      if (metaLevel[cid] === undefined || metaLevel[cid] < lv) {
+        metaLevel[cid] = lv;
+        mq.push(cid);
+      }
+    });
+  }
+  stambomen.forEach(s => { if (metaLevel[s.headId] === undefined) metaLevel[s.headId] = 0; });
+
+  // ── Stap 4: groepeer per rij (meta-niveau) ───────────────────
+  const byRow = {};
+  stambomen.forEach(s => {
+    const lv = metaLevel[s.headId];
+    if (!byRow[lv]) byRow[lv] = [];
+    byRow[lv].push(s.headId);
+  });
+  const rows = Object.keys(byRow).map(Number).sort((a, b) => a - b);
+
+  // ── Stap 5: bereken breedte per rij & hoogte per rij ─────────
+  const rowH = {}; // max boomhoogte in die rij
+  rows.forEach(lv => {
+    rowH[lv] = Math.max(...byRow[lv].map(id => (treeLayouts[id]?.h || 0)));
+  });
+
+  // ── Stap 6: ken X-positie toe per boom (links→rechts per rij) ─
+  const treeX = {}; // headId → canvas-x van linker rand
+  const treeY = {}; // headId → canvas-y van bovenkant kaarten
+
+  // Eerste pass: naïef links→rechts per rij
+  rows.forEach(lv => {
+    let curX = PADDING;
+    byRow[lv].forEach(id => {
+      treeX[id] = curX;
+      curX += (treeLayouts[id]?.w || 200) + ISLAND_H_GAP;
+    });
+  });
+
+  // Tweede pass (bottom-up): centreer ouder-boom boven zijn kinderen
+  [...rows].reverse().forEach(lv => {
+    byRow[lv].forEach(id => {
+      const kids = [...treeChildOf[id]].filter(c => treeX[c] !== undefined);
+      if (!kids.length) return;
+      const kidCenters = kids.map(c => treeX[c] + (treeLayouts[c]?.w || 0) / 2);
+      const center = (Math.min(...kidCenters) + Math.max(...kidCenters)) / 2;
+      treeX[id] = Math.max(PADDING, center - (treeLayouts[id]?.w || 0) / 2);
+    });
+    // Fix overlap in deze rij
+    const sorted = [...byRow[lv]].sort((a, b) => treeX[a] - treeX[b]);
+    for (let i = 1; i < sorted.length; i++) {
+      const minX = treeX[sorted[i - 1]] + (treeLayouts[sorted[i - 1]]?.w || 0) + ISLAND_H_GAP;
+      if (treeX[sorted[i]] < minX) treeX[sorted[i]] = minX;
+    }
+  });
+
+  // Derde pass (top-down): centreer kind-boom onder zijn ouders
+  rows.forEach(lv => {
+    byRow[lv].forEach(id => {
+      const parents = [...treeParentOf[id]].filter(p => treeX[p] !== undefined);
+      if (!parents.length) return;
+      const pCenters = parents.map(p => treeX[p] + (treeLayouts[p]?.w || 0) / 2);
+      const center = (Math.min(...pCenters) + Math.max(...pCenters)) / 2;
+      treeX[id] = Math.max(PADDING, center - (treeLayouts[id]?.w || 0) / 2);
+    });
+    // Fix overlap opnieuw
+    const sorted = [...byRow[lv]].sort((a, b) => treeX[a] - treeX[b]);
+    for (let i = 1; i < sorted.length; i++) {
+      const minX = treeX[sorted[i - 1]] + (treeLayouts[sorted[i - 1]]?.w || 0) + ISLAND_H_GAP;
+      if (treeX[sorted[i]] < minX) treeX[sorted[i]] = minX;
+    }
+  });
+
+  // Y-posities: rij voor rij van boven naar onder
+  let curY = PADDING;
+  rows.forEach(lv => {
+    byRow[lv].forEach(id => { treeY[id] = curY; });
+    curY += (rowH[lv] || 0) + NODE_H + LABEL_H + ISLAND_V_GAP;
+  });
+
+  // ── Stap 7: combineer alle posities ──────────────────────────
+  const combined  = {};
+  const ghosts    = {};
+  const treeRanges = {};
+  const primaryTree = {};
 
   stambomen.forEach(s => {
-    const treePersonIds = new Set(getStamboomPersons(s.headId));
-    const treePos = computeLayout(treePersonIds);
-    if (!Object.keys(treePos).length) return;
+    const layout = treeLayouts[s.headId];
+    if (!layout) return;
+    const ox = treeX[s.headId] - layout.minX; // x-offset
+    const oy = treeY[s.headId] - layout.minY + LABEL_H; // y-offset (ruimte voor label)
 
-    const xs = Object.values(treePos).map(p => p.x);
-    const ys = Object.values(treePos).map(p => p.y);
-    const treeMinX = Math.min(...xs);
-    const treeMaxX = Math.max(...xs);
-    const shift = cursorX - treeMinX;
-
-    Object.entries(treePos).forEach(([pid, p]) => {
+    Object.entries(layout.pos).forEach(([pid, p]) => {
       if (!primaryTree[pid]) {
         primaryTree[pid] = s.headId;
-        combined[pid] = { x: p.x + shift, y: p.y, treeHeadId: s.headId };
+        combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
       } else {
-        // Secondary appearance: social child in another tree → ghost card
         const key = `${pid}:${s.headId}`;
-        ghosts[key] = { x: p.x + shift, y: p.y, treeHeadId: s.headId, personId: pid };
+        ghosts[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
       }
     });
 
+    const head = getPerson(s.headId);
+    const familyName = head?.family || head?.name?.split(' ').slice(-1)[0] || s.label;
     treeRanges[s.headId] = {
-      minX: cursorX - PADDING / 2,
-      maxX: treeMaxX + shift + NODE_W + PADDING / 2,
-      minY: Math.min(...ys) - 50,
-      maxY: Math.max(...ys) + NODE_H + PADDING / 2,
-      label: getPerson(s.headId)?.name || s.label,
-      count: treePersonIds.size
+      minX: treeX[s.headId] - PADDING / 3,
+      maxX: treeX[s.headId] + layout.w + PADDING / 3,
+      minY: treeY[s.headId],
+      maxY: treeY[s.headId] + layout.h + LABEL_H,
+      label: familyName,
+      count: layout.personIds.size
     };
-
-    cursorX = treeMaxX + shift + NODE_W + ISLAND_GAP;
   });
 
   return { positions: combined, ghosts, treeRanges };
