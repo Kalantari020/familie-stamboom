@@ -948,8 +948,10 @@ function computeLayout(overrideIds) {
 
   // Helper: verschuif een persoon en AL zijn nakomelingen met dezelfde offset
   const shiftedInlaws = new Set();
+  const shiftVisited = new Set(); // voorkom oneindige recursie bij circulaire relaties (bijv. Hajiro)
   const shiftWithDescendants = (id, dx) => {
-    if (!pos[id] || Math.abs(dx) < 0.5) return;
+    if (!pos[id] || Math.abs(dx) < 0.5 || shiftVisited.has(id)) return;
+    shiftVisited.add(id);
     pos[id].x += dx;
     // Verschuif ook aangrenzende ghosts (cross-family partner duplicaten)
     (ghostsAdjacentTo[id] || []).forEach(gid => {
@@ -967,6 +969,7 @@ function computeLayout(overrideIds) {
     (childrenOf[id] || []).forEach(cid => {
       if (pos[cid]) shiftWithDescendants(cid, dx);
     });
+    shiftVisited.delete(id); // reset voor volgende shift-operatie
   };
 
   [...gens].reverse().forEach(gen => {
