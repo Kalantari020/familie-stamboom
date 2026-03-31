@@ -2297,29 +2297,13 @@ function renderCards(pos, treeRanges, ghosts) {
     });
   }
 
-  // Detect connector persons (appear in multiple tree groups) — only in all-families mode
-  const connectorPersonIds = new Set();
-  if (activeTreeId === null) {
-    const stambomen = computeStambomen();
-    const personTreeCount = {};
-    stambomen.forEach(s => {
-      getStamboomPersons(s.headId).forEach(pid => {
-        personTreeCount[pid] = (personTreeCount[pid] || 0) + 1;
-      });
-    });
-    Object.entries(personTreeCount).forEach(([pid, count]) => {
-      if (count > 1) connectorPersonIds.add(pid);
-    });
-  }
-
   state.persons.forEach(person => {
     const p = pos[person.id];
     if (!p) return;
 
     const gClass   = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
     const isUser   = person.id === USER_ID;
-    const isConnector = connectorPersonIds.has(person.id);
-    const cardClass = `card ${gClass}${isUser ? ' user' : ''}${isConnector ? ' connector-person' : ''}`;
+    const cardClass = `card ${gClass}${isUser ? ' user' : ''}`;
     const span = lifespan(person);
 
     const div = document.createElement('div');
@@ -2331,7 +2315,6 @@ function renderCards(pos, treeRanges, ghosts) {
       ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
       : `<div class="card-avatar">${initials(person.name)}</div>`;
     div.innerHTML = `
-      ${isConnector && activeTreeId === null ? '<div class="connector-badge">🔗</div>' : ''}
       <div class="card-top">
         ${avatarHtml}
         <div class="card-info">
