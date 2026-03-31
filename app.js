@@ -146,9 +146,8 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
     }
   });
 
-  // Lokaal (file://) of view-mode (?view=1) = geen PIN nodig, direct toegang
-  if (window.location.protocol === 'file:' ||
-      new URLSearchParams(window.location.search).get('view') === '1') {
+  // Lokaal (file://) = geen PIN nodig, direct toegang
+  if (window.location.protocol === 'file:') {
     document.getElementById('pin-screen').style.display = 'none';
     return;
   }
