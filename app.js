@@ -2601,12 +2601,62 @@ function computeLayout(overrideIds) {
     while (qi < cascadeQueue.length) {
       const id = cascadeQueue[qi++];
       const myGen = genOf[id] ?? 0;
+      if (myGen >= MAX_GEN) continue; // cyclus-beveiliging
       (childrenOf[id] || []).forEach(cid => {
         if (genOf[cid] !== undefined && genOf[cid] < myGen + 1) {
           genOf[cid] = myGen + 1;
           cascadeQueue.push(cid); // opnieuw door de kinderen van dit kind
         }
       });
+    }
+  }
+
+  // Post-cascade partner re-alignment: cascade kan partners uit sync trekken.
+  // Bijv. Bibi Hura (gen 0→1) is partner van Wazir Gol (gen 1→3 na cascade).
+  // Verplaats in-laws (geen ouders in deze layout) naar de generatie van hun
+  // partner, TENZIJ de partner een afstammeling is van de in-law (circulaire
+  // relatie, bijv. Mahmadgul → Wazir Gol → Hajiro → partner Mahmadgul).
+  {
+    // Helper: is descendantId een afstammeling van ancestorId?
+    function isDescOf(ancestorId, descendantId) {
+      const visited = new Set();
+      function walk(id) {
+        if (visited.has(id)) return false;
+        visited.add(id);
+        if (id === descendantId) return true;
+        return (childrenOf[id] || []).some(cid => walk(cid));
+      }
+      return (childrenOf[ancestorId] || []).some(cid => walk(cid));
+    }
+
+    const rootPersons = persons.filter(p => (parentsOf[p.id] || []).length === 0);
+    let changed = false;
+    rootPersons.forEach(p => {
+      (partnersOf[p.id] || []).forEach(pid => {
+        if (genOf[p.id] !== undefined && genOf[pid] !== undefined && genOf[p.id] < genOf[pid]) {
+          // Alleen verplaatsen als partner GEEN afstammeling is (geen circulaire relatie)
+          if (!isDescOf(p.id, pid)) {
+            genOf[p.id] = genOf[pid];
+            changed = true;
+          }
+        }
+      });
+    });
+    // Re-cascade als er iets veranderd is (meerdere niveaus)
+    if (changed) {
+      const cq = persons.map(p => p.id);
+      let ci = 0;
+      while (ci < cq.length) {
+        const id = cq[ci++];
+        const myGen = genOf[id] ?? 0;
+        if (myGen >= MAX_GEN) continue;
+        (childrenOf[id] || []).forEach(cid => {
+          if (genOf[cid] !== undefined && genOf[cid] < myGen + 1) {
+            genOf[cid] = myGen + 1;
+            cq.push(cid);
+          }
+        });
+      }
     }
   }
 
@@ -2630,15 +2680,21 @@ function computeLayout(overrideIds) {
   };
 
   // Helper: duw nodes naar rechts als ze overlappen.
-  // Partners worden als eenheid behandeld (nooit splitsen).
+  // Partners worden als eenheid behandeld (nooit splitsen),
+  // MAAR alleen als ze dicht bij elkaar staan (max 2 nodes ertussen).
+  // Ver-uit-elkaar-staande partners (cross-family huwelijken) worden apart behandeld,
+  // anders ontstaat een "brug" die alles ertussen ver naar rechts duwt.
+  const MAX_PARTNER_DIST = 3 * (NODE_W + H_GAP);
   const fixOverlaps = gen => {
     const genMembers = (byGen[gen] || []).filter(id => pos[id]);
     const inUnit = new Set();
     const units = [];
     genMembers.forEach(id => {
       if (inUnit.has(id)) return;
+      // Alleen nabije partners in dezelfde unit opnemen
       const myPartners = (partnersOf[id] || []).filter(pid =>
-        genOf[pid] === gen && pos[pid]
+        genOf[pid] === gen && pos[pid] &&
+        Math.abs(pos[pid].x - pos[id].x) <= MAX_PARTNER_DIST
       );
       const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
       unit.forEach(uid => inUnit.add(uid));
@@ -2712,6 +2768,12 @@ function computeLayout(overrideIds) {
     });
   }
 
+  // --- Cross-family ghost tracking ---
+  // Personen die in twee ouder-groepen voorkomen (als kind EN als schoon-kind)
+  // krijgen een ghost-slot in de groep van hun partner.
+  const CROSS_GHOST_PREFIX = '__cg__';
+  const ghostMeta = {}; // ghostId → { personId, adjacentTo }
+
   // --- Top-down: for each subsequent generation, place children under parents ---
   gens.filter(g => g > 0).forEach(gen => {
     const yPos = PADDING + gen * (NODE_H + V_GAP);
@@ -2720,6 +2782,17 @@ function computeLayout(overrideIds) {
     // Scheiding: kinderen met ouders in layout vs aangetrouwd (geen ouders)
     const withParents = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length > 0);
     const inlaws     = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length === 0);
+
+    // Detecteer cross-family partner paren (beide hebben ouders in layout)
+    const crossFamilyPartnerMap = new Map();
+    withParents.forEach(id => {
+      (partnersOf[id] || []).forEach(pid => {
+        if (withParents.includes(pid)) {
+          if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
+          crossFamilyPartnerMap.get(id).add(pid);
+        }
+      });
+    });
 
     // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
     // Sociale kinderen krijgen een aparte groep zodat ze apart geplaatst worden
@@ -2769,7 +2842,7 @@ function computeLayout(overrideIds) {
       const parentXs = group.parentIds.map(pid => pos[pid].x + NODE_W / 2);
       const parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
 
-      // Bouw volgorde: elk kind gevolgd door aangetrouwde partner(s)
+      // Bouw volgorde: elk kind gevolgd door aangetrouwde partner(s) en cross-family ghosts
       const expanded = [];
       group.children.forEach(cid => {
         expanded.push(cid);
@@ -2778,6 +2851,15 @@ function computeLayout(overrideIds) {
           if (inlaws.includes(pid) && !placedInlaws.has(pid)) {
             expanded.push(pid);
             placedInlaws.add(pid);
+          } else if (crossFamilyPartnerMap.has(cid) && crossFamilyPartnerMap.get(cid).has(pid)) {
+            // Cross-family partner: heeft eigen ouders in layout
+            // Voeg ghost-slot toe zodat er ruimte is naast het kind
+            const ghostId = CROSS_GHOST_PREFIX + pid + '_' + cid;
+            expanded.push(ghostId);
+            if (!byGen[gen]) byGen[gen] = [];
+            if (!byGen[gen].includes(ghostId)) byGen[gen].push(ghostId);
+            genOf[ghostId] = gen;
+            ghostMeta[ghostId] = { personId: pid, adjacentTo: cid };
           }
         });
       });
@@ -2859,9 +2941,41 @@ function computeLayout(overrideIds) {
     }
   }
 
+  // --- Bouw ghost-adjacentie map voor cascade ---
+  // Zodat ghosts meeschuiven als hun partner verschuift
+  const ghostsAdjacentTo = {}; // personId → [ghostIds]
+  Object.entries(ghostMeta).forEach(([ghostId, meta]) => {
+    if (!ghostsAdjacentTo[meta.adjacentTo]) ghostsAdjacentTo[meta.adjacentTo] = [];
+    ghostsAdjacentTo[meta.adjacentTo].push(ghostId);
+  });
+
   // --- Bottom-up: shift parent couples to center over their children ---
   // Na elke fixOverlaps worden de verschuivingen doorgegeven aan alle nakomelingen,
   // zodat gen3/gen4 niet wegdrijft van hun ouders.
+
+  // Helper: verschuif een persoon en AL zijn nakomelingen met dezelfde offset
+  const shiftedInlaws = new Set();
+  const shiftWithDescendants = (id, dx) => {
+    if (!pos[id] || Math.abs(dx) < 0.5) return;
+    pos[id].x += dx;
+    // Verschuif ook aangrenzende ghosts (cross-family partner duplicaten)
+    (ghostsAdjacentTo[id] || []).forEach(gid => {
+      if (pos[gid]) pos[gid].x += dx;
+    });
+    // Verschuif ook inlaw-partners (zonder ouders in layout) zodat ze niet
+    // achterblijven wanneer hun partner met de cascade meeschuift
+    (partnersOf[id] || []).forEach(pid => {
+      if (pos[pid] && !shiftedInlaws.has(pid) &&
+          !(parentsOf[pid] || []).some(ppid => pos[ppid])) {
+        shiftedInlaws.add(pid);
+        pos[pid].x += dx;
+      }
+    });
+    (childrenOf[id] || []).forEach(cid => {
+      if (pos[cid]) shiftWithDescendants(cid, dx);
+    });
+  };
+
   [...gens].reverse().forEach(gen => {
     const processed = new Set();
     (byGen[gen] || []).forEach(id => {
@@ -2882,8 +2996,34 @@ function computeLayout(overrideIds) {
       if (Math.abs(shift) > 1) unit.forEach(pid => { pos[pid].x += shift; });
     });
 
+    // Track posities vóór fixOverlaps, zodat we verschuivingen kunnen doorgeven
+    const beforeX = {};
+    (byGen[gen] || []).forEach(id => { if (pos[id]) beforeX[id] = pos[id].x; });
+
     fixOverlaps(gen);
+
+    // Cascade: als fixOverlaps een ouder naar rechts duwde, schuif ook alle nakomelingen mee.
+    // Gebruik een Set om dubbele cascades te voorkomen (als beide ouders in dezelfde unit zitten
+    // en dezelfde shift kregen, mag het kind maar één keer verschoven worden).
+    const cascaded = new Set();
+    (byGen[gen] || []).forEach(id => {
+      if (!pos[id] || beforeX[id] === undefined) return;
+      const dx = pos[id].x - beforeX[id];
+      if (Math.abs(dx) > 0.5) {
+        (childrenOf[id] || []).forEach(cid => {
+          if (pos[cid] && !cascaded.has(cid)) {
+            cascaded.add(cid);
+            shiftWithDescendants(cid, dx);
+          }
+        });
+      }
+    });
   });
+
+  // --- Finale fixOverlaps: de bottom-up cascade kan overlaps op lagere generaties
+  // veroorzaken (ouder verschuift → kinderen cascaden → overlap met buren).
+  // Eén extra fixOverlaps-pass lost dit op.
+  gens.forEach(gen => fixOverlaps(gen));
 
   // --- Compactie: schuif alles rechts van verticale snijlijnen naar links ---
   // Scan x-as in stappen en zoek verticale "snijlijnen" waar er op ALLE generaties
@@ -2958,7 +3098,24 @@ function computeLayout(overrideIds) {
     Object.values(pos).forEach(p => { p.x += shift; });
   }
 
-  return pos;
+  // --- Cross-family ghosts: extraheer uit pos ---
+  const crossFamilyGhosts = {};
+  Object.keys(pos).forEach(id => {
+    if (id.startsWith(CROSS_GHOST_PREFIX)) {
+      const meta = ghostMeta[id];
+      if (meta && pos[id]) {
+        crossFamilyGhosts[meta.personId + ':cg:' + meta.adjacentTo] = {
+          x: pos[id].x,
+          y: pos[id].y,
+          personId: meta.personId,
+          adjacentTo: meta.adjacentTo
+        };
+      }
+      delete pos[id];
+    }
+  });
+
+  return { pos, crossFamilyGhosts };
 }
 
 // ============================================================
@@ -2967,6 +3124,18 @@ function computeLayout(overrideIds) {
 function renderLines(pos, treeRanges, treePositions, duplicates) {
   const svg = document.getElementById('svg-lines');
   const parts = [];
+
+  // ── Bouw set van cross-family partner paren waarvoor ghosts bestaan ──
+  const crossFamilySkipPairs = new Set();
+  if (duplicates) {
+    Object.values(duplicates).forEach(dup => {
+      if (dup.adjacentTo) {
+        // Dit is een cross-family ghost: skip de lange partner-lijn
+        const pairKey = [dup.personId, dup.adjacentTo].sort().join('|');
+        crossFamilySkipPairs.add(pairKey);
+      }
+    });
+  }
 
   // ── Helper: teken alle relatielijnen voor een gegeven positie-map ──
   function drawLinesForPositions(lpos) {
@@ -2984,6 +3153,9 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       if (drawnPartners.has(key)) return;
       drawnPartners.add(key);
       if (!pids.has(r.person1Id) || !pids.has(r.person2Id)) return;
+
+      // Skip lange partner-lijn als er cross-family ghosts voor bestaan
+      if (crossFamilySkipPairs.has(key)) return;
 
       const leftId  = lpos[r.person1Id].x <= lpos[r.person2Id].x ? r.person1Id : r.person2Id;
       const rightId = leftId === r.person1Id ? r.person2Id : r.person1Id;
@@ -3044,16 +3216,20 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const hasDistantClusters = clusters.length > 1;
       // Voor verre clusters: gebruik een offset-Y zodat de connector niet
       // visueel samensmelt met horizontale balken van andere familiegroepen
-      const connectorOffsetY = 12;
+      const connectorOffsetY = 28;
 
       clusters.forEach(cluster => {
         if (cluster.length === 1) {
           const cid = cluster[0];
           const dist = Math.abs(lcx(cid) - dropX);
-          if (dist > GAP_THRESHOLD) {
-            // Kind is ver van de ouders (bijv. aangetrouwde partner elders geplaatst)
-            // Teken alleen een directe verticale lijn van boven het kind.
-            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+          if (dist > GAP_THRESHOLD && hasDistantClusters) {
+            // Kind is ver van de ouders — teken connector via offset-Y
+            const offsetY = midDropY + connectorOffsetY;
+            // Horizontale lijn van drop point naar boven het kind
+            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
+            parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${lcx(cid)}" y2="${offsetY}" class="child-line"/>`);
+            // Verticale lijn naar het kind
+            parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
           } else {
             parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${lcx(cid)}" y2="${midDropY}" class="child-line"/>`);
             parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
@@ -3125,6 +3301,40 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
   } else {
     // Enkele stamboom modus: teken normaal
     drawLinesForPositions(pos);
+  }
+
+  // ── Cross-family ghost partner lijnen en duplicate-links ──
+  if (duplicates) {
+    Object.values(duplicates).forEach(dup => {
+      if (!dup.adjacentTo || !pos[dup.adjacentTo]) return;
+      // Teken korte partner-lijn tussen ghost en de aangrenzende persoon
+      const realX = pos[dup.adjacentTo].x;
+      const ghostX = dup.x;
+      const leftX = Math.min(realX, ghostX);
+      const rightX = Math.max(realX, ghostX);
+      const y = pos[dup.adjacentTo].y + NODE_H / 2;
+      const x1 = leftX + NODE_W;
+      const x2 = rightX;
+      if (x2 > x1) {
+        parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
+      }
+      // Teken gebogen duplicate-link van real positie naar ghost
+      if (pos[dup.personId]) {
+        const rx = pos[dup.personId].x + NODE_W / 2;
+        const ry = pos[dup.personId].y + NODE_H / 2;
+        const gx = dup.x + NODE_W / 2;
+        const gy = dup.y + NODE_H / 2;
+        const horizDist = Math.abs(gx - rx);
+        const vertDist  = Math.abs(gy - ry);
+        const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
+        if (dist > NODE_W) { // Alleen tekenen als ver genoeg uit elkaar
+          const dip = Math.max(40, dist * 0.1);
+          const mx  = (rx + gx) / 2;
+          const my  = Math.min(ry, gy) - dip;
+          parts.push(`<path d="M ${rx} ${ry} Q ${mx} ${my}, ${gx} ${gy}" class="duplicate-link"/>`);
+        }
+      }
+    });
   }
 
   // Size the SVG
@@ -3439,25 +3649,41 @@ function computeAllFamiliesLayout() {
   const allStambomen = computeStambomen();
   if (!allStambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
 
-  // Filter: toon alleen bomen waarvan het hoofd (en zijn/haar partners)
-  // NERGENS als kind voorkomen. Zo verdwijnen sub-bomen die al in een
-  // andere boom zitten en houd je alleen de echte roots over.
-  let stambomen = allStambomen.filter(s => {
-    if (getParentsOf(s.headId).length > 0) return false;
-    // Patriarchen/matriarchs met ≥ 2 eigen kinderen worden nooit gefilterd op basis van
-    // de partner's ouders — zij zijn een eigen familiehoofd (bijv. Khanaga Faizi met 7 kinderen).
-    if (getChildrenOf(s.headId).length >= 2) return true;
-    // Voor hoofden met 0–1 kind: filter als partner of co-ouder eigen ouders heeft
-    // → dit hoofd is een in-law in een andere boom (bijv. Gaffar Khan Rashid, 1 kind)
-    const partners = getPartnersOf(s.headId);
-    if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
-    // Filter co-ouder-bomen: hoofd deelt een kind met iemand die zelf ouders heeft
-    // → dit hoofd hoort al in een andere boom
-    if (getChildrenOf(s.headId).some(cid =>
-      getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
-    )) return false;
-    return true;
+  // Filter: toon alleen hoofdstambomen.
+  // Regel: als het hoofd (man) of diens partner (vrouw) voorkomt in een
+  // andere, significant grotere hoofdstamboom, dan is het een sub-familie
+  // en tonen we die niet apart in de alle-families view.
+  // Uitzondering: als de eigen boom minstens de helft zo groot is als de
+  // absorberende boom, is het een gelijkwaardige patriarch → apart tonen.
+  // Stap A: basisfilter — hoofd mag geen ouders hebben
+  let candidates = allStambomen.filter(s => getParentsOf(s.headId).length === 0);
+
+  // Stap B: bereken personen-sets per boom
+  const candidateSets = {};
+  candidates.forEach(s => {
+    candidateSets[s.headId] = new Set(getStamboomPersons(s.headId));
   });
+
+  // Stap C: sorteer op grootte (groot → klein) en filter redundante bomen
+  // Een boom is redundant als het hoofd of diens partner in een boom zit
+  // die meer dan 2x zo groot is (= significant grotere boom)
+  candidates.sort((a, b) => candidateSets[b.headId].size - candidateSets[a.headId].size);
+  const selectedHeads = [];
+  candidates.forEach(s => {
+    const mySize = candidateSets[s.headId].size;
+    const partners = getPartnersOf(s.headId);
+    const absorbedByLargerTree = selectedHeads.some(headId => {
+      const largerSet = candidateSets[headId];
+      // Alleen filteren als de grotere boom meer dan 2x zo groot is
+      if (largerSet.size <= mySize * 2) return false;
+      if (largerSet.has(s.headId)) return true;
+      if (partners.some(pid => largerSet.has(pid))) return true;
+      return false;
+    });
+    if (!absorbedByLargerTree) selectedHeads.push(s.headId);
+  });
+
+  let stambomen = candidates.filter(s => selectedHeads.includes(s.headId));
 
   if (!stambomen.length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
 
@@ -3466,15 +3692,55 @@ function computeAllFamiliesLayout() {
   const LABEL_H       = 56;  // hoogte van het eiland-label boven de kaarten
 
   // ── Stap 1: bereken individuele boom-layouts ─────────────────
+  // Gebruik exclusieve personen-sets: stop het lopen door kinderen
+  // waarvan de co-ouder een ander geselecteerd boomhoofd is.
+  // Dit voorkomt dat Sayedahmed's boom Hagig's hele familie absorbeert.
+  const selectedHeadSet = new Set(stambomen.map(s => s.headId));
+
+  function getExclusivePersons(headId) {
+    const result = new Set();
+    function walk(id) {
+      if (result.has(id)) return;
+      result.add(id);
+      getPartnersOf(id).forEach(pid => result.add(pid));
+      getChildrenOf(id).forEach(cid => {
+        // Stop als de co-ouder van dit kind een ander geselecteerd boomhoofd is
+        const coParentIsOtherHead = getParentsOf(cid).some(pid =>
+          pid !== id && selectedHeadSet.has(pid) && pid !== headId
+        );
+        if (coParentIsOtherHead) {
+          // Kind hoort bij de andere boom — voeg toe als referentie maar loop niet dieper
+          result.add(cid);
+          return;
+        }
+        // Voeg co-ouders toe (partners van het kind)
+        getPartnersOf(cid).forEach(pid => {
+          if (!result.has(pid) &&
+              getParentsOf(pid).length === 0 &&
+              !getPartnersOf(pid).some(pp => getParentsOf(pp).length > 0)) {
+            result.add(pid);
+          }
+        });
+        walk(cid);
+      });
+      // Social children
+      getSocialChildrenOf(id).forEach(cid => walk(cid));
+    }
+    walk(headId);
+    return result;
+  }
+
   const treeLayouts = {}; // headId → { pos, w, h, minX, minY }
   stambomen.forEach(s => {
-    const ids = new Set(getStamboomPersons(s.headId));
-    const tp  = computeLayout(ids);
+    const ids = getExclusivePersons(s.headId);
+    const layoutResult = computeLayout(ids);
+    const tp = layoutResult.pos;
     if (!Object.keys(tp).length) return;
     const xs = Object.values(tp).map(p => p.x);
     const ys = Object.values(tp).map(p => p.y);
     treeLayouts[s.headId] = {
       pos: tp,
+      crossFamilyGhosts: layoutResult.crossFamilyGhosts || {},
       w: Math.max(...xs) - Math.min(...xs) + NODE_W,
       h: Math.max(...ys) - Math.min(...ys) + NODE_H,
       minX: Math.min(...xs),
@@ -3623,6 +3889,17 @@ function computeAllFamiliesLayout() {
       treePositions[s.headId][pid] = { x: p.x + ox, y: p.y + oy };
     });
 
+    // Cross-family ghosts toevoegen aan treePositions en duplicates
+    const treeCrossGhosts = layout.crossFamilyGhosts || {};
+    Object.entries(treeCrossGhosts).forEach(([key, g]) => {
+      duplicates[key + ':' + s.headId] = {
+        x: g.x + ox, y: g.y + oy,
+        treeHeadId: s.headId,
+        personId: g.personId,
+        adjacentTo: g.adjacentTo
+      };
+    });
+
     // Wijs primaire posities toe (native first)
     Object.entries(layout.pos).forEach(([pid, p]) => {
       const isNative = pid === s.headId ||
@@ -3679,7 +3956,14 @@ function render() {
     treePositions = result.treePositions || {};
     treeRanges = result.treeRanges;
   } else {
-    pos = computeLayout();
+    const layoutResult = computeLayout();
+    pos = layoutResult.pos;
+    // Cross-family ghosts: personen die in twee ouder-groepen voorkomen
+    const crossGhosts = layoutResult.crossFamilyGhosts || {};
+    Object.entries(crossGhosts).forEach(([key, g]) => {
+      ghosts[key] = g;
+      duplicates[key] = g;
+    });
   }
   lastPositions = pos;
   renderLines(pos, treeRanges, treePositions, duplicates);
