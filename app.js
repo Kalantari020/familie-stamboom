@@ -479,10 +479,10 @@ function getHiddenByCollapse(activeIds) {
     children.forEach(cid => collectDescendants(cid));
   });
 
-  // Ouders zelf mogen nooit verborgen worden
-  collapsedGezinnen.forEach(key => {
-    key.split(',').forEach(pid => hidden.delete(pid));
-  });
+  // Ouders worden nooit door hun EIGEN gezin verborgen (collectDescendants
+  // start bij kinderen, niet bij ouders). Ze worden alleen verborgen als ze
+  // nakomeling zijn van een ANDER ingeklapt gezin — in dat geval moeten ze
+  // verborgen blijven. Dus: geen cleanup nodig.
 
   return hidden;
 }
