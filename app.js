@@ -1932,10 +1932,15 @@ function computeLayout(overrideIds) {
     });
 
     // Build a map from person id → tree head id (for detecting tree boundaries)
+    // Gebruik alleen root-stambomen (zelfde filter als canvas)
     const personToTreeHead = {};
     if (!activeTreeId) {
-      const stambomen = computeStambomen();
-      stambomen.forEach(s => {
+      const allSt2 = computeStambomen();
+      const rootSt2 = allSt2.filter(s => {
+        if (getParentsOf(s.headId).length > 0) return false;
+        return !getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0);
+      });
+      rootSt2.forEach(s => {
         getStamboomPersons(s.headId).forEach(pid => {
           if (!personToTreeHead[pid]) personToTreeHead[pid] = s.headId;
         });
@@ -2090,12 +2095,17 @@ function renderLines(pos, treeRanges) {
   const topY = id => pos[id]?.y || 0;
 
   // In "alle families" modus: bouw een lookup van persoon → primaire boom
-  // zodat we geen lijnen tekenen tussen personen uit verschillende bomen
+  // Gebruik dezelfde root-filter als het canvas, zodat sub-bomen niet als
+  // aparte primaire boom gelden en onnodige cross-tree lijnen vermeden worden.
   let personPrimaryTree = null;
   if (activeTreeId === null) {
     personPrimaryTree = {};
-    const stambomen = computeStambomen();
-    stambomen.forEach(s => {
+    const allSt = computeStambomen();
+    const rootSt = allSt.filter(s => {
+      if (getParentsOf(s.headId).length > 0) return false;
+      return !getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0);
+    });
+    rootSt.forEach(s => {
       getStamboomPersons(s.headId).forEach(pid => {
         if (!personPrimaryTree[pid]) personPrimaryTree[pid] = s.headId;
       });
