@@ -1919,6 +1919,24 @@ function computeLayout(overrideIds) {
     });
   }
 
+  // Na co-ouder gen-sync: cascade generatieniveaus door naar kinderen.
+  // Gaffar werd bijv. van gen0 → gen1 getild, maar Benjamin (zijn kind) was al gen1
+  // via BFS (toen Gaffar nog gen0 was). Nu moet Benjamin naar gen2.
+  {
+    const cascadeQueue = persons.map(p => p.id);
+    let qi = 0;
+    while (qi < cascadeQueue.length) {
+      const id = cascadeQueue[qi++];
+      const myGen = genOf[id] ?? 0;
+      (childrenOf[id] || []).forEach(cid => {
+        if (genOf[cid] !== undefined && genOf[cid] < myGen + 1) {
+          genOf[cid] = myGen + 1;
+          cascadeQueue.push(cid); // opnieuw door de kinderen van dit kind
+        }
+      });
+    }
+  }
+
   // --- Group by generation ---
   const byGen = {};
   persons.forEach(p => {
