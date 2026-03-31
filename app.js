@@ -219,29 +219,84 @@ function loadState() {
 
 function mergeStartData() {
   const existingIds = new Set(state.persons.map(p => p.id));
+  // Bouw naam→id mapping om duplicaten op naam te detecteren
+  const nameToId = {};
+  state.persons.forEach(p => { nameToId[p.name] = p.id; });
+  const idMap = {}; // START_DATA id → bestaand id (voor relatie-remapping)
   let added = 0;
-  // Voeg ontbrekende personen toe
+
+  // Voeg ontbrekende personen toe (check op ID én naam)
   START_DATA.persons.forEach(p => {
-    if (!existingIds.has(p.id)) {
-      state.persons.push(JSON.parse(JSON.stringify(p)));
-      existingIds.add(p.id);
-      added++;
+    if (existingIds.has(p.id)) return; // ID bestaat al
+    if (nameToId[p.name]) {
+      // Persoon bestaat al onder ander ID — remap, niet toevoegen
+      idMap[p.id] = nameToId[p.name];
+      return;
     }
+    state.persons.push(JSON.parse(JSON.stringify(p)));
+    existingIds.add(p.id);
+    nameToId[p.name] = p.id;
+    added++;
   });
-  // Voeg ontbrekende relaties toe
-  const relKey = r => `${r.type}|${r.parentId||r.person1Id}|${r.childId||r.person2Id}`;
+
+  // Voeg ontbrekende relaties toe (met ID-remapping)
+  const remapId = id => idMap[id] || id;
+  const relKey = r => {
+    if (r.type === 'partner') return `${r.type}|${[remapId(r.person1Id),remapId(r.person2Id)].sort().join(',')}`;
+    return `${r.type}|${remapId(r.parentId||r.person1Id)}|${remapId(r.childId||r.person2Id)}`;
+  };
   const existingRels = new Set(state.relationships.map(relKey));
   START_DATA.relationships.forEach(r => {
-    const key = relKey(r);
+    const mapped = JSON.parse(JSON.stringify(r));
+    if (mapped.parentId) mapped.parentId = remapId(mapped.parentId);
+    if (mapped.childId) mapped.childId = remapId(mapped.childId);
+    if (mapped.person1Id) mapped.person1Id = remapId(mapped.person1Id);
+    if (mapped.person2Id) mapped.person2Id = remapId(mapped.person2Id);
+    const key = relKey(mapped);
     if (!existingRels.has(key)) {
-      state.relationships.push(JSON.parse(JSON.stringify(r)));
+      state.relationships.push(mapped);
       existingRels.add(key);
       added++;
     }
   });
-  if (added > 0) {
+
+  // Dedup: verwijder dubbele personen (zelfde naam) en merge hun relaties
+  const byName = {};
+  state.persons.forEach(p => {
+    if (!byName[p.name]) byName[p.name] = [];
+    byName[p.name].push(p);
+  });
+  let deduped = 0;
+  Object.values(byName).forEach(group => {
+    if (group.length < 2) return;
+    // Houd de eerste, merge relaties van de rest
+    const keep = group[0];
+    for (let i = 1; i < group.length; i++) {
+      const dupe = group[i];
+      // Hermap alle relaties van dupe naar keep
+      state.relationships.forEach(r => {
+        if (r.parentId === dupe.id) r.parentId = keep.id;
+        if (r.childId === dupe.id) r.childId = keep.id;
+        if (r.person1Id === dupe.id) r.person1Id = keep.id;
+        if (r.person2Id === dupe.id) r.person2Id = keep.id;
+      });
+      // Verwijder dubbele persoon
+      state.persons = state.persons.filter(p => p.id !== dupe.id);
+      deduped++;
+    }
+    // Verwijder dubbele relaties na merge
+    const seen = new Set();
+    state.relationships = state.relationships.filter(r => {
+      const k = relKey(r);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  });
+
+  if (added > 0 || deduped > 0) {
     saveState();
-    console.log(`[Stamboom] ${added} ontbrekende items uit START_DATA toegevoegd`);
+    console.log(`[Stamboom] Merge: ${added} toegevoegd, ${deduped} duplicaten samengevoegd`);
   }
 }
 
