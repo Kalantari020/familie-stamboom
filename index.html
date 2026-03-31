@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
   <script>
     window.onerror = function(msg, src, line, col, err) {
       var d = document.createElement('div');
@@ -214,6 +214,14 @@
             <textarea name="notes" rows="2" placeholder="Extra informatie..."></textarea>
           </label>
         </div>
+
+        <!-- Relaties sectie — alleen zichtbaar bij bewerken -->
+        <div id="rel-edit-section" style="display:none">
+          <div class="sidebar-divider" style="margin:14px 0 10px"></div>
+          <div class="detail-section-title" style="margin-bottom:10px">Relaties</div>
+          <div id="rel-edit-content"></div>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn primary" id="btn-person-submit">Opslaan</button>
           <button type="button" class="btn secondary" id="btn-person-cancel">Annuleer</button>
@@ -318,6 +326,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

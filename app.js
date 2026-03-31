@@ -2601,6 +2601,7 @@ function openAddModal() {
   document.getElementById('form-person').reset();
   document.getElementById('chk-deceased').checked = false;
   setPhotoPreview(null);
+  document.getElementById('rel-edit-section').style.display = 'none';
   document.getElementById('modal-person').classList.remove('hidden');
 }
 
@@ -2620,6 +2621,169 @@ function openEditModal(id) {
   form.notes.value     = person.notes     || '';
   document.getElementById('chk-deceased').checked = !!person.deceased;
   setPhotoPreview(person.photo || null);
+
+  // ── Relaties sectie ──────────────────────────────────────────
+  const relSection = document.getElementById('rel-edit-section');
+  const relContent = document.getElementById('rel-edit-content');
+  relSection.style.display = '';
+
+  function renderRelSection() {
+    const partners = getPartnersOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const parents  = getParentsOf(id).map(pid => getPerson(pid)).filter(Boolean);
+    const children = getChildrenOf(id).map(pid => getPerson(pid)).filter(Boolean);
+
+    function relGroup(label, persons, type) {
+      const chips = persons.map(p => {
+        const gi = p.gender === 'm' ? '♂' : p.gender === 'f' ? '♀' : '⚧';
+        return `<span class="rel-chip" style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px 3px 8px;margin:3px;font-size:13px">
+          ${gi} ${escHtml(p.name)}
+          <button type="button" class="rel-remove-btn" data-type="${type}" data-pid="${p.id}"
+            style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:0 0 0 4px;line-height:1">×</button>
+        </span>`;
+      }).join('');
+      const empty = persons.length === 0
+        ? `<span style="color:var(--text-muted);font-size:12px;font-style:italic">Geen</span>`
+        : '';
+      return `<div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px">${label.toUpperCase()}</div>
+        <div>${chips}${empty}</div>
+      </div>`;
+    }
+
+    relContent.innerHTML = `
+      ${relGroup('Partners', partners, 'partner')}
+      ${relGroup('Ouders', parents, 'parent')}
+      ${relGroup('Kinderen', children, 'child')}
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
+        <select id="rel-edit-type" style="width:110px;flex-shrink:0">
+          <option value="child">Kind</option>
+          <option value="partner">Partner</option>
+          <option value="parent">Ouder</option>
+        </select>
+        <div style="position:relative;flex:1;min-width:150px">
+          <input type="text" id="rel-edit-name" placeholder="Naam zoeken of typen..." style="width:100%;box-sizing:border-box">
+          <input type="hidden" id="rel-edit-existing-id">
+          <div id="rel-edit-autocomplete" style="display:none;position:absolute;left:0;right:0;top:100%;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;z-index:9999;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3)"></div>
+        </div>
+        <button type="button" id="rel-edit-add" class="btn small primary" style="flex-shrink:0">+ Toevoegen</button>
+      </div>
+    `;
+
+    // Remove-knoppen
+    relContent.querySelectorAll('.rel-remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type;
+        const pid  = btn.dataset.pid;
+        if (type === 'partner') {
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'partner' &&
+            ((r.person1Id === id && r.person2Id === pid) || (r.person1Id === pid && r.person2Id === id))
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        } else if (type === 'child') {
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'parent-child' && r.parentId === id && r.childId === pid
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        } else if (type === 'parent') {
+          const idx = state.relationships.findIndex(r =>
+            r.type === 'parent-child' && r.parentId === pid && r.childId === id
+          );
+          if (idx !== -1) state.relationships.splice(idx, 1);
+        }
+        saveState();
+        render();
+        renderRelSection();
+      });
+    });
+
+    // Autocomplete op naam-input
+    const nameInput  = relContent.querySelector('#rel-edit-name');
+    const existingId = relContent.querySelector('#rel-edit-existing-id');
+    const autoList   = relContent.querySelector('#rel-edit-autocomplete');
+
+    nameInput.addEventListener('input', () => {
+      const q = nameInput.value.trim().toLowerCase();
+      existingId.value = '';
+      if (!q) { autoList.style.display = 'none'; return; }
+      const matches = state.persons
+        .filter(p => p.id !== id && p.name.toLowerCase().includes(q))
+        .slice(0, 10);
+      if (!matches.length) { autoList.style.display = 'none'; return; }
+      autoList.innerHTML = matches.map(p => {
+        const gi = p.gender === 'm' ? '♂' : p.gender === 'f' ? '♀' : '⚧';
+        const bd = p.birthdate ? ` · ${p.birthdate}` : '';
+        return `<div class="person-picker-item" data-id="${p.id}"
+          style="padding:8px 10px;cursor:pointer;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border)">
+          <span>${gi}</span>
+          <span style="flex:1">${escHtml(p.name)}</span>
+          ${p.family ? `<span class="person-picker-tag">${escHtml(p.family)}</span>` : ''}
+          <span style="color:var(--text-muted);font-size:11px">${bd}</span>
+        </div>`;
+      }).join('');
+      autoList.style.display = 'block';
+      autoList.querySelectorAll('.person-picker-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          const p = state.persons.find(x => x.id === item.dataset.id);
+          if (!p) return;
+          existingId.value = p.id;
+          nameInput.value  = p.name;
+          autoList.style.display = 'none';
+        });
+      });
+    });
+    nameInput.addEventListener('blur', () => setTimeout(() => { autoList.style.display = 'none'; }, 200));
+
+    // + Toevoegen knop
+    relContent.querySelector('#rel-edit-add').addEventListener('click', () => {
+      const type     = relContent.querySelector('#rel-edit-type').value;
+      const name     = nameInput.value.trim();
+      const targetId = existingId.value;
+      if (!name) return;
+
+      if (targetId) {
+        // Bestaande persoon
+        if (type === 'partner') {
+          const exists = state.relationships.some(r =>
+            r.type === 'partner' &&
+            ((r.person1Id === id && r.person2Id === targetId) || (r.person1Id === targetId && r.person2Id === id))
+          );
+          if (!exists) state.relationships.push({ type: 'partner', person1Id: id, person2Id: targetId });
+        } else if (type === 'child') {
+          const exists = state.relationships.some(r =>
+            r.type === 'parent-child' && r.parentId === id && r.childId === targetId
+          );
+          if (!exists) state.relationships.push({ type: 'parent-child', parentId: id, childId: targetId });
+        } else if (type === 'parent') {
+          const exists = state.relationships.some(r =>
+            r.type === 'parent-child' && r.parentId === targetId && r.childId === id
+          );
+          if (!exists) state.relationships.push({ type: 'parent-child', parentId: targetId, childId: id });
+        }
+      } else {
+        // Nieuwe persoon
+        const newP = { id: uid(), name, gender: '?', family: person.family || '', birthdate: '', deathdate: '', notes: '', deceased: false };
+        state.persons.push(newP);
+        if (type === 'partner') {
+          state.relationships.push({ type: 'partner', person1Id: id, person2Id: newP.id });
+        } else if (type === 'child') {
+          state.relationships.push({ type: 'parent-child', parentId: id, childId: newP.id });
+        } else if (type === 'parent') {
+          state.relationships.push({ type: 'parent-child', parentId: newP.id, childId: id });
+        }
+        checkSmartLink(newP.id);
+      }
+
+      saveState();
+      render();
+      nameInput.value  = '';
+      existingId.value = '';
+      renderRelSection();
+    });
+  }
+
+  renderRelSection();
   document.getElementById('modal-person').classList.remove('hidden');
 }
 
