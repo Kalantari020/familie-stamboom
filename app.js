@@ -1962,21 +1962,39 @@ function computeLayout(overrideIds) {
     return (Math.min(...xs) + Math.max(...xs) + NODE_W) / 2;
   };
 
-  // Helper: push all nodes in a generation to the right if needed.
-  // Behandelt AANEENGESLOTEN partner-paren als eenheid (nooit splitsen).
-  // Partners die ver uit elkaar staan (onder verschillende ouder-groepen) worden
-  // NIET samengevoegd — anders zou een schijn-brede eenheid alles tussen hen wegduwen.
-  const ADJACENT_THRESHOLD = NODE_W + H_GAP + 2; // 232 px tolerantie
+  // Helper: duw nodes naar rechts als ze overlappen.
+  // Partners worden ALTIJD als eenheid behandeld — ze moeten naast elkaar staan.
+  // Als een partner ver weg staat, wordt hij naast zijn partner getrokken.
   const fixOverlaps = gen => {
     const genMembers = (byGen[gen] || []).filter(id => pos[id]);
-    // Bouw units: alleen AANEENGESLOTEN partners vormen één eenheid
+
+    // Stap 1: trek losse partners naar hun partner toe (direct naast elkaar)
+    const pulled = new Set();
+    genMembers.forEach(id => {
+      if (pulled.has(id)) return;
+      const myPartners = (partnersOf[id] || []).filter(pid =>
+        genOf[pid] === gen && pos[pid]
+      );
+      if (!myPartners.length) return;
+      // Bouw unit: persoon + alle partners
+      const unit = [id, ...myPartners];
+      unit.forEach(uid => pulled.add(uid));
+      // Sorteer op huidige x
+      unit.sort((a, b) => pos[a].x - pos[b].x);
+      // Herpositioneer zodat ze aaneengesloten staan
+      const baseX = pos[unit[0]].x;
+      unit.forEach((uid, i) => {
+        pos[uid].x = baseX + i * (NODE_W + H_GAP);
+      });
+    });
+
+    // Stap 2: bouw units en fix overlaps
     const inUnit = new Set();
     const units = [];
     genMembers.forEach(id => {
       if (inUnit.has(id)) return;
       const myPartners = (partnersOf[id] || []).filter(pid =>
-        genOf[pid] === gen && pos[pid] &&
-        Math.abs(pos[id].x - pos[pid].x) <= ADJACENT_THRESHOLD
+        genOf[pid] === gen && pos[pid]
       );
       const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
       unit.forEach(uid => inUnit.add(uid));
@@ -1986,12 +2004,11 @@ function computeLayout(overrideIds) {
     units.sort((a, b) => pos[a[0]].x - pos[b[0]].x);
     // Duw units naar rechts als ze overlappen met de vorige unit
     for (let i = 1; i < units.length; i++) {
-      const prevRight = pos[units[i - 1][units[i - 1].length - 1]].x; // meest rechts vorige unit
-      const currLeft  = pos[units[i][0]].x;                            // meest links huidige unit
+      const prevRight = pos[units[i - 1][units[i - 1].length - 1]].x;
+      const currLeft  = pos[units[i][0]].x;
       const minX = prevRight + NODE_W + H_GAP;
       if (currLeft < minX) {
         const shift = minX - currLeft;
-        // Schuif huidige én alle volgende units mee
         for (let j = i; j < units.length; j++) {
           units[j].forEach(uid => { pos[uid].x += shift; });
         }
@@ -2058,13 +2075,39 @@ function computeLayout(overrideIds) {
     const yPos = PADDING + gen * (NODE_H + V_GAP);
     const genIds = byGen[gen] || [];
 
-    // Separate family members (have parents) from in-laws (no parents at this gen)
+    // Scheiding: kinderen met ouders in layout vs aangetrouwd (geen ouders)
     const withParents = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length > 0);
     const inlaws     = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length === 0);
 
-    // Group children by their parent set (siblings share the same group)
-    const groups = {}; // key → { parentIds, children[] }
+    // Bepaal welke withParents-leden als partner INLINE moeten (niet in eigen oudergroep)
+    // Een persoon met ouders die PARTNER is van iemand in een andere oudergroep
+    // wordt uit zijn eigen groep gehaald en inline geplaatst naast zijn partner
+    const inlinePartnerIds = new Set();
     withParents.forEach(id => {
+      const myPartners = (partnersOf[id] || []).filter(pid =>
+        genOf[pid] === gen && withParents.includes(pid)
+      );
+      myPartners.forEach(pid => {
+        // Als ze NIET dezelfde ouders delen, moet één van hen inline bij de ander
+        const myParents = (parentsOf[id] || []).filter(p => pos[p]).sort().join(',');
+        const partnerParents = (parentsOf[pid] || []).filter(p => pos[p]).sort().join(',');
+        if (myParents !== partnerParents) {
+          // De persoon met MINDER kinderen in deze layout gaat inline
+          const myKids = (childrenOf[id] || []).length;
+          const partnerKids = (childrenOf[pid] || []).length;
+          if (myKids <= partnerKids) {
+            inlinePartnerIds.add(id);
+          } else {
+            inlinePartnerIds.add(pid);
+          }
+        }
+      });
+    });
+
+    // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
+    // Personen die inline-partner zijn worden NIET in hun eigen oudergroep geplaatst
+    const groups = {};
+    withParents.filter(id => !inlinePartnerIds.has(id)).forEach(id => {
       const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
       const key = ps.join(',');
       if (!groups[key]) groups[key] = { parentIds: ps, children: [] };
@@ -2077,7 +2120,7 @@ function computeLayout(overrideIds) {
         const pa = parseBirthdate(getPerson(a)?.birthdate);
         const pb = parseBirthdate(getPerson(b)?.birthdate);
         if (!pa && !pb) return 0;
-        if (!pa) return 1;  // onbekend → rechts
+        if (!pa) return 1;
         if (!pb) return -1;
         if (pa.year !== pb.year) return pa.year - pb.year;
         if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
@@ -2086,7 +2129,7 @@ function computeLayout(overrideIds) {
       });
     });
 
-    // Sort groups by the x-center of their parents
+    // Sorteer groepen op het x-midden van hun ouders
     const sortedGroups = Object.values(groups).sort((a, b) => {
       const cx = g => {
         const xs = g.parentIds.map(pid => pos[pid].x + NODE_W / 2);
@@ -2095,24 +2138,38 @@ function computeLayout(overrideIds) {
       return cx(a) - cx(b);
     });
 
-    // Place each group centered under parents, packing left-to-right
-    // In-laws are inserted INLINE directly after their partner sibling
-    const placedInlaws = new Set();
+    // Plaatsing: elk kind gecentreerd onder ouders, partner direct ernaast
+    // Alle partners (in-laws EN inline-partners) worden naast hun partner geplaatst
+    const allInlineIds = new Set([...inlaws.map(id => id), ...inlinePartnerIds]);
+    const placedInline = new Set();
     let cursorX = PADDING;
     sortedGroups.forEach(group => {
       const parentXs = group.parentIds.map(pid => pos[pid].x + NODE_W / 2);
       const parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
 
-      // Build expanded order: each child followed by its in-law partner (if any)
+      // Bouw volgorde: elk kind met partner(s) ernaast
       const expanded = [];
       group.children.forEach(cid => {
-        expanded.push(cid);
-        (partnersOf[cid] || []).forEach(pid => {
-          if (inlaws.includes(pid) && !placedInlaws.has(pid)) {
-            expanded.push(pid);
-            placedInlaws.add(pid);
+        const partners = (partnersOf[cid] || []).filter(pid =>
+          allInlineIds.has(pid) && !placedInline.has(pid) && genOf[pid] === gen
+        );
+        if (partners.length === 0) {
+          expanded.push(cid);
+        } else if (partners.length === 1) {
+          // Eén partner: kind + partner naast elkaar
+          expanded.push(cid);
+          expanded.push(partners[0]);
+          placedInline.add(partners[0]);
+        } else {
+          // Meerdere partners: Partner1, Kind, Partner2, ...
+          expanded.push(partners[0]);
+          placedInline.add(partners[0]);
+          expanded.push(cid);
+          for (let pi = 1; pi < partners.length; pi++) {
+            expanded.push(partners[pi]);
+            placedInline.add(partners[pi]);
           }
-        });
+        }
       });
 
       const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
@@ -2125,9 +2182,9 @@ function computeLayout(overrideIds) {
       cursorX = startX + totalW + H_GAP;
     });
 
-    // Place remaining in-laws (not yet placed inline) after their partner
-    inlaws.forEach(id => {
-      if (placedInlaws.has(id)) return;
+    // Resterende niet-geplaatste in-laws/inline-partners: direct naast hun partner
+    [...inlaws, ...inlinePartnerIds].forEach(id => {
+      if (placedInline.has(id) || pos[id]) return;
       const partner = (partnersOf[id] || []).find(pid => pos[pid] && genOf[pid] === gen);
       if (partner) {
         pos[id] = { x: pos[partner].x + NODE_W + H_GAP, y: yPos };
@@ -2175,10 +2232,9 @@ function computeLayout(overrideIds) {
       if (propagated.has(id) || !pos[id] || Math.abs(delta) < 1) return;
       propagated.add(id);
       pos[id].x += delta;
-      // Schuif aaneengesloten partners (in-laws) ook mee
+      // Schuif partners ook mee (staan altijd naast elkaar)
       (partnersOf[id] || []).forEach(pid => {
-        if (!propagated.has(pid) && pos[pid] && genOf[pid] !== gen &&
-            Math.abs((pos[id].x - delta) - pos[pid].x) <= ADJACENT_THRESHOLD) {
+        if (!propagated.has(pid) && pos[pid] && genOf[pid] !== gen) {
           cascadeShift(pid, delta);
         }
       });
@@ -2219,7 +2275,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     const lbotY = id => (lpos[id]?.y || 0) + NODE_H;
     const ltopY = id => lpos[id]?.y || 0;
 
-    // Partner lines
+    // Partner lines — altijd rechte stippellijn (partners staan altijd naast elkaar)
     const drawnPartners = new Set();
     state.relationships.forEach(r => {
       if (r.type !== 'partner') return;
@@ -2235,15 +2291,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const x2 = lpos[rightId].x;
       if (x2 <= x1) return;
 
-      const gap = x2 - x1;
-      if (gap <= H_GAP + 2) {
-        parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
-      } else {
-        const mx   = (x1 + x2) / 2;
-        const arcH = Math.min(60, 20 + gap * 0.08);
-        const cy   = y - NODE_H / 2 - arcH;
-        parts.push(`<path d="M ${x1},${y} Q ${mx},${cy} ${x2},${y}" class="partner-arc"/>`);
-      }
+      parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
     });
 
     // Parent-child lines (gegroepeerd per ouder-set)
