@@ -1745,7 +1745,11 @@ function getStamboomPersons(headId) {
     if (result.has(id)) return;
     result.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
-    getChildrenOf(id).forEach(cid => walk(cid));
+    getChildrenOf(id).forEach(cid => {
+      // Co-ouder: voeg toe aan resultaat maar walk niet (voorkomt absorptie van andere bomen)
+      getParentsOf(cid).forEach(pid => { if (!result.has(pid)) result.add(pid); });
+      walk(cid);
+    });
     getSocialChildrenOf(id).forEach(cid => walk(cid));
   }
   walk(headId);
@@ -1840,6 +1844,17 @@ function computeLayout(overrideIds) {
     }
   });
 
+  // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
+  persons.forEach(p => {
+    (childrenOf[p.id] || []).forEach(cid => {
+      (parentsOf[cid] || []).forEach(copid => {
+        if (copid === p.id || partnersOf[copid] === undefined) return;
+        if (!partnersOf[p.id].includes(copid)) partnersOf[p.id].push(copid);
+        if (!partnersOf[copid].includes(p.id)) partnersOf[copid].push(p.id);
+      });
+    });
+  });
+
   // --- Assign generation levels via BFS (met cyclus-beveiliging) ---
   const genOf = {};
   const roots = persons.filter(p => parentsOf[p.id].length === 0).map(p => p.id);
@@ -1879,6 +1894,19 @@ function computeLayout(overrideIds) {
         if (genOf[r.person1Id] !== undefined) genOf[r.person1Id] = g;
         if (genOf[r.person2Id] !== undefined) genOf[r.person2Id] = g;
       }
+    });
+  }
+
+  // Generatie-sync voor inferred co-ouder paren (niet in state.relationships)
+  for (let pass = 0; pass < 3; pass++) {
+    persons.forEach(p => {
+      (partnersOf[p.id] || []).forEach(pid => {
+        if (genOf[p.id] !== undefined && genOf[pid] !== undefined) {
+          const g = Math.max(genOf[p.id], genOf[pid]);
+          genOf[p.id] = g;
+          genOf[pid] = g;
+        }
+      });
     });
   }
 
@@ -1963,7 +1991,11 @@ function computeLayout(overrideIds) {
       const allSt2 = computeStambomen();
       const rootSt2 = allSt2.filter(s => {
         if (getParentsOf(s.headId).length > 0) return false;
-        return !getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0);
+        if (getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0)) return false;
+        if (getChildrenOf(s.headId).some(cid =>
+          getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
+        )) return false;
+        return true;
       });
       rootSt2.forEach(s => {
         getStamboomPersons(s.headId).forEach(pid => {
@@ -2157,7 +2189,11 @@ function renderLines(pos, treeRanges) {
     const allSt = computeStambomen();
     const rootSt = allSt.filter(s => {
       if (getParentsOf(s.headId).length > 0) return false;
-      return !getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0);
+      if (getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0)) return false;
+      if (getChildrenOf(s.headId).some(cid =>
+        getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
+      )) return false;
+      return true;
     });
     rootSt.forEach(s => {
       getStamboomPersons(s.headId).forEach(pid => {
@@ -2646,6 +2682,11 @@ function computeAllFamiliesLayout() {
     if (getParentsOf(s.headId).length > 0) return false;
     const partners = getPartnersOf(s.headId);
     if (partners.some(pid => getParentsOf(pid).length > 0)) return false;
+    // Filter co-ouder-bomen: hoofd deelt een kind met iemand die zelf ouders heeft
+    // → dit hoofd hoort al in een andere boom
+    if (getChildrenOf(s.headId).some(cid =>
+      getParentsOf(cid).some(pid => pid !== s.headId && getParentsOf(pid).length > 0)
+    )) return false;
     return true;
   });
   if (!stambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
