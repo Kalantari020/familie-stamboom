@@ -972,54 +972,16 @@ body.readonly .card:hover   { cursor: default; }
 /* Tree group labels */
 .tree-group-label {
   position: absolute;
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
   white-space: nowrap;
   pointer-events: none;
   z-index: 1;
-}
-
-/* ============================================================
-   TREE ISLAND LAYOUT (alle families modus)
-   ============================================================ */
-.tree-island-bg {
-  position: absolute;
-  border-radius: 16px;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1.5px solid rgba(148, 163, 184, 0.15);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.tree-island-label {
-  position: absolute;
-  top: 10px;
-  left: 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(148, 163, 184, 0.9);
-  letter-spacing: 0.04em;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  pointer-events: none;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.tree-island-count {
-  font-size: 10px;
-  font-weight: 400;
-  background: rgba(100, 116, 139, 0.3);
-  border-radius: 10px;
-  padding: 1px 7px;
-  letter-spacing: 0;
-  text-transform: none;
-}
 
 /* Social ghost cards */
 .card.social-ghost {

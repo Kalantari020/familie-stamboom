@@ -2326,24 +2326,6 @@ function renderCards(pos, treeRanges, ghosts) {
     canvas.style.height = maxY + 'px';
   }
 
-  // ── Tree background boxes (all-families mode) ───────────────
-  if (treeRanges && Object.keys(treeRanges).length) {
-    const LABEL_H = 44;
-    Object.entries(treeRanges).forEach(([headId, r]) => {
-      const box = document.createElement('div');
-      box.className = 'tree-island-bg';
-      box.style.left   = r.minX + 'px';
-      box.style.top    = (r.minY) + 'px';
-      box.style.width  = (r.maxX - r.minX) + 'px';
-      box.style.height = (r.maxY - r.minY + LABEL_H) + 'px';
-
-      const head = getPerson(headId);
-      const familyName = head?.family || head?.name?.split(' ').slice(-1)[0] || r.label;
-      box.innerHTML = `<div class="tree-island-label">🌳 Familie ${escHtml(familyName)}<span class="tree-island-count">${r.count} personen</span></div>`;
-      container.appendChild(box);
-    });
-  }
-
   state.persons.forEach(person => {
     const p = pos[person.id];
     if (!p) return;
@@ -2536,8 +2518,19 @@ function scrollToCard(id) {
 function renderTreeLabels(pos, treeRanges) {
   const canvas = document.getElementById('canvas');
   canvas.querySelectorAll('.tree-group-label').forEach(el => el.remove());
-  // Labels are now rendered as part of tree-island-bg boxes in renderCards
-  // This function is kept for single-tree mode labels (none needed)
+  if (!treeRanges) return;
+
+  Object.entries(treeRanges).forEach(([headId, r]) => {
+    const label = document.createElement('div');
+    label.className = 'tree-group-label';
+    // Centreer boven de boom
+    const centerX = (r.minX + r.maxX) / 2;
+    label.style.left      = centerX + 'px';
+    label.style.top       = r.minY + 'px';
+    label.style.transform = 'translateX(-50%)';
+    label.textContent     = '🌳 Familie ' + escHtml(r.label);
+    canvas.appendChild(label);
+  });
 }
 
 // ============================================================
@@ -2577,15 +2570,25 @@ function computeAllFamiliesLayout() {
     treeChildOf[s.headId]  = new Set();
   });
 
+  // Sleutelbegrip: kijk alleen of het KIND de HEAD is van een andere boom.
+  // getStamboomPersons loopt al recursief door kinderen heen, waardoor een kind
+  // in BEIDE bomen zit. Door alleen op tree-heads te checken vermijden we die ambiguïteit.
+  const headSet = new Set(stambomen.map(s => s.headId));
+
   state.relationships.forEach(r => {
     if (r.type !== 'parent-child') return;
-    let pTree = null, cTree = null;
+    // Het kind moet HEAD zijn van een eigen boom — anders is dit een interne relatie
+    if (!headSet.has(r.childId)) return;
+    const cTree = r.childId; // de HEAD is de tree-id
+
+    // Zoek in welke boom de OUDER zit (niet de boom van het kind zelf)
+    let pTree = null;
     stambomen.forEach(s => {
-      const ids = treeLayouts[s.headId]?.personIds;
-      if (ids?.has(r.parentId)) pTree = s.headId;
-      if (ids?.has(r.childId))  cTree = s.headId;
+      if (s.headId === cTree) return; // sla de eigen boom over
+      if (treeLayouts[s.headId]?.personIds.has(r.parentId)) pTree = s.headId;
     });
-    if (!pTree || !cTree || pTree === cTree) return;
+    if (!pTree) return;
+
     treeParentOf[cTree].add(pTree);
     treeChildOf[pTree].add(cTree);
   });
