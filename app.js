@@ -2237,7 +2237,7 @@ function renderLines(pos, treeRanges) {
   if (activeTreeId === null) {
     personPrimaryTree = {};
     const allSt = computeStambomen();
-    const rootSt = allSt.filter(s => {
+    let rootSt = allSt.filter(s => {
       if (getParentsOf(s.headId).length > 0) return false;
       if (getChildrenOf(s.headId).length >= 2) return true;
       if (getPartnersOf(s.headId).some(pid => getParentsOf(pid).length > 0)) return false;
@@ -2246,6 +2246,19 @@ function renderLines(pos, treeRanges) {
       )) return false;
       return true;
     });
+    // Consolidatie: verwijder bomen wiens kinderen al in grotere bomen voorkomen
+    {
+      const pSets = {};
+      rootSt.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
+      rootSt.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
+      const covered = new Set();
+      rootSt = rootSt.filter(s => {
+        const headChildren = getChildrenOf(s.headId);
+        if (headChildren.some(cid => covered.has(cid))) return false;
+        pSets[s.headId].forEach(pid => covered.add(pid));
+        return true;
+      });
+    }
     // Pass 1: native members (heeft ouder in stamboom-personenset, of IS de head)
     rootSt.forEach(s => {
       if (!pos[s.headId]) return;
@@ -2743,7 +2756,7 @@ function computeAllFamiliesLayout() {
   // Filter: toon alleen bomen waarvan het hoofd (en zijn/haar partners)
   // NERGENS als kind voorkomen. Zo verdwijnen sub-bomen die al in een
   // andere boom zitten en houd je alleen de echte roots over.
-  const stambomen = allStambomen.filter(s => {
+  let stambomen = allStambomen.filter(s => {
     if (getParentsOf(s.headId).length > 0) return false;
     // Patriarchen/matriarchs met ≥ 2 eigen kinderen worden nooit gefilterd op basis van
     // de partner's ouders — zij zijn een eigen familiehoofd (bijv. Khanaga Faizi met 7 kinderen).
@@ -2759,6 +2772,23 @@ function computeAllFamiliesLayout() {
     )) return false;
     return true;
   });
+
+  // ── Consolidatie: verwijder bomen die al opgaan in grotere bomen ──
+  // Als kinderen van een boom-hoofd al voorkomen in een grotere boom,
+  // is deze boom overbodig en creëert alleen visuele ruis (cross-tree arcs).
+  {
+    const pSets = {};
+    stambomen.forEach(s => { pSets[s.headId] = new Set(getStamboomPersons(s.headId)); });
+    stambomen.sort((a, b) => (pSets[b.headId]?.size || 0) - (pSets[a.headId]?.size || 0));
+    const covered = new Set();
+    stambomen = stambomen.filter(s => {
+      const headChildren = getChildrenOf(s.headId);
+      if (headChildren.some(cid => covered.has(cid))) return false;
+      pSets[s.headId].forEach(pid => covered.add(pid));
+      return true;
+    });
+  }
+
   if (!stambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
 
   const ISLAND_H_GAP  = 120; // horizontale ruimte tussen eilanden in dezelfde rij
