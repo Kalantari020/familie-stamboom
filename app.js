@@ -2792,6 +2792,25 @@ function computeLayout(overrideIds) {
     fixOverlaps(gen);
   });
 
+  // --- Compactie (vóór bottom-up): sluit gaten op elke generatie ---
+  // Door eerst te compacteren, worden kinderen dichter bij elkaar geplaatst.
+  // De bottom-up centering die hierna volgt plaatst ouders dan ook dichter bij elkaar.
+  gens.filter(g => g > 0).forEach(gen => {
+    const genMembers = (byGen[gen] || []).filter(id => pos[id]);
+    if (genMembers.length < 2) return;
+    genMembers.sort((a, b) => pos[a].x - pos[b].x);
+    for (let i = 1; i < genMembers.length; i++) {
+      const gap = pos[genMembers[i]].x - pos[genMembers[i - 1]].x - NODE_W;
+      if (gap <= H_GAP) continue;
+      const shift = gap - H_GAP;
+      const threshold = pos[genMembers[i]].x;
+      // Schuif alle posities op ALLE generaties met x >= threshold naar links
+      for (const id of Object.keys(pos)) {
+        if (pos[id].x >= threshold) pos[id].x -= shift;
+      }
+    }
+  });
+
   // --- Bottom-up: shift parent couples to center over their children ---
   // Na elke fixOverlaps worden de verschuivingen doorgegeven aan alle nakomelingen,
   // zodat gen3/gen4 niet wegdrijft van hun ouders.
@@ -2815,57 +2834,72 @@ function computeLayout(overrideIds) {
       if (Math.abs(shift) > 1) unit.forEach(pid => { pos[pid].x += shift; });
     });
 
-    // Bewaar x-posities vóór fixOverlaps zodat we de verschuiving kunnen meten
-    const xBefore = {};
-    (byGen[gen] || []).forEach(id => { if (pos[id]) xBefore[id] = pos[id].x; });
-
     fixOverlaps(gen);
-
-    // Cascade: geef elke fixOverlaps-verschuiving door aan alle nakomelingen
-    const propagated = new Set();
-    function cascadeShift(id, delta) {
-      if (propagated.has(id) || !pos[id] || Math.abs(delta) < 1) return;
-      propagated.add(id);
-      pos[id].x += delta;
-      // Schuif aaneengesloten partners ook mee
-      (partnersOf[id] || []).forEach(pid => {
-        if (!propagated.has(pid) && pos[pid] && genOf[pid] !== gen &&
-            Math.abs((pos[id].x - delta) - pos[pid].x) <= NODE_W + H_GAP + 2) {
-          cascadeShift(pid, delta);
-        }
-      });
-      // Schuif kinderen mee
-      (childrenOf[id] || []).forEach(cid => cascadeShift(cid, delta));
-    }
-    (byGen[gen] || []).forEach(id => {
-      if (!pos[id] || xBefore[id] === undefined) return;
-      const delta = pos[id].x - xBefore[id];
-      if (Math.abs(delta) < 1) return;
-      (childrenOf[id] || []).forEach(cid => cascadeShift(cid, delta));
-    });
   });
 
-  // --- Compactie: schuif alles rechts van een gat naar links ---
-  // Simpele aanpak: per generatie, vind gaten > H_GAP en sluit ze.
-  // Alles met x >= het gat wordt verschoven. Dit behoudt relatieve posities.
-  for (let pass = 0; pass < 2; pass++) {
-    gens.forEach(gen => {
-      const genMembers = (byGen[gen] || []).filter(id => pos[id]);
-      if (genMembers.length < 2) return;
-      // Sorteer op x
-      genMembers.sort((a, b) => pos[a].x - pos[b].x);
-      // Vind paren met grote gap
-      for (let i = 1; i < genMembers.length; i++) {
-        const gap = pos[genMembers[i]].x - pos[genMembers[i - 1]].x - NODE_W;
-        if (gap <= H_GAP) continue;
-        const shift = gap - H_GAP;
-        const threshold = pos[genMembers[i]].x;
-        // Schuif ALLE posities (alle generaties) met x >= threshold naar links
-        for (const id of Object.keys(pos)) {
-          if (pos[id].x >= threshold) pos[id].x -= shift;
+  // --- Compactie: schuif alles rechts van verticale snijlijnen naar links ---
+  // Scan x-as in stappen en zoek verticale "snijlijnen" waar er op ALLE generaties
+  // voldoende ruimte is. Schuif alles rechts van de snijlijn naar links.
+  for (let pass = 0; pass < 3; pass++) {
+    // Verzamel alle node-rechterkanten, gesorteerd
+    const allPositions = Object.entries(pos).map(([id, p]) => ({
+      id, x: p.x, right: p.x + NODE_W, gen: genOf[id]
+    }));
+    allPositions.sort((a, b) => a.x - b.x);
+    if (!allPositions.length) break;
+
+    // Scan van links naar rechts: zoek x-posities waar alles links ervan
+    // gescheiden is van alles rechts ervan door minstens H_GAP op ELKE generatie
+    const maxX = Math.max(...allPositions.map(p => p.right));
+    const step = H_GAP; // scan in fijne stappen
+
+    for (let scanX = PADDING + step; scanX < maxX; scanX += step) {
+      // Voor elke generatie: vind de maximale rechterrand links van scanX
+      // en de minimale linkerrand rechts van (of op) scanX
+      let minGap = Infinity;
+      let hasLeft = false, hasRight = false;
+
+      gens.forEach(gen => {
+        const members = (byGen[gen] || []).filter(id => pos[id]);
+        if (!members.length) return;
+
+        let maxRight = -Infinity;  // rechterrand van nodes links van scanX
+        let minLeft = Infinity;    // linkerrand van nodes rechts van scanX
+
+        members.forEach(id => {
+          if (pos[id].x + NODE_W <= scanX) {
+            maxRight = Math.max(maxRight, pos[id].x + NODE_W);
+            hasLeft = true;
+          } else if (pos[id].x >= scanX) {
+            minLeft = Math.min(minLeft, pos[id].x);
+            hasRight = true;
+          }
+          // Nodes die scanX kruisen: gap = 0
+          else {
+            minGap = 0;
+          }
+        });
+
+        if (maxRight > -Infinity && minLeft < Infinity) {
+          const genGap = minLeft - maxRight;
+          if (genGap < minGap) minGap = genGap;
         }
+      });
+
+      if (!hasLeft || !hasRight || minGap <= H_GAP) continue;
+
+      // Er is een snijlijn bij scanX met minGap > H_GAP op alle generaties
+      const shift = minGap - H_GAP;
+      if (shift < 2) continue;
+
+      // Schuif alles met x >= scanX naar links
+      for (const id of Object.keys(pos)) {
+        if (pos[id].x >= scanX) pos[id].x -= shift;
       }
-    });
+
+      // Na verschuiving: scanX aanpassen (volgende scan start eerder)
+      scanX -= shift;
+    }
   }
 
   // Normalize so minimum is at PADDING
