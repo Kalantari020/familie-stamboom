@@ -2496,14 +2496,21 @@ function computeLayout(overrideIds) {
   // Alleen als het kind GEEN biologische ouders heeft in deze layout.
   // Als het kind al bio-ouders heeft → het is een biologisch kind in deze boom,
   // social-parent relatie negeren (die is alleen relevant in de boom van de social parent).
+  const socialChildIds = new Set(); // Track sociale kinderen voor sortering
+  // Bewaar de set van kinderen die al bio-ouders hebben VÓÓR social processing
+  const hasBioParents = new Set();
+  persons.forEach(p => {
+    if (parentsOf[p.id].length > 0) hasBioParents.add(p.id);
+  });
   pendingSocialParent.forEach(r => {
     if (childrenOf[r.parentId] === undefined) return; // social parent niet in layout
     if (parentsOf[r.childId] === undefined) return;   // kind niet in layout
-    // Heeft het kind al biologische ouders in deze layout?
-    if (parentsOf[r.childId].length > 0) return; // ja → negeer social-parent
+    // Heeft het kind biologische ouders in deze layout? (check vóór social processing)
+    if (hasBioParents.has(r.childId)) return; // ja → negeer social-parent
     // Geen bio-ouders → social-parent als parent-child behandelen
     childrenOf[r.parentId].push(r.childId);
     parentsOf[r.childId].push(r.parentId);
+    socialChildIds.add(r.childId);
   });
 
   // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
@@ -2715,10 +2722,12 @@ function computeLayout(overrideIds) {
     const inlaws     = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length === 0);
 
     // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
+    // Sociale kinderen krijgen een aparte groep zodat ze apart geplaatst worden
     const groups = {};
     withParents.forEach(id => {
       const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
-      const key = ps.join(',');
+      const suffix = socialChildIds.has(id) ? ':social' : '';
+      const key = ps.join(',') + suffix;
       if (!groups[key]) groups[key] = { parentIds: ps, children: [] };
       groups[key].children.push(id);
     });
@@ -2738,14 +2747,20 @@ function computeLayout(overrideIds) {
       });
     });
 
-    // Sorteer groepen op het x-midden van hun ouders
-    const sortedGroups = Object.values(groups).sort((a, b) => {
+    // Sorteer groepen op het x-midden van hun ouders.
+    // Sociale-kind groepen komen NA bio groepen met dezelfde ouders.
+    const sortedGroups = Object.entries(groups).sort(([keyA, a], [keyB, b]) => {
       const cx = g => {
         const xs = g.parentIds.map(pid => pos[pid].x + NODE_W / 2);
         return (Math.min(...xs) + Math.max(...xs)) / 2;
       };
-      return cx(a) - cx(b);
-    });
+      const cxDiff = cx(a) - cx(b);
+      if (Math.abs(cxDiff) > 1) return cxDiff;
+      // Zelfde ouders: bio groep eerst, social groep erna
+      const aSocial = keyA.endsWith(':social') ? 1 : 0;
+      const bSocial = keyB.endsWith(':social') ? 1 : 0;
+      return aSocial - bSocial;
+    }).map(([, g]) => g);
 
     // Plaatsing: elk kind gecentreerd onder ouders, partner direct ernaast
     const placedInlaws = new Set();
@@ -3012,18 +3027,53 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
       validChildren.sort((a, b) => lcx(a) - lcx(b));
 
-      if (validChildren.length === 1) {
-        const cid = validChildren[0];
-        parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${lcx(cid)}" y2="${midDropY}" class="child-line"/>`);
-        parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-      } else {
-        const leftX  = lcx(validChildren[0]);
-        const rightX = lcx(validChildren[validChildren.length - 1]);
-        parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
-        validChildren.forEach(cid => {
-          parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-        });
-      }
+      // Splits kinderen in clusters: als het gat tussen opeenvolgende kinderen
+      // groter is dan 3× (NODE_W + H_GAP), breek de horizontale balk.
+      // Dit voorkomt dat kinderen die als aangetrouwde partner ver weg staan
+      // visueel verbonden worden met hun broers/zussen.
+      const GAP_THRESHOLD = 3 * (NODE_W + H_GAP);
+      const clusters = [[]];
+      validChildren.forEach((cid, i) => {
+        if (i > 0 && lcx(cid) - lcx(validChildren[i - 1]) > GAP_THRESHOLD) {
+          clusters.push([]);
+        }
+        clusters[clusters.length - 1].push(cid);
+      });
+
+      clusters.forEach(cluster => {
+        if (cluster.length === 1) {
+          const cid = cluster[0];
+          const dist = Math.abs(lcx(cid) - dropX);
+          if (dist > GAP_THRESHOLD) {
+            // Kind is ver van de ouders (bijv. aangetrouwde partner elders geplaatst)
+            // → teken GEEN lange horizontale connector die andere groepen kruist.
+            // Teken alleen een directe verticale lijn van boven het kind.
+            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+          } else {
+            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${lcx(cid)}" y2="${midDropY}" class="child-line"/>`);
+            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+          }
+        } else {
+          const leftX  = lcx(cluster[0]);
+          const rightX = lcx(cluster[cluster.length - 1]);
+          // Horizontale balk per cluster
+          parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+          // Verbind cluster met drop point als het cluster niet al het drop point overlapt
+          const clusterCenterX = (leftX + rightX) / 2;
+          if (Math.abs(clusterCenterX - dropX) > 1) {
+            const connectX = dropX < leftX ? leftX : (dropX > rightX ? rightX : dropX);
+            const connectDist = Math.abs(connectX - dropX);
+            // Alleen verbindingslijn als het cluster dichtbij het drop point is
+            if (connectDist <= GAP_THRESHOLD) {
+              parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${connectX}" y2="${midDropY}" class="child-line"/>`);
+            }
+          }
+          // Verticale lijnen van balk naar elk kind
+          cluster.forEach(cid => {
+            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+          });
+        }
+      });
     });
   }
 
