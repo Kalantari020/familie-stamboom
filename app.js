@@ -2365,11 +2365,19 @@ function uid() {
 
 // Geeft alle personen terug die bij de stamboom van headId horen
 // (headId + partner(s) + alle nakomelingen + hun partners)
+// Social-parent logica:
+// - Social children van het hoofd (of diens bloedlijn) worden meegenomen
+// - Maar alleen als de social parent zelf in de bloedlijn van deze boom zit
+//   (d.w.z. het hoofd IS de social parent, of de social parent is nakomeling van het hoofd)
+// - In de boom van de biologische ouder worden social-parent relaties genegeerd
 function getStamboomPersons(headId) {
   const result = new Set();
+  // Houd bij welke personen via de bloedlijn bereikt zijn (niet alleen als partner)
+  const bloodline = new Set();
   function walk(id) {
     if (result.has(id)) return;
     result.add(id);
+    bloodline.add(id);
     getPartnersOf(id).forEach(pid => result.add(pid));
     getChildrenOf(id).forEach(cid => {
       // Co-ouder: alleen toevoegen als ze GEEN eigen ouders hebben en niet al in een andere boom zitten
@@ -2382,7 +2390,12 @@ function getStamboomPersons(headId) {
       });
       walk(cid);
     });
-    getSocialChildrenOf(id).forEach(cid => walk(cid));
+    // Social children: alleen meenemen als de social parent in de bloedlijn
+    // van deze boom zit (= id zelf is in de bloodline set)
+    // Dit voorkomt dat sociale kinderen via een aangetrouwde partner worden meegesleurd
+    if (bloodline.has(id)) {
+      getSocialChildrenOf(id).forEach(cid => walk(cid));
+    }
   }
   walk(headId);
   return [...result];
@@ -2463,24 +2476,34 @@ function computeLayout(overrideIds) {
     partnersOf[p.id]  = [];
   });
 
+  // Eerst biologische parent-child en partner relaties verwerken
+  const pendingSocialParent = [];
   state.relationships.forEach(r => {
     if (r.type === 'parent-child') {
       if (childrenOf[r.parentId] !== undefined) {
         childrenOf[r.parentId].push(r.childId);
-        // Alleen aan parentsOf toevoegen als de OUDER ook in deze layout zit.
-        // Zo worden aangetrouwde familieleden (wier ouders buiten dit eiland vallen)
-        // niet als 'heeft-ouders-in-layout' behandeld en blijven ze gen0-roots.
         if (parentsOf[r.childId] !== undefined) parentsOf[r.childId].push(r.parentId);
       }
     } else if (r.type === 'social-parent') {
-      if (childrenOf[r.parentId] !== undefined) {
-        childrenOf[r.parentId].push(r.childId);
-        if (parentsOf[r.childId] !== undefined) parentsOf[r.childId].push(r.parentId);
-      }
+      pendingSocialParent.push(r);
     } else if (r.type === 'partner') {
       if (partnersOf[r.person1Id] !== undefined) partnersOf[r.person1Id].push(r.person2Id);
       if (partnersOf[r.person2Id] !== undefined) partnersOf[r.person2Id].push(r.person1Id);
     }
+  });
+
+  // Social-parent relaties verwerken:
+  // Alleen als het kind GEEN biologische ouders heeft in deze layout.
+  // Als het kind al bio-ouders heeft → het is een biologisch kind in deze boom,
+  // social-parent relatie negeren (die is alleen relevant in de boom van de social parent).
+  pendingSocialParent.forEach(r => {
+    if (childrenOf[r.parentId] === undefined) return; // social parent niet in layout
+    if (parentsOf[r.childId] === undefined) return;   // kind niet in layout
+    // Heeft het kind al biologische ouders in deze layout?
+    if (parentsOf[r.childId].length > 0) return; // ja → negeer social-parent
+    // Geen bio-ouders → social-parent als parent-child behandelen
+    childrenOf[r.parentId].push(r.childId);
+    parentsOf[r.childId].push(r.parentId);
   });
 
   // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
