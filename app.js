@@ -4,7 +4,7 @@
 const NODE_W  = 180;
 const NODE_H  = 100;
 const H_GAP   = 50;
-const V_GAP   = 140;
+const V_GAP   = 90;
 const PADDING = 50;
 const USER_ID = 's11'; // Hakim Khan Sayedi
 
@@ -578,6 +578,31 @@ function computeLayout(overrideIds) {
     }
   });
 
+  // --- Detecteer en breek parent-child cycli ---
+  // Een cyclus ontstaat als persoon A zowel voorouder als nakomeling is van persoon B
+  // (bijv. door data-fouten). Dit veroorzaakt oneindige lus in generatie-toewijzing.
+  {
+    const W = 0, G = 1, B = 2;
+    const color = {};
+    function dfsCycle(id) {
+      color[id] = G;
+      const kids = childrenOf[id] || [];
+      for (let i = kids.length - 1; i >= 0; i--) {
+        const cid = kids[i];
+        if (color[cid] === G) {
+          // Back-edge gevonden = cyclus. Verwijder deze edge.
+          console.warn(`[Layout] Cyclus gedetecteerd: ${getPerson(id)?.name} → ${getPerson(cid)?.name}. Edge verwijderd.`);
+          kids.splice(i, 1);
+          if (parentsOf[cid]) parentsOf[cid] = parentsOf[cid].filter(p => p !== id);
+        } else if (color[cid] !== B) {
+          dfsCycle(cid);
+        }
+      }
+      color[id] = B;
+    }
+    Object.keys(childrenOf).forEach(id => { if (!color[id]) dfsCycle(id); });
+  }
+
   // Social-parent relaties verwerken:
   // Alleen als het kind GEEN biologische ouders heeft in deze layout.
   // Als het kind al bio-ouders heeft → het is een biologisch kind in deze boom,
@@ -684,8 +709,11 @@ function computeLayout(overrideIds) {
   {
     const cascadeQueue = persons.map(p => p.id);
     let qi = 0;
+    const cascadeCount = {}; // veiligheid: max aantal keer per persoon
     while (qi < cascadeQueue.length) {
       const id = cascadeQueue[qi++];
+      cascadeCount[id] = (cascadeCount[id] || 0) + 1;
+      if (cascadeCount[id] > 5) continue; // cyclus-beveiliging: stop na 5 keer
       const myGen = genOf[id] ?? 0;
       if (myGen >= MAX_GEN) continue; // cyclus-beveiliging
       (childrenOf[id] || []).forEach(cid => {
@@ -732,8 +760,11 @@ function computeLayout(overrideIds) {
     if (changed) {
       const cq = persons.map(p => p.id);
       let ci = 0;
+      const cc2 = {};
       while (ci < cq.length) {
         const id = cq[ci++];
+        cc2[id] = (cc2[id] || 0) + 1;
+        if (cc2[id] > 5) continue; // cyclus-beveiliging
         const myGen = genOf[id] ?? 0;
         if (myGen >= MAX_GEN) continue;
         (childrenOf[id] || []).forEach(cid => {
@@ -1526,11 +1557,11 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       if (!validParents.length || !validChildren.length) return;
 
       // --- Fix A: Cross-family aware drop point ---
-      // Als ouders > 3*(NODE_W+H_GAP) uit elkaar staan, gebruik alleen de ouder
+      // Als ouders > 2*(NODE_W+H_GAP) uit elkaar staan, gebruik alleen de ouder
       // die het dichtst bij de kinderen staat. Ghost-kinderen worden apart afgehandeld (Fix C).
       let effectiveParents = validParents;
       if (validParents.length === 2) {
-        const CROSS_THRESHOLD = 3 * (NODE_W + H_GAP);
+        const CROSS_THRESHOLD = 2 * (NODE_W + H_GAP);
         const dist = Math.abs(lcx(validParents[0]) - lcx(validParents[1]));
         if (dist > CROSS_THRESHOLD) {
           // Bepaal welke ouder het dichtst bij de kinderen staat
@@ -1553,10 +1584,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       validChildren.sort((a, b) => lcx(a) - lcx(b));
 
       // Splits kinderen in clusters: als het gat tussen opeenvolgende kinderen
-      // groter is dan 3× (NODE_W + H_GAP), breek de horizontale balk.
+      // groter is dan 2× (NODE_W + H_GAP), breek de horizontale balk.
       // Dit voorkomt dat kinderen die als aangetrouwde partner ver weg staan
       // visueel verbonden worden met hun broers/zussen.
-      const GAP_THRESHOLD = 3 * (NODE_W + H_GAP);
+      const GAP_THRESHOLD = 2 * (NODE_W + H_GAP);
       const clusters = [[]];
       validChildren.forEach((cid, i) => {
         if (i > 0 && lcx(cid) - lcx(validChildren[i - 1]) > GAP_THRESHOLD) {
@@ -2374,6 +2405,19 @@ function computeAllFamiliesLayout() {
     });
   });
 
+  // Filter ghost/duplicate entries die te dicht bij hun primaire positie staan
+  Object.keys(duplicates).forEach(key => {
+    const dup = duplicates[key];
+    const pid = dup.personId || key.split(':')[0];
+    const primary = combined[pid];
+    if (primary) {
+      const dist = Math.abs(dup.x - primary.x) + Math.abs(dup.y - primary.y);
+      if (dist < NODE_W + H_GAP) {
+        delete duplicates[key];
+      }
+    }
+  });
+
   return { positions: combined, duplicates, treePositions, treeRanges };
 }
 
@@ -2400,6 +2444,16 @@ function renderCollapseToggles(pos) {
     const key = visibleParents.sort().join(',');
     if (!gezinMap[key]) gezinMap[key] = { parentIds: visibleParents, childIds: new Set() };
     gezinMap[key].childIds.add(r.childId);
+  });
+
+  // Filter kinderen eruit waarvan niet ALLE ouders in de key daadwerkelijk een parent-child relatie hebben
+  Object.entries(gezinMap).forEach(([key, gezin]) => {
+    const parentIdsInKey = key.split(',');
+    gezin.childIds.forEach(cid => {
+      const actualParents = getParentsOf(cid);
+      const allMatch = parentIdsInKey.every(pid => actualParents.includes(pid));
+      if (!allMatch) gezin.childIds.delete(cid);
+    });
   });
 
   Object.entries(gezinMap).forEach(([key, gezin]) => {
