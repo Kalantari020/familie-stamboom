@@ -1683,7 +1683,7 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 2;
+const DATA_VERSION = 3;
 
 function saveState() {
   try {
@@ -1731,20 +1731,33 @@ function syncWithStartData() {
     return `${r.type}|${r.parentId || r.person1Id}|${r.childId || r.person2Id}`;
   };
 
-  // --- 1. UPDATE bestaande personen ---
-  // Alleen velden die in START_DATA staan worden bijgewerkt.
-  // Foto's en notities van de gebruiker worden NIET overschreven.
-  const userOnlyFields = ['photo', 'notes']; // velden die de gebruiker zelf beheert
+  // --- 1. UPDATE bestaande personen (alleen velden die Claude wijzigde) ---
+  // Baseline = de START_DATA snapshot van de VORIGE sync.
+  // Als localStorage-waarde == baseline → gebruiker heeft NIET gewijzigd → update naar nieuwe START_DATA
+  // Als localStorage-waarde != baseline → gebruiker HEEFT gewijzigd → behoud gebruikerswaarde
+  // Bij eerste sync (geen baseline): NIET updaten — gebruiker heeft mogelijk al wijzigingen gemaakt
+  const BASELINE_KEY = 'fb_start_baseline';
+  const baselineRaw = localStorage.getItem(BASELINE_KEY);
+  const baseline = baselineRaw ? JSON.parse(baselineRaw) : null;
+  const baselinePersons = {};
+  if (baseline) {
+    baseline.persons.forEach(p => { baselinePersons[p.id] = p; });
+  }
+
   START_DATA.persons.forEach(sp => {
     const existing = state.persons.find(p => p.id === sp.id);
     if (!existing) return;
+    const base = baselinePersons[sp.id]; // vorige START_DATA waarde
     Object.keys(sp).forEach(key => {
-      if (key === 'id') return; // ID nooit wijzigen
-      if (userOnlyFields.includes(key) && existing[key]) return; // gebruikersdata behouden
-      if (existing[key] !== sp[key]) {
-        existing[key] = sp[key];
-        updated++;
-      }
+      if (key === 'id') return;
+      if (sp[key] === existing[key]) return; // al gelijk, niets te doen
+      if (!base) return; // geen baseline → eerste sync → behoud gebruikerswaarde
+      // Heeft de gebruiker dit veld gewijzigd ten opzichte van de vorige START_DATA?
+      const userChanged = existing[key] !== base[key];
+      if (userChanged) return; // gebruiker heeft dit veld zelf gewijzigd → behouden
+      // Gebruiker heeft het NIET gewijzigd → update naar nieuwe START_DATA waarde
+      existing[key] = sp[key];
+      updated++;
     });
   });
 
@@ -1801,7 +1814,9 @@ function syncWithStartData() {
     });
   }
 
-  // Opslaan en versie bijwerken
+  // Baseline opslaan: snapshot van huidige START_DATA voor volgende sync
+  // Hiermee weten we bij de volgende sync welke velden de GEBRUIKER heeft gewijzigd
+  localStorage.setItem(BASELINE_KEY, JSON.stringify(START_DATA));
   localStorage.setItem(DATA_VERSION_KEY, String(DATA_VERSION));
   saveState();
 
