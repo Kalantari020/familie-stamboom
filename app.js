@@ -3930,40 +3930,49 @@ function computeLayout(overrideIds) {
   const MAX_PARTNER_DIST = 3 * (NODE_W + H_GAP);
   const fixOverlaps = gen => {
     const genMembers = (byGen[gen] || []).filter(id => pos[id]);
-    const inUnit = new Set();
-    const units = [];
+    // Sub-groepeer op Y-positie: nodes op verschillende rijen overlappen niet
+    const byY = {};
     genMembers.forEach(id => {
-      if (inUnit.has(id)) return;
-      // Alleen nabije partners in dezelfde unit opnemen
-      const myPartners = (partnersOf[id] || []).filter(pid =>
-        genOf[pid] === gen && pos[pid] &&
-        Math.abs(pos[pid].x - pos[id].x) <= MAX_PARTNER_DIST
-      );
-      const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
-      // Voeg ghost-nodes toe die adjacent zijn aan unit-members
-      unit.slice().forEach(uid => {
-        Object.entries(ghostMeta).forEach(([gid, meta]) => {
-          if (meta.adjacentTo === uid && pos[gid] && !unit.includes(gid)) {
-            unit.push(gid);
-          }
-        });
-      });
-      unit.sort((a, b) => pos[a].x - pos[b].x);
-      unit.forEach(uid => inUnit.add(uid));
-      units.push(unit);
+      const y = Math.round(pos[id].y);
+      if (!byY[y]) byY[y] = [];
+      byY[y].push(id);
     });
-    units.sort((a, b) => pos[a[0]].x - pos[b[0]].x);
-    for (let i = 1; i < units.length; i++) {
-      const prevRight = pos[units[i - 1][units[i - 1].length - 1]].x;
-      const currLeft  = pos[units[i][0]].x;
-      const minX = prevRight + NODE_W + H_GAP;
-      if (currLeft < minX) {
-        const shift = minX - currLeft;
-        for (let j = i; j < units.length; j++) {
-          units[j].forEach(uid => { pos[uid].x += shift; });
+    Object.values(byY).forEach(yMembers => {
+      const inUnit = new Set();
+      const units = [];
+      yMembers.forEach(id => {
+        if (inUnit.has(id)) return;
+        const myPartners = (partnersOf[id] || []).filter(pid =>
+          genOf[pid] === gen && pos[pid] &&
+          Math.abs(pos[pid].x - pos[id].x) <= MAX_PARTNER_DIST &&
+          Math.abs(pos[pid].y - pos[id].y) < 5 // zelfde Y-rij
+        );
+        const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
+        unit.slice().forEach(uid => {
+          Object.entries(ghostMeta).forEach(([gid, meta]) => {
+            if (meta.adjacentTo === uid && pos[gid] && !unit.includes(gid) &&
+                Math.abs(pos[gid].y - pos[uid].y) < 5) {
+              unit.push(gid);
+            }
+          });
+        });
+        unit.sort((a, b) => pos[a].x - pos[b].x);
+        unit.forEach(uid => inUnit.add(uid));
+        units.push(unit);
+      });
+      units.sort((a, b) => pos[a[0]].x - pos[b[0]].x);
+      for (let i = 1; i < units.length; i++) {
+        const prevRight = pos[units[i - 1][units[i - 1].length - 1]].x;
+        const currLeft  = pos[units[i][0]].x;
+        const minX = prevRight + NODE_W + H_GAP;
+        if (currLeft < minX) {
+          const shift = minX - currLeft;
+          for (let j = i; j < units.length; j++) {
+            units[j].forEach(uid => { pos[uid].x += shift; });
+          }
         }
       }
-    }
+    });
   };
 
   // --- Place gen 0 (roots + their partners) ---
@@ -4630,6 +4639,88 @@ function computeLayout(overrideIds) {
     Object.values(pos).forEach(p => { p.x += shift; });
   }
 
+  // --- Y-displacement: verschuif subtrees van siblings naar beneden als ze overlappen ---
+  // Na bottom-up centering + compactie kunnen groepen kinderen van verschillende ouders
+  // op dezelfde rij door elkaars X-bereik lopen. In plaats van alleen horizontaal te
+  // scheiden (de-interleave), verschuif de tweede groep verticaal naar beneden zodat
+  // de verticale lijn langer wordt en kinderen in vrije ruimte komen.
+  {
+    const getSubtreeIds = (rootId, visited) => {
+      if (!visited) visited = new Set();
+      if (visited.has(rootId) || !pos[rootId]) return visited;
+      visited.add(rootId);
+      (partnersOf[rootId] || []).forEach(pid => {
+        if (pos[pid] && !visited.has(pid) && !(parentsOf[pid] || []).some(ppid => pos[ppid])) {
+          visited.add(pid);
+        }
+      });
+      Object.entries(ghostMeta).forEach(([gid, meta]) => {
+        if (meta.adjacentTo === rootId && pos[gid] && !visited.has(gid)) visited.add(gid);
+      });
+      (childrenOf[rootId] || []).forEach(cid => getSubtreeIds(cid, visited));
+      return visited;
+    };
+
+    const shiftSubtreeY = (members, dy) => {
+      members.forEach(id => { if (pos[id]) pos[id].y += dy; });
+    };
+
+    gens.filter(g => g > 0).forEach(gen => {
+      const genIds = (byGen[gen] || []).filter(id => pos[id] && !id.startsWith(CROSS_GHOST_PREFIX));
+
+      const groupMap = {};
+      genIds.forEach(id => {
+        const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
+        if (!ps.length) return;
+        const key = ps.join(',');
+        if (!groupMap[key]) groupMap[key] = { parentIds: ps, children: [], allMembers: new Set() };
+        groupMap[key].children.push(id);
+      });
+
+      const groups = Object.values(groupMap);
+      if (groups.length < 2) return;
+
+      groups.forEach(g => {
+        g.children.forEach(cid => {
+          const subtreeIds = getSubtreeIds(cid);
+          subtreeIds.forEach(id => g.allMembers.add(id));
+        });
+        const xs = [...g.allMembers].filter(id => pos[id]).map(id => pos[id].x);
+        const ys = [...g.allMembers].filter(id => pos[id]).map(id => pos[id].y);
+        g.minX = Math.min(...xs);
+        g.maxX = Math.max(...xs) + NODE_W;
+        g.maxY = Math.max(...ys) + NODE_H;
+        g.y = Math.min(...g.children.filter(id => pos[id]).map(id => pos[id].y));
+      });
+
+      // Sorteer op parentCenter X
+      groups.sort((a, b) => {
+        const cxA = a.parentIds.reduce((s, pid) => s + (pos[pid]?.x || 0), 0) / a.parentIds.length;
+        const cxB = b.parentIds.reduce((s, pid) => s + (pos[pid]?.x || 0), 0) / b.parentIds.length;
+        return cxA - cxB;
+      });
+
+      for (let i = 1; i < groups.length; i++) {
+        const curr = groups[i];
+        for (let j = 0; j < i; j++) {
+          const prev = groups[j];
+          // Check of de kinderen van curr door de subtree van prev heen lopen
+          const overlapX = curr.minX < prev.maxX && curr.maxX > prev.minX;
+          if (!overlapX) continue;
+
+          // Er is X-overlap: verschuif curr subtree naar beneden
+          const newY = prev.maxY + V_GAP;
+          if (newY <= curr.y) continue;
+
+          const dy = newY - curr.y;
+          shiftSubtreeY(curr.allMembers, dy);
+          curr.y += dy;
+          curr.maxY += dy;
+        }
+      }
+    });
+  }
+
   // --- De-interleave: zorg dat kinderen van verschillende ouders niet door elkaar staan ---
   // Na alle layout-passes kunnen groepen kinderen van verschillende ouders op dezelfde
   // generatie-rij door elkaar heen staan. Dit maakt onleesbaar welke kinderen bij welke
@@ -4664,57 +4755,63 @@ function computeLayout(overrideIds) {
     const groups = Object.values(groupMap);
     if (groups.length < 2) return;
 
-    // Bereken bounding box per groep
+    // Bereken bounding box + Y per groep
     groups.forEach(g => {
       const xs = g.members.filter(id => pos[id]).map(id => pos[id].x);
       g.minX = Math.min(...xs);
       g.maxX = Math.max(...xs) + NODE_W;
+      g.y = Math.round(Math.min(...g.members.filter(id => pos[id]).map(id => pos[id].y)));
     });
 
-    // Sorteer op minX
-    groups.sort((a, b) => a.minX - b.minX);
+    // Sub-groepeer op Y: alleen groepen op dezelfde rij vergelijken
+    const byYLevel = {};
+    groups.forEach(g => {
+      if (!byYLevel[g.y]) byYLevel[g.y] = [];
+      byYLevel[g.y].push(g);
+    });
 
-    // Duw overlappende groepen uit elkaar
-    for (let i = 1; i < groups.length; i++) {
-      const prev = groups[i - 1];
-      const curr = groups[i];
-      const requiredStart = prev.maxX + SUBTREE_GAP;
-      if (curr.minX < requiredStart) {
-        const shift = requiredStart - curr.minX;
-        // Verschuif alle leden van deze groep EN alle latere groepen
-        for (let j = i; j < groups.length; j++) {
-          groups[j].members.forEach(id => {
-            if (pos[id]) pos[id].x += shift;
-          });
-          groups[j].minX += shift;
-          groups[j].maxX += shift;
-        }
-        // Verschuif ook alle nakomelingen van deze groep's kinderen
-        const shiftDescendants = (pid, dx, visited) => {
-          if (!visited) visited = new Set();
-          (childrenOf[pid] || []).forEach(cid => {
-            if (pos[cid] && !visited.has(cid)) {
-              visited.add(cid);
-              pos[cid].x += dx;
-              shiftDescendants(cid, dx, visited);
-              // Verschuif ook in-law partners van nakomelingen
-              (partnersOf[cid] || []).forEach(ppid => {
-                if (pos[ppid] && !visited.has(ppid) && !(parentsOf[ppid] || []).some(pppid => pos[pppid])) {
-                  visited.add(ppid);
-                  pos[ppid].x += dx;
-                }
-              });
-            }
-          });
-        };
-        const visited = new Set();
-        for (let j = i; j < groups.length; j++) {
-          groups[j].members.forEach(id => {
-            if (!id.startsWith(CROSS_GHOST_PREFIX)) shiftDescendants(id, shift, visited);
-          });
+    Object.values(byYLevel).forEach(yGroups => {
+      if (yGroups.length < 2) return;
+      yGroups.sort((a, b) => a.minX - b.minX);
+
+      for (let i = 1; i < yGroups.length; i++) {
+        const prev = yGroups[i - 1];
+        const curr = yGroups[i];
+        const requiredStart = prev.maxX + SUBTREE_GAP;
+        if (curr.minX < requiredStart) {
+          const shift = requiredStart - curr.minX;
+          for (let j = i; j < yGroups.length; j++) {
+            yGroups[j].members.forEach(id => {
+              if (pos[id]) pos[id].x += shift;
+            });
+            yGroups[j].minX += shift;
+            yGroups[j].maxX += shift;
+          }
+          const shiftDescendants = (pid, dx, visited) => {
+            if (!visited) visited = new Set();
+            (childrenOf[pid] || []).forEach(cid => {
+              if (pos[cid] && !visited.has(cid)) {
+                visited.add(cid);
+                pos[cid].x += dx;
+                shiftDescendants(cid, dx, visited);
+                (partnersOf[cid] || []).forEach(ppid => {
+                  if (pos[ppid] && !visited.has(ppid) && !(parentsOf[ppid] || []).some(pppid => pos[pppid])) {
+                    visited.add(ppid);
+                    pos[ppid].x += dx;
+                  }
+                });
+              }
+            });
+          };
+          const visited = new Set();
+          for (let j = i; j < yGroups.length; j++) {
+            yGroups[j].members.forEach(id => {
+              if (!id.startsWith(CROSS_GHOST_PREFIX)) shiftDescendants(id, shift, visited);
+            });
+          }
         }
       }
-    }
+    });
   });
 
   // KERNREGEL: geen overlappende kaarten
