@@ -1084,6 +1084,63 @@ function computeLayout(overrideIds) {
       if (Math.abs(shift) > 1) unit.forEach(pid => { pos[pid].x += shift; });
     });
 
+    // --- birthOrder handhaving: na centering, vóór fixOverlaps ---
+    // Als centering siblings in verkeerde volgorde heeft gezet, swap hun unit-posities.
+    // De cascade na fixOverlaps verschuift dan automatisch hun kinderen mee.
+    {
+      const sibGroups = {};
+      (byGen[gen] || []).forEach(id => {
+        if (!pos[id] || !getPerson(id)) return;
+        const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
+        if (!ps.length) return;
+        const key = ps.join(',');
+        if (!sibGroups[key]) sibGroups[key] = [];
+        if (!sibGroups[key].includes(id)) sibGroups[key].push(id);
+      });
+
+      Object.values(sibGroups).forEach(siblings => {
+        if (siblings.length < 2) return;
+        if (!siblings.some(id => getPerson(id)?.birthOrder != null)) return;
+
+        const currentOrder = [...siblings].sort((a, b) => pos[a].x - pos[b].x);
+        const desiredOrder = [...siblings].sort((a, b) => {
+          const personA = getPerson(a), personB = getPerson(b);
+          const boA = personA?.birthOrder, boB = personB?.birthOrder;
+          if (boA != null && boB != null) return boA - boB;
+          if (boA != null) return -1;
+          if (boB != null) return 1;
+          const pa = parseBirthdate(personA?.birthdate);
+          const pb = parseBirthdate(personB?.birthdate);
+          if (!pa && !pb) return 0;
+          if (!pa) return 1;
+          if (!pb) return -1;
+          if (pa.year !== pb.year) return pa.year - pb.year;
+          if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
+          if (pa.day && pb.day) return pa.day - pb.day;
+          return 0;
+        });
+        if (desiredOrder.every((id, i) => id === currentOrder[i])) return;
+
+        // Verzamel units (sibling + partners op dezelfde generatie)
+        const units = {};
+        siblings.forEach(id => {
+          const partners = (partnersOf[id] || []).filter(pid => genOf[pid] === gen && pos[pid]);
+          units[id] = [id, ...partners];
+        });
+        // Huidige slot-posities: linkerkant van elke unit in huidige volgorde
+        const slotXs = currentOrder.map(id => Math.min(...units[id].map(uid => pos[uid].x)));
+        // Wijs gewenste volgorde toe aan de bestaande slots
+        desiredOrder.forEach((id, i) => {
+          const unit = units[id];
+          const currentMinX = Math.min(...unit.map(uid => pos[uid].x));
+          const dx = slotXs[i] - currentMinX;
+          if (Math.abs(dx) > 0.5) {
+            unit.forEach(uid => { pos[uid].x += dx; });
+          }
+        });
+      });
+    }
+
     // Track posities vóór fixOverlaps, zodat we verschuivingen kunnen doorgeven
     const beforeX = {};
     (byGen[gen] || []).forEach(id => { if (pos[id]) beforeX[id] = pos[id].x; });
@@ -1176,97 +1233,6 @@ function computeLayout(overrideIds) {
       // Na verschuiving: scanX aanpassen (volgende scan start eerder)
       scanX -= shift;
     }
-  }
-
-  // --- Finale birthOrder correctie ---
-  // Na alle layout-passen (bottom-up centering, fixOverlaps, compactie) kan de
-  // volgorde van broers/zussen verstoord zijn. Herstel de birthOrder door
-  // siblings + hun partner + nakomelingen te verschuiven met delta-swaps.
-  // Delta-aanpak: behoud de bestaande spacing, verplaats alleen de "slots".
-  {
-    // Helper: verzamel persoon + partner + recursief alle nakomelingen + hun partners
-    const collectSubtree = (id, collected) => {
-      if (!pos[id] || collected.has(id)) return;
-      collected.add(id);
-      (partnersOf[id] || []).forEach(pid => {
-        if (pos[pid] && !collected.has(pid)) collected.add(pid);
-      });
-      (childrenOf[id] || []).forEach(cid => collectSubtree(cid, collected));
-    };
-
-    const finalGroups = {};
-    persons.forEach(p => {
-      const ps = (parentsOf[p.id] || []).filter(pid => pos[pid]).sort();
-      if (!ps.length) return;
-      const key = ps.join(',');
-      if (!finalGroups[key]) finalGroups[key] = [];
-      finalGroups[key].push(p.id);
-    });
-
-    // Hogere generatie eerst (hogere birthOrder prioriteit)
-    const groupEntries = Object.entries(finalGroups);
-    groupEntries.sort((a, b) => {
-      const genA = pos[a[1][0]] ? pos[a[1][0]].y : Infinity;
-      const genB = pos[b[1][0]] ? pos[b[1][0]].y : Infinity;
-      return genA - genB;
-    });
-
-    groupEntries.forEach(([key, children]) => {
-      if (children.length < 2) return;
-      const validChildren = children.filter(id => pos[id]);
-      if (validChildren.length < 2) return;
-
-      // Gewenste volgorde (birthOrder → birthdate)
-      const desired = [...validChildren].sort((a, b) => {
-        const personA = getPerson(a);
-        const personB = getPerson(b);
-        const boA = personA?.birthOrder;
-        const boB = personB?.birthOrder;
-        if (boA != null && boB != null) return boA - boB;
-        if (boA != null) return -1;
-        if (boB != null) return 1;
-        const pa = parseBirthdate(personA?.birthdate);
-        const pb = parseBirthdate(personB?.birthdate);
-        if (!pa && !pb) return 0;
-        if (!pa) return 1;
-        if (!pb) return -1;
-        if (pa.year !== pb.year) return pa.year - pb.year;
-        if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
-        if (pa.day && pb.day) return pa.day - pb.day;
-        return 0;
-      });
-
-      // Huidige volgorde op X-positie
-      const currentOrder = [...validChildren].sort((a, b) => pos[a].x - pos[b].x);
-      if (desired.every((id, i) => id === currentOrder[i])) return;
-
-      // De huidige X-posities (slots) behouden, maar toewijzen aan gewenste volgorde
-      const slotXs = currentOrder.map(id => pos[id].x);
-
-      // Bereken delta per sibling: desired[i] moet naar slotXs[i]
-      const deltas = {};
-      desired.forEach((id, i) => {
-        deltas[id] = slotXs[i] - pos[id].x;
-      });
-
-      // Pas delta's toe op subtrees; globalMoved voorkomt dubbele verschuiving
-      // bij intermarried families waar subtrees overlappen
-      const globalMoved = new Set();
-      desired.forEach(id => {
-        const dx = deltas[id];
-        if (Math.abs(dx) < 0.5) return;
-        const tree = new Set();
-        collectSubtree(id, tree);
-        tree.forEach(nid => {
-          if (pos[nid] && !globalMoved.has(nid)) {
-            pos[nid].x += dx;
-            globalMoved.add(nid);
-          }
-        });
-      });
-    });
-    // Fix overlaps na herordening
-    gens.forEach(gen => fixOverlaps(gen));
   }
 
   // Normalize so minimum is at PADDING
