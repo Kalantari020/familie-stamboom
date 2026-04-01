@@ -617,9 +617,9 @@ body.readonly .card:hover   { cursor: default; }
 .social-line {
   stroke: #10b981;
   stroke-width: 2;
-  stroke-dasharray: 8,5;
+  stroke-dasharray: 6,4;
   fill: none;
-  opacity: 0.85;
+  opacity: 0.7;
 }
 .sibling-line {
   stroke: #06b6d4;
@@ -1152,9 +1152,8 @@ body.readonly .card:hover   { cursor: default; }
     width: calc(100vw - 24px);
     max-width: 100%;
     min-width: 0;
-    max-height: 85vh;
+    max-height: 90vh;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 20px 16px;
   }
   .modal-content.small {
@@ -1229,15 +1228,9 @@ body.readonly .card:hover   { cursor: default; }
     opacity: 1;
   }
   .card-actions button {
-    width: 32px;
-    height: 32px;
-    font-size: 13px;
-  }
-  /* Grotere touch targets voor toolbar knoppen */
-  .btn.icon {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 8px 12px;
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
   }
 }
 
@@ -1392,18 +1385,3 @@ body.readonly .card:hover   { cursor: default; }
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-
-/* ============================================================
-   LAYOUT TOGGLE BUTTON
-   ============================================================ */
-.layout-toggle {
-  font-family: monospace;
-  letter-spacing: 1px;
-  min-width: 70px;
-}
-.layout-toggle.matrix {
-  background: #7c3aed;
-  color: #fff;
-  border-color: #7c3aed;
-}
-
