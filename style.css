@@ -591,6 +591,7 @@ body.readonly #btn-reset,
 body.readonly #btn-new-family,
 body.readonly #btn-publish { display: none !important; }
 
+body.readonly .sidebar-tools { display: none !important; }
 body.readonly .card:hover   { cursor: default; }
 
 /* ============================================================

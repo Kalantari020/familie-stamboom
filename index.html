@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
-  <link rel="stylesheet" href="style.css?v=44">
+  <link rel="stylesheet" href="style.css?v=45">
   <script>
     window.onerror = function(msg, src, line, col, err) {
       var d = document.createElement('div');
@@ -45,9 +45,9 @@
         <button class="pin-key" data-val="7">7</button>
         <button class="pin-key" data-val="8">8</button>
         <button class="pin-key" data-val="9">9</button>
-        <button class="pin-key pin-clear" data-val="clear">⌫</button>
+        <button class="pin-key pin-clear" data-val="clear" aria-label="Wissen">⌫</button>
         <button class="pin-key" data-val="0">0</button>
-        <button class="pin-key pin-ok" data-val="ok">OK</button>
+        <button class="pin-key pin-ok" data-val="ok" aria-label="Bevestigen">OK</button>
       </div>
     </div>
   </div>
@@ -79,7 +79,7 @@
   <div id="toast-container"></div>
 
   <!-- PUBLICEER MODAL -->
-  <div id="modal-publish" class="modal hidden">
+  <div id="modal-publish" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content small">
       <h2>📤 Wijzigingen publiceren</h2>
@@ -97,7 +97,7 @@
   </div>
 
   <!-- SLIM KOPPELEN MODAL -->
-  <div id="modal-smartlink" class="modal hidden">
+  <div id="modal-smartlink" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <h2>🔗 Slim koppelen</h2>
@@ -170,7 +170,7 @@
   </div>
 
   <!-- MODAL: PERSOON TOEVOEGEN / BEWERKEN -->
-  <div id="modal-person" class="modal hidden">
+  <div id="modal-person" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <h2 id="modal-person-title">Persoon toevoegen</h2>
@@ -249,7 +249,7 @@
   </div>
 
   <!-- MODAL: RELATIE TOEVOEGEN -->
-  <div id="modal-relation" class="modal hidden">
+  <div id="modal-relation" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <h2>Relatie toevoegen</h2>
@@ -304,7 +304,7 @@
   </div>
 
   <!-- MODAL: BEVESTIGING VERWIJDEREN -->
-  <div id="modal-confirm" class="modal hidden">
+  <div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content small">
       <h2>Bevestigen</h2>
@@ -317,7 +317,7 @@
   </div>
 
   <!-- MODAL: SAMENVOEGEN -->
-  <div id="modal-merge" class="modal hidden">
+  <div id="modal-merge" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content small">
       <h2>🔗 Samenvoegen</h2>
@@ -334,7 +334,7 @@
   </div>
 
   <!-- MODAL: PERSOON DETAIL -->
-  <div id="modal-detail" class="modal hidden">
+  <div id="modal-detail" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-backdrop"></div>
     <div class="modal-content">
       <div id="detail-content"></div>
@@ -345,6 +345,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=43"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>

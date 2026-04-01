@@ -1075,7 +1075,6 @@ function computeLayout(overrideIds) {
 
       const totalW = ghostExpanded.length * NODE_W + (ghostExpanded.length - 1) * H_GAP;
       let startX = center - totalW / 2;
-      if (startX < cursorX) startX = cursorX;
 
       ghostExpanded.forEach((id, i) => {
         pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
@@ -1245,6 +1244,7 @@ function computeLayout(overrideIds) {
       }
     });
 
+    shiftedInlaws = new Set();
     // --- birthOrder handhaving: na centering, vóór fixOverlaps ---
     // Als centering siblings in verkeerde volgorde heeft gezet, swap hun unit-posities.
     // De cascade na fixOverlaps verschuift dan automatisch hun kinderen mee.
@@ -1881,7 +1881,7 @@ function renderCards(pos, treeRanges, ghosts) {
     div.style.left = p.x + 'px';
     div.style.top  = p.y + 'px';
     const avatarHtml = person.photo
-      ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
+      ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${escHtml(person.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
       : `<div class="card-avatar">${initials(person.name)}</div>`;
     div.innerHTML = `
       <div class="card-top">
@@ -1922,7 +1922,7 @@ function renderCards(pos, treeRanges, ghosts) {
       dupDiv.style.left = g.x + 'px';
       dupDiv.style.top  = g.y + 'px';
       const avatarHtml = person.photo
-        ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
+        ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${escHtml(person.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
         : `<div class="card-avatar">${initials(person.name)}</div>`;
       dupDiv.innerHTML = `
         <div class="duplicate-badge" title="Komt ook voor in andere stamboom">🔗</div>
@@ -3177,7 +3177,7 @@ function openDetailModal(id) {
   modal.querySelector('.modal-content').innerHTML = `
     <div class="detail-header">
       ${person.photo
-        ? `<div class="detail-avatar ${uClass}" style="background:none;padding:0;overflow:hidden"><img src="${person.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
+        ? `<div class="detail-avatar ${uClass}" style="background:none;padding:0;overflow:hidden"><img src="${escHtml(person.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
         : `<div class="detail-avatar ${uClass}">${initials(person.name)}</div>`}
       <div>
         <div class="detail-name">${escHtml(person.name)}</div>
@@ -3520,9 +3520,22 @@ document.getElementById('file-input').addEventListener('change', e => {
         if (r.type === 'sibling')       return knownIds.has(r.person1Id) && knownIds.has(r.person2Id);
         return false; // onbekend type verwijderen
       });
-      const removed = imported.relationships.length - validRels.length;
+      // Cyclus-check: filter parent-child relaties die een cyclus zouden creëren
+      // Tijdelijk state instellen zodat wouldCreateCycle werkt
+      const prevState = state;
+      state = { persons: imported.persons, relationships: [] };
+      const safeRels = [];
+      for (const r of validRels) {
+        if ((r.type === 'parent-child' || r.type === 'social-parent') && wouldCreateCycle(r.parentId, r.childId)) {
+          continue; // cyclus overslaan
+        }
+        safeRels.push(r);
+        state.relationships.push(r);
+      }
+      state = prevState;
+      const removed = imported.relationships.length - safeRels.length;
 
-      state = { persons: imported.persons, relationships: validRels };
+      state = { persons: imported.persons, relationships: safeRels };
       saveState();
       render();
       if (removed > 0) alert(`Importeer geslaagd. ${removed} ongeldige relatie(s) verwijderd.`);
@@ -3810,7 +3823,7 @@ function openMergeModal(keepId) {
     });
   }
 
-  searchInput.addEventListener('input', e => doSearch(e.target.value));
+  searchInput.oninput = e => doSearch(e.target.value);
 
   // Bevestig knop
   confirmBtn.onclick = () => {
@@ -3865,6 +3878,11 @@ function mergePersons(keepId, removeId) {
       // partner is symmetrisch: sorteer IDs zodat A-B en B-A als duplicaat worden herkend
       const ids = [rel.person1Id, rel.person2Id].sort();
       key = `partner:${ids[0]}:${ids[1]}`;
+    } else if (rel.type === 'sibling') {
+      const ids = [rel.person1Id, rel.person2Id].sort();
+      key = `sibling:${ids[0]}:${ids[1]}`;
+    } else if (rel.type === 'social-parent') {
+      key = `social-parent:${rel.parentId}:${rel.childId}`;
     } else {
       key = JSON.stringify(rel);
     }
