@@ -166,6 +166,7 @@ let confirmCallback = null;
 let lastPositions = {};
 let activeTreeId = null; // null = toon alles
 let currentPhotoData = null; // base64 of huidige foto in modal
+let layoutMode = localStorage.getItem('fb_layout_mode') || 'row'; // 'row' | 'compact'
 
 // Ingeklapte gezinnen: Set van keys "parentId1,parentId2" (gesorteerd)
 let collapsedGezinnen = new Set();
@@ -3621,6 +3622,239 @@ function toggleGezin(key) {
 }
 
 // ============================================================
+// COMPACT LAYOUT — verticaal gestapelde gezinsrijen
+// ============================================================
+// Elk gezin (ouder+partner+kinderen) wordt als horizontale rij geplaatst.
+// Gezinnen worden verticaal onder elkaar gestapeld i.p.v. op één brede
+// generatie-rij. Resultaat: boom groeit in de diepte, niet in de breedte.
+function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf, socialChildIds, activeIds) {
+  const pos = {};
+  const placed = new Set();
+
+  // Sorteer kinderen op birthOrder / geboortedatum
+  function sortChildren(kids) {
+    return [...kids].sort((a, b) => {
+      const personA = getPerson(a), personB = getPerson(b);
+      const isSocA = socialChildIds.has(a), isSocB = socialChildIds.has(b);
+      const boA = (isSocA && personA?.socialBirthOrder != null)
+        ? personA.socialBirthOrder : personA?.birthOrder;
+      const boB = (isSocB && personB?.socialBirthOrder != null)
+        ? personB.socialBirthOrder : personB?.birthOrder;
+      if (boA != null && boB != null) return boA - boB;
+      if (boA != null) return -1;
+      if (boB != null) return 1;
+      const pa = parseBirthdate(personA?.birthdate);
+      const pb = parseBirthdate(personB?.birthdate);
+      if (!pa && !pb) return 0;
+      if (!pa) return 1;
+      if (!pb) return -1;
+      if (pa.year !== pb.year) return pa.year - pb.year;
+      if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
+      if (pa.day && pb.day) return pa.day - pb.day;
+      return 0;
+    });
+  }
+
+  // Bouw een unit: persoon + partner(s) die inlaws zijn (geen ouders in layout)
+  function buildUnit(id) {
+    const partners = (partnersOf[id] || []).filter(pid =>
+      pos[pid] === undefined && !placed.has(pid) &&
+      genOf[pid] === genOf[id]
+    );
+    // Bij meerdere partners: partner1 — persoon — partner2
+    if (partners.length >= 2) {
+      return [partners[0], id, ...partners.slice(1)];
+    }
+    return [id, ...partners];
+  }
+
+  // Bereken de breedte die een subtree nodig heeft (recursief)
+  // Returns: { width, height } zonder daadwerkelijk te plaatsen
+  function measureSubtree(rootId) {
+    const kids = (childrenOf[rootId] || []).filter(cid => activeIds.has(cid));
+    const partnerKids = (partnersOf[rootId] || []).flatMap(pid =>
+      (childrenOf[pid] || []).filter(cid => activeIds.has(cid) && !kids.includes(cid))
+    );
+    const allKids = sortChildren([...new Set([...kids, ...partnerKids])]);
+
+    if (allKids.length === 0) return { width: NODE_W, height: NODE_H };
+
+    // Elk kind is een gezinsrij: kind + partner + kleinkinderen naast elkaar
+    let totalHeight = NODE_H + V_GAP; // root + gap
+    let maxWidth = NODE_W;
+
+    allKids.forEach(cid => {
+      const unit = [cid];
+      (partnersOf[cid] || []).forEach(pid => {
+        if (genOf[pid] === genOf[cid]) unit.push(pid);
+      });
+      const unitW = unit.length * NODE_W + (unit.length - 1) * H_GAP;
+
+      // Heeft dit kind zelf kinderen? → recursief meten
+      const sub = measureSubtree(cid);
+      const rowW = unitW + (sub.width > NODE_W ? H_GAP + sub.width : 0);
+      maxWidth = Math.max(maxWidth, rowW);
+      totalHeight += NODE_H + V_GAP * 0.5;
+    });
+
+    return { width: maxWidth, height: totalHeight };
+  }
+
+  // Plaats een persoon + partner(s) als een unit, return geplaatste IDs
+  function placeUnit(id, x, y) {
+    const unit = buildUnit(id);
+    unit.forEach((uid, i) => {
+      pos[uid] = { x: x + i * (NODE_W + H_GAP), y: y };
+      placed.add(uid);
+    });
+    return unit;
+  }
+
+  // Recursief: plaats een subtree starting from rootId
+  // startX, startY: linkerbovenhoek waar deze subtree begint
+  // Returns: { width, height } van het geplaatste blok
+  function placeSubtree(rootId, startX, startY, depth) {
+    if (placed.has(rootId)) return { width: 0, height: 0 };
+
+    // Plaats de root + partners
+    const rootUnit = placeUnit(rootId, startX, startY);
+    const rootUnitW = rootUnit.length * NODE_W + (rootUnit.length - 1) * H_GAP;
+
+    // Verzamel alle kinderen van deze root + partners
+    const allKids = new Set();
+    rootUnit.forEach(uid => {
+      (childrenOf[uid] || []).forEach(cid => {
+        if (activeIds.has(cid) && !placed.has(cid)) allKids.add(cid);
+      });
+    });
+    const sortedKids = sortChildren([...allKids]);
+
+    if (sortedKids.length === 0) {
+      return { width: rootUnitW, height: NODE_H };
+    }
+
+    // GENERATIE 1 (directe kinderen van stamhoofd, depth=0):
+    // Plaats op een horizontale rij, dan hun subtrees eronder
+    if (depth === 0) {
+      let childX = startX;
+      const childY = startY + NODE_H + V_GAP;
+      const childPositions = [];
+
+      // Eerst: meet alle kind-subtrees om breedte te weten
+      sortedKids.forEach(cid => {
+        const sub = measureSubtree(cid);
+        childPositions.push({ cid, subWidth: Math.max(sub.width, NODE_W + H_GAP) });
+      });
+
+      // Plaats kinderen + hun partners op de horizontale rij
+      let maxSubBottom = childY + NODE_H;
+      childPositions.forEach(cp => {
+        const kidUnit = placeUnit(cp.cid, childX, childY);
+        const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * H_GAP;
+
+        // Plaats subtree van dit kind eronder (recursief, depth+1)
+        const subKids = new Set();
+        kidUnit.forEach(uid => {
+          (childrenOf[uid] || []).forEach(gcid => {
+            if (activeIds.has(gcid) && !placed.has(gcid)) subKids.add(gcid);
+          });
+        });
+        const sortedSubKids = sortChildren([...subKids]);
+
+        if (sortedSubKids.length > 0) {
+          let subY = childY + NODE_H + V_GAP;
+          sortedSubKids.forEach(gcid => {
+            if (placed.has(gcid)) return;
+            const result = placeSubtree(gcid, childX, subY, depth + 2);
+            subY += result.height + V_GAP * 0.5;
+          });
+          maxSubBottom = Math.max(maxSubBottom, subY);
+        }
+
+        // Volgende kind start rechts, met minstens genoeg ruimte voor subtree
+        childX += Math.max(kidUnitW, cp.subWidth) + H_GAP;
+      });
+
+      const totalW = childX - startX - H_GAP;
+      const totalH = maxSubBottom - startY;
+
+      // Centreer root boven kinderen
+      const childCenter = startX + totalW / 2;
+      const rootShift = childCenter - (startX + rootUnitW / 2);
+      if (rootShift > 0) {
+        rootUnit.forEach(uid => { pos[uid].x += rootShift; });
+      }
+
+      return { width: Math.max(rootUnitW, totalW), height: totalH };
+    }
+
+    // DIEPERE GENERATIES (depth >= 1): verticaal gestapelde gezinsrijen
+    // Elk kind wordt als een rij geplaatst: [kind + partner] op Y, dan subtree eronder
+    let curY = startY + NODE_H + V_GAP;
+    let maxWidth = rootUnitW;
+    const INDENT = H_GAP * 0.5; // lichte inspringing per diepteniveau
+
+    sortedKids.forEach(cid => {
+      if (placed.has(cid)) return;
+      const result = placeSubtree(cid, startX + INDENT, curY, depth + 1);
+      maxWidth = Math.max(maxWidth, result.width + INDENT);
+      curY += result.height + V_GAP * 0.5;
+    });
+
+    return { width: maxWidth, height: curY - startY };
+  }
+
+  // --- Hoofdlogica: vind roots en plaats ze ---
+  const roots = persons.filter(p => (parentsOf[p.id] || []).length === 0);
+
+  // Groepeer roots per stamboom (via partner-koppelingen)
+  const rootGroups = [];
+  const rootSeen = new Set();
+  roots.forEach(p => {
+    if (rootSeen.has(p.id)) return;
+    const group = [p.id];
+    rootSeen.add(p.id);
+    // Voeg partners toe aan dezelfde groep
+    (partnersOf[p.id] || []).forEach(pid => {
+      if (!rootSeen.has(pid) && genOf[pid] === 0) {
+        group.push(pid);
+        rootSeen.add(pid);
+      }
+    });
+    rootGroups.push(group);
+  });
+
+  // Voeg overgebleven personen zonder ouders toe
+  persons.forEach(p => {
+    if (!rootSeen.has(p.id) && (parentsOf[p.id] || []).length === 0) {
+      rootGroups.push([p.id]);
+      rootSeen.add(p.id);
+    }
+  });
+
+  // Plaats elke root-groep
+  let globalX = PADDING;
+  const TREE_GAP = 150;
+  rootGroups.forEach(group => {
+    const mainRoot = group[0];
+    // Markeer partner-roots als placed zodat placeUnit ze oppakt
+    // (maar verwijder ze niet uit de plaatsingslogica)
+    const result = placeSubtree(mainRoot, globalX, PADDING, 0);
+    globalX += result.width + TREE_GAP;
+  });
+
+  // Plaats eventuele niet-geplaatste personen (geïsoleerd, geen relaties)
+  persons.forEach(p => {
+    if (!placed.has(p.id)) {
+      pos[p.id] = { x: globalX, y: PADDING };
+      globalX += NODE_W + H_GAP;
+    }
+  });
+
+  return { pos, crossFamilyGhosts: {} };
+}
+
+// ============================================================
 // LAYOUT ALGORITHM
 // ============================================================
 function computeLayout(overrideIds) {
@@ -3869,6 +4103,11 @@ function computeLayout(overrideIds) {
     byGen[g].push(p.id);
   });
   const gens = Object.keys(byGen).map(Number).sort((a, b) => a - b);
+
+  // --- COMPACT LAYOUT BRANCH ---
+  if (layoutMode === 'compact') {
+    return computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf, socialChildIds, activeIds);
+  }
 
   const pos = {};
 
@@ -6587,6 +6826,29 @@ document.getElementById('btn-new-family').addEventListener('click', () => {
 document.getElementById('btn-zoom-in').addEventListener('click',  () => setZoom(zoom + 0.1));
 document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
 document.getElementById('btn-zoom-fit').addEventListener('click', zoomFit);
+
+// Layout toggle: Rij ↔ Compact
+(function() {
+  function updateToggleLabel() {
+    const btn = document.getElementById('btn-layout-toggle');
+    if (!btn) return;
+    if (layoutMode === 'compact') {
+      btn.textContent = '▼ Compact';
+      btn.classList.add('compact-active');
+    } else {
+      btn.textContent = '═══ Rij';
+      btn.classList.remove('compact-active');
+    }
+  }
+  updateToggleLabel();
+  document.getElementById('btn-layout-toggle').addEventListener('click', () => {
+    layoutMode = layoutMode === 'row' ? 'compact' : 'row';
+    localStorage.setItem('fb_layout_mode', layoutMode);
+    updateToggleLabel();
+    render();
+    setTimeout(zoomFit, 50);
+  });
+})();
 
 // Mobiel: sidebar toggle
 (function() {

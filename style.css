@@ -215,6 +215,8 @@ html, body {
 
 .btn.small     { padding: 5px 10px; font-size: 12px; }
 .btn.icon      { padding: 5px 10px; font-size: 16px; line-height: 1; }
+.layout-toggle { font-family: monospace; letter-spacing: 1px; min-width: 80px; }
+.layout-toggle.compact-active { background: #7c3aed; color: #fff; border-color: #7c3aed; }
 
 /* ============================================================
    LAYOUT
