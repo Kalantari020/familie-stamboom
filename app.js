@@ -1181,26 +1181,19 @@ function computeLayout(overrideIds) {
   // --- Finale birthOrder correctie ---
   // Na alle layout-passen (bottom-up centering, fixOverlaps, compactie) kan de
   // volgorde van broers/zussen verstoord zijn. Herstel de birthOrder door
-  // hele subtrees (persoon + partner + nakomelingen) te verschuiven.
+  // siblings + hun partner + nakomelingen te verschuiven met delta-swaps.
+  // Delta-aanpak: behoud de bestaande spacing, verplaats alleen de "slots".
   {
-    // Helper: verzamel alle IDs die bij een persoon's subtree horen
-    // (de persoon zelf, partners, en recursief alle nakomelingen + hun partners)
+    // Helper: verzamel persoon + partner + recursief alle nakomelingen + hun partners
     const collectSubtree = (id, collected) => {
       if (!pos[id] || collected.has(id)) return;
       collected.add(id);
-      // Partners meenemen
       (partnersOf[id] || []).forEach(pid => {
-        if (pos[pid] && !collected.has(pid)) {
-          collected.add(pid);
-        }
+        if (pos[pid] && !collected.has(pid)) collected.add(pid);
       });
-      // Kinderen + hun subtrees
-      (childrenOf[id] || []).forEach(cid => {
-        collectSubtree(cid, collected);
-      });
+      (childrenOf[id] || []).forEach(cid => collectSubtree(cid, collected));
     };
 
-    // Hergebruik dezelfde groepering als eerder
     const finalGroups = {};
     persons.forEach(p => {
       const ps = (parentsOf[p.id] || []).filter(pid => pos[pid]).sort();
@@ -1210,22 +1203,20 @@ function computeLayout(overrideIds) {
       finalGroups[key].push(p.id);
     });
 
-    // Sorteer groepen per generatie (hoogste generatie eerst = hogere birthOrder prioriteit)
+    // Hogere generatie eerst (hogere birthOrder prioriteit)
     const groupEntries = Object.entries(finalGroups);
     groupEntries.sort((a, b) => {
       const genA = pos[a[1][0]] ? pos[a[1][0]].y : Infinity;
       const genB = pos[b[1][0]] ? pos[b[1][0]].y : Infinity;
-      return genA - genB; // Hogere in boom (lagere y) eerst
+      return genA - genB;
     });
 
     groupEntries.forEach(([key, children]) => {
       if (children.length < 2) return;
-
-      // Filter op kinderen die daadwerkelijk in de layout staan
       const validChildren = children.filter(id => pos[id]);
       if (validChildren.length < 2) return;
 
-      // Sorteer op gewenste volgorde (birthOrder → birthdate)
+      // Gewenste volgorde (birthOrder → birthdate)
       const desired = [...validChildren].sort((a, b) => {
         const personA = getPerson(a);
         const personB = getPerson(b);
@@ -1245,49 +1236,33 @@ function computeLayout(overrideIds) {
         return 0;
       });
 
-      // Huidige volgorde op basis van X-positie
+      // Huidige volgorde op X-positie
       const currentOrder = [...validChildren].sort((a, b) => pos[a].x - pos[b].x);
+      if (desired.every((id, i) => id === currentOrder[i])) return;
 
-      // Check of volgorde al klopt
-      const alreadyCorrect = desired.every((id, i) => id === currentOrder[i]);
-      if (alreadyCorrect) return;
+      // De huidige X-posities (slots) behouden, maar toewijzen aan gewenste volgorde
+      const slotXs = currentOrder.map(id => pos[id].x);
 
-      // Bereken de "anchor X" (linkerkant) van elke sibling's subtree
-      // zodat we hele subtrees kunnen swappen
-      const subtrees = {};
-      const subtreeRanges = {};
-      currentOrder.forEach(id => {
-        const tree = new Set();
-        collectSubtree(id, tree);
-        subtrees[id] = tree;
-        // Bereken min/max X van de subtree
-        let minX = Infinity, maxX = -Infinity;
-        tree.forEach(nid => {
-          if (pos[nid]) {
-            minX = Math.min(minX, pos[nid].x);
-            maxX = Math.max(maxX, pos[nid].x + NODE_W);
-          }
-        });
-        subtreeRanges[id] = { minX, maxX, width: maxX - minX };
+      // Bereken delta per sibling: desired[i] moet naar slotXs[i]
+      const deltas = {};
+      desired.forEach((id, i) => {
+        deltas[id] = slotXs[i] - pos[id].x;
       });
 
-      // Plaats subtrees in de gewenste volgorde, links uitlijnen
-      // Start bij de meest linkse positie van alle subtrees
-      let startX = Math.min(...currentOrder.map(id => subtreeRanges[id].minX));
-
-      desired.forEach((id) => {
-        const range = subtreeRanges[id];
-        const dx = startX - range.minX;
-        if (Math.abs(dx) > 0.5) {
-          // Verschuif alle nodes in de subtree
-          subtrees[id].forEach(nid => {
-            if (pos[nid]) pos[nid].x += dx;
-          });
-          // Update range
-          range.maxX += dx;
-          range.minX = startX;
-        }
-        startX = range.minX + range.width + H_GAP;
+      // Pas delta's toe op subtrees; globalMoved voorkomt dubbele verschuiving
+      // bij intermarried families waar subtrees overlappen
+      const globalMoved = new Set();
+      desired.forEach(id => {
+        const dx = deltas[id];
+        if (Math.abs(dx) < 0.5) return;
+        const tree = new Set();
+        collectSubtree(id, tree);
+        tree.forEach(nid => {
+          if (pos[nid] && !globalMoved.has(nid)) {
+            pos[nid].x += dx;
+            globalMoved.add(nid);
+          }
+        });
       });
     });
     // Fix overlaps na herordening
