@@ -3622,6 +3622,47 @@ function toggleGezin(key) {
 }
 
 // ============================================================
+// KERNREGEL: geen twee kaarten mogen overlappen (2D)
+// ============================================================
+// Sweep-line algoritme: sorteer alle nodes op X, controleer elk paar
+// op 2D overlap. Bij overlap: verschuif de rechter node + alles rechts
+// ervan op dezelfde Y. Maximaal 5 passes.
+function resolveOverlaps(pos) {
+  const allNodeIds = Object.keys(pos).filter(id => pos[id]);
+  for (let pass = 0; pass < 5; pass++) {
+    let hadOverlap = false;
+    allNodeIds.sort((a, b) => pos[a].x - pos[b].x);
+    for (let i = 0; i < allNodeIds.length; i++) {
+      const idA = allNodeIds[i];
+      const a = pos[idA];
+      if (!a) continue;
+      for (let j = i + 1; j < allNodeIds.length; j++) {
+        const idB = allNodeIds[j];
+        const b = pos[idB];
+        if (!b) continue;
+        if (b.x >= a.x + NODE_W + H_GAP) break; // early exit
+        // Check 2D overlap
+        const overlapX = a.x < b.x + NODE_W && b.x < a.x + NODE_W;
+        const overlapY = a.y < b.y + NODE_H && b.y < a.y + NODE_H;
+        if (overlapX && overlapY) {
+          const shiftNeeded = (a.x + NODE_W + H_GAP) - b.x;
+          if (shiftNeeded > 0) {
+            const bY = b.y;
+            allNodeIds.forEach(nid => {
+              if (pos[nid] && pos[nid].y === bY && pos[nid].x >= b.x) {
+                pos[nid].x += shiftNeeded;
+              }
+            });
+            hadOverlap = true;
+          }
+        }
+      }
+    }
+    if (!hadOverlap) break;
+  }
+}
+
+// ============================================================
 // COMPACT LAYOUT — verticaal gestapelde gezinsrijen
 // ============================================================
 // Elk gezin (ouder+partner+kinderen) wordt als horizontale rij geplaatst.
@@ -3850,6 +3891,9 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
       globalX += NODE_W + H_GAP;
     }
   });
+
+  // KERNREGEL: geen overlappende kaarten
+  resolveOverlaps(pos);
 
   return { pos, crossFamilyGhosts: {} };
 }
@@ -4825,6 +4869,9 @@ function computeLayout(overrideIds) {
     const shift = PADDING - minX;
     Object.values(pos).forEach(p => { p.x += shift; });
   }
+
+  // KERNREGEL: geen overlappende kaarten
+  resolveOverlaps(pos);
 
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
