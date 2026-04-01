@@ -6,6 +6,7 @@ const NODE_H  = 100;
 const H_GAP   = 50;
 const V_GAP   = 90;
 const PADDING = 50;
+const SUBTREE_GAP = 120; // extra ruimte tussen kinderen van verschillende ouders
 const USER_ID = 's11'; // Hakim Khan Sayedi
 
 // ============================================================
@@ -166,7 +167,6 @@ let confirmCallback = null;
 let lastPositions = {};
 let activeTreeId = null; // null = toon alles
 let currentPhotoData = null; // base64 of huidige foto in modal
-let layoutMode = localStorage.getItem('fb_layout_mode') || 'row'; // 'row' | 'compact'
 
 // Ingeklapte gezinnen: Set van keys "parentId1,parentId2" (gesorteerd)
 let collapsedGezinnen = new Set();
@@ -3663,232 +3663,6 @@ function resolveOverlaps(pos) {
 }
 
 // ============================================================
-// COMPACT LAYOUT — verticaal gestapelde gezinsrijen
-// ============================================================
-// Elk gezin (ouder+partner+kinderen) wordt als horizontale rij geplaatst.
-// Gezinnen worden verticaal onder elkaar gestapeld i.p.v. op één brede
-// generatie-rij. Resultaat: boom groeit in de diepte, niet in de breedte.
-function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf, socialChildIds, activeIds) {
-  const pos = {};
-  const placed = new Set();
-
-  // Compact-specifieke spacing: meer diepte, minder breedte
-  const C_H_GAP = 30;   // horizontale gap (kleiner → compacter naast elkaar)
-  const C_V_GAP = 120;  // verticale gap (groter → meer diepte tussen generaties)
-  const C_SUB_GAP = 60; // gap tussen gestapelde subtrees
-
-  // Sorteer kinderen op birthOrder / geboortedatum
-  function sortChildren(kids) {
-    return [...kids].sort((a, b) => {
-      const personA = getPerson(a), personB = getPerson(b);
-      const isSocA = socialChildIds.has(a), isSocB = socialChildIds.has(b);
-      const boA = (isSocA && personA?.socialBirthOrder != null)
-        ? personA.socialBirthOrder : personA?.birthOrder;
-      const boB = (isSocB && personB?.socialBirthOrder != null)
-        ? personB.socialBirthOrder : personB?.birthOrder;
-      if (boA != null && boB != null) return boA - boB;
-      if (boA != null) return -1;
-      if (boB != null) return 1;
-      const pa = parseBirthdate(personA?.birthdate);
-      const pb = parseBirthdate(personB?.birthdate);
-      if (!pa && !pb) return 0;
-      if (!pa) return 1;
-      if (!pb) return -1;
-      if (pa.year !== pb.year) return pa.year - pb.year;
-      if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
-      if (pa.day && pb.day) return pa.day - pb.day;
-      return 0;
-    });
-  }
-
-  // Bouw een unit: persoon + partner(s) die inlaws zijn (geen ouders in layout)
-  function buildUnit(id) {
-    const partners = (partnersOf[id] || []).filter(pid =>
-      pos[pid] === undefined && !placed.has(pid) &&
-      genOf[pid] === genOf[id]
-    );
-    // Bij meerdere partners: partner1 — persoon — partner2
-    if (partners.length >= 2) {
-      return [partners[0], id, ...partners.slice(1)];
-    }
-    return [id, ...partners];
-  }
-
-  // Bereken de breedte die een subtree nodig heeft (recursief)
-  // Returns: { width, height } zonder daadwerkelijk te plaatsen
-  function measureSubtree(rootId) {
-    const kids = (childrenOf[rootId] || []).filter(cid => activeIds.has(cid));
-    const partnerKids = (partnersOf[rootId] || []).flatMap(pid =>
-      (childrenOf[pid] || []).filter(cid => activeIds.has(cid) && !kids.includes(cid))
-    );
-    const allKids = sortChildren([...new Set([...kids, ...partnerKids])]);
-
-    if (allKids.length === 0) return { width: NODE_W, height: NODE_H };
-
-    // Elk kind is een gezinsrij: kind + partner + kleinkinderen naast elkaar
-    let totalHeight = NODE_H + V_GAP; // root + gap
-    let maxWidth = NODE_W;
-
-    allKids.forEach(cid => {
-      const unit = [cid];
-      (partnersOf[cid] || []).forEach(pid => {
-        if (genOf[pid] === genOf[cid]) unit.push(pid);
-      });
-      const unitW = unit.length * NODE_W + (unit.length - 1) * H_GAP;
-
-      // Heeft dit kind zelf kinderen? → recursief meten
-      const sub = measureSubtree(cid);
-      const rowW = unitW + (sub.width > NODE_W ? H_GAP + sub.width : 0);
-      maxWidth = Math.max(maxWidth, rowW);
-      totalHeight += NODE_H + V_GAP * 0.5;
-    });
-
-    return { width: maxWidth, height: totalHeight };
-  }
-
-  // Plaats een persoon + partner(s) als een unit, return geplaatste IDs
-  function placeUnit(id, x, y) {
-    const unit = buildUnit(id);
-    unit.forEach((uid, i) => {
-      pos[uid] = { x: x + i * (NODE_W + C_H_GAP), y: y };
-      placed.add(uid);
-    });
-    return unit;
-  }
-
-  // Recursief: plaats een subtree starting from rootId
-  // startX, startY: linkerbovenhoek waar deze subtree begint
-  // Returns: { width, height } van het geplaatste blok
-  function placeSubtree(rootId, startX, startY, depth) {
-    if (placed.has(rootId)) return { width: 0, height: 0 };
-
-    // Plaats de root + partners
-    const rootUnit = placeUnit(rootId, startX, startY);
-    const rootUnitW = rootUnit.length * NODE_W + (rootUnit.length - 1) * H_GAP;
-
-    // Verzamel alle kinderen van deze root + partners
-    const allKids = new Set();
-    rootUnit.forEach(uid => {
-      (childrenOf[uid] || []).forEach(cid => {
-        if (activeIds.has(cid) && !placed.has(cid)) allKids.add(cid);
-      });
-    });
-    const sortedKids = sortChildren([...allKids]);
-
-    if (sortedKids.length === 0) {
-      return { width: rootUnitW, height: NODE_H };
-    }
-
-    // Plaats kinderen op een horizontale rij direct onder de ouder(s)
-    const childY = startY + NODE_H + C_V_GAP;
-    let childX = startX;
-    const kidUnits = []; // bewaar voor subtree-plaatsing
-
-    sortedKids.forEach(cid => {
-      if (placed.has(cid)) return;
-      const kidUnit = placeUnit(cid, childX, childY);
-      const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * C_H_GAP;
-      kidUnits.push({ cid, unit: kidUnit, startX: childX, unitW: kidUnitW });
-      childX += kidUnitW + C_H_GAP;
-    });
-
-    const childrenRowW = childX - startX - C_H_GAP;
-
-    // Centreer ouders boven de kinderenrij
-    if (childrenRowW > rootUnitW) {
-      const childCenter = startX + childrenRowW / 2;
-      const rootShift = childCenter - (startX + rootUnitW / 2);
-      if (rootShift > 0) {
-        rootUnit.forEach(uid => { pos[uid].x += rootShift; });
-      }
-    }
-
-    // Nu: subtrees van elk kind verticaal gestapeld ONDER de kinderenrij
-    let subY = childY + NODE_H + C_V_GAP;
-    let maxWidth = Math.max(rootUnitW, childrenRowW);
-
-    kidUnits.forEach(({ cid, unit }) => {
-      // Verzamel kleinkinderen van dit kind + partner
-      const subKids = new Set();
-      unit.forEach(uid => {
-        (childrenOf[uid] || []).forEach(gcid => {
-          if (activeIds.has(gcid) && !placed.has(gcid)) subKids.add(gcid);
-        });
-      });
-      const sortedSubKids = sortChildren([...subKids]);
-
-      if (sortedSubKids.length === 0) return;
-
-      // Plaats elke kleinkind-subtree verticaal gestapeld
-      sortedSubKids.forEach(gcid => {
-        if (placed.has(gcid)) return;
-        const result = placeSubtree(gcid, startX, subY, depth + 1);
-        maxWidth = Math.max(maxWidth, result.width);
-        subY += result.height + C_SUB_GAP;
-      });
-    });
-
-    const totalH = (subY > childY + NODE_H + C_V_GAP)
-      ? subY - startY
-      : (childY + NODE_H) - startY;
-
-    return { width: maxWidth, height: totalH };
-  }
-
-  // --- Hoofdlogica: vind roots en plaats ze ---
-  const roots = persons.filter(p => (parentsOf[p.id] || []).length === 0);
-
-  // Groepeer roots per stamboom (via partner-koppelingen)
-  const rootGroups = [];
-  const rootSeen = new Set();
-  roots.forEach(p => {
-    if (rootSeen.has(p.id)) return;
-    const group = [p.id];
-    rootSeen.add(p.id);
-    // Voeg partners toe aan dezelfde groep
-    (partnersOf[p.id] || []).forEach(pid => {
-      if (!rootSeen.has(pid) && genOf[pid] === 0) {
-        group.push(pid);
-        rootSeen.add(pid);
-      }
-    });
-    rootGroups.push(group);
-  });
-
-  // Voeg overgebleven personen zonder ouders toe
-  persons.forEach(p => {
-    if (!rootSeen.has(p.id) && (parentsOf[p.id] || []).length === 0) {
-      rootGroups.push([p.id]);
-      rootSeen.add(p.id);
-    }
-  });
-
-  // Plaats elke root-groep
-  let globalX = PADDING;
-  const TREE_GAP = 150;
-  rootGroups.forEach(group => {
-    const mainRoot = group[0];
-    // Markeer partner-roots als placed zodat placeUnit ze oppakt
-    // (maar verwijder ze niet uit de plaatsingslogica)
-    const result = placeSubtree(mainRoot, globalX, PADDING, 0);
-    globalX += result.width + TREE_GAP;
-  });
-
-  // Plaats eventuele niet-geplaatste personen (geïsoleerd, geen relaties)
-  persons.forEach(p => {
-    if (!placed.has(p.id)) {
-      pos[p.id] = { x: globalX, y: PADDING };
-      globalX += NODE_W + C_H_GAP;
-    }
-  });
-
-  // KERNREGEL: geen overlappende kaarten
-  resolveOverlaps(pos);
-
-  return { pos, crossFamilyGhosts: {} };
-}
-
-// ============================================================
 // LAYOUT ALGORITHM
 // ============================================================
 function computeLayout(overrideIds) {
@@ -4137,11 +3911,6 @@ function computeLayout(overrideIds) {
     byGen[g].push(p.id);
   });
   const gens = Object.keys(byGen).map(Number).sort((a, b) => a - b);
-
-  // --- COMPACT LAYOUT BRANCH ---
-  if (layoutMode === 'compact') {
-    return computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf, socialChildIds, activeIds);
-  }
 
   const pos = {};
 
@@ -4464,7 +4233,8 @@ function computeLayout(overrideIds) {
       expanded.forEach((id, i) => {
         pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
       });
-      cursorX = startX + totalW + H_GAP;
+      // Extra ruimte tussen kinderen van verschillende ouders
+      cursorX = startX + totalW + H_GAP + SUBTREE_GAP;
 
       // --- Cross-family ghost-kinderen aanmaken ---
       // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
@@ -4859,6 +4629,93 @@ function computeLayout(overrideIds) {
     const shift = PADDING - minX;
     Object.values(pos).forEach(p => { p.x += shift; });
   }
+
+  // --- De-interleave: zorg dat kinderen van verschillende ouders niet door elkaar staan ---
+  // Na alle layout-passes kunnen groepen kinderen van verschillende ouders op dezelfde
+  // generatie-rij door elkaar heen staan. Dit maakt onleesbaar welke kinderen bij welke
+  // ouders horen. Fix: groepeer per ouder-set, bereken bounding box, en duw groepen
+  // uit elkaar als ze overlappen. Ruime witruimte (SUBTREE_GAP) ertussen.
+  gens.filter(g => g > 0).forEach(gen => {
+    const genIds = (byGen[gen] || []).filter(id => pos[id] && !id.startsWith(CROSS_GHOST_PREFIX));
+    if (!genIds.length) return;
+
+    // Groepeer per ouder-set
+    const groupMap = {};
+    genIds.forEach(id => {
+      const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
+      if (!ps.length) return; // in-laws skip
+      const key = ps.join(',');
+      if (!groupMap[key]) groupMap[key] = { parentIds: ps, members: [] };
+      // Voeg ook inline partners toe (in-laws zonder ouders) zodat ze mee verschuiven
+      groupMap[key].members.push(id);
+      (partnersOf[id] || []).forEach(pid => {
+        if (pos[pid] && genOf[pid] === gen && !(parentsOf[pid] || []).some(ppid => pos[ppid])) {
+          if (!groupMap[key].members.includes(pid)) groupMap[key].members.push(pid);
+        }
+      });
+      // Voeg ghost-slots toe
+      Object.entries(ghostMeta).forEach(([gid, meta]) => {
+        if (meta.adjacentTo === id && pos[gid] && genOf[gid] === gen) {
+          if (!groupMap[key].members.includes(gid)) groupMap[key].members.push(gid);
+        }
+      });
+    });
+
+    const groups = Object.values(groupMap);
+    if (groups.length < 2) return;
+
+    // Bereken bounding box per groep
+    groups.forEach(g => {
+      const xs = g.members.filter(id => pos[id]).map(id => pos[id].x);
+      g.minX = Math.min(...xs);
+      g.maxX = Math.max(...xs) + NODE_W;
+    });
+
+    // Sorteer op minX
+    groups.sort((a, b) => a.minX - b.minX);
+
+    // Duw overlappende groepen uit elkaar
+    for (let i = 1; i < groups.length; i++) {
+      const prev = groups[i - 1];
+      const curr = groups[i];
+      const requiredStart = prev.maxX + SUBTREE_GAP;
+      if (curr.minX < requiredStart) {
+        const shift = requiredStart - curr.minX;
+        // Verschuif alle leden van deze groep EN alle latere groepen
+        for (let j = i; j < groups.length; j++) {
+          groups[j].members.forEach(id => {
+            if (pos[id]) pos[id].x += shift;
+          });
+          groups[j].minX += shift;
+          groups[j].maxX += shift;
+        }
+        // Verschuif ook alle nakomelingen van deze groep's kinderen
+        const shiftDescendants = (pid, dx, visited) => {
+          if (!visited) visited = new Set();
+          (childrenOf[pid] || []).forEach(cid => {
+            if (pos[cid] && !visited.has(cid)) {
+              visited.add(cid);
+              pos[cid].x += dx;
+              shiftDescendants(cid, dx, visited);
+              // Verschuif ook in-law partners van nakomelingen
+              (partnersOf[cid] || []).forEach(ppid => {
+                if (pos[ppid] && !visited.has(ppid) && !(parentsOf[ppid] || []).some(pppid => pos[pppid])) {
+                  visited.add(ppid);
+                  pos[ppid].x += dx;
+                }
+              });
+            }
+          });
+        };
+        const visited = new Set();
+        for (let j = i; j < groups.length; j++) {
+          groups[j].members.forEach(id => {
+            if (!id.startsWith(CROSS_GHOST_PREFIX)) shiftDescendants(id, shift, visited);
+          });
+        }
+      }
+    }
+  });
 
   // KERNREGEL: geen overlappende kaarten
   resolveOverlaps(pos);
@@ -6864,28 +6721,6 @@ document.getElementById('btn-zoom-in').addEventListener('click',  () => setZoom(
 document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
 document.getElementById('btn-zoom-fit').addEventListener('click', zoomFit);
 
-// Layout toggle: Rij ↔ Compact
-(function() {
-  function updateToggleLabel() {
-    const btn = document.getElementById('btn-layout-toggle');
-    if (!btn) return;
-    if (layoutMode === 'compact') {
-      btn.textContent = '▼ Compact';
-      btn.classList.add('compact-active');
-    } else {
-      btn.textContent = '═══ Rij';
-      btn.classList.remove('compact-active');
-    }
-  }
-  updateToggleLabel();
-  document.getElementById('btn-layout-toggle').addEventListener('click', () => {
-    layoutMode = layoutMode === 'row' ? 'compact' : 'row';
-    localStorage.setItem('fb_layout_mode', layoutMode);
-    updateToggleLabel();
-    render();
-    setTimeout(zoomFit, 50);
-  });
-})();
 
 // Mobiel: sidebar toggle
 (function() {
