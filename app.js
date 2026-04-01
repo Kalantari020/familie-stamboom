@@ -3672,6 +3672,11 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
   const pos = {};
   const placed = new Set();
 
+  // Compact-specifieke spacing: meer diepte, minder breedte
+  const C_H_GAP = 30;   // horizontale gap (kleiner → compacter naast elkaar)
+  const C_V_GAP = 120;  // verticale gap (groter → meer diepte tussen generaties)
+  const C_SUB_GAP = 60; // gap tussen gestapelde subtrees
+
   // Sorteer kinderen op birthOrder / geboortedatum
   function sortChildren(kids) {
     return [...kids].sort((a, b) => {
@@ -3745,7 +3750,7 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
   function placeUnit(id, x, y) {
     const unit = buildUnit(id);
     unit.forEach((uid, i) => {
-      pos[uid] = { x: x + i * (NODE_W + H_GAP), y: y };
+      pos[uid] = { x: x + i * (NODE_W + C_H_GAP), y: y };
       placed.add(uid);
     });
     return unit;
@@ -3775,19 +3780,19 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
     }
 
     // Plaats kinderen op een horizontale rij direct onder de ouder(s)
-    const childY = startY + NODE_H + V_GAP;
+    const childY = startY + NODE_H + C_V_GAP;
     let childX = startX;
     const kidUnits = []; // bewaar voor subtree-plaatsing
 
     sortedKids.forEach(cid => {
       if (placed.has(cid)) return;
       const kidUnit = placeUnit(cid, childX, childY);
-      const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * H_GAP;
+      const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * C_H_GAP;
       kidUnits.push({ cid, unit: kidUnit, startX: childX, unitW: kidUnitW });
-      childX += kidUnitW + H_GAP;
+      childX += kidUnitW + C_H_GAP;
     });
 
-    const childrenRowW = childX - startX - H_GAP;
+    const childrenRowW = childX - startX - C_H_GAP;
 
     // Centreer ouders boven de kinderenrij
     if (childrenRowW > rootUnitW) {
@@ -3799,8 +3804,7 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
     }
 
     // Nu: subtrees van elk kind verticaal gestapeld ONDER de kinderenrij
-    // Alle subtrees starten op dezelfde Y (onder de kinderenrij)
-    let subY = childY + NODE_H + V_GAP;
+    let subY = childY + NODE_H + C_V_GAP;
     let maxWidth = Math.max(rootUnitW, childrenRowW);
 
     kidUnits.forEach(({ cid, unit }) => {
@@ -3820,11 +3824,11 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
         if (placed.has(gcid)) return;
         const result = placeSubtree(gcid, startX, subY, depth + 1);
         maxWidth = Math.max(maxWidth, result.width);
-        subY += result.height + V_GAP * 0.5;
+        subY += result.height + C_SUB_GAP;
       });
     });
 
-    const totalH = (subY > childY + NODE_H + V_GAP)
+    const totalH = (subY > childY + NODE_H + C_V_GAP)
       ? subY - startY
       : (childY + NODE_H) - startY;
 
@@ -3874,7 +3878,7 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
   persons.forEach(p => {
     if (!placed.has(p.id)) {
       pos[p.id] = { x: globalX, y: PADDING };
-      globalX += NODE_W + H_GAP;
+      globalX += NODE_W + C_H_GAP;
     }
   });
 
