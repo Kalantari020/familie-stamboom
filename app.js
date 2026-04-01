@@ -4733,14 +4733,50 @@ function computeLayout(overrideIds) {
   resolveOverlaps(pos, verticalGroupMap);
 
   // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
+  // Strategie: houd kaarten op de correcte X (onder ouders) en verschuif naar
+  // beneden als er overlaps zijn. Lijnen worden langer i.p.v. kaarten verplaatst.
   if (verticalGroupMap.__groups) {
+    // Verzamel alle niet-verticale posities voor overlap-detectie
+    const verticalIds = new Set();
+    verticalGroupMap.__groups.forEach(({ children, childPartnerMap }) => {
+      children.forEach(cid => {
+        verticalIds.add(cid);
+        (childPartnerMap[cid] || []).forEach(pid => verticalIds.add(pid));
+      });
+    });
+
     verticalGroupMap.__groups.forEach(({ children, childPartnerMap }) => {
       const validChildren = children.filter(cid => pos[cid]);
       if (validChildren.length === 0) return;
       const baseX = pos[validChildren[0]].x;
       const baseY = pos[validChildren[0]].y;
+      const hasPartner = validChildren.some(cid => (childPartnerMap[cid] || []).length > 0);
+      const slotW = hasPartner ? 2 * NODE_W + H_GAP : NODE_W;
+
+      let currentY = baseY;
       validChildren.forEach((cid, i) => {
-        const rowY = baseY + i * (NODE_H + V_GAP * 0.5);
+        // Check overlap met bestaande niet-verticale kaarten op deze Y
+        let rowY = currentY;
+        for (let safety = 0; safety < 20; safety++) {
+          let hasOverlap = false;
+          const ids = Object.keys(pos).filter(nid =>
+            pos[nid] && !verticalIds.has(nid) && nid !== cid
+          );
+          for (const nid of ids) {
+            const n = pos[nid];
+            // Check 2D overlap met de kolom (kind + eventuele partner)
+            const overlapX = baseX < n.x + NODE_W && n.x < baseX + slotW;
+            const overlapY = rowY < n.y + NODE_H && n.y < rowY + NODE_H;
+            if (overlapX && overlapY) {
+              // Verschuif naar beneden voorbij deze kaart
+              rowY = n.y + NODE_H + V_GAP * 0.3;
+              hasOverlap = true;
+              break;
+            }
+          }
+          if (!hasOverlap) break;
+        }
+
         pos[cid].x = baseX;
         pos[cid].y = rowY;
         // Plaats partners rechts naast het kind
@@ -4750,12 +4786,10 @@ function computeLayout(overrideIds) {
             pos[pid].y = rowY;
           }
         });
+        currentY = rowY + NODE_H + V_GAP * 0.5;
       });
     });
   }
-
-  // Finale overlap-fix na verticale spreiding
-  resolveOverlaps(pos);
 
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
@@ -4847,6 +4881,38 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const validParents  = parents.filter(pid => lpos[pid]);
       const validChildren = [...children].filter(cid => lpos[cid]);
       if (!validParents.length || !validChildren.length) return;
+
+      // Check of dit gezin verticaal gestapeld is
+      const gezinKey = [...parents].sort().join(',');
+      const isVerticalFamily = verticalGezinnen.has(gezinKey);
+
+      if (isVerticalFamily && validChildren.length > 0) {
+        // Verticale lijnen: stamlijn van ouders naar beneden, met takken naar elk kind
+        const parentCXs = validParents.map(pid => lcx(pid));
+        const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
+        const dropY = Math.max(...validParents.map(pid => lbotY(pid)));
+
+        // Sorteer kinderen op Y-positie (boven naar beneden)
+        validChildren.sort((a, b) => ltopY(a) - ltopY(b));
+
+        const lastChildY = ltopY(validChildren[validChildren.length - 1]);
+
+        // Verticale stamlijn van ouder naar laatste kind
+        parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${lastChildY + NODE_H / 2}" class="child-line"/>`);
+
+        // Horizontale tak naar elk kind
+        validChildren.forEach(cid => {
+          const cx = lcx(cid);
+          const cy = ltopY(cid) + NODE_H / 2;
+          if (Math.abs(cx - dropX) > 2) {
+            // Kind staat niet direct onder de stamlijn — trek horizontale tak
+            parts.push(`<line x1="${dropX}" y1="${cy}" x2="${cx}" y2="${cy}" class="child-line"/>`);
+          }
+          // Korte verticale lijn naar bovenkant kind
+          parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${ltopY(cid)}" class="child-line"/>`);
+        });
+        return;
+      }
 
       // --- Fix A: Cross-family aware drop point ---
       // Als ouders > 2*(NODE_W+H_GAP) uit elkaar staan, gebruik alleen de ouder
