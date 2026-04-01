@@ -212,30 +212,41 @@ function loadState() {
       // zodat updates aan START_DATA (bijv. 106→121 personen) automatisch verschijnen
       mergeStartData();
       return true;
-    } catch (e) {}
+    } catch (e) {
+      console.error('[Stamboom] localStorage data is corrupt:', e);
+      showToast('⚠️ Opgeslagen data is corrupt en kon niet worden geladen. Standaarddata wordt gebruikt.', '', 8000);
+    }
   }
   return false;
 }
 
 function mergeStartData() {
   const existingIds = new Set(state.persons.map(p => p.id));
-  // Bouw naam→id mapping om duplicaten op naam te detecteren
-  const nameToId = {};
-  state.persons.forEach(p => { nameToId[p.name] = p.id; });
+  // Bouw mapping om duplicaten te detecteren op naam + geboortedatum (of naam + familie als geen geboortedatum)
+  const findExistingMatch = (p) => {
+    return state.persons.find(ep => {
+      if (ep.name !== p.name) return false;
+      // Zelfde naam EN zelfde geboortedatum → duplicaat
+      if (ep.birthdate && p.birthdate) return ep.birthdate === p.birthdate;
+      // Een van beide heeft geen geboortedatum → match alleen als zelfde familienaam
+      if (!ep.birthdate || !p.birthdate) return (ep.family || '') === (p.family || '') && (ep.family || '') !== '';
+      return false;
+    });
+  };
   const idMap = {}; // START_DATA id → bestaand id (voor relatie-remapping)
   let added = 0;
 
   // Voeg ontbrekende personen toe (check op ID én naam)
   START_DATA.persons.forEach(p => {
     if (existingIds.has(p.id)) return; // ID bestaat al
-    if (nameToId[p.name]) {
+    const match = findExistingMatch(p);
+    if (match) {
       // Persoon bestaat al onder ander ID — remap, niet toevoegen
-      idMap[p.id] = nameToId[p.name];
+      idMap[p.id] = match.id;
       return;
     }
     state.persons.push(JSON.parse(JSON.stringify(p)));
     existingIds.add(p.id);
-    nameToId[p.name] = p.id;
     added++;
   });
 
@@ -260,14 +271,19 @@ function mergeStartData() {
     }
   });
 
-  // Dedup: verwijder dubbele personen (zelfde naam) en merge hun relaties
-  const byName = {};
+  // Dedup: verwijder dubbele personen (zelfde naam + geboortedatum, of zelfde naam + familie als geen geboortedatum) en merge hun relaties
+  const dedupKey = (p) => {
+    if (p.birthdate) return `${p.name}|bd:${p.birthdate}`;
+    return `${p.name}|fam:${(p.family || '').toLowerCase()}`;
+  };
+  const byKey = {};
   state.persons.forEach(p => {
-    if (!byName[p.name]) byName[p.name] = [];
-    byName[p.name].push(p);
+    const k = dedupKey(p);
+    if (!byKey[k]) byKey[k] = [];
+    byKey[k].push(p);
   });
   let deduped = 0;
-  Object.values(byName).forEach(group => {
+  Object.values(byKey).forEach(group => {
     if (group.length < 2) return;
     // Houd de eerste, merge relaties van de rest
     const keep = group[0];
@@ -298,6 +314,28 @@ function mergeStartData() {
     saveState();
     console.log(`[Stamboom] Merge: ${added} toegevoegd, ${deduped} duplicaten samengevoegd`);
   }
+}
+
+// ============================================================
+// CYCLE DETECTION
+// ============================================================
+function wouldCreateCycle(parentId, childId) {
+  // BFS: check of childId al een voorouder is van parentId
+  const visited = new Set();
+  const queue = [parentId];
+  while (queue.length) {
+    const current = queue.shift();
+    if (current === childId) return true;
+    if (visited.has(current)) continue;
+    visited.add(current);
+    // Zoek ouders van current
+    state.relationships.forEach(r => {
+      if (r.type === 'parent-child' && r.childId === current) {
+        queue.push(r.parentId);
+      }
+    });
+  }
+  return false;
 }
 
 // ============================================================
@@ -745,6 +783,15 @@ function computeLayout(overrideIds) {
         Math.abs(pos[pid].x - pos[id].x) <= MAX_PARTNER_DIST
       );
       const unit = [id, ...myPartners].sort((a, b) => pos[a].x - pos[b].x);
+      // Voeg ghost-nodes toe die adjacent zijn aan unit-members
+      unit.slice().forEach(uid => {
+        Object.entries(ghostMeta).forEach(([gid, meta]) => {
+          if (meta.adjacentTo === uid && pos[gid] && !unit.includes(gid)) {
+            unit.push(gid);
+          }
+        });
+      });
+      unit.sort((a, b) => pos[a].x - pos[b].x);
       unit.forEach(uid => inUnit.add(uid));
       units.push(unit);
     });
@@ -1130,7 +1177,7 @@ function computeLayout(overrideIds) {
   // zodat gen3/gen4 niet wegdrijft van hun ouders.
 
   // Helper: verschuif een persoon en AL zijn nakomelingen met dezelfde offset
-  const shiftedInlaws = new Set();
+  let shiftedInlaws = new Set();
   const shiftWithDescendants = (id, dx, _visited) => {
     const visited = _visited || new Set();
     if (!pos[id] || Math.abs(dx) < 0.5 || visited.has(id)) return;
@@ -1155,6 +1202,7 @@ function computeLayout(overrideIds) {
   };
 
   [...gens].reverse().forEach(gen => {
+    shiftedInlaws = new Set();
     const processed = new Set();
     (byGen[gen] || []).forEach(id => {
       if (processed.has(id) || !pos[id]) return;
@@ -1979,7 +2027,7 @@ function renderSidebar(filter = '') {
   list.innerHTML = filtered.map(p => {
     const gClass = p.gender === 'm' ? 'male' : p.gender === 'f' ? 'female' : 'unknown';
     const uClass = p.id === USER_ID ? 'user' : gClass;
-    const yr     = p.birthdate ? p.birthdate.split('-')[0] : '';
+    const yr     = p.birthdate ? (parseBirthdate(p.birthdate)?.year || '') : '';
     return `<div class="person-item" data-id="${p.id}">
       <div class="avatar-sm ${uClass}">${initials(p.name)}</div>
       <div>
@@ -2523,12 +2571,13 @@ function buildPersonPicker(container, onSelect, excludeId) {
   searchInput.addEventListener('focus', () => {
     renderResults(searchInput.value);
   });
-  // Hide results when clicking outside
+  // Hide results when clicking outside (gebruik AbortController om memory leak te voorkomen)
+  const pickerAbort = new AbortController();
   document.addEventListener('click', function hideOnOutside(e) {
     if (!container.contains(e.target)) {
       resultsList.innerHTML = '';
     }
-  });
+  }, { signal: pickerAbort.signal });
 
   return {
     getSelectedId: () => selectedId,
@@ -2537,6 +2586,9 @@ function buildPersonPicker(container, onSelect, excludeId) {
       searchInput.value = '';
       resultsList.innerHTML = '';
       onSelect(null);
+    },
+    destroy: () => {
+      pickerAbort.abort();
     }
   };
 }
@@ -2742,11 +2794,13 @@ function openEditModal(id) {
           );
           if (!exists) state.relationships.push({ type: 'partner', person1Id: id, person2Id: targetId });
         } else if (type === 'child') {
+          if (wouldCreateCycle(id, targetId)) { alert('Deze relatie zou een cyclus creëren.'); return; }
           const exists = state.relationships.some(r =>
             r.type === 'parent-child' && r.parentId === id && r.childId === targetId
           );
           if (!exists) state.relationships.push({ type: 'parent-child', parentId: id, childId: targetId });
         } else if (type === 'parent') {
+          if (wouldCreateCycle(targetId, id)) { alert('Deze relatie zou een cyclus creëren.'); return; }
           const exists = state.relationships.some(r =>
             r.type === 'parent-child' && r.parentId === targetId && r.childId === id
           );
@@ -2925,11 +2979,13 @@ function checkSmartLink(personId) {
         )) state.relationships.push({ type: 'partner', person1Id: personId, person2Id: pid });
 
       } else if (type === 'child-of') {
+        if (wouldCreateCycle(pid, personId)) { alert('Deze relatie zou een cyclus creëren.'); return; }
         if (!state.relationships.some(r =>
           r.type === 'parent-child' && r.parentId === pid && r.childId === personId
         )) state.relationships.push({ type: 'parent-child', parentId: pid, childId: personId });
 
       } else if (type === 'parent-of') {
+        if (wouldCreateCycle(personId, pid)) { alert('Deze relatie zou een cyclus creëren.'); return; }
         if (!state.relationships.some(r =>
           r.type === 'parent-child' && r.parentId === personId && r.childId === pid
         )) state.relationships.push({ type: 'parent-child', parentId: personId, childId: pid });
@@ -3035,6 +3091,7 @@ document.getElementById('form-relation').addEventListener('submit', e => {
     const parentId = form.parentId.value;
     const childId  = form.childId.value;
     if (parentId === childId) { alert('Ouder en kind mogen niet dezelfde persoon zijn.'); return; }
+    if (wouldCreateCycle(parentId, childId)) { alert('Deze relatie zou een cyclus creëren (het kind is al een voorouder van de ouder).'); return; }
     const exists = state.relationships.some(r =>
       r.type === 'parent-child' && r.parentId === parentId && r.childId === childId
     );
@@ -3346,6 +3403,7 @@ function openDetailModal(id) {
             );
             if (!exists) state.relationships.push({ type: 'partner', person1Id: id, person2Id: existId });
           } else if (relation === 'child') {
+            if (wouldCreateCycle(id, existId)) { showToast('⚠️ Cyclus gedetecteerd, relatie overgeslagen.', '', 4000); return; }
             const exists = state.relationships.some(r =>
               r.type === 'parent-child' && r.parentId === id && r.childId === existId
             );
@@ -3354,6 +3412,7 @@ function openDetailModal(id) {
               if (otherParent) state.relationships.push({ type: 'parent-child', parentId: otherParent, childId: existId });
             }
           } else if (relation === 'parent') {
+            if (wouldCreateCycle(existId, id)) { showToast('⚠️ Cyclus gedetecteerd, relatie overgeslagen.', '', 4000); return; }
             const exists = state.relationships.some(r =>
               r.type === 'parent-child' && r.parentId === existId && r.childId === id
             );
@@ -3779,10 +3838,10 @@ function mergePersons(keepId, removeId) {
   // Vervang alle verwijzingen naar removeId door keepId in relationships
   state.relationships = state.relationships.map(rel => {
     const r = { ...rel };
-    if (r.type === 'parent-child') {
+    if (r.type === 'parent-child' || r.type === 'social-parent') {
       if (r.parentId === removeId) r.parentId = keepId;
       if (r.childId  === removeId) r.childId  = keepId;
-    } else if (r.type === 'partner') {
+    } else if (r.type === 'partner' || r.type === 'sibling') {
       if (r.person1Id === removeId) r.person1Id = keepId;
       if (r.person2Id === removeId) r.person2Id = keepId;
     }
@@ -3791,8 +3850,8 @@ function mergePersons(keepId, removeId) {
 
   // Verwijder zelf-referentiële relaties (bijv. keepId is ouder van keepId)
   state.relationships = state.relationships.filter(rel => {
-    if (rel.type === 'parent-child') return rel.parentId !== rel.childId;
-    if (rel.type === 'partner')      return rel.person1Id !== rel.person2Id;
+    if (rel.type === 'parent-child' || rel.type === 'social-parent') return rel.parentId !== rel.childId;
+    if (rel.type === 'partner' || rel.type === 'sibling')            return rel.person1Id !== rel.person2Id;
     return true;
   });
 

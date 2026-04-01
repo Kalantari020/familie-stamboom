@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
-  <link rel="stylesheet" href="style.css?v=43">
+  <link rel="stylesheet" href="style.css?v=44">
   <script>
     window.onerror = function(msg, src, line, col, err) {
       var d = document.createElement('div');
@@ -145,6 +145,17 @@
           <span id="stats"></span>
         </div>
         <div id="person-list"></div>
+      </div>
+
+      <!-- Mobiele tools (Fix 2: toolbar-right knoppen in sidebar) -->
+      <div class="sidebar-tools">
+        <span class="sidebar-section-title">EXTRA</span>
+        <button class="btn primary" onclick="document.getElementById('btn-add-person').click()">+ Persoon</button>
+        <button class="btn secondary" onclick="document.getElementById('btn-add-relation').click()">+ Relatie</button>
+        <button class="btn small publish" onclick="document.getElementById('btn-publish').click()">📤 Publiceer</button>
+        <button class="btn small secondary" onclick="document.getElementById('btn-export').click()">Exporteer JSON</button>
+        <button class="btn small secondary" onclick="document.getElementById('btn-import').click()">Importeer JSON</button>
+        <button class="btn small danger" onclick="document.getElementById('btn-reset').click()">Reset</button>
       </div>
     </div>
 
