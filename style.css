@@ -1400,9 +1400,3 @@ body.readonly .card:hover   { cursor: default; }
   border-color: #7c3aed;
 }
 
-/* ============================================================
-   VIRTUALIZATION: hidden cards
-   ============================================================ */
-.card.virtualized-hidden {
-  display: none !important;
-}

@@ -4706,6 +4706,48 @@ function computeLayout(overrideIds) {
     Object.values(pos).forEach(p => { p.x += shift; });
   }
 
+  // === KERNREGEL: geen twee kaarten mogen overlappen (2D) ===
+  // Controleert ALLE paren van kaarten op overlap, ongeacht generatie.
+  // Dit vangt matrix-layout overlaps en cross-generatie conflicten op.
+  {
+    const allNodeIds = Object.keys(pos).filter(id => pos[id]);
+    for (let pass = 0; pass < 5; pass++) {
+      let hadOverlap = false;
+      // Sorteer op x voor efficiëntie (sweep-line benadering)
+      allNodeIds.sort((a, b) => pos[a].x - pos[b].x);
+      for (let i = 0; i < allNodeIds.length; i++) {
+        const idA = allNodeIds[i];
+        const a = pos[idA];
+        if (!a) continue;
+        for (let j = i + 1; j < allNodeIds.length; j++) {
+          const idB = allNodeIds[j];
+          const b = pos[idB];
+          if (!b) continue;
+          // Early exit: als B.x al voorbij A.rechterrand + gap is, stop inner loop
+          if (b.x >= a.x + NODE_W + H_GAP) break;
+          // Check 2D overlap (rectangles raken of overlappen)
+          const overlapX = a.x < b.x + NODE_W && b.x < a.x + NODE_W;
+          const overlapY = a.y < b.y + NODE_H && b.y < a.y + NODE_H;
+          if (overlapX && overlapY) {
+            // Bereken hoeveel B naar rechts moet schuiven
+            const shiftNeeded = (a.x + NODE_W + H_GAP) - b.x;
+            if (shiftNeeded > 0) {
+              // Verschuif B en alles rechts van B op dezelfde y
+              const bY = b.y;
+              allNodeIds.forEach(nid => {
+                if (pos[nid] && pos[nid].y === bY && pos[nid].x >= b.x) {
+                  pos[nid].x += shiftNeeded;
+                }
+              });
+              hadOverlap = true;
+            }
+          }
+        }
+      }
+      if (!hadOverlap) break; // Geen overlaps meer gevonden
+    }
+  }
+
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
   Object.keys(pos).forEach(id => {
@@ -5581,50 +5623,7 @@ function render() {
   renderTreeLabels(pos, treeRanges);
   renderCollapseToggles(pos);
   renderSidebar(document.getElementById('search').value);
-  applyVirtualization(pos);
 }
-
-// ============================================================
-// VIEWPORT VIRTUALISATIE
-// ============================================================
-function applyVirtualization(pos) {
-  const wrapper = document.getElementById('canvas-wrapper');
-  if (!wrapper || !pos) return;
-
-  const z = zoom || 1;
-  const vpLeft   = wrapper.scrollLeft / z - 300;  // marge
-  const vpTop    = wrapper.scrollTop / z - 300;
-  const vpRight  = (wrapper.scrollLeft + wrapper.clientWidth) / z + 300;
-  const vpBottom = (wrapper.scrollTop + wrapper.clientHeight) / z + 300;
-
-  const container = document.getElementById('cards-container');
-  if (!container) return;
-
-  const cards = container.querySelectorAll('.card');
-  cards.forEach(card => {
-    const id = card.dataset.id;
-    if (!id || !pos[id]) return;
-    const p = pos[id];
-    const visible = p.x + NODE_W >= vpLeft && p.x <= vpRight &&
-                    p.y + NODE_H >= vpTop && p.y <= vpBottom;
-    card.classList.toggle('virtualized-hidden', !visible);
-  });
-}
-
-// Update virtualisatie bij scroll
-(function() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  if (!wrapper) return;
-  let scrollTimer;
-  wrapper.addEventListener('scroll', () => {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      if (lastPositions) {
-        applyVirtualization(lastPositions);
-      }
-    }, 80);
-  });
-})();
 
 // ============================================================
 // ZOOM
@@ -5633,10 +5632,6 @@ function setZoom(z) {
   zoom = Math.min(2, Math.max(0.25, z));
   document.getElementById('canvas').style.transform = `scale(${zoom})`;
   document.getElementById('zoom-label').textContent  = Math.round(zoom * 100) + '%';
-  // Update virtualisatie na zoom
-  if (lastPositions) {
-    applyVirtualization(lastPositions);
-  }
 }
 
 function zoomFit() {
