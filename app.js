@@ -1178,6 +1178,58 @@ function computeLayout(overrideIds) {
     }
   }
 
+  // --- Finale birthOrder correctie ---
+  // Na alle layout-passen (bottom-up centering, fixOverlaps, compactie) kan de
+  // volgorde van broers/zussen verstoord zijn. Herstel de birthOrder door
+  // X-posities van broers/zussen te swappen als hun volgorde niet klopt.
+  {
+    // Hergebruik dezelfde groepering als eerder
+    const finalGroups = {};
+    persons.forEach(p => {
+      const ps = (parentsOf[p.id] || []).filter(pid => pos[pid]).sort();
+      if (!ps.length) return;
+      const key = ps.join(',');
+      if (!finalGroups[key]) finalGroups[key] = [];
+      finalGroups[key].push(p.id);
+    });
+
+    Object.values(finalGroups).forEach(children => {
+      if (children.length < 2) return;
+      // Sorteer op gewenste volgorde (birthOrder → birthdate)
+      const desired = [...children].sort((a, b) => {
+        const personA = getPerson(a);
+        const personB = getPerson(b);
+        const boA = personA?.birthOrder;
+        const boB = personB?.birthOrder;
+        if (boA != null && boB != null) return boA - boB;
+        if (boA != null) return -1;
+        if (boB != null) return 1;
+        const pa = parseBirthdate(personA?.birthdate);
+        const pb = parseBirthdate(personB?.birthdate);
+        if (!pa && !pb) return 0;
+        if (!pa) return 1;
+        if (!pb) return -1;
+        if (pa.year !== pb.year) return pa.year - pb.year;
+        if (pa.month && pb.month && pa.month !== pb.month) return pa.month - pb.month;
+        if (pa.day && pb.day) return pa.day - pb.day;
+        return 0;
+      });
+      // Huidige X-posities gesorteerd
+      const currentXs = children
+        .filter(id => pos[id])
+        .map(id => pos[id].x)
+        .sort((a, b) => a - b);
+      // Ken de gesorteerde X-posities toe aan de gewenste volgorde
+      desired.forEach((id, i) => {
+        if (pos[id] && i < currentXs.length) {
+          pos[id].x = currentXs[i];
+        }
+      });
+    });
+    // Fix overlaps na herordening
+    gens.forEach(gen => fixOverlaps(gen));
+  }
+
   // Normalize so minimum is at PADDING
   const allX = Object.values(pos).map(p => p.x);
   const minX = Math.min(...allX);
