@@ -4716,6 +4716,80 @@ function computeLayout(overrideIds) {
           shiftSubtreeY(curr.allMembers, dy);
           curr.y += dy;
           curr.maxY += dy;
+
+          // Hercompactie: kinderen compact herplaatsen, gecentreerd onder ouders
+          // Na Y-displacement hebben ze een eigen rij en hoeven niet meer verspreid
+          const parentXs = curr.parentIds.map(pid => pos[pid]?.x || 0);
+          const parentCenter = (Math.min(...parentXs) + Math.max(...parentXs) + NODE_W) / 2;
+
+          // Sorteer kinderen + hun inline partners op huidige X
+          const childUnits = [];
+          const usedInline = new Set();
+          curr.children.sort((a, b) => (pos[a]?.x || 0) - (pos[b]?.x || 0)).forEach(cid => {
+            const unit = [cid];
+            // Voeg inline partners toe (in-laws zonder ouders in layout)
+            (partnersOf[cid] || []).forEach(pid => {
+              if (pos[pid] && !usedInline.has(pid) && genOf[pid] === genOf[cid] &&
+                  !(parentsOf[pid] || []).some(ppid => pos[ppid])) {
+                unit.push(pid);
+                usedInline.add(pid);
+              }
+            });
+            // Voeg ghost-slots toe
+            Object.entries(ghostMeta).forEach(([gid, meta]) => {
+              if (meta.adjacentTo === cid && pos[gid] && genOf[gid] === genOf[cid]) {
+                unit.push(gid);
+              }
+            });
+            unit.sort((a, b) => (pos[a]?.x || 0) - (pos[b]?.x || 0));
+            childUnits.push(unit);
+          });
+
+          // Bereken totale breedte compact
+          const allSlots = childUnits.flat();
+          const totalW = allSlots.length * NODE_W + (allSlots.length - 1) * H_GAP;
+          let startX = parentCenter - totalW / 2;
+          if (startX < PADDING) startX = PADDING;
+
+          // Herplaats: elke slot krijgt nieuwe X, behoud Y
+          let cx = startX;
+          childUnits.forEach(unit => {
+            unit.forEach(id => {
+              if (pos[id]) {
+                const oldX = pos[id].x;
+                pos[id].x = cx;
+                // Verschuif ook nakomelingen van dit kind
+                const dxChild = cx - oldX;
+                if (Math.abs(dxChild) > 0.5) {
+                  const visited = new Set([id]);
+                  const shiftDesc = (pid, dx) => {
+                    (childrenOf[pid] || []).forEach(kid => {
+                      if (pos[kid] && !visited.has(kid)) {
+                        visited.add(kid);
+                        pos[kid].x += dx;
+                        shiftDesc(kid, dx);
+                        (partnersOf[kid] || []).forEach(ppid => {
+                          if (pos[ppid] && !visited.has(ppid) && !(parentsOf[ppid] || []).some(pppid => pos[pppid])) {
+                            visited.add(ppid);
+                            pos[ppid].x += dx;
+                          }
+                        });
+                      }
+                    });
+                  };
+                  shiftDesc(id, dxChild);
+                }
+                cx += NODE_W + H_GAP;
+              }
+            });
+          });
+
+          // Update bounding box
+          const newXs = [...curr.allMembers].filter(id => pos[id]).map(id => pos[id].x);
+          const newYs = [...curr.allMembers].filter(id => pos[id]).map(id => pos[id].y);
+          curr.minX = Math.min(...newXs);
+          curr.maxX = Math.max(...newXs) + NODE_W;
+          curr.maxY = Math.max(...newYs) + NODE_H;
         }
       }
     });
