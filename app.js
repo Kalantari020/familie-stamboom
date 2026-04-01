@@ -3161,39 +3161,38 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
   // ── Lijnen tekenen ──
   if (activeTreeId === null && treePositions && Object.keys(treePositions).length) {
-    // Alle-families modus: teken lijnen PER stamboom-eiland
+    // Alle-families modus met per-boom posities: teken lijnen PER stamboom-eiland
     Object.values(treePositions).forEach(treePos => drawLinesForPositions(treePos));
-
-    // Duplicaat-verbindingslijnen: lichtblauwe stippellijn tussen dezelfde persoon
-    // op verschillende plekken in het canvas
-    if (duplicates) {
-      const drawnDupLinks = new Set();
-      Object.values(duplicates).forEach(dup => {
-        if (!pos[dup.personId]) return;
-        // Teken lijn van primaire positie naar duplicaat-positie
-        const linkKey = dup.personId + ':' + dup.treeHeadId;
-        if (drawnDupLinks.has(linkKey)) return;
-        drawnDupLinks.add(linkKey);
-
-        const x1 = pos[dup.personId].x + NODE_W / 2;
-        const y1 = pos[dup.personId].y + NODE_H / 2;
-        const x2 = dup.x + NODE_W / 2;
-        const y2 = dup.y + NODE_H / 2;
-
-        // Gebogen lijn voor betere zichtbaarheid
-        const horizDist = Math.abs(x2 - x1);
-        const vertDist  = Math.abs(y2 - y1);
-        const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
-        const dip  = Math.max(40, dist * 0.1);
-        const mx   = (x1 + x2) / 2;
-        const my   = Math.min(y1, y2) - dip;
-
-        parts.push(`<path d="M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}" class="duplicate-link"/>`);
-      });
-    }
   } else {
-    // Enkele stamboom modus: teken normaal
+    // Enkele stamboom of unified alle-families modus: teken vanuit pos
     drawLinesForPositions(pos);
+  }
+
+  // Duplicaat-verbindingslijnen: lichtblauwe stippellijn tussen dezelfde persoon
+  // op verschillende plekken in het canvas
+  if (duplicates) {
+    const drawnDupLinks = new Set();
+    Object.values(duplicates).forEach(dup => {
+      if (!dup.personId || !pos[dup.personId]) return;
+      const linkKey = dup.personId + ':' + (dup.treeHeadId || '');
+      if (drawnDupLinks.has(linkKey)) return;
+      drawnDupLinks.add(linkKey);
+
+      const x1 = pos[dup.personId].x + NODE_W / 2;
+      const y1 = pos[dup.personId].y + NODE_H / 2;
+      const x2 = dup.x + NODE_W / 2;
+      const y2 = dup.y + NODE_H / 2;
+
+      const horizDist = Math.abs(x2 - x1);
+      const vertDist  = Math.abs(y2 - y1);
+      const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
+      if (dist < NODE_W) return; // te dicht, skip
+      const dip  = Math.max(40, dist * 0.1);
+      const mx   = (x1 + x2) / 2;
+      const my   = Math.min(y1, y2) - dip;
+
+      parts.push(`<path d="M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}" class="duplicate-link"/>`);
+    });
   }
 
   // ── Cross-family ghost partner lijnen en duplicate-links ──
@@ -3621,26 +3620,18 @@ function renderTreeLabels(pos, treeRanges) {
 // ============================================================
 function computeAllFamiliesLayout() {
   const allStambomen = computeStambomen();
-  if (!allStambomen.length) return { positions: {}, ghosts: {}, treeRanges: {} };
+  if (!allStambomen.length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
 
-  // Filter: toon alleen hoofdstambomen.
-  // Regel: als het hoofd (man) of diens partner (vrouw) voorkomt in een
-  // andere, significant grotere hoofdstamboom, dan is het een sub-familie
-  // en tonen we die niet apart in de alle-families view.
-  // Uitzondering: als de eigen boom minstens de helft zo groot is als de
-  // absorberende boom, is het een gelijkwaardige patriarch → apart tonen.
-  // Stap A: basisfilter — hoofd mag geen ouders hebben
+  // Filter: toon alleen hoofdstambomen (hoofd mag geen ouders hebben)
   let candidates = allStambomen.filter(s => getParentsOf(s.headId).length === 0);
 
-  // Stap B: bereken personen-sets per boom
+  // Bereken personen-sets per boom
   const candidateSets = {};
   candidates.forEach(s => {
     candidateSets[s.headId] = new Set(getStamboomPersons(s.headId));
   });
 
-  // Stap C: sorteer op grootte (groot → klein) en filter redundante bomen
-  // Een boom is redundant als het hoofd of diens partner in een boom zit
-  // die meer dan 2x zo groot is (= significant grotere boom)
+  // Sorteer op grootte en filter redundante bomen
   candidates.sort((a, b) => candidateSets[b.headId].size - candidateSets[a.headId].size);
   const selectedHeads = [];
   candidates.forEach(s => {
@@ -3648,7 +3639,6 @@ function computeAllFamiliesLayout() {
     const partners = getPartnersOf(s.headId);
     const absorbedByLargerTree = selectedHeads.some(headId => {
       const largerSet = candidateSets[headId];
-      // Alleen filteren als de grotere boom meer dan 2x zo groot is
       if (largerSet.size <= mySize * 2) return false;
       if (largerSet.has(s.headId)) return true;
       if (partners.some(pid => largerSet.has(pid))) return true;
@@ -3658,276 +3648,95 @@ function computeAllFamiliesLayout() {
   });
 
   let stambomen = candidates.filter(s => selectedHeads.includes(s.headId));
-
   if (!stambomen.length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
 
-  const ISLAND_H_GAP  = 120; // horizontale ruimte tussen eilanden in dezelfde rij
-  const ISLAND_V_GAP  = 180; // verticale ruimte tussen rijen
-  const LABEL_H       = 56;  // hoogte van het eiland-label boven de kaarten
-
-  // ── Stap 1: bereken individuele boom-layouts ─────────────────
-  // Gebruik exclusieve personen-sets: stop het lopen door kinderen
-  // waarvan de co-ouder een ander geselecteerd boomhoofd is.
-  // Dit voorkomt dat Sayedahmed's boom Hagig's hele familie absorbeert.
-  const selectedHeadSet = new Set(stambomen.map(s => s.headId));
-
-  function getExclusivePersons(headId) {
-    const result = new Set();
-    function walk(id) {
-      if (result.has(id)) return;
-      result.add(id);
-      getPartnersOf(id).forEach(pid => result.add(pid));
-      getChildrenOf(id).forEach(cid => {
-        // Stop als de co-ouder van dit kind een ander geselecteerd boomhoofd is
-        const coParentIsOtherHead = getParentsOf(cid).some(pid =>
-          pid !== id && selectedHeadSet.has(pid) && pid !== headId
-        );
-        if (coParentIsOtherHead) {
-          // Kind hoort bij de andere boom — voeg toe als referentie maar loop niet dieper
-          result.add(cid);
-          return;
-        }
-        // Voeg co-ouders toe (partners van het kind)
-        getPartnersOf(cid).forEach(pid => {
-          if (!result.has(pid) &&
-              getParentsOf(pid).length === 0 &&
-              !getPartnersOf(pid).some(pp => getParentsOf(pp).length > 0)) {
-            result.add(pid);
-          }
-        });
-        walk(cid);
-      });
-      // Social children
-      getSocialChildrenOf(id).forEach(cid => walk(cid));
-    }
-    walk(headId);
-    return result;
-  }
-
-  const treeLayouts = {}; // headId → { pos, w, h, minX, minY }
+  // ── UNIFIED LAYOUT: alle personen in één computeLayout() call ──
+  // Dit garandeert dat kinderen ALTIJD onder hun ouders staan,
+  // ongeacht of ze tot verschillende stambomen behoren.
+  const allPersonIds = new Set();
   stambomen.forEach(s => {
-    const ids = getExclusivePersons(s.headId);
-    const layoutResult = computeLayout(ids);
-    const tp = layoutResult.pos;
-    if (!Object.keys(tp).length) return;
-    const xs = Object.values(tp).map(p => p.x);
-    const ys = Object.values(tp).map(p => p.y);
-    treeLayouts[s.headId] = {
-      pos: tp,
-      crossFamilyGhosts: layoutResult.crossFamilyGhosts || {},
-      w: Math.max(...xs) - Math.min(...xs) + NODE_W,
-      h: Math.max(...ys) - Math.min(...ys) + NODE_H,
-      minX: Math.min(...xs),
-      minY: Math.min(...ys),
-      personIds: ids
-    };
+    candidateSets[s.headId].forEach(id => allPersonIds.add(id));
   });
 
-  // ── Stap 2: bouw meta-graaf (welke boom is ouder van welke) ──
-  const treeParentOf = {}; // childHeadId → Set(parentHeadIds)
-  const treeChildOf  = {}; // parentHeadId → Set(childHeadIds)
-  stambomen.forEach(s => {
-    treeParentOf[s.headId] = new Set();
-    treeChildOf[s.headId]  = new Set();
-  });
-
-  // Sleutelbegrip: kijk alleen of het KIND de HEAD is van een andere boom.
-  // getStamboomPersons loopt al recursief door kinderen heen, waardoor een kind
-  // in BEIDE bomen zit. Door alleen op tree-heads te checken vermijden we die ambiguïteit.
-  const headSet = new Set(stambomen.map(s => s.headId));
-
-  state.relationships.forEach(r => {
-    if (r.type !== 'parent-child') return;
-    // Het kind moet HEAD zijn van een eigen boom — anders is dit een interne relatie
-    if (!headSet.has(r.childId)) return;
-    const cTree = r.childId; // de HEAD is de tree-id
-
-    // Zoek in welke boom de OUDER zit (niet de boom van het kind zelf)
-    let pTree = null;
-    stambomen.forEach(s => {
-      if (s.headId === cTree) return; // sla de eigen boom over
-      if (treeLayouts[s.headId]?.personIds.has(r.parentId)) pTree = s.headId;
+  // Voeg partners toe die nog niet in de set zitten
+  const extraPartners = new Set();
+  allPersonIds.forEach(id => {
+    getPartnersOf(id).forEach(pid => {
+      if (!allPersonIds.has(pid)) extraPartners.add(pid);
     });
-    if (!pTree) return;
-
-    treeParentOf[cTree].add(pTree);
-    treeChildOf[pTree].add(cTree);
   });
+  extraPartners.forEach(id => allPersonIds.add(id));
 
-  // ── Stap 3: BFS → meta-niveau per boom ───────────────────────
-  const metaLevel = {};
-  const metaRoots = stambomen.filter(s => treeParentOf[s.headId].size === 0).map(s => s.headId);
-  metaRoots.forEach(id => { metaLevel[id] = 0; });
-  const mq = [...metaRoots];
-  for (let i = 0; i < mq.length; i++) {
-    const id = mq[i];
-    treeChildOf[id].forEach(cid => {
-      const lv = (metaLevel[id] || 0) + 1;
-      if (metaLevel[cid] === undefined || metaLevel[cid] < lv) {
-        metaLevel[cid] = lv;
-        mq.push(cid);
+  // Eén unified layout voor alle personen
+  const layoutResult = computeLayout(allPersonIds);
+  const pos = layoutResult.pos || {};
+  const crossFamilyGhosts = layoutResult.crossFamilyGhosts || {};
+
+  if (!Object.keys(pos).length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
+
+  // ── Bereken treeRanges vanuit de unified posities ──
+  // Wijs elke persoon toe aan hun primaire stamboom
+  const LABEL_H = 56;
+  const personToTree = {};
+
+  // Sorteer stambomen van groot naar klein zodat de grootste boom
+  // prioriteit krijgt bij het claimen van gedeelde personen
+  const sortedStambomen = [...stambomen].sort((a, b) =>
+    candidateSets[b.headId].size - candidateSets[a.headId].size
+  );
+
+  sortedStambomen.forEach(s => {
+    const treePersons = candidateSets[s.headId];
+    treePersons.forEach(pid => {
+      if (!personToTree[pid] && pos[pid]) {
+        personToTree[pid] = s.headId;
       }
     });
-  }
-  stambomen.forEach(s => { if (metaLevel[s.headId] === undefined) metaLevel[s.headId] = 0; });
-
-  // ── Stap 4: groepeer per rij (meta-niveau) ───────────────────
-  const byRow = {};
-  stambomen.forEach(s => {
-    const lv = metaLevel[s.headId];
-    if (!byRow[lv]) byRow[lv] = [];
-    byRow[lv].push(s.headId);
-  });
-  const rows = Object.keys(byRow).map(Number).sort((a, b) => a - b);
-
-  // ── Stap 5: bereken breedte per rij & hoogte per rij ─────────
-  const rowH = {}; // max boomhoogte in die rij
-  rows.forEach(lv => {
-    rowH[lv] = Math.max(...byRow[lv].map(id => (treeLayouts[id]?.h || 0)));
   });
 
-  // ── Stap 6: ken X-positie toe per boom (links→rechts per rij) ─
-  const treeX = {}; // headId → canvas-x van linker rand
-  const treeY = {}; // headId → canvas-y van bovenkant kaarten
-
-  // Eerste pass: naïef links→rechts per rij
-  rows.forEach(lv => {
-    let curX = PADDING;
-    byRow[lv].forEach(id => {
-      treeX[id] = curX;
-      curX += (treeLayouts[id]?.w || 200) + ISLAND_H_GAP;
-    });
-  });
-
-  // Tweede pass (bottom-up): centreer ouder-boom boven zijn kinderen
-  [...rows].reverse().forEach(lv => {
-    byRow[lv].forEach(id => {
-      const kids = [...treeChildOf[id]].filter(c => treeX[c] !== undefined);
-      if (!kids.length) return;
-      const kidCenters = kids.map(c => treeX[c] + (treeLayouts[c]?.w || 0) / 2);
-      const center = (Math.min(...kidCenters) + Math.max(...kidCenters)) / 2;
-      treeX[id] = Math.max(PADDING, center - (treeLayouts[id]?.w || 0) / 2);
-    });
-    // Fix overlap in deze rij
-    const sorted = [...byRow[lv]].sort((a, b) => treeX[a] - treeX[b]);
-    for (let i = 1; i < sorted.length; i++) {
-      const minX = treeX[sorted[i - 1]] + (treeLayouts[sorted[i - 1]]?.w || 0) + ISLAND_H_GAP;
-      if (treeX[sorted[i]] < minX) treeX[sorted[i]] = minX;
-    }
-  });
-
-  // Derde pass (top-down): centreer kind-boom onder zijn ouders
-  rows.forEach(lv => {
-    byRow[lv].forEach(id => {
-      const parents = [...treeParentOf[id]].filter(p => treeX[p] !== undefined);
-      if (!parents.length) return;
-      const pCenters = parents.map(p => treeX[p] + (treeLayouts[p]?.w || 0) / 2);
-      const center = (Math.min(...pCenters) + Math.max(...pCenters)) / 2;
-      treeX[id] = Math.max(PADDING, center - (treeLayouts[id]?.w || 0) / 2);
-    });
-    // Fix overlap opnieuw
-    const sorted = [...byRow[lv]].sort((a, b) => treeX[a] - treeX[b]);
-    for (let i = 1; i < sorted.length; i++) {
-      const minX = treeX[sorted[i - 1]] + (treeLayouts[sorted[i - 1]]?.w || 0) + ISLAND_H_GAP;
-      if (treeX[sorted[i]] < minX) treeX[sorted[i]] = minX;
-    }
-  });
-
-  // Y-posities: rij voor rij van boven naar onder
-  let curY = PADDING;
-  rows.forEach(lv => {
-    byRow[lv].forEach(id => { treeY[id] = curY; });
-    curY += (rowH[lv] || 0) + NODE_H + LABEL_H + ISLAND_V_GAP;
-  });
-
-  // ── Stap 7: combineer posities en bouw per-boom posities ────────────
-  // Elke persoon krijgt een primaire positie (combined) en eventueel
-  // duplicaat-posities als ze in meerdere bomen voorkomen.
-  // treePositions bevat per boom ALLE posities voor lijn-tekenen.
-  const combined      = {};
-  const duplicates    = {};
-  const treeRanges    = {};
-  const treePositions = {};
-  const primaryTree   = {};
-
-  // Pass 1: native members (heeft ouder in layout of IS het hoofd)
-  stambomen.forEach(s => {
-    const layout = treeLayouts[s.headId];
-    if (!layout) return;
-    const ox = treeX[s.headId] - layout.minX;
-    const oy = treeY[s.headId] - layout.minY + LABEL_H;
-
-    // Bouw per-boom positie-map (voor lijn-tekenen)
-    treePositions[s.headId] = {};
-    Object.entries(layout.pos).forEach(([pid, p]) => {
-      treePositions[s.headId][pid] = { x: p.x + ox, y: p.y + oy };
-    });
-
-    // Cross-family ghosts toevoegen aan treePositions en duplicates
-    const treeCrossGhosts = layout.crossFamilyGhosts || {};
-    Object.entries(treeCrossGhosts).forEach(([key, g]) => {
-      duplicates[key + ':' + s.headId] = {
-        x: g.x + ox, y: g.y + oy,
-        treeHeadId: s.headId,
-        personId: g.personId,
-        adjacentTo: g.adjacentTo
-      };
-    });
-
-    // Wijs primaire posities toe (native first)
-    Object.entries(layout.pos).forEach(([pid, p]) => {
-      const isNative = pid === s.headId ||
-        getParentsOf(pid).some(parentId => layout.personIds.has(parentId));
-      if (isNative && !primaryTree[pid]) {
-        primaryTree[pid] = s.headId;
-        combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
+  // Partners die nog geen boom hebben: wijs toe aan de boom van hun partner
+  Object.keys(pos).forEach(pid => {
+    if (personToTree[pid]) return;
+    const partners = getPartnersOf(pid);
+    for (const partnerId of partners) {
+      if (personToTree[partnerId]) {
+        personToTree[pid] = personToTree[partnerId];
+        break;
       }
-    });
+    }
+  });
 
+  // Bereken bounding boxes per stamboom
+  const treeRanges = {};
+  stambomen.forEach(s => {
+    const treePersonIds = Object.keys(personToTree).filter(pid =>
+      personToTree[pid] === s.headId && pos[pid]
+    );
+    if (!treePersonIds.length) return;
+
+    const xs = treePersonIds.map(pid => pos[pid].x);
+    const ys = treePersonIds.map(pid => pos[pid].y);
     const head = getPerson(s.headId);
     const familyName = head?.family || head?.name?.split(' ').slice(-1)[0] || s.label;
+
     treeRanges[s.headId] = {
-      minX: treeX[s.headId] - PADDING / 3,
-      maxX: treeX[s.headId] + layout.w + PADDING / 3,
-      minY: treeY[s.headId],
-      maxY: treeY[s.headId] + layout.h + LABEL_H,
+      minX: Math.min(...xs) - PADDING / 3,
+      maxX: Math.max(...xs) + NODE_W + PADDING / 3,
+      minY: Math.min(...ys) - LABEL_H,
+      maxY: Math.max(...ys) + NODE_H,
       label: familyName,
-      count: layout.personIds.size
+      count: treePersonIds.length
     };
   });
 
-  // Pass 2: niet-native personen (in-laws, partners zonder ouders)
-  stambomen.forEach(s => {
-    const layout = treeLayouts[s.headId];
-    if (!layout) return;
-    const ox = treeX[s.headId] - layout.minX;
-    const oy = treeY[s.headId] - layout.minY + LABEL_H;
-
-    Object.entries(layout.pos).forEach(([pid, p]) => {
-      if (!primaryTree[pid]) {
-        primaryTree[pid] = s.headId;
-        combined[pid] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId };
-      } else if (primaryTree[pid] !== s.headId) {
-        const key = `${pid}:${s.headId}`;
-        duplicates[key] = { x: p.x + ox, y: p.y + oy, treeHeadId: s.headId, personId: pid };
-      }
-    });
+  // Cross-family ghosts → duplicates formaat
+  const duplicates = {};
+  Object.entries(crossFamilyGhosts).forEach(([key, g]) => {
+    duplicates[key] = g;
   });
 
-  // Filter ghost/duplicate entries die te dicht bij hun primaire positie staan
-  Object.keys(duplicates).forEach(key => {
-    const dup = duplicates[key];
-    const pid = dup.personId || key.split(':')[0];
-    const primary = combined[pid];
-    if (primary) {
-      const dist = Math.abs(dup.x - primary.x) + Math.abs(dup.y - primary.y);
-      if (dist < NODE_W + H_GAP) {
-        delete duplicates[key];
-      }
-    }
-  });
-
-  return { positions: combined, duplicates, treePositions, treeRanges };
+  // treePositions is leeg: unified layout tekent alle lijnen vanuit pos
+  return { positions: pos, duplicates, treePositions: {}, treeRanges };
 }
 
 // ============================================================
