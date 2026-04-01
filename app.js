@@ -4,7 +4,7 @@
 const NODE_W  = 180;
 const NODE_H  = 100;
 const H_GAP   = 50;
-const V_GAP   = 90;
+const V_GAP   = 140;
 const PADDING = 50;
 const USER_ID = 's11'; // Hakim Khan Sayedi
 
