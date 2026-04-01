@@ -178,6 +178,26 @@ function saveCollapsedState() {
   try { sessionStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsedGezinnen])); } catch(e) {}
 }
 
+// Verticale gezinnen: kinderen onder elkaar i.p.v. naast elkaar
+let verticalGezinnen = new Set();
+const VERTICAL_KEY = 'fb_vertical_gezinnen';
+try {
+  const saved = sessionStorage.getItem(VERTICAL_KEY);
+  if (saved) verticalGezinnen = new Set(JSON.parse(saved));
+} catch(e) {}
+function saveVerticalState() {
+  try { sessionStorage.setItem(VERTICAL_KEY, JSON.stringify([...verticalGezinnen])); } catch(e) {}
+}
+function toggleVerticalGezin(key) {
+  if (verticalGezinnen.has(key)) {
+    verticalGezinnen.delete(key);
+  } else {
+    verticalGezinnen.add(key);
+  }
+  saveVerticalState();
+  render();
+}
+
 // Read-only modus: ?view=1 in de URL schakelt beheer uit
 const READ_ONLY = new URLSearchParams(window.location.search).get('view') === '1';
 
@@ -4225,14 +4245,31 @@ function computeLayout(overrideIds) {
         });
       });
 
-      const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
-      let startX = parentCenter - totalW / 2;
-      if (startX < cursorX) startX = cursorX;
+      // Check of dit gezin verticaal moet worden weergegeven
+      const gezinKey = [...group.parentIds].sort().join(',');
+      const isVertical = verticalGezinnen.has(gezinKey);
 
-      expanded.forEach((id, i) => {
-        pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
-      });
-      cursorX = startX + totalW + H_GAP;
+      if (isVertical && expanded.length > 1) {
+        // Verticale plaatsing: kinderen onder elkaar
+        const totalW = NODE_W;
+        let startX = parentCenter - NODE_W / 2;
+        if (startX < cursorX) startX = cursorX;
+
+        expanded.forEach((id, i) => {
+          pos[id] = { x: startX, y: yPos + i * (NODE_H + V_GAP * 0.5) };
+        });
+        cursorX = startX + NODE_W + H_GAP;
+      } else {
+        // Standaard horizontale plaatsing
+        const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
+        let startX = parentCenter - totalW / 2;
+        if (startX < cursorX) startX = cursorX;
+
+        expanded.forEach((id, i) => {
+          pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
+        });
+        cursorX = startX + totalW + H_GAP;
+      }
 
       // --- Cross-family ghost-kinderen aanmaken ---
       // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
@@ -5478,6 +5515,23 @@ function renderCollapseToggles(pos) {
     });
 
     container.appendChild(btn);
+
+    // Verticaal-toggle knop (alleen tonen als niet ingeklapt en meer dan 1 kind)
+    if (!isCollapsed && gezin.childIds.size > 1) {
+      const isVert = verticalGezinnen.has(key);
+      const vBtn = document.createElement('div');
+      vBtn.className = 'gezin-toggle vertical-toggle' + (isVert ? ' active' : '');
+      vBtn.style.left = (midX + 24) + 'px';
+      vBtn.style.top  = (bottomY + 6) + 'px';
+      vBtn.innerHTML = isVert ? '═' : '║';
+      vBtn.title = isVert ? 'Horizontaal weergeven' : 'Verticaal stapelen';
+      vBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleVerticalGezin(key);
+      });
+      container.appendChild(vBtn);
+    }
   });
 }
 
