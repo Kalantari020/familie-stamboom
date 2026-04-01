@@ -6,7 +6,6 @@ const NODE_H  = 100;
 const H_GAP   = 50;
 const V_GAP   = 90;
 const PADDING = 50;
-const SUBTREE_GAP = 120; // extra ruimte tussen kinderen van verschillende ouders
 const USER_ID = 's11'; // Hakim Khan Sayedi
 
 // ============================================================
@@ -4233,8 +4232,7 @@ function computeLayout(overrideIds) {
       expanded.forEach((id, i) => {
         pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
       });
-      // Extra ruimte tussen kinderen van verschillende ouders
-      cursorX = startX + totalW + H_GAP + SUBTREE_GAP;
+      cursorX = startX + totalW + H_GAP;
 
       // --- Cross-family ghost-kinderen aanmaken ---
       // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
@@ -4629,93 +4627,6 @@ function computeLayout(overrideIds) {
     const shift = PADDING - minX;
     Object.values(pos).forEach(p => { p.x += shift; });
   }
-
-  // --- De-interleave: zorg dat kinderen van verschillende ouders niet door elkaar staan ---
-  // Na alle layout-passes kunnen groepen kinderen van verschillende ouders op dezelfde
-  // generatie-rij door elkaar heen staan. Dit maakt onleesbaar welke kinderen bij welke
-  // ouders horen. Fix: groepeer per ouder-set, bereken bounding box, en duw groepen
-  // uit elkaar als ze overlappen. Ruime witruimte (SUBTREE_GAP) ertussen.
-  gens.filter(g => g > 0).forEach(gen => {
-    const genIds = (byGen[gen] || []).filter(id => pos[id] && !id.startsWith(CROSS_GHOST_PREFIX));
-    if (!genIds.length) return;
-
-    // Groepeer per ouder-set
-    const groupMap = {};
-    genIds.forEach(id => {
-      const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
-      if (!ps.length) return; // in-laws skip
-      const key = ps.join(',');
-      if (!groupMap[key]) groupMap[key] = { parentIds: ps, members: [] };
-      // Voeg ook inline partners toe (in-laws zonder ouders) zodat ze mee verschuiven
-      groupMap[key].members.push(id);
-      (partnersOf[id] || []).forEach(pid => {
-        if (pos[pid] && genOf[pid] === gen && !(parentsOf[pid] || []).some(ppid => pos[ppid])) {
-          if (!groupMap[key].members.includes(pid)) groupMap[key].members.push(pid);
-        }
-      });
-      // Voeg ghost-slots toe
-      Object.entries(ghostMeta).forEach(([gid, meta]) => {
-        if (meta.adjacentTo === id && pos[gid] && genOf[gid] === gen) {
-          if (!groupMap[key].members.includes(gid)) groupMap[key].members.push(gid);
-        }
-      });
-    });
-
-    const groups = Object.values(groupMap);
-    if (groups.length < 2) return;
-
-    // Bereken bounding box per groep
-    groups.forEach(g => {
-      const xs = g.members.filter(id => pos[id]).map(id => pos[id].x);
-      g.minX = Math.min(...xs);
-      g.maxX = Math.max(...xs) + NODE_W;
-    });
-
-    // Sorteer op minX
-    groups.sort((a, b) => a.minX - b.minX);
-
-    // Duw overlappende groepen uit elkaar
-    for (let i = 1; i < groups.length; i++) {
-      const prev = groups[i - 1];
-      const curr = groups[i];
-      const requiredStart = prev.maxX + SUBTREE_GAP;
-      if (curr.minX < requiredStart) {
-        const shift = requiredStart - curr.minX;
-        // Verschuif alle leden van deze groep EN alle latere groepen
-        for (let j = i; j < groups.length; j++) {
-          groups[j].members.forEach(id => {
-            if (pos[id]) pos[id].x += shift;
-          });
-          groups[j].minX += shift;
-          groups[j].maxX += shift;
-        }
-        // Verschuif ook alle nakomelingen van deze groep's kinderen
-        const shiftDescendants = (pid, dx, visited) => {
-          if (!visited) visited = new Set();
-          (childrenOf[pid] || []).forEach(cid => {
-            if (pos[cid] && !visited.has(cid)) {
-              visited.add(cid);
-              pos[cid].x += dx;
-              shiftDescendants(cid, dx, visited);
-              // Verschuif ook in-law partners van nakomelingen
-              (partnersOf[cid] || []).forEach(ppid => {
-                if (pos[ppid] && !visited.has(ppid) && !(parentsOf[ppid] || []).some(pppid => pos[pppid])) {
-                  visited.add(ppid);
-                  pos[ppid].x += dx;
-                }
-              });
-            }
-          });
-        };
-        const visited = new Set();
-        for (let j = i; j < groups.length; j++) {
-          groups[j].members.forEach(id => {
-            if (!id.startsWith(CROSS_GHOST_PREFIX)) shiftDescendants(id, shift, visited);
-          });
-        }
-      }
-    }
-  });
 
   // KERNREGEL: geen overlappende kaarten
   resolveOverlaps(pos);
