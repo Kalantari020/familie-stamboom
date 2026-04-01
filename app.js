@@ -7056,6 +7056,249 @@ function escHtml(str) {
 }
 
 // ============================================================
+// PDF DOWNLOAD
+// ============================================================
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-pdf');
+  btn.disabled = true;
+  btn.textContent = '⏳ Bezig...';
+  showToast('PDF wordt gemaakt, even geduld...', 'info', 8000);
+
+  try {
+    await downloadPDF();
+    showToast('✅ PDF gedownload!', 'success');
+  } catch (err) {
+    console.error('PDF error:', err);
+    showToast('❌ PDF maken mislukt: ' + err.message, '', 6000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📄 PDF';
+  }
+});
+
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const canvas = document.getElementById('canvas');
+  const treeW = parseFloat(canvas.style.width) || 800;
+  const treeH = parseFloat(canvas.style.height) || 600;
+
+  // Papierformaten (landscape, in mm)
+  const PAPERS = [
+    { name: 'A4', w: 297, h: 210 },
+    { name: 'A3', w: 420, h: 297 },
+    { name: 'A2', w: 594, h: 420 },
+    { name: 'A1', w: 841, h: 594 },
+    { name: 'A0', w: 1189, h: 841 },
+  ];
+
+  const MARGIN_MM = 10;
+  const MM_TO_PX = 96 / 25.4;
+  const MIN_SCALE = 0.30;
+
+  // Kies kleinste papierformaat waar tekst leesbaar blijft
+  let selectedPaper = null;
+  let bestScale = 0;
+  for (const paper of PAPERS) {
+    const printW = (paper.w - 2 * MARGIN_MM) * MM_TO_PX;
+    const printH = (paper.h - 2 * MARGIN_MM) * MM_TO_PX;
+    const scale = Math.min(printW / treeW, printH / treeH);
+    if (scale >= MIN_SCALE) {
+      selectedPaper = paper;
+      bestScale = scale;
+      break;
+    }
+  }
+
+  // Fallback: multi-page als zelfs A0 te klein is
+  if (!selectedPaper) {
+    return downloadPDFMultiPage(treeW, treeH);
+  }
+
+  // Maak offscreen clone voor capture
+  const clone = prepareClone(canvas, bestScale);
+  document.body.appendChild(clone);
+
+  try {
+    // Capture cards (html2canvas)
+    const renderScale = Math.min(2, 16000 / Math.max(treeW, treeH));
+    const cardsCanvas = await html2canvas(clone, {
+      scale: renderScale,
+      backgroundColor: '#f1f5f9',
+      useCORS: true,
+      logging: false,
+      width: treeW,
+      height: treeH,
+    });
+
+    // Teken SVG-lijnen eroverheen
+    await compositeSVGOnCanvas(cardsCanvas, clone, treeW, treeH, renderScale);
+
+    // Maak PDF
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: [selectedPaper.w, selectedPaper.h],
+    });
+
+    const imgData = cardsCanvas.toDataURL('image/jpeg', 0.92);
+    const imgWmm = (treeW * bestScale) / MM_TO_PX;
+    const imgHmm = (treeH * bestScale) / MM_TO_PX;
+    const offsetX = (selectedPaper.w - imgWmm) / 2;
+    const offsetY = (selectedPaper.h - imgHmm) / 2;
+
+    pdf.addImage(imgData, 'JPEG', offsetX, offsetY, imgWmm, imgHmm);
+
+    // Footer
+    pdf.setFontSize(8);
+    pdf.setTextColor(100);
+    const title = document.querySelector('.tree-item.active .tree-label');
+    const titleText = title ? title.textContent : 'Familie Stamboom';
+    pdf.text(titleText, MARGIN_MM, selectedPaper.h - 5);
+    pdf.text(new Date().toLocaleDateString('nl-NL'), selectedPaper.w - MARGIN_MM, selectedPaper.h - 5, { align: 'right' });
+    pdf.text(selectedPaper.name + ' landscape', selectedPaper.w / 2, selectedPaper.h - 5, { align: 'center' });
+
+    pdf.save(`stamboom_${new Date().toISOString().slice(0, 10)}.pdf`);
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+async function downloadPDFMultiPage(treeW, treeH) {
+  const { jsPDF } = window.jspdf;
+  const PAPER_W = 420, PAPER_H = 297; // A3 landscape
+  const MARGIN = 10;
+  const MM_TO_PX = 96 / 25.4;
+  const tileScale = 0.45;
+
+  const printW = (PAPER_W - 2 * MARGIN) * MM_TO_PX;
+  const printH = (PAPER_H - 2 * MARGIN) * MM_TO_PX;
+  const tileTreeW = printW / tileScale;
+  const tileTreeH = printH / tileScale;
+
+  const cols = Math.ceil(treeW / tileTreeW);
+  const rows = Math.ceil(treeH / tileTreeH);
+
+  const canvas = document.getElementById('canvas');
+  const clone = prepareClone(canvas, tileScale);
+  document.body.appendChild(clone);
+
+  try {
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [PAPER_W, PAPER_H] });
+    let firstPage = true;
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        if (!firstPage) pdf.addPage();
+        firstPage = false;
+
+        const sx = col * tileTreeW;
+        const sy = row * tileTreeH;
+        const tw = Math.min(tileTreeW, treeW - sx);
+        const th = Math.min(tileTreeH, treeH - sy);
+
+        const tileCanvas = await html2canvas(clone, {
+          scale: 2,
+          backgroundColor: '#f1f5f9',
+          x: sx, y: sy,
+          width: tw, height: th,
+          useCORS: true, logging: false,
+        });
+
+        await compositeSVGOnCanvas(tileCanvas, clone, tw, th, 2, sx, sy);
+
+        const imgData = tileCanvas.toDataURL('image/jpeg', 0.92);
+        const imgWmm = PAPER_W - 2 * MARGIN;
+        const imgHmm = (th / tw) * imgWmm;
+
+        pdf.addImage(imgData, 'JPEG', MARGIN, MARGIN, imgWmm, Math.min(imgHmm, PAPER_H - 2 * MARGIN));
+
+        // Paginanummer en continuatie-markers
+        pdf.setFontSize(7);
+        pdf.setTextColor(150);
+        pdf.text(`Pagina ${row * cols + col + 1}/${rows * cols}`, MARGIN, PAPER_H - 4);
+        if (col < cols - 1) pdf.text('\u2192', PAPER_W - MARGIN - 3, PAPER_H / 2);
+        if (row < rows - 1) pdf.text('\u2193', PAPER_W / 2, PAPER_H - MARGIN + 3);
+      }
+    }
+
+    pdf.save(`stamboom_${new Date().toISOString().slice(0, 10)}.pdf`);
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+function prepareClone(canvas, scale) {
+  const clone = canvas.cloneNode(true);
+  clone.style.transform = 'none';
+  clone.style.position = 'absolute';
+  clone.style.left = '-99999px';
+  clone.style.top = '0';
+  clone.style.background = '#f1f5f9';
+  clone.style.zIndex = '-1';
+
+  // Verwijder interactieve elementen
+  clone.querySelectorAll('.card-actions, .gezin-toggle, .vertical-toggle').forEach(el => el.remove());
+
+  // Bij kleine schaal: vereenvoudig kaarten
+  if (scale < 0.4) {
+    clone.querySelectorAll('.card-years').forEach(el => el.remove());
+  }
+
+  // Versterk lijnen bij kleine schaal
+  if (scale < 0.5) {
+    const boost = Math.min(2.5, 1 / scale);
+    clone.querySelectorAll('.child-line, .social-line').forEach(el => {
+      const w = parseFloat(el.getAttribute('stroke-width') || 1.5);
+      el.setAttribute('stroke-width', w * boost);
+    });
+    clone.querySelectorAll('.partner-line').forEach(el => {
+      const w = parseFloat(el.getAttribute('stroke-width') || 2);
+      el.setAttribute('stroke-width', w * boost);
+    });
+  }
+
+  return clone;
+}
+
+async function compositeSVGOnCanvas(targetCanvas, clone, w, h, renderScale, offsetX, offsetY) {
+  const svgEl = clone.querySelector('#svg-lines');
+  if (!svgEl) return;
+
+  // Kloon SVG en stel viewBox in
+  const svgClone = svgEl.cloneNode(true);
+  svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const fullW = parseFloat(clone.style.width) || w;
+  const fullH = parseFloat(clone.style.height) || h;
+  svgClone.setAttribute('width', fullW);
+  svgClone.setAttribute('height', fullH);
+
+  const svgData = new XMLSerializer().serializeToString(svgClone);
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const svgUrl = URL.createObjectURL(svgBlob);
+
+  const img = new Image();
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+    img.src = svgUrl;
+  });
+
+  const ctx = targetCanvas.getContext('2d');
+  const ox = (offsetX || 0) * renderScale;
+  const oy = (offsetY || 0) * renderScale;
+  if (ox || oy) {
+    ctx.save();
+    ctx.translate(-ox, -oy);
+    ctx.drawImage(img, 0, 0, fullW * renderScale, fullH * renderScale);
+    ctx.restore();
+  } else {
+    ctx.drawImage(img, 0, 0, targetCanvas.width, targetCanvas.height);
+  }
+
+  URL.revokeObjectURL(svgUrl);
+}
+
+// ============================================================
 // INIT
 // ============================================================
 (function init() {
