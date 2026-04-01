@@ -561,37 +561,6 @@ function computeLayout(overrideIds) {
     socialChildIds.add(r.childId);
   });
 
-  // --- Detecteer en breek circulaire ouder-kind relaties ---
-  // Als A ouder is van B EN B ouder is van A, verwijder de "terug-edge".
-  // De persoon die een partner heeft die root is (geen ouders) blijft de ouder.
-  // Voorbeeld: Hajiro ↔ Huzergol: Hajiro is partner van Mahmadgul (root),
-  // dus Hajiro is de ware ouder → verwijder Huzergol→Hajiro edge.
-  {
-    const circularHandled = new Set();
-    persons.forEach(p => {
-      (childrenOf[p.id] || []).forEach(cid => {
-        if ((childrenOf[cid] || []).includes(p.id) && !circularHandled.has(cid + ':' + p.id)) {
-          circularHandled.add(p.id + ':' + cid);
-          // Bepaal wie de "ware ouder" is:
-          // Tel niet-circulaire ouders voor elk
-          const pNonCircParents = (parentsOf[p.id] || []).filter(pid => pid !== cid).length;
-          const cNonCircParents = (parentsOf[cid] || []).filter(pid => pid !== p.id).length;
-          // Degene met MEER niet-circulaire ouders is het kind
-          // (bijv. Huzergol heeft Mahmadgul als ouder → hij is het kind)
-          if (cNonCircParents > pNonCircParents) {
-            // cid is het kind → verwijder cid→p edge (cid als ouder van p)
-            childrenOf[cid] = childrenOf[cid].filter(id => id !== p.id);
-            parentsOf[p.id] = parentsOf[p.id].filter(id => id !== cid);
-          } else {
-            // p is het kind → verwijder p→cid edge (p als ouder van cid)
-            childrenOf[p.id] = childrenOf[p.id].filter(id => id !== cid);
-            parentsOf[cid] = parentsOf[cid].filter(id => id !== p.id);
-          }
-        }
-      });
-    });
-  }
-
   // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
   // Alleen voor personen zonder eigen ouders in deze layout (vrij-zwevende co-ouders)
   // BELANGRIJK: social-parent relaties worden UITGESLOTEN — die mogen geen
@@ -691,10 +660,10 @@ function computeLayout(overrideIds) {
   }
 
   // Post-cascade partner re-alignment: cascade kan partners uit sync trekken.
-  // Bijv. Bibi Hura (gen 0→1) is partner van Huzergol (gen 1→3 na cascade).
+  // Bijv. Bibi Hura (gen 0→1) is partner van Wazir Gol (gen 1→3 na cascade).
   // Verplaats in-laws (geen ouders in deze layout) naar de generatie van hun
   // partner, TENZIJ de partner een afstammeling is van de in-law (circulaire
-  // relatie, bijv. Mahmadgul → Huzergol → Hajiro → partner Mahmadgul).
+  // relatie, bijv. Mahmadgul → Wazir Gol → Hajiro → partner Mahmadgul).
   {
     // Helper: is descendantId een afstammeling van ancestorId?
     function isDescOf(ancestorId, descendantId) {
@@ -1223,48 +1192,6 @@ function computeLayout(overrideIds) {
       delete pos[id];
     }
   });
-
-  // --- Cross-family child ghosts: dupliceer kinderen bij elke ouder-ghost ---
-  // Als persoon A en B een cross-family koppel zijn, bestaan er ghosts:
-  //   ghost-B naast A (in A's oudergroep)
-  //   ghost-A naast B (in B's oudergroep)
-  // Hun kinderen staan bij één ouder. Maak ghost-kopieën bij de ANDERE ouder.
-  // We verwerken alleen ghost-entries waar adjacentTo de ouder is die DICHTBIJ
-  // de echte kinderen staat, zodat we ghosts maken bij de VERRE ouder.
-  const ghostEntries = Object.entries(crossFamilyGhosts);
-  const childGhostsToAdd = {};
-  ghostEntries.forEach(([, ghost]) => {
-    const { personId, adjacentTo } = ghost;
-    // personId = de ghost-partner, adjacentTo = de echte partner op die plek
-    // Vind kinderen van dit koppel
-    const kids = (childrenOf[adjacentTo] || []).filter(cid =>
-      pos[cid] && (parentsOf[cid] || []).includes(personId)
-    );
-    if (!kids.length) return;
-
-    const realPartnerPos = pos[adjacentTo];
-    if (!realPartnerPos) return;
-
-    // Ghost-kinderen gecentreerd onder ghost-ouder-paar (ghost + adjacentTo)
-    // Ghost staat naast adjacentTo → center = (ghost.x + adjacentTo.x + NODE_W) / 2
-    const ghostPairCenterX = (ghost.x + realPartnerPos.x + NODE_W) / 2;
-
-    const totalChildW = kids.length * NODE_W + (kids.length - 1) * H_GAP;
-    let startX = ghostPairCenterX - totalChildW / 2;
-
-    kids.forEach((cid, i) => {
-      const ghostChildKey = cid + ':cg:' + personId;
-      if (!childGhostsToAdd[ghostChildKey]) {
-        childGhostsToAdd[ghostChildKey] = {
-          x: startX + i * (NODE_W + H_GAP),
-          y: pos[cid].y, // zelfde generatie-Y
-          personId: cid,
-          adjacentTo: personId
-        };
-      }
-    });
-  });
-  Object.assign(crossFamilyGhosts, childGhostsToAdd);
 
   return { pos, crossFamilyGhosts };
 }
@@ -1806,7 +1733,7 @@ function computeAllFamiliesLayout() {
   // en tonen we die niet apart in de alle-families view.
   // Uitzondering: als de eigen boom minstens de helft zo groot is als de
   // absorberende boom, is het een gelijkwaardige patriarch → apart tonen.
-  // Stap A: basisfilter — hoofd mag geen ouders hebben.
+  // Stap A: basisfilter — hoofd mag geen ouders hebben
   let candidates = allStambomen.filter(s => getParentsOf(s.headId).length === 0);
 
   // Stap B: bereken personen-sets per boom
