@@ -3774,75 +3774,61 @@ function computeCompactLayout(persons, childrenOf, parentsOf, partnersOf, genOf,
       return { width: rootUnitW, height: NODE_H };
     }
 
-    // GENERATIE 1 (directe kinderen van stamhoofd, depth=0):
-    // Plaats op een horizontale rij, dan hun subtrees eronder
-    if (depth === 0) {
-      let childX = startX;
-      const childY = startY + NODE_H + V_GAP;
-      const childPositions = [];
+    // Plaats kinderen op een horizontale rij direct onder de ouder(s)
+    const childY = startY + NODE_H + V_GAP;
+    let childX = startX;
+    const kidUnits = []; // bewaar voor subtree-plaatsing
 
-      // Eerst: meet alle kind-subtrees om breedte te weten
-      sortedKids.forEach(cid => {
-        const sub = measureSubtree(cid);
-        childPositions.push({ cid, subWidth: Math.max(sub.width, NODE_W + H_GAP) });
-      });
+    sortedKids.forEach(cid => {
+      if (placed.has(cid)) return;
+      const kidUnit = placeUnit(cid, childX, childY);
+      const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * H_GAP;
+      kidUnits.push({ cid, unit: kidUnit, startX: childX, unitW: kidUnitW });
+      childX += kidUnitW + H_GAP;
+    });
 
-      // Plaats kinderen + hun partners op de horizontale rij
-      let maxSubBottom = childY + NODE_H;
-      childPositions.forEach(cp => {
-        const kidUnit = placeUnit(cp.cid, childX, childY);
-        const kidUnitW = kidUnit.length * NODE_W + (kidUnit.length - 1) * H_GAP;
+    const childrenRowW = childX - startX - H_GAP;
 
-        // Plaats subtree van dit kind eronder (recursief, depth+1)
-        const subKids = new Set();
-        kidUnit.forEach(uid => {
-          (childrenOf[uid] || []).forEach(gcid => {
-            if (activeIds.has(gcid) && !placed.has(gcid)) subKids.add(gcid);
-          });
-        });
-        const sortedSubKids = sortChildren([...subKids]);
-
-        if (sortedSubKids.length > 0) {
-          let subY = childY + NODE_H + V_GAP;
-          sortedSubKids.forEach(gcid => {
-            if (placed.has(gcid)) return;
-            const result = placeSubtree(gcid, childX, subY, depth + 2);
-            subY += result.height + V_GAP * 0.5;
-          });
-          maxSubBottom = Math.max(maxSubBottom, subY);
-        }
-
-        // Volgende kind start rechts, met minstens genoeg ruimte voor subtree
-        childX += Math.max(kidUnitW, cp.subWidth) + H_GAP;
-      });
-
-      const totalW = childX - startX - H_GAP;
-      const totalH = maxSubBottom - startY;
-
-      // Centreer root boven kinderen
-      const childCenter = startX + totalW / 2;
+    // Centreer ouders boven de kinderenrij
+    if (childrenRowW > rootUnitW) {
+      const childCenter = startX + childrenRowW / 2;
       const rootShift = childCenter - (startX + rootUnitW / 2);
       if (rootShift > 0) {
         rootUnit.forEach(uid => { pos[uid].x += rootShift; });
       }
-
-      return { width: Math.max(rootUnitW, totalW), height: totalH };
     }
 
-    // DIEPERE GENERATIES (depth >= 1): verticaal gestapelde gezinsrijen
-    // Elk kind wordt als een rij geplaatst: [kind + partner] op Y, dan subtree eronder
-    let curY = startY + NODE_H + V_GAP;
-    let maxWidth = rootUnitW;
-    const INDENT = H_GAP * 0.5; // lichte inspringing per diepteniveau
+    // Nu: subtrees van elk kind verticaal gestapeld ONDER de kinderenrij
+    // Alle subtrees starten op dezelfde Y (onder de kinderenrij)
+    let subY = childY + NODE_H + V_GAP;
+    let maxWidth = Math.max(rootUnitW, childrenRowW);
 
-    sortedKids.forEach(cid => {
-      if (placed.has(cid)) return;
-      const result = placeSubtree(cid, startX + INDENT, curY, depth + 1);
-      maxWidth = Math.max(maxWidth, result.width + INDENT);
-      curY += result.height + V_GAP * 0.5;
+    kidUnits.forEach(({ cid, unit }) => {
+      // Verzamel kleinkinderen van dit kind + partner
+      const subKids = new Set();
+      unit.forEach(uid => {
+        (childrenOf[uid] || []).forEach(gcid => {
+          if (activeIds.has(gcid) && !placed.has(gcid)) subKids.add(gcid);
+        });
+      });
+      const sortedSubKids = sortChildren([...subKids]);
+
+      if (sortedSubKids.length === 0) return;
+
+      // Plaats elke kleinkind-subtree verticaal gestapeld
+      sortedSubKids.forEach(gcid => {
+        if (placed.has(gcid)) return;
+        const result = placeSubtree(gcid, startX, subY, depth + 1);
+        maxWidth = Math.max(maxWidth, result.width);
+        subY += result.height + V_GAP * 0.5;
+      });
     });
 
-    return { width: maxWidth, height: curY - startY };
+    const totalH = (subY > childY + NODE_H + V_GAP)
+      ? subY - startY
+      : (childY + NODE_H) - startY;
+
+    return { width: maxWidth, height: totalH };
   }
 
   // --- Hoofdlogica: vind roots en plaats ze ---
