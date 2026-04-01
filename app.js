@@ -831,6 +831,10 @@ function computeLayout(overrideIds) {
   // krijgen een ghost-slot in de groep van hun partner.
   const CROSS_GHOST_PREFIX = '__cg__';
   const ghostMeta = {}; // ghostId → { personId, adjacentTo }
+  // Track welke ouder de "anchor" is voor cross-family kinderen
+  // crossFamilyChildAnchor[childId] = anchorParentId
+  // De anchor-ouder mag boven de originele kinderen centeren, de andere ouder niet
+  const crossFamilyChildAnchor = {};
 
   // --- Top-down: for each subsequent generation, place children under parents ---
   gens.filter(g => g > 0).forEach(gen => {
@@ -906,9 +910,48 @@ function computeLayout(overrideIds) {
     // Plaatsing: elk kind gecentreerd onder ouders, partner direct ernaast
     const placedInlaws = new Set();
     let cursorX = PADDING;
+    // Verzamel cross-family child ghost plaatsingen (worden na de sortedGroups loop verwerkt)
+    const crossFamilyChildGhosts = [];
     sortedGroups.forEach(group => {
+      // --- Cross-family koppel detectie ---
+      // Als beide ouders ver uit elkaar staan en een ghost naast de ander heeft,
+      // gebruik het dichtstbijzijnde paar (origineel + ghost) als parentCenter.
+      let parentCenter;
+      let crossFamilyGhostParentCenter = null; // center van het ANDERE paar voor ghost-kinderen
       const parentXs = group.parentIds.map(pid => pos[pid].x + NODE_W / 2);
-      const parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+      const parentDist = Math.abs(Math.max(...parentXs) - Math.min(...parentXs));
+
+      if (group.parentIds.length === 2 && parentDist > 3 * (NODE_W + H_GAP)) {
+        // Mogelijke cross-family: zoek ghost van ouder B naast ouder A
+        const [pA, pB] = group.parentIds;
+        const ghostBnearA = CROSS_GHOST_PREFIX + pB + '_' + pA;
+        const ghostAnearB = CROSS_GHOST_PREFIX + pA + '_' + pB;
+
+        if (pos[ghostBnearA]) {
+          // Paar A: origineel pA + ghost pB → dichtbij, gebruik als parentCenter
+          const pairACenterXs = [pos[pA].x + NODE_W / 2, pos[ghostBnearA].x + NODE_W / 2];
+          parentCenter = (Math.min(...pairACenterXs) + Math.max(...pairACenterXs)) / 2;
+          // Registreer pA als anchor: alleen pA mag boven originele kinderen centeren
+          group.children.forEach(cid => { crossFamilyChildAnchor[cid] = pA; });
+          // Paar B: origineel pB + ghost pA → voor ghost-kinderen
+          if (pos[ghostAnearB]) {
+            const pairBCenterXs = [pos[pB].x + NODE_W / 2, pos[ghostAnearB].x + NODE_W / 2];
+            crossFamilyGhostParentCenter = (Math.min(...pairBCenterXs) + Math.max(...pairBCenterXs)) / 2;
+          }
+        } else if (pos[ghostAnearB]) {
+          // Paar B: origineel pB + ghost pA → dichtbij, gebruik als parentCenter
+          const pairBCenterXs = [pos[pB].x + NODE_W / 2, pos[ghostAnearB].x + NODE_W / 2];
+          parentCenter = (Math.min(...pairBCenterXs) + Math.max(...pairBCenterXs)) / 2;
+          // Registreer pB als anchor
+          group.children.forEach(cid => { crossFamilyChildAnchor[cid] = pB; });
+          // Paar A voor ghost-kinderen (geen ghost beschikbaar, skip)
+        } else {
+          // Geen ghosts gevonden, val terug op standaard
+          parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+        }
+      } else {
+        parentCenter = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+      }
 
       // Bouw volgorde: elk kind gevolgd door aangetrouwde partner(s) en cross-family ghosts
       // Bij meerdere partners: partner1 — kind — partner2 (persoon tussen partners)
@@ -955,6 +998,39 @@ function computeLayout(overrideIds) {
       if (startX < cursorX) startX = cursorX;
 
       expanded.forEach((id, i) => {
+        pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
+      });
+      cursorX = startX + totalW + H_GAP;
+
+      // --- Cross-family ghost-kinderen aanmaken ---
+      // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
+      if (crossFamilyGhostParentCenter !== null) {
+        crossFamilyChildGhosts.push({
+          children: group.children,
+          center: crossFamilyGhostParentCenter,
+          gen: gen,
+          parentIds: group.parentIds
+        });
+      }
+    });
+
+    // Plaats cross-family ghost-kinderen (na alle originele kinderen geplaatst zijn)
+    crossFamilyChildGhosts.forEach(({ children, center, gen: childGen, parentIds }) => {
+      const ghostExpanded = [];
+      children.forEach(cid => {
+        const ghostChildId = CROSS_GHOST_PREFIX + cid + '_cf_' + parentIds.join('_');
+        ghostExpanded.push(ghostChildId);
+        if (!byGen[childGen]) byGen[childGen] = [];
+        if (!byGen[childGen].includes(ghostChildId)) byGen[childGen].push(ghostChildId);
+        genOf[ghostChildId] = childGen;
+        ghostMeta[ghostChildId] = { personId: cid, adjacentTo: parentIds[1] };
+      });
+
+      const totalW = ghostExpanded.length * NODE_W + (ghostExpanded.length - 1) * H_GAP;
+      let startX = center - totalW / 2;
+      if (startX < cursorX) startX = cursorX;
+
+      ghostExpanded.forEach((id, i) => {
         pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
       });
       cursorX = startX + totalW + H_GAP;
@@ -1068,12 +1144,27 @@ function computeLayout(overrideIds) {
     const processed = new Set();
     (byGen[gen] || []).forEach(id => {
       if (processed.has(id) || !pos[id]) return;
-      const myPartners = (partnersOf[id] || []).filter(pid => genOf[pid] === gen && pos[pid]);
+      const myPartners = (partnersOf[id] || []).filter(pid => {
+        if (genOf[pid] !== gen || !pos[pid]) return false;
+        // Skip cross-family partner originelen die ver weg staan:
+        // als er een ghost van deze partner naast ons staat, is de originele positie irrelevant
+        const dist = Math.abs(pos[pid].x - pos[id].x);
+        if (dist > 3 * (NODE_W + H_GAP)) {
+          const ghostId = CROSS_GHOST_PREFIX + pid + '_' + id;
+          if (pos[ghostId]) return false; // ghost staat al naast ons
+        }
+        return true;
+      });
       const unit = [id, ...myPartners];
       unit.forEach(pid => processed.add(pid));
 
       const allChildren = new Set();
-      unit.forEach(pid => (childrenOf[pid] || []).filter(cid => pos[cid]).forEach(cid => allChildren.add(cid)));
+      unit.forEach(pid => (childrenOf[pid] || []).filter(cid => pos[cid]).forEach(cid => {
+        // Skip kinderen die via cross-family aan een ANDERE anchor-ouder zijn toegewezen
+        // (die ouder centreert boven de originelen; deze ouder heeft ghost-kinderen)
+        if (crossFamilyChildAnchor[cid] && !unit.includes(crossFamilyChildAnchor[cid])) return;
+        allChildren.add(cid);
+      }));
       if (!allChildren.size) return;
 
       const childXs = [...allChildren].map(cid => pos[cid].x + NODE_W / 2);
@@ -1081,7 +1172,15 @@ function computeLayout(overrideIds) {
       const unitXs = unit.map(pid => pos[pid].x);
       const unitCenter = (Math.min(...unitXs) + Math.max(...unitXs) + NODE_W) / 2;
       const shift = childCenter - unitCenter;
-      if (Math.abs(shift) > 1) unit.forEach(pid => { pos[pid].x += shift; });
+      if (Math.abs(shift) > 1) {
+        unit.forEach(pid => {
+          pos[pid].x += shift;
+          // Verschuif ook aangrenzende ghosts (cross-family partner/kind duplicaten)
+          (ghostsAdjacentTo[pid] || []).forEach(gid => {
+            if (pos[gid]) pos[gid].x += shift;
+          });
+        });
+      }
     });
 
     // --- birthOrder handhaving: na centering, vóór fixOverlaps ---
