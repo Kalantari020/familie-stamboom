@@ -195,17 +195,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
-    },
-    {
-      "id": "s02",
-      "name": "Malika Durrani",
-      "gender": "f",
-      "birthdate": "01-07-1962",
-      "deathdate": "",
-      "family": "Durrani",
-      "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
     },
     {
       "id": "s03",
@@ -215,7 +207,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
     },
     {
       "id": "s04",
@@ -235,7 +229,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
     },
     {
       "id": "s06",
@@ -245,7 +241,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
     },
     {
       "id": "s07",
@@ -255,7 +253,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Rashid",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
     },
     {
       "id": "s08",
@@ -275,7 +275,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
     },
     {
       "id": "s10",
@@ -295,7 +297,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
     },
     {
       "id": "s12",
@@ -305,7 +309,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Sayedi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
     },
     {
       "id": "s13",
@@ -355,7 +361,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Rashid",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
     },
     {
       "id": "f03",
@@ -365,17 +373,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
-    },
-    {
-      "id": "f04",
-      "name": "Husna Amiri",
-      "gender": "f",
-      "birthdate": "24-11-2001",
-      "deathdate": "",
-      "family": "Amiri",
-      "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
     },
     {
       "id": "f05",
@@ -395,7 +395,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
     },
     {
       "id": "f07",
@@ -435,7 +437,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
     },
     {
       "id": "f11",
@@ -465,7 +469,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
     },
     {
       "id": "f14",
@@ -484,7 +490,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
     },
     {
       "id": "f16",
@@ -494,7 +502,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
     },
     {
       "id": "f17",
@@ -504,7 +514,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "Faizi",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
     },
     {
       "id": "pmncyghyo65ha",
@@ -543,7 +555,9 @@ const START_DATA = {
       "deathdate": "",
       "family": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 9
     },
     {
       "id": "r03",
@@ -564,26 +578,6 @@ const START_DATA = {
       "notes": ""
     },
     {
-      "id": "pmnd4qyb1ywgb",
-      "name": "Asiya Faizi",
-      "gender": "f",
-      "family": "Faizi",
-      "birthdate": "16-09-2025",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false
-    },
-    {
-      "id": "pmnd50hsephva",
-      "name": "Noman Rashid",
-      "gender": "m",
-      "family": "Rashid",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false
-    },
-    {
       "id": "pmnd6s4yespmb",
       "name": "Zahra Salehi",
       "gender": "f",
@@ -601,7 +595,8 @@ const START_DATA = {
       "birthdate": "01-07-1959",
       "deathdate": "",
       "deceased": false,
-      "notes": ""
+      "notes": "",
+      "photo": null
     },
     {
       "id": "pmnd7akkugpv5",
@@ -615,33 +610,39 @@ const START_DATA = {
     },
     {
       "id": "pmnd7bkdrm6yz",
-      "name": "Asif Ghorbandi",
+      "name": "Asif Khan Ghorbandi",
       "gender": "m",
       "family": "Ghorbandi",
-      "birthdate": "01-07-1982",
+      "birthdate": "01-07-1986",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
     },
     {
       "id": "pmnd7cfmvqiff",
-      "name": "Emran Ghorbandi",
+      "name": "Mussa Khan Emran Ghorbandi",
       "gender": "m",
       "family": "Ghorbandi",
-      "birthdate": "01-07-1980",
+      "birthdate": "01-07-1988",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
     },
     {
       "id": "pmnd7cuzr39r9",
-      "name": "Qader Ghorbandi",
+      "name": "Issa Khan Qader Ghorbandi",
       "gender": "m",
       "family": "Ghorbandi",
       "birthdate": "01-07-1990",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
     },
     {
       "id": "pmnd7ej1rf33c",
@@ -651,7 +652,9 @@ const START_DATA = {
       "birthdate": "01-07-1984",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
     },
     {
       "id": "pmnd7hzc067x0",
@@ -661,27 +664,33 @@ const START_DATA = {
       "birthdate": "18-06-1994",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
     },
     {
       "id": "pmnd7janquizq",
       "name": "Golalai Ghorbandi",
       "gender": "f",
       "family": "Ghorbandi",
-      "birthdate": "30-01-1992",
+      "birthdate": "01-07-1992",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
     },
     {
       "id": "pmnd7n0jbe5kc",
       "name": "Atifa Ghorbandi",
       "gender": "f",
       "family": "Ghorbandi",
-      "birthdate": "07-09-1995",
+      "birthdate": "07-09-1996",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
     },
     {
       "id": "pmnd7o54wo1ew",
@@ -691,17 +700,21 @@ const START_DATA = {
       "birthdate": "22-07-1999",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 8
     },
     {
       "id": "pmnd7oyi85tgd",
       "name": "Amena Ghorbandi",
       "gender": "f",
       "family": "Ghorbandi",
-      "birthdate": "27-12-2000",
+      "birthdate": "27-12-2001",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 9
     },
     {
       "id": "pmnd7qhxj4baj",
@@ -711,7 +724,9 @@ const START_DATA = {
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
     },
     {
       "id": "pmnd7shvzi3c4",
@@ -738,10 +753,12 @@ const START_DATA = {
       "name": "Malaika Rashid",
       "gender": "f",
       "family": "Rashid",
-      "birthdate": "06-05-2011",
+      "birthdate": "11-05-2011",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null
     },
     {
       "id": "pmnd7v4fly7vb",
@@ -811,7 +828,9 @@ const START_DATA = {
       "birthdate": "27-07-1979",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
     },
     {
       "id": "pmndmw6tmszgx",
@@ -871,7 +890,9 @@ const START_DATA = {
       "birthdate": "02-01-2002",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
     },
     {
       "id": "pmndn30vhfz8r",
@@ -901,6 +922,16 @@ const START_DATA = {
       "notes": ""
     },
     {
+      "id": "pmndn4sw3j1fb",
+      "name": "Husna Amiri",
+      "gender": "f",
+      "family": "Amiri",
+      "birthdate": "24-11-2001",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
       "id": "pmndn7m9expkq",
       "name": "Aisya Faizi",
       "gender": "f",
@@ -928,7 +959,9 @@ const START_DATA = {
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
     },
     {
       "id": "pmndnrdrc68lf",
@@ -937,7 +970,22 @@ const START_DATA = {
       "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
+    },
+    {
+      "id": "pmndnrn9438x5",
+      "name": "Noman Rashid",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
     },
     {
       "id": "pmndnryswhsem",
@@ -946,7 +994,10 @@ const START_DATA = {
       "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
     },
     {
       "id": "pmndns7ewdxvw",
@@ -955,7 +1006,10 @@ const START_DATA = {
       "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
     },
     {
       "id": "pmndnsji2txom",
@@ -964,7 +1018,10 @@ const START_DATA = {
       "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
     },
     {
       "id": "pmndnticv1qox",
@@ -976,14 +1033,472 @@ const START_DATA = {
       "notes": ""
     },
     {
-      "id": "pmndo2vxafahz",
-      "name": "Hagig Gull",
+      "id": "pmndwllk8hld1",
+      "name": "Azghar Khan Rashid",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
+    },
+    {
+      "id": "pmndwllk9fukl",
+      "name": "Davud Khan Durrani",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "01-10-1989",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
+    },
+    {
+      "id": "pmndwllk96xxz",
+      "name": "Nabila",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 8
+    },
+    {
+      "id": "pmndya3eilyn1",
+      "name": "Ahmad Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
+    },
+    {
+      "id": "pmndya3eiti9k",
+      "name": "Mahmoed",
       "gender": "m",
       "family": "",
       "birthdate": "",
       "deathdate": "",
+      "notes": "",
       "deceased": false,
-      "notes": ""
+      "photo": null,
+      "birthOrder": 2
+    },
+    {
+      "id": "pmndya3eixb8j",
+      "name": "Bibigul",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
+    },
+    {
+      "id": "pmndya3ei5vp4",
+      "name": "Ali Ahmad Salehi",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
+    },
+    {
+      "id": "pmndya3ei0k93",
+      "name": "Mahmad Salehi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
+    },
+    {
+      "id": "pmndya3eip3zu",
+      "name": "Sheerinagah",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 8
+    },
+    {
+      "id": "pmndyckredqon",
+      "name": "Fawziya",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": true,
+      "photo": null
+    },
+    {
+      "id": "pmndydlr61are",
+      "name": "Hekmatullah Salehi",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
+    },
+    {
+      "id": "pmndyeaduhd1o",
+      "name": "Shamila",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmndyf12hx96x",
+      "name": "Khalil Reduaon Salehi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmndyhcgqdpb9",
+      "name": "Zakira",
+      "gender": "f",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmndyjcrfva0k",
+      "name": "Ehsanullah",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
+    },
+    {
+      "id": "pmndyjcrg5spz",
+      "name": "Safiullah",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
+    },
+    {
+      "id": "pmndyjcrhx2b4",
+      "name": "Saifullah",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
+    },
+    {
+      "id": "pmndyjcripek7",
+      "name": "Muqadas",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
+    },
+    {
+      "id": "pmndyjcrjsvwo",
+      "name": "Marwa",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
+    },
+    {
+      "id": "pmndyjcrkl9zf",
+      "name": "Safya",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
+    },
+    {
+      "id": "pmndyjcrl3njh",
+      "name": "Humairah",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 8
+    },
+    {
+      "id": "pmndyrysy3eq7",
+      "name": "Sayedahmed",
+      "gender": "m",
+      "family": "Sayedi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmndyryt0viez",
+      "name": "Maluka",
+      "gender": "f",
+      "family": "Sayedi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmndyxhre0zi1",
+      "name": "Mahmadgul",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": true,
+      "photo": null
+    },
+    {
+      "id": "pmndyy6j6wndl",
+      "name": "Hajiro",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": true,
+      "photo": null
+    },
+    {
+      "id": "pmnepe8ob5cod",
+      "name": "Soraya",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepfhttgn51",
+      "name": "Amanda Jennah Hulsbergen",
+      "gender": "f",
+      "family": "Hulsbergen",
+      "birthdate": "05-02",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmnepimbckf8a",
+      "name": "Jamil Ghorbandi",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "03-02-2023",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepimbeuxuf",
+      "name": "Zidan Ghorbandi",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "27-11-2025",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepl5nzikm3",
+      "name": "Muchda Kakar",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "11-05",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepmjsmeuk6",
+      "name": "Sohail Durani",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "20-03-1994",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepnt0eu2k2",
+      "name": "Ezatullah Achmadzai",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "05-12-1991",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepp0idbklv",
+      "name": "Zunaira Dua Achmadzai",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "03-05-2025",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmneptum4xnzi",
+      "name": "Alia Miakhel",
+      "gender": "f",
+      "family": "Durrani",
+      "birthdate": "04-04-1992",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnepytxdqi9y",
+      "name": "Mustafa Durrani",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "18-06-2018",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmnepytxga1sz",
+      "name": "Mujtaba Durrani",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "21-12-2020",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmnepytxh5z3q",
+      "name": "Muskaan Durrani",
+      "gender": "f",
+      "family": "Durrani",
+      "birthdate": "17-08-2022",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmnepytxiuzsg",
+      "name": "Abud Musawwir Durrani",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "26-04-2024",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null
+    },
+    {
+      "id": "pmneq7p4nynu3",
+      "name": "Habib Gull Durrani",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmneq7p4ss5hl",
+      "name": "Sakhi Gull Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmneq7p4udtvl",
+      "name": "Malika Durrani",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "01-07-1962",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null
+    },
+    {
+      "id": "pmndo2vxafahz",
+      "name": "Hagig Gull Durrani",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "deceased": false,
+      "notes": "",
+      "photo": null,
+      "birthOrder": null
     },
     {
       "id": "pmndo3i84yw8g",
@@ -992,14 +1507,339 @@ const START_DATA = {
       "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
+    },
+    {
+      "id": "pmnfv2r03xoij",
+      "name": "Fatima Zahra Salehi",
+      "gender": "f",
+      "family": "Salehi",
+      "birthdate": "01-04-2026",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfvopdootvl",
+      "name": "Haya Rashid",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "24-05-2021",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfwiq4xex8n",
+      "name": "Shafiqa",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfwiq4xoz2k",
+      "name": "Laila",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfwl6r2lpes",
+      "name": "Nabi Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
+    },
+    {
+      "id": "pmnfwl6r2k67v",
+      "name": "Sediqa Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
+    },
+    {
+      "id": "pmnfwl6r2bl6p",
+      "name": "Zergai Said Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3
+    },
+    {
+      "id": "pmnfwl6r2i0v6",
+      "name": "Farid Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4
+    },
+    {
+      "id": "pmnfwl6r21xvr",
+      "name": "Rafi Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5
+    },
+    {
+      "id": "pmnfwl6r2gzuz",
+      "name": "Latifa Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6
+    },
+    {
+      "id": "pmnfwl6r2niud",
+      "name": "Waheed Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7
+    },
+    {
+      "id": "pmnfwpozxyoww",
+      "name": "Fereshta Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 8
+    },
+    {
+      "id": "pmnfwpozxor6n",
+      "name": "Saidwali Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 9
+    },
+    {
+      "id": "pmnfwpozx8uem",
+      "name": "Sardarwali Saidi",
+      "gender": "m",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 10
+    },
+    {
+      "id": "pmnfwpozxxrih",
+      "name": "Mariam Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 11
+    },
+    {
+      "id": "pmnfwpozxh323",
+      "name": "Amina Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 12
+    },
+    {
+      "id": "pmnfwpozxxvot",
+      "name": "Zainab Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 13
+    },
+    {
+      "id": "pmnfwpozx2yhq",
+      "name": "Fatima Saidi",
+      "gender": "f",
+      "family": "Saidi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 14
+    },
+    {
+      "id": "pmnfx2dl6dya9",
+      "name": "Mastora Faizi",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfx3knl6en8",
+      "name": "Mina Salehi",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1
+    },
+    {
+      "id": "pmnfx5u9dct4w",
+      "name": "Matiullah Salehi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2
+    },
+    {
+      "id": "pmnfx5u9dbm8a",
+      "name": "Nasratullah Salehi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfx8zrswvz9",
+      "name": "Davud Sediqi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxa0in4tc9",
+      "name": "Ibrahim Sediqi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxa0io0z5u",
+      "name": "Maryam Sediqi",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxa0iou6j0",
+      "name": "Sarah Sediqi",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxaot46h83",
+      "name": "Tahmina Salehi",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxbasnb3sh",
+      "name": "Abdurrahman Salehi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
+    },
+    {
+      "id": "pmnfxbasnbq7c",
+      "name": "Abdullah Saledhi",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false
     }
   ],
   "relationships": [
     {
       "type": "partner",
       "person1Id": "s01",
-      "person2Id": "s02"
+      "person2Id": "pmneq7p4udtvl"
     },
     {
       "type": "partner",
@@ -1028,7 +1868,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s03"
     },
     {
@@ -1038,7 +1878,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s05"
     },
     {
@@ -1048,7 +1888,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s06"
     },
     {
@@ -1058,7 +1898,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s09"
     },
     {
@@ -1068,7 +1908,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s11"
     },
     {
@@ -1078,7 +1918,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "s02",
+      "parentId": "pmneq7p4udtvl",
       "childId": "s12"
     },
     {
@@ -1119,7 +1959,7 @@ const START_DATA = {
     {
       "type": "partner",
       "person1Id": "f03",
-      "person2Id": "f04"
+      "person2Id": "pmndn4sw3j1fb"
     },
     {
       "type": "partner",
@@ -1213,7 +2053,7 @@ const START_DATA = {
     },
     {
       "type": "parent-child",
-      "parentId": "f04",
+      "parentId": "pmndn4sw3j1fb",
       "childId": "f05"
     },
     {
@@ -1294,17 +2134,17 @@ const START_DATA = {
     {
       "type": "parent-child",
       "parentId": "f03",
-      "childId": "pmnd4qyb1ywgb"
+      "childId": "pmndn7m9expkq"
     },
     {
       "type": "parent-child",
-      "parentId": "f04",
-      "childId": "pmnd4qyb1ywgb"
+      "parentId": "pmndn4sw3j1fb",
+      "childId": "pmndn7m9expkq"
     },
     {
       "type": "partner",
       "person1Id": "f16",
-      "person2Id": "pmnd50hsephva"
+      "person2Id": "pmndnrn9438x5"
     },
     {
       "type": "parent-child",
@@ -1584,22 +2424,12 @@ const START_DATA = {
     {
       "type": "parent-child",
       "parentId": "pmndmv0pe6bnt",
-      "childId": "f04"
+      "childId": "pmndn4sw3j1fb"
     },
     {
       "type": "parent-child",
       "parentId": "pmndmvgb61us6",
-      "childId": "f04"
-    },
-    {
-      "type": "parent-child",
-      "parentId": "f03",
-      "childId": "pmndn7m9expkq"
-    },
-    {
-      "type": "parent-child",
-      "parentId": "f04",
-      "childId": "pmndn7m9expkq"
+      "childId": "pmndn4sw3j1fb"
     },
     {
       "type": "partner",
@@ -1619,12 +2449,12 @@ const START_DATA = {
     {
       "type": "parent-child",
       "parentId": "pmndnoxx6ndgz",
-      "childId": "pmnd50hsephva"
+      "childId": "pmndnrn9438x5"
     },
     {
       "type": "parent-child",
       "parentId": "pmndnpzkp3vwu",
-      "childId": "pmnd50hsephva"
+      "childId": "pmndnrn9438x5"
     },
     {
       "type": "parent-child",
@@ -1665,6 +2495,741 @@ const START_DATA = {
       "type": "partner",
       "person1Id": "pmndo2vxafahz",
       "person2Id": "pmndo3i84yw8g"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "f02"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "f02"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmndnpzkp3vwu"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmndnpzkp3vwu"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmnd7qhxj4baj"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmnd7qhxj4baj"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmndwllk8hld1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmndwllk8hld1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "s07"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "s07"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmndmvgb61us6"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmndmvgb61us6"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmndwllk9fukl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmndwllk9fukl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmndwllk96xxz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmndwllk96xxz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "r02"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "r02"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3eilyn1"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3eiti9k"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3eixb8j"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3ei5vp4"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3ei0k93"
+    },
+    {
+      "type": "sibling",
+      "person1Id": "pmndo3i84yw8g",
+      "person2Id": "pmndya3eip3zu"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndya3ei5vp4",
+      "person2Id": "pmndyckredqon"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyckredqon",
+      "childId": "pmndydlr61are"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndydlr61are"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndydlr61are",
+      "person2Id": "pmndyeaduhd1o"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndydlr61are",
+      "childId": "pmndyf12hx96x"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyeaduhd1o",
+      "childId": "pmndyf12hx96x"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndya3ei5vp4",
+      "person2Id": "pmndyhcgqdpb9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrfva0k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrfva0k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrg5spz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrg5spz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrhx2b4"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrhx2b4"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcripek7"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcripek7"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrjsvwo"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrjsvwo"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrkl9zf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrkl9zf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyhcgqdpb9",
+      "childId": "pmndyjcrl3njh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei5vp4",
+      "childId": "pmndyjcrl3njh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "s01"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "s01"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndyrysy3eq7",
+      "person2Id": "pmndyryt0viez"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3eilyn1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3eilyn1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3eiti9k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3eiti9k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3eixb8j"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3eixb8j"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3ei5vp4"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3ei5vp4"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndo3i84yw8g"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndo3i84yw8g"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3ei0k93"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3ei0k93"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyrysy3eq7",
+      "childId": "pmndya3eip3zu"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyryt0viez",
+      "childId": "pmndya3eip3zu"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmnd79y13i65o"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndyxhre0zi1",
+      "person2Id": "pmndyy6j6wndl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmnd79y13i65o"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnd7bkdrm6yz",
+      "person2Id": "pmnepe8ob5cod"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnd7cfmvqiff",
+      "person2Id": "pmnepfhttgn51"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnd7cfmvqiff",
+      "childId": "pmnepimbckf8a"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnepfhttgn51",
+      "childId": "pmnepimbckf8a"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnd7cfmvqiff",
+      "childId": "pmnepimbeuxuf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnepfhttgn51",
+      "childId": "pmnepimbeuxuf"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnd7cuzr39r9",
+      "person2Id": "pmnepl5nzikm3"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnd7hzc067x0",
+      "person2Id": "pmnepmjsmeuk6"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnd7n0jbe5kc",
+      "person2Id": "pmnepnt0eu2k2"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnepnt0eu2k2",
+      "childId": "pmnepp0idbklv"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnd7n0jbe5kc",
+      "childId": "pmnepp0idbklv"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndwllk9fukl",
+      "person2Id": "pmneptum4xnzi"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndwllk9fukl",
+      "childId": "pmnepytxdqi9y"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneptum4xnzi",
+      "childId": "pmnepytxdqi9y"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndwllk9fukl",
+      "childId": "pmnepytxga1sz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneptum4xnzi",
+      "childId": "pmnepytxga1sz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndwllk9fukl",
+      "childId": "pmnepytxh5z3q"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneptum4xnzi",
+      "childId": "pmnepytxh5z3q"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndwllk9fukl",
+      "childId": "pmnepytxiuzsg"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneptum4xnzi",
+      "childId": "pmnepytxiuzsg"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmneq7p4nynu3"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmneq7p4nynu3"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmndo2vxafahz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmndo2vxafahz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmneq7p4ss5hl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmneq7p4ss5hl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmneq7p4udtvl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmneq7p4udtvl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f07",
+      "childId": "pmnfv2r03xoij"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "f06",
+      "childId": "pmnfv2r03xoij"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnd7qhxj4baj",
+      "childId": "pmnfvopdootvl"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnd7ej1rf33c",
+      "childId": "pmnfvopdootvl"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndya3eilyn1",
+      "person2Id": "pmnfwiq4xex8n"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndya3eilyn1",
+      "person2Id": "pmnfwiq4xoz2k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2lpes"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2lpes"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2k67v"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2k67v"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2bl6p"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2bl6p"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2i0v6"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2i0v6"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r21xvr"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r21xvr"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2gzuz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2gzuz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwl6r2niud"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xex8n",
+      "childId": "pmnfwl6r2niud"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozxyoww"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozxyoww"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozxor6n"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozxor6n"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozx8uem"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozx8uem"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozxxrih"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozxxrih"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozxh323"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozxh323"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozxxvot"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozxxvot"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3eilyn1",
+      "childId": "pmnfwpozx2yhq"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfwiq4xoz2k",
+      "childId": "pmnfwpozx2yhq"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndya3ei0k93",
+      "person2Id": "pmnfx2dl6dya9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx2dl6dya9",
+      "childId": "pmnfx3knl6en8"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei0k93",
+      "childId": "pmnfx5u9dct4w"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx2dl6dya9",
+      "childId": "pmnfx5u9dct4w"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndya3ei0k93",
+      "childId": "pmnfx5u9dbm8a"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx2dl6dya9",
+      "childId": "pmnfx5u9dbm8a"
+    },
+    {
+      "type": "social-parent",
+      "parentId": "pmndya3ei0k93",
+      "childId": "pmnfx3knl6en8"
+    },
+    {
+      "type": "social-parent",
+      "parentId": "pmndya3ei0k93",
+      "childId": "pmndydlr61are"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnfx3knl6en8",
+      "person2Id": "pmnfx8zrswvz9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx8zrswvz9",
+      "childId": "pmnfxa0in4tc9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx3knl6en8",
+      "childId": "pmnfxa0in4tc9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx8zrswvz9",
+      "childId": "pmnfxa0io0z5u"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx3knl6en8",
+      "childId": "pmnfxa0io0z5u"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx8zrswvz9",
+      "childId": "pmnfxa0iou6j0"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx3knl6en8",
+      "childId": "pmnfxa0iou6j0"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmnfx5u9dct4w",
+      "person2Id": "pmnfxaot46h83"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx5u9dct4w",
+      "childId": "pmnfxbasnb3sh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfxaot46h83",
+      "childId": "pmnfxbasnb3sh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfx5u9dct4w",
+      "childId": "pmnfxbasnbq7c"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmnfxaot46h83",
+      "childId": "pmnfxbasnbq7c"
     }
   ],
   "_version": 20260330020
@@ -1683,7 +3248,7 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
 
 function saveState() {
   try {
@@ -3383,11 +4948,12 @@ function daysUntilBirthday(dateStr) {
 function ageOnNextBirthday(dateStr) {
   const d = parseBirthdate(dateStr);
   if (!d || !d.year) return null;
-  const now  = new Date();
-  let nextYear = now.getFullYear();
+  const now   = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let nextYear = today.getFullYear();
   if (d.month && d.day) {
-    const next = new Date(now.getFullYear(), d.month - 1, d.day);
-    if (next < now) nextYear = now.getFullYear() + 1;
+    const next = new Date(today.getFullYear(), d.month - 1, d.day);
+    if (next < today) nextYear = today.getFullYear() + 1;
   }
   return nextYear - d.year;
 }
@@ -3544,7 +5110,7 @@ function renderSidebar(filter = '') {
           <div class="avatar-sm ${uClass}">${initials(p.name)}</div>
           <div class="bd-info">
             <div class="bd-name">${escHtml(p.name)}</div>
-            <div class="bd-meta">${label} · wordt ${age}</div>
+            <div class="bd-meta">${label} · ${age === 0 ? 'pasgeboren' : 'wordt ' + age}</div>
           </div>
         </div>`;
       }).join('');
