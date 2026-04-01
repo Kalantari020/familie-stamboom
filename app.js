@@ -6878,6 +6878,35 @@ document.getElementById('btn-zoom-in').addEventListener('click',  () => setZoom(
 document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
 document.getElementById('btn-zoom-fit').addEventListener('click', zoomFit);
 
+// Pinch-to-zoom op mobiel
+(function() {
+  const wrapper = document.getElementById('canvas-wrapper');
+  let startDist = 0;
+  let startZoom = 1;
+
+  function getDist(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  wrapper.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      startDist = getDist(e.touches);
+      startZoom = zoom;
+    }
+  }, { passive: false });
+
+  wrapper.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = getDist(e.touches);
+      const scale = dist / startDist;
+      setZoom(startZoom * scale);
+    }
+  }, { passive: false });
+})();
 
 // Mobiel: sidebar toggle
 (function() {
