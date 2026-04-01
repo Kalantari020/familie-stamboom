@@ -3598,9 +3598,16 @@ function getHiddenByCollapse(activeIds) {
   function collectDescendants(id) {
     if (hidden.has(id)) return;
     hidden.add(id);
-    // Verberg partners van deze persoon (tenzij ze zelf ouder zijn in een niet-ingeklapt gezin)
+    // Verberg partners, MAAR alleen als die partner geen eigen ouders heeft
+    // die zichtbaar blijven (en niet zelf verborgen zijn).
+    // Anders is de partner bereikbaar via zijn eigen tak en moet zichtbaar blijven.
     getPartnersOf(id).forEach(pid => {
-      if (!hidden.has(pid)) hidden.add(pid);
+      if (hidden.has(pid)) return;
+      const partnerParents = getParentsOf(pid);
+      // Partner heeft zichtbare ouders in een ANDERE tak → niet verbergen
+      const hasVisibleParent = partnerParents.length > 0 &&
+        partnerParents.some(ppid => activeIds.has(ppid) && !hidden.has(ppid));
+      if (!hasVisibleParent) hidden.add(pid);
     });
     // Verberg alle kinderen recursief
     getChildrenOf(id).forEach(cid => collectDescendants(cid));
@@ -3621,11 +3628,6 @@ function getHiddenByCollapse(activeIds) {
 
     children.forEach(cid => collectDescendants(cid));
   });
-
-  // Ouders worden nooit door hun EIGEN gezin verborgen (collectDescendants
-  // start bij kinderen, niet bij ouders). Ze worden alleen verborgen als ze
-  // nakomeling zijn van een ANDER ingeklapt gezin — in dat geval moeten ze
-  // verborgen blijven. Dus: geen cleanup nodig.
 
   return hidden;
 }
@@ -3700,14 +3702,18 @@ function computeLayout(overrideIds) {
   let activeIds = overrideIds || getActivePersonIds();
 
   // Filter verborgen personen door ingeklapte gezinnen
+  let hiddenByCollapse = new Set();
   if (collapsedGezinnen.size > 0) {
     activeIds = new Set(activeIds); // kopie zodat origineel niet gemuteerd wordt
-    const hidden = getHiddenByCollapse(activeIds);
-    hidden.forEach(id => activeIds.delete(id));
+    hiddenByCollapse = getHiddenByCollapse(activeIds);
+    hiddenByCollapse.forEach(id => activeIds.delete(id));
   }
 
   const persons   = state.persons.filter(p => activeIds.has(p.id));
   if (persons.length === 0) return {};
+
+  // Dynamische V_GAP: grotere bomen krijgen meer verticale ruimte
+  const effectiveVGap = V_GAP + Math.min(persons.length, 80) * 0.6;
 
   // --- Build adjacency maps ---
   const childrenOf  = {};
@@ -4086,7 +4092,7 @@ function computeLayout(overrideIds) {
 
   // --- Top-down: for each subsequent generation, place children under parents ---
   gens.filter(g => g > 0).forEach(gen => {
-    const yPos = PADDING + gen * (NODE_H + V_GAP);
+    const yPos = PADDING + gen * (NODE_H + effectiveVGap);
     const genIds = byGen[gen] || [];
 
     // Scheiding: kinderen met ouders in layout vs aangetrouwd (geen ouders)
@@ -4401,11 +4407,12 @@ function computeLayout(overrideIds) {
   // De bottom-up centering die hierna volgt plaatst ouders dan ook dichter bij elkaar.
   // Gebruik de verticale-snijlijn methode: schuif alleen als er op ALLE generaties
   // voldoende ruimte is, zodat er geen overlaps ontstaan.
-  for (let cPass = 0; cPass < 3; cPass++) {
+  for (let cPass = 0; cPass < 5; cPass++) {
     const allIds = Object.keys(pos);
     const maxX = Math.max(...allIds.map(id => pos[id].x + NODE_W));
+    const scanStep = Math.max(20, H_GAP / 2); // fijnere scan voor betere compactie
 
-    for (let scanX = PADDING + H_GAP; scanX < maxX; scanX += H_GAP) {
+    for (let scanX = PADDING + scanStep; scanX < maxX; scanX += scanStep) {
       let minGap = Infinity;
       let hasLeft = false, hasRight = false;
 
@@ -4658,7 +4665,7 @@ function computeLayout(overrideIds) {
   // --- Compactie: schuif alles rechts van verticale snijlijnen naar links ---
   // Scan x-as in stappen en zoek verticale "snijlijnen" waar er op ALLE generaties
   // voldoende ruimte is. Schuif alles rechts van de snijlijn naar links.
-  for (let pass = 0; pass < 3; pass++) {
+  for (let pass = 0; pass < 5; pass++) {
     // Verzamel alle node-rechterkanten, gesorteerd
     const allPositions = Object.entries(pos).map(([id, p]) => ({
       id, x: p.x, right: p.x + NODE_W, gen: genOf[id]
@@ -4669,7 +4676,7 @@ function computeLayout(overrideIds) {
     // Scan van links naar rechts: zoek x-posities waar alles links ervan
     // gescheiden is van alles rechts ervan door minstens H_GAP op ELKE generatie
     const maxX = Math.max(...allPositions.map(p => p.right));
-    const step = H_GAP; // scan in fijne stappen
+    const step = Math.max(20, H_GAP / 2); // fijnere scan voor betere compactie
 
     for (let scanX = PADDING + step; scanX < maxX; scanX += step) {
       // Voor elke generatie: vind de maximale rechterrand links van scanX
@@ -4768,7 +4775,7 @@ function computeLayout(overrideIds) {
             const overlapY = rowY < n.y + NODE_H && n.y < rowY + NODE_H;
             if (overlapX && overlapY) {
               // Verschuif naar beneden voorbij deze kaart
-              rowY = n.y + NODE_H + V_GAP * 0.3;
+              rowY = n.y + NODE_H + effectiveVGap * 0.3;
               hasOverlap = true;
               break;
             }
@@ -4785,9 +4792,39 @@ function computeLayout(overrideIds) {
             pos[pid].y = rowY;
           }
         });
-        currentY = rowY + NODE_H + V_GAP * 0.5;
+        currentY = rowY + NODE_H + effectiveVGap * 0.5;
       });
     });
+  }
+
+  // --- Post-layout: verborgen partners naast zichtbare partner plaatsen ---
+  // Als een persoon verborgen is door collapse maar een zichtbare partner heeft,
+  // plaats die persoon naast de partner (als "late inlaw"). Zo verschijnt Alina
+  // (kind Benazier, ingeklapt) naast Noman (kind Zarlakhta, zichtbaar) zonder
+  // dat ze onder Benazier verschijnt.
+  if (hiddenByCollapse.size > 0) {
+    let addedAny = false;
+    hiddenByCollapse.forEach(hidId => {
+      if (pos[hidId]) return; // al geplaatst (zou niet moeten)
+      // Zoek een zichtbare partner
+      let visiblePartner = null;
+      state.relationships.forEach(r => {
+        if (r.type !== 'partner') return;
+        const otherId = r.person1Id === hidId ? r.person2Id :
+                        r.person2Id === hidId ? r.person1Id : null;
+        if (otherId && pos[otherId] && !visiblePartner) {
+          visiblePartner = otherId;
+        }
+      });
+      if (visiblePartner) {
+        pos[hidId] = {
+          x: pos[visiblePartner].x + NODE_W + H_GAP,
+          y: pos[visiblePartner].y
+        };
+        addedAny = true;
+      }
+    });
+    if (addedAny) resolveOverlaps(pos, verticalGroupMap);
   }
 
   // --- Cross-family ghosts: extraheer uit pos ---
