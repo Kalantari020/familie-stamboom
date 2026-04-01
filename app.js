@@ -4300,9 +4300,8 @@ function computeLayout(overrideIds) {
           return oa - ob;
         });
 
-        // Plaats als placeholder op dezelfde positie (voor layout-engine)
+        // Plaats direct onder ouders — overlap wordt verticaal opgelost (niet horizontaal)
         let startX = parentCenter - NODE_W / 2;
-        if (startX < cursorX) startX = cursorX;
         const hasPartners = vertChildren.some(cid => (childPartnerMap[cid] || []).length > 0);
         const slotW = hasPartners ? 2 * NODE_W + H_GAP : NODE_W;
 
