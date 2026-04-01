@@ -589,7 +589,6 @@ body.readonly #btn-export,
 body.readonly #btn-import,
 body.readonly #btn-reset,
 body.readonly #btn-new-family,
-body.readonly #btn-publish { display: none !important; }
 
 body.readonly .sidebar-tools { display: none !important; }
 body.readonly .card:hover   { cursor: default; }
@@ -881,14 +880,6 @@ body.readonly .card:hover   { cursor: default; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
-/* ============================================================
-   PUBLICEER KNOP
-   ============================================================ */
-.btn.publish {
-  background: #7c3aed;
-  color: #fff;
-}
-.btn.publish:hover { background: #6d28d9; }
 
 /* ============================================================
    TOAST NOTIFICATIES

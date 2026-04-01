@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "familie-boom",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3456", "C:\\Users\\We Are Nuts\\Documents\\Claude\\familie-boom"],
+      "port": 3456
+    }
+  ]
+}

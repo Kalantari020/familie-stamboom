@@ -6882,125 +6882,6 @@ function showToast(msg, type = '', duration = 4000) {
   }, duration);
 }
 
-// ============================================================
-// PUBLICEER — via GitHub API → GitHub Actions → Netlify
-// ============================================================
-// Token wordt opgeslagen via de browser console: setGhToken('ghp_...')
-const GH_TOKEN = localStorage.getItem('fb_gh_token') || '';
-const GH_REPO  = 'Kalantari020/familie-stamboom';
-const GH_FILE  = 'data/publish-state.json';
-window.setGhToken = t => { localStorage.setItem('fb_gh_token', t); location.reload(); };
-
-document.getElementById('btn-publish').addEventListener('click', () => {
-  document.getElementById('publish-status').style.display = 'none';
-  document.getElementById('modal-publish').classList.remove('hidden');
-});
-document.getElementById('btn-publish-close').addEventListener('click', () => {
-  document.getElementById('modal-publish').classList.add('hidden');
-});
-
-// Alleen downloaden (backup)
-document.getElementById('btn-publish-export').addEventListener('click', () => {
-  const json = JSON.stringify(state, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `familieboom_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-// Publiceren via GitHub API
-document.getElementById('btn-publish-now').addEventListener('click', async () => {
-  const statusEl = document.getElementById('publish-status');
-  const btn      = document.getElementById('btn-publish-now');
-
-  function setStatus(msg, color) {
-    statusEl.style.display = 'block';
-    statusEl.style.background = color;
-    statusEl.textContent = msg;
-  }
-
-  btn.disabled    = true;
-  btn.textContent = '⏳ Bezig...';
-  setStatus('Verbinden met GitHub...', '#1e3a5f');
-
-  try {
-    // 1. Haal huidige SHA op (nodig voor update)
-    setStatus('Verbinden met GitHub...', '#1e3a5f');
-    const getResp = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
-      headers: { 'Authorization': `Bearer ${GH_TOKEN}`, 'Accept': 'application/vnd.github+json' }
-    });
-    if (!getResp.ok && getResp.status !== 404) {
-      throw new Error(`GitHub verbinding mislukt (${getResp.status})`);
-    }
-    const fileInfo = getResp.ok ? await getResp.json() : {};
-    const sha = fileInfo.sha || null;
-
-    setStatus('Data klaarmaken...', '#1e3a5f');
-
-    // 2. Strip fotos (te groot) en maak publish state
-    const newVersion = Date.now();
-    const publishState = {
-      _version: newVersion,
-      persons: (state.persons || []).map(p => {
-        const { photo, ...rest } = p;
-        return rest;
-      }),
-      relationships: state.relationships || []
-    };
-
-    // Base64 encode via TextEncoder (werkt met alle Unicode tekens)
-    const jsonStr  = JSON.stringify(publishState, null, 2);
-    const bytes    = new TextEncoder().encode(jsonStr);
-    const binStr   = Array.from(bytes).map(b => String.fromCharCode(b)).join('');
-    const content  = btoa(binStr);
-
-    setStatus('Uploaden naar GitHub...', '#1e3a5f');
-
-    const putBody = {
-      message: `Publiceer stamboom ${new Date().toLocaleString('nl-NL')}`,
-      content,
-      ...(sha ? { sha } : {})
-    };
-
-    const putResp = await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`, {
-      method:  'PUT',
-      headers: {
-        'Authorization': `Bearer ${GH_TOKEN}`,
-        'Accept':        'application/vnd.github+json',
-        'Content-Type':  'application/json'
-      },
-      body: JSON.stringify(putBody)
-    });
-
-    const putResult = await putResp.json();
-    if (!putResp.ok) {
-      throw new Error(putResult.message || `GitHub fout (${putResp.status})`);
-    }
-    console.log('[publish] GitHub response:', putResp.status, putResult?.commit?.sha);
-
-    // 3. Sla versie op
-    state._version = newVersion;
-    saveState();
-
-    setStatus('✅ Geüpload! GitHub Actions deployt nu naar Netlify (~60 sec).', '#14532d');
-    showToast('✅ Publiceren gestart! Binnen ~60 seconden live.', 'success', 7000);
-    btn.textContent = '✅ Gepubliceerd';
-    setTimeout(() => {
-      btn.disabled    = false;
-      btn.textContent = '🚀 Nu publiceren';
-    }, 8000);
-
-  } catch (err) {
-    console.error(err);
-    setStatus('❌ Fout: ' + err.message, '#7f1d1d');
-    showToast('❌ Publiceren mislukt: ' + err.message, '', 6000);
-    btn.disabled    = false;
-    btn.textContent = '🚀 Nu publiceren';
-  }
-});
 
 // ============================================================
 // SAMENVOEGEN — MERGE PERSONS
@@ -7185,7 +7066,7 @@ function escHtml(str) {
 
   // Read-only modus: verberg alle beheer-elementen
   if (READ_ONLY) {
-    const hide = ['btn-add-person','btn-add-relation','btn-export','btn-import','btn-reset','btn-new-family','btn-publish'];
+    const hide = ['btn-add-person','btn-add-relation','btn-export','btn-import','btn-reset','btn-new-family'];
     hide.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     // CSS klasse op body zodat kaart-knoppen ook verborgen zijn
     document.body.classList.add('readonly');

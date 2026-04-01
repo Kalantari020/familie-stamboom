@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
-  <link rel="stylesheet" href="style.css?v=67">
+  <link rel="stylesheet" href="style.css?v=68">
   <script>
     window.onerror = function(msg, src, line, col, err) {
       var d = document.createElement('div');
@@ -67,7 +67,6 @@
       <button id="btn-zoom-fit" class="btn small" title="Alles tonen">Passend</button>
     </div>
     <div class="toolbar-right desktop-only">
-      <button id="btn-publish" class="btn small publish" title="Exporteer en publiceer wijzigingen voor de familie">📤 Publiceer</button>
       <button id="btn-export" class="btn small">Exporteer JSON</button>
       <button id="btn-import" class="btn small">Importeer JSON</button>
       <input type="file" id="file-input" accept=".json" style="display:none">
@@ -78,23 +77,7 @@
   <!-- TOAST -->
   <div id="toast-container"></div>
 
-  <!-- PUBLICEER MODAL -->
-  <div id="modal-publish" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-backdrop"></div>
-    <div class="modal-content small">
-      <h2>📤 Wijzigingen publiceren</h2>
-      <p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin:12px 0">
-        Jouw wijzigingen direct live zetten voor de hele familie.<br>
-        Dit duurt 5–10 seconden.
-      </p>
-      <div id="publish-status" style="display:none;padding:10px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center"></div>
-      <div class="form-actions">
-        <button id="btn-publish-now" class="btn publish">🚀 Nu publiceren</button>
-        <button id="btn-publish-export" class="btn small secondary">↓ Alleen downloaden</button>
-        <button id="btn-publish-close" class="btn secondary">Sluiten</button>
-      </div>
-    </div>
-  </div>
+  <!-- (publiceer modal verwijderd) -->
 
   <!-- SLIM KOPPELEN MODAL -->
   <div id="modal-smartlink" class="modal hidden" role="dialog" aria-modal="true">
@@ -152,7 +135,6 @@
         <span class="sidebar-section-title">EXTRA</span>
         <button class="btn primary" onclick="document.getElementById('btn-add-person').click()">+ Persoon</button>
         <button class="btn secondary" onclick="document.getElementById('btn-add-relation').click()">+ Relatie</button>
-        <button class="btn small publish" onclick="document.getElementById('btn-publish').click()">📤 Publiceer</button>
         <button class="btn small secondary" onclick="document.getElementById('btn-export').click()">Exporteer JSON</button>
         <button class="btn small secondary" onclick="document.getElementById('btn-import').click()">Importeer JSON</button>
         <button class="btn small danger" onclick="document.getElementById('btn-reset').click()">Reset</button>
@@ -348,6 +330,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=67"></script>
+  <script src="app.js?v=68"></script>
 </body>
 </html>
