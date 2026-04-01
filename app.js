@@ -3582,9 +3582,14 @@ function getHiddenByCollapse(activeIds) {
   function collectDescendants(id) {
     if (hidden.has(id)) return;
     hidden.add(id);
-    // Verberg partners van deze persoon (tenzij ze zelf ouder zijn in een niet-ingeklapt gezin)
+    // Verberg partners van deze persoon, TENZIJ de partner zelf ook ouder is
+    // in een niet-ingeklapt gezin (dan moet die ouder zichtbaar blijven)
     getPartnersOf(id).forEach(pid => {
-      if (!hidden.has(pid)) hidden.add(pid);
+      if (hidden.has(pid)) return;
+      // Check of partner ouder is van kinderen buiten dit collapse-traject
+      const partnerKids = getChildrenOf(pid);
+      const isParentElsewhere = partnerKids.some(ckid => !hidden.has(ckid) && activeIds.has(ckid));
+      if (!isParentElsewhere) hidden.add(pid);
     });
     // Verberg alle kinderen recursief
     getChildrenOf(id).forEach(cid => collectDescendants(cid));
@@ -4193,7 +4198,6 @@ function computeLayout(overrideIds) {
         // Matrix-layout: kinderen + partners in een grid
         // Bouw "units" per kind: [partner1?, kind, partner2?, ghost?]
         const childUnits = [];
-        const expandedSet = new Set(expanded);
         let ei = 0;
         while (ei < expanded.length) {
           const unit = [];
@@ -5638,10 +5642,14 @@ function updateMinimap(pos) {
   const vpW = wrapper.clientWidth / z;
   const vpH = wrapper.clientHeight / z;
 
-  viewport.style.left   = (offX + (vpX - minPosX) * scale) + 'px';
-  viewport.style.top    = (offY + (vpY - minPosY) * scale) + 'px';
-  viewport.style.width  = (vpW * scale) + 'px';
-  viewport.style.height = (vpH * scale) + 'px';
+  const vpLeft = Math.max(0, offX + (vpX - minPosX) * scale);
+  const vpTop  = Math.max(0, offY + (vpY - minPosY) * scale);
+  const vpWidth  = Math.min(mmW - vpLeft, vpW * scale);
+  const vpHeight = Math.min(mmH - vpTop, vpH * scale);
+  viewport.style.left   = vpLeft + 'px';
+  viewport.style.top    = vpTop + 'px';
+  viewport.style.width  = Math.max(8, vpWidth) + 'px';
+  viewport.style.height = Math.max(8, vpHeight) + 'px';
 
   // Sla minimap-data op voor klik-navigatie
   minimap._mmData = { minPosX, minPosY, treeW, treeH, scale, offX, offY };
@@ -5673,6 +5681,10 @@ function updateMinimap(pos) {
   minimap.addEventListener('mousedown', e => { dragging = true; navigateToMinimap(e); });
   window.addEventListener('mousemove', e => { if (dragging) navigateToMinimap(e); });
   window.addEventListener('mouseup', () => { dragging = false; });
+  // Touch support voor mobiel
+  minimap.addEventListener('touchstart', e => { dragging = true; navigateToMinimap(e.touches[0]); e.preventDefault(); }, { passive: false });
+  minimap.addEventListener('touchmove', e => { if (dragging) { navigateToMinimap(e.touches[0]); e.preventDefault(); } }, { passive: false });
+  minimap.addEventListener('touchend', () => { dragging = false; });
 })();
 
 // ============================================================
@@ -5725,6 +5737,11 @@ function setZoom(z) {
   zoom = Math.min(2, Math.max(0.25, z));
   document.getElementById('canvas').style.transform = `scale(${zoom})`;
   document.getElementById('zoom-label').textContent  = Math.round(zoom * 100) + '%';
+  // Update minimap viewport en virtualisatie na zoom
+  if (lastPositions) {
+    updateMinimap(lastPositions);
+    applyVirtualization(lastPositions);
+  }
 }
 
 function zoomFit() {
