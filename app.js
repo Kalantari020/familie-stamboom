@@ -863,11 +863,21 @@ function computeLayout(overrideIds) {
       groups[key].children.push(id);
     });
 
-    // Sorteer kinderen binnen elke groep: oud → jong (links → rechts)
+    // Sorteer kinderen binnen elke groep: geboorte-volgorde → geboortedatum → onbekend
+    // birthOrder heeft ALTIJD voorrang (ook boven geboortedatum)
     Object.values(groups).forEach(group => {
       group.children.sort((a, b) => {
-        const pa = parseBirthdate(getPerson(a)?.birthdate);
-        const pb = parseBirthdate(getPerson(b)?.birthdate);
+        const personA = getPerson(a);
+        const personB = getPerson(b);
+        const boA = personA?.birthOrder;
+        const boB = personB?.birthOrder;
+        // birthOrder heeft altijd voorrang
+        if (boA != null && boB != null) return boA - boB;
+        if (boA != null) return -1;
+        if (boB != null) return 1;
+        // Fallback naar geboortedatum
+        const pa = parseBirthdate(personA?.birthdate);
+        const pb = parseBirthdate(personB?.birthdate);
         if (!pa && !pb) return 0;
         if (!pa) return 1;
         if (!pb) return -1;
@@ -2275,6 +2285,7 @@ function openEditModal(id) {
   form.birthdate.value = person.birthdate || '';
   form.deathdate.value = person.deathdate || '';
   form.notes.value     = person.notes     || '';
+  form.birthOrder.value = person.birthOrder || '';
   document.getElementById('chk-deceased').checked = !!person.deceased;
   setPhotoPreview(person.photo || null);
 
@@ -2526,7 +2537,8 @@ document.getElementById('form-person').addEventListener('submit', e => {
     deathdate: form.deathdate.value.trim(),
     deceased:  form.deceased.checked,
     photo:     currentPhotoData,
-    notes:     form.notes.value.trim()
+    notes:     form.notes.value.trim(),
+    birthOrder: form.birthOrder.value ? parseInt(form.birthOrder.value, 10) : null
   };
   if (!data.name) return;
 
