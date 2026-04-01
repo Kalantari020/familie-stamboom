@@ -3646,8 +3646,21 @@ function toggleGezin(key) {
 // Sweep-line algoritme: sorteer alle nodes op X, controleer elk paar
 // op 2D overlap. Bij overlap: verschuif de rechter node + alles rechts
 // ervan op dezelfde Y. Maximaal 5 passes.
-function resolveOverlaps(pos) {
-  const allNodeIds = Object.keys(pos).filter(id => pos[id]);
+function resolveOverlaps(pos, verticalGroupMap) {
+  // Filter verticale groep-leden (behalve eerste) — overlappen bewust
+  const vgFirst = new Set();
+  const vgSkip = new Set();
+  if (verticalGroupMap) {
+    Object.keys(verticalGroupMap).forEach(id => {
+      const group = verticalGroupMap[id];
+      if (!vgFirst.has(group)) {
+        vgFirst.add(group);
+      } else {
+        vgSkip.add(id);
+      }
+    });
+  }
+  const allNodeIds = Object.keys(pos).filter(id => pos[id] && !vgSkip.has(id));
   for (let pass = 0; pass < 5; pass++) {
     let hadOverlap = false;
     allNodeIds.sort((a, b) => pos[a].x - pos[b].x);
@@ -3659,8 +3672,7 @@ function resolveOverlaps(pos) {
         const idB = allNodeIds[j];
         const b = pos[idB];
         if (!b) continue;
-        if (b.x >= a.x + NODE_W + H_GAP) break; // early exit
-        // Check 2D overlap
+        if (b.x >= a.x + NODE_W + H_GAP) break;
         const overlapX = a.x < b.x + NODE_W && b.x < a.x + NODE_W;
         const overlapY = a.y < b.y + NODE_H && b.y < a.y + NODE_H;
         if (overlapX && overlapY) {
@@ -3701,6 +3713,7 @@ function computeLayout(overrideIds) {
   const childrenOf  = {};
   const parentsOf   = {};
   const partnersOf  = {};
+  const verticalGroupMap = {}; // id → [ids in same vertical column]
 
   persons.forEach(p => {
     childrenOf[p.id]  = [];
@@ -3948,7 +3961,17 @@ function computeLayout(overrideIds) {
   // anders ontstaat een "brug" die alles ertussen ver naar rechts duwt.
   const MAX_PARTNER_DIST = 3 * (NODE_W + H_GAP);
   const fixOverlaps = gen => {
-    const genMembers = (byGen[gen] || []).filter(id => pos[id]);
+    // Filter verticale groep-leden (behalve eerste) — die overlappen bewust
+    const vgFirstOnly = new Set();
+    const genMembers = (byGen[gen] || []).filter(id => {
+      if (!pos[id]) return false;
+      if (verticalGroupMap[id]) {
+        const group = verticalGroupMap[id];
+        if (vgFirstOnly.has(group)) return false; // niet-eerste lid, skip
+        vgFirstOnly.add(group);
+      }
+      return true;
+    });
     const inUnit = new Set();
     const units = [];
     genMembers.forEach(id => {
@@ -3978,9 +4001,11 @@ function computeLayout(overrideIds) {
       const minX = prevRight + NODE_W + H_GAP;
       if (currLeft < minX) {
         const shift = minX - currLeft;
+        const toShift = new Set();
         for (let j = i; j < units.length; j++) {
-          units[j].forEach(uid => { pos[uid].x += shift; });
+          units[j].forEach(uid => toShift.add(uid));
         }
+        toShift.forEach(uid => { pos[uid].x += shift; });
       }
     }
   };
@@ -4249,15 +4274,18 @@ function computeLayout(overrideIds) {
       const gezinKey = [...group.parentIds].sort().join(',');
       const isVertical = verticalGezinnen.has(gezinKey);
 
-      if (isVertical && expanded.length > 1) {
-        // Verticale plaatsing: kinderen onder elkaar
-        const totalW = NODE_W;
+      if (isVertical) {
+        // Verticale plaatsing: plaats eerst als 1 kolom (allemaal zelfde X, zelfde Y)
+        // Na alle layout-passes worden ze verticaal uitgespreid
         let startX = parentCenter - NODE_W / 2;
         if (startX < cursorX) startX = cursorX;
 
         expanded.forEach((id, i) => {
-          pos[id] = { x: startX, y: yPos + i * (NODE_H + V_GAP * 0.5) };
+          pos[id] = { x: startX, y: yPos };
         });
+        // Registreer voor post-layout verticale spreiding
+        const vGroupIds = expanded.slice();
+        expanded.forEach(id => { verticalGroupMap[id] = vGroupIds; });
         cursorX = startX + NODE_W + H_GAP;
       } else {
         // Standaard horizontale plaatsing
@@ -4666,7 +4694,24 @@ function computeLayout(overrideIds) {
   }
 
   // KERNREGEL: geen overlappende kaarten
-  resolveOverlaps(pos);
+  resolveOverlaps(pos, verticalGroupMap);
+
+  // --- Post-layout: spreid verticale groepen uit ---
+  const processedVGroups = new Set();
+  Object.keys(verticalGroupMap).forEach(id => {
+    const group = verticalGroupMap[id];
+    const groupKey = group.join(',');
+    if (processedVGroups.has(groupKey)) return;
+    processedVGroups.add(groupKey);
+    const validMembers = group.filter(gid => pos[gid]);
+    if (validMembers.length < 2) return;
+    const baseX = pos[validMembers[0]].x;
+    const baseY = pos[validMembers[0]].y;
+    validMembers.forEach((gid, i) => {
+      pos[gid].x = baseX;
+      pos[gid].y = baseY + i * (NODE_H + V_GAP * 0.5);
+    });
+  });
 
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
@@ -5516,8 +5561,8 @@ function renderCollapseToggles(pos) {
 
     container.appendChild(btn);
 
-    // Verticaal-toggle knop (alleen tonen als niet ingeklapt en meer dan 1 kind)
-    if (!isCollapsed && gezin.childIds.size > 1) {
+    // Verticaal-toggle knop bij elk gezin met kinderen
+    if (!isCollapsed && gezin.childIds.size >= 1) {
       const isVert = verticalGezinnen.has(key);
       const vBtn = document.createElement('div');
       vBtn.className = 'gezin-toggle vertical-toggle' + (isVert ? ' active' : '');
