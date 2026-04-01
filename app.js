@@ -198,6 +198,19 @@ function toggleVerticalGezin(key) {
   render();
 }
 
+// Smart View modus
+let smartViewMode = false;
+let smartViewOrigin = false; // true als we vanuit Smart View in detail-view zitten
+const SMART_KEY = 'fb_smart_view';
+try { smartViewMode = sessionStorage.getItem(SMART_KEY) === 'true'; } catch(e) {}
+
+const FAMILY_COLORS = [
+  '#3b82f6','#ef4444','#22c55e','#f59e0b','#8b5cf6',
+  '#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1',
+  '#84cc16','#e11d48','#0891b2','#65a30d','#dc2626',
+  '#7c3aed','#db2777','#ea580c','#059669','#4f46e5'
+];
+
 // Read-only modus: ?view=1 in de URL schakelt beheer uit
 const READ_ONLY = new URLSearchParams(window.location.search).get('view') === '1';
 
@@ -5364,8 +5377,19 @@ function renderSidebar(filter = '') {
   treeList.querySelectorAll('.tree-item').forEach(el => {
     el.addEventListener('click', () => {
       const head = el.dataset.head;
-      activeTreeId = head === 'all' ? null : head;
+      if (head === 'all') {
+        activeTreeId = null;
+        if (smartViewMode) smartViewOrigin = false;
+      } else {
+        activeTreeId = head;
+        if (smartViewMode) {
+          smartViewMode = false;
+          smartViewOrigin = true;
+          try { sessionStorage.setItem(SMART_KEY, 'false'); } catch(e) {}
+        }
+      }
       render();
+      setTimeout(zoomFit, 100);
     });
   });
 
@@ -5687,6 +5711,23 @@ function renderCollapseToggles(pos) {
 }
 
 function render() {
+  // Smart View: toon netwerkdiagram als actief en geen specifieke boom geselecteerd
+  if (smartViewMode && activeTreeId === null) {
+    renderSmartView();
+    renderSidebar(document.getElementById('search').value);
+    return;
+  }
+
+  // Toon/verberg back-knop
+  const backBtn = document.getElementById('btn-back-overview');
+  if (backBtn) {
+    backBtn.classList.toggle('hidden', !smartViewOrigin);
+  }
+
+  // Update smart view toggle knop
+  const smartBtn = document.getElementById('btn-smart-view');
+  if (smartBtn) smartBtn.classList.toggle('active', smartViewMode);
+
   let pos, ghosts = {}, treeRanges = null, treePositions = null, duplicates = {};
   if (activeTreeId === null && state.persons.length > 0) {
     const result = computeAllFamiliesLayout();
@@ -7299,6 +7340,232 @@ async function compositeSVGOnCanvas(targetCanvas, clone, w, h, renderScale, offs
 }
 
 // ============================================================
+// SMART VIEW — Netwerkdiagram met familiebubbles
+// ============================================================
+
+// Kleurpaletten per nesting-depth (steeds lichter)
+const DEPTH_COLORS = [
+  { bg: '#141e30', border: '#1e3a5f', header: '#2e61a8' },  // depth 0: rustig oceaanblauw
+  { bg: '#142320', border: '#1e4038', header: '#2d7a6a' },  // depth 1: zacht zeegroen
+  { bg: '#1e1a28', border: '#3a2e50', header: '#6b5b95' },  // depth 2: gedempd lavendel
+  { bg: '#221c14', border: '#3e3422', header: '#8a7245' },  // depth 3: warm zand
+  { bg: '#1a2028', border: '#2e3a48', header: '#4a7a9b' },  // depth 4: mistig blauwgrijs
+];
+
+// Bouw geneste gezinsdata voor Smart View
+function buildFamilyTree(headId, depth, visited) {
+  if (!headId || visited.has(headId)) return null;
+  visited.add(headId);
+
+  const head = getPerson(headId);
+  if (!head) return null;
+
+  const headName = head.name;
+  const partners = getPartnersOf(headId).map(getPerson).filter(p => p);
+  const partnerName = partners.length > 0 ? partners[0].name : '';
+
+  // Alle kinderen van dit gezin (via hoofd + partners)
+  const childIds = new Set();
+  getChildrenOf(headId).forEach(cid => childIds.add(cid));
+  partners.forEach(p => getChildrenOf(p.id).forEach(cid => childIds.add(cid)));
+  getSocialChildrenOf(headId).forEach(cid => childIds.add(cid));
+
+  // Eén gemengde lijst: kinderen in geboortevolgorde
+  // Elk item is { type: 'name', label } of { type: 'family', data: subtree }
+  const orderedChildren = [];
+
+  // Sorteer kinderen op geboortedatum (oudste eerst)
+  const sortedChildren = [...childIds]
+    .map(cid => ({ cid, person: getPerson(cid) }))
+    .filter(x => x.person)
+    .sort((a, b) => {
+      const da = a.person.birthdate || '9999';
+      const db = b.person.birthdate || '9999';
+      return da.localeCompare(db);
+    });
+
+  sortedChildren.forEach(({ cid, person: child }) => {
+    const grandchildren = getChildrenOf(cid);
+    const childPartners = getPartnersOf(cid);
+    const partnerChildren = childPartners.flatMap(pid => getChildrenOf(pid));
+    const allGC = [...new Set([...grandchildren, ...partnerChildren])];
+
+    if (allGC.length > 0 && !visited.has(cid)) {
+      // Kind heeft eigen gezin en is nog niet bezocht → recursief geneste blok
+      const subtree = buildFamilyTree(cid, depth + 1, visited);
+      if (subtree) orderedChildren.push({ type: 'family', data: subtree });
+    } else if (!visited.has(cid)) {
+      // Kind zonder eigen kinderen → naam + eventuele partner
+      const cp = childPartners.map(getPerson).filter(p => p);
+      const label = cp.length > 0 ? `${child.name} &\n${cp[0].name}` : child.name;
+      orderedChildren.push({ type: 'name', id: cid, label });
+      visited.add(cid);
+      childPartners.forEach(pid => visited.add(pid));
+    } else {
+      // Kind is al bezocht (via partner-pad) → toon alsnog met eigen kinderen
+      const cp = childPartners.map(getPerson).filter(p => p);
+
+      if (allGC.length > 0) {
+        const gcNames = allGC
+          .map(gcid => getPerson(gcid))
+          .filter(p => p)
+          .sort((a, b) => (a.birthdate || '9999').localeCompare(b.birthdate || '9999'))
+          .map(p => p.name);
+        const subtree = {
+          headId: cid,
+          headName: child.name,
+          partnerName: cp.length > 0 ? cp[0].name : '',
+          depth: depth + 1,
+          orderedChildren: gcNames.map(n => ({ type: 'name', id: '', label: n })),
+          color: DEPTH_COLORS[(depth + 1) % DEPTH_COLORS.length]
+        };
+        orderedChildren.push({ type: 'family', data: subtree });
+      } else {
+        const label = cp.length > 0 ? `${child.name} &\n${cp[0].name}` : child.name;
+        orderedChildren.push({ type: 'name', id: cid, label });
+      }
+    }
+  });
+
+  return {
+    headId, headName, partnerName, depth,
+    orderedChildren,
+    color: DEPTH_COLORS[depth % DEPTH_COLORS.length]
+  };
+}
+
+function buildSmartViewData() {
+  const stambomen = computeStambomen();
+
+  // Vind echte roots: personen zonder ouders
+  // Sorteer: grootste bomen eerst zodat hun kinderen niet als aparte roots worden gepakt
+  const rootCandidates = stambomen
+    .filter(s => s.isRoot && getParentsOf(s.headId).length === 0)
+    .sort((a, b) => b.count - a.count);
+
+  // Voeg daarna roots toe wiens hoofd wel ouders heeft maar wiens ouders NIET in een andere stamboom staan
+  const otherRoots = stambomen
+    .filter(s => s.isRoot && getParentsOf(s.headId).length > 0)
+    .sort((a, b) => b.count - a.count);
+
+  const allRoots = [...rootCandidates, ...otherRoots];
+
+  const visited = new Set();
+  const trees = [];
+
+  allRoots.forEach(s => {
+    if (visited.has(s.headId)) return;
+    // Controleer of hoofd of partner al bezocht is (onderdeel van een andere boom)
+    const partners = getPartnersOf(s.headId);
+    if (partners.some(pid => visited.has(pid))) return;
+
+    const children = getChildrenOf(s.headId);
+    const partnerChildren = partners.flatMap(pid => getChildrenOf(pid));
+    if (children.length === 0 && partnerChildren.length === 0) return;
+
+    const tree = buildFamilyTree(s.headId, 0, visited);
+    if (tree) trees.push(tree);
+  });
+
+  return trees;
+}
+
+function renderSmartView() {
+  const trees = buildSmartViewData();
+  if (trees.length === 0) return;
+
+  const canvas = document.getElementById('canvas');
+  const container = document.getElementById('cards-container');
+  const svg = document.getElementById('svg-lines');
+
+  container.innerHTML = '';
+  svg.innerHTML = '';
+  svg.setAttribute('width', 0);
+  svg.setAttribute('height', 0);
+
+  // Container voor geneste blokken (geen absolute positionering)
+  const smartContainer = document.createElement('div');
+  smartContainer.className = 'smart-trees-container';
+
+  // Recursief render functie
+  function renderFamilyBlock(familyData) {
+    const block = document.createElement('div');
+    block.className = 'smart-family-block';
+    block.style.borderColor = familyData.color.border;
+    block.style.background = familyData.color.bg;
+
+    // Header: hoofd & partner
+    const header = document.createElement('div');
+    header.className = 'smart-family-header';
+    header.style.background = familyData.color.header;
+    if (familyData.partnerName) {
+      header.innerHTML = `${familyData.headName} &amp;<br>${familyData.partnerName}`;
+    } else {
+      header.textContent = familyData.headName;
+    }
+    header.title = familyData.partnerName
+      ? `${familyData.headName} & ${familyData.partnerName}`
+      : familyData.headName;
+
+    // Klik op header → navigeer naar klassieke view
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeTreeId = familyData.headId;
+      smartViewMode = false;
+      smartViewOrigin = true;
+      try { sessionStorage.setItem(SMART_KEY, 'false'); } catch(e2) {}
+      render();
+      setTimeout(zoomFit, 100);
+    });
+    header.style.cursor = 'pointer';
+    header.title = 'Klik voor klassieke weergave';
+
+    block.appendChild(header);
+
+    // Kinderen in volgorde: mix van namen en sub-gezinnen
+    if (familyData.orderedChildren && familyData.orderedChildren.length > 0) {
+      familyData.orderedChildren.forEach(item => {
+        if (item.type === 'name') {
+          const nameEl = document.createElement('div');
+          nameEl.className = 'smart-family-child-name';
+          if (item.label.includes('\n')) {
+            nameEl.innerHTML = item.label.replace(/&/g, '&amp;').replace(/\n/g, '<br>');
+          } else {
+            nameEl.textContent = item.label;
+          }
+          block.appendChild(nameEl);
+        } else if (item.type === 'family') {
+          block.appendChild(renderFamilyBlock(item.data));
+        }
+      });
+    }
+
+    return block;
+  }
+
+  // Render alle root-bomen naast elkaar
+  trees.forEach(tree => {
+    smartContainer.appendChild(renderFamilyBlock(tree));
+  });
+
+  // Gebruik container in flow-layout (geen absolute pos)
+  canvas.style.width = 'auto';
+  canvas.style.height = 'auto';
+  container.appendChild(smartContainer);
+
+  // Verberg collapse toggles en tree labels
+  document.querySelectorAll('.collapse-toggle, .tree-label').forEach(el => el.remove());
+
+  // Toon/verberg back-knop
+  const backBtn = document.getElementById('btn-back-overview');
+  if (backBtn) backBtn.classList.add('hidden');
+
+  // Update smart view toggle knop
+  const smartBtn = document.getElementById('btn-smart-view');
+  if (smartBtn) smartBtn.classList.add('active');
+}
+
+// ============================================================
 // INIT
 // ============================================================
 (function init() {
@@ -7313,6 +7580,36 @@ async function compositeSVGOnCanvas(targetCanvas, clone, w, h, renderScale, offs
     hide.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
     // CSS klasse op body zodat kaart-knoppen ook verborgen zijn
     document.body.classList.add('readonly');
+  }
+
+  // Smart View toggle knop
+  const smartBtn = document.getElementById('btn-smart-view');
+  if (smartBtn) {
+    smartBtn.addEventListener('click', () => {
+      smartViewMode = !smartViewMode;
+      try { sessionStorage.setItem(SMART_KEY, String(smartViewMode)); } catch(e) {}
+      if (smartViewMode) {
+        activeTreeId = null;
+        smartViewOrigin = false;
+      } else {
+        smartViewOrigin = false;
+      }
+      render();
+      setTimeout(zoomFit, 100);
+    });
+  }
+
+  // Terug naar Smart View overzicht
+  const backBtn = document.getElementById('btn-back-overview');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      activeTreeId = null;
+      smartViewMode = true;
+      smartViewOrigin = false;
+      try { sessionStorage.setItem(SMART_KEY, 'true'); } catch(e) {}
+      render();
+      setTimeout(zoomFit, 100);
+    });
   }
 
   render();

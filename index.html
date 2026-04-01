@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Familie Stamboom</title>
-  <link rel="stylesheet" href="style.css?v=69">
+  <link rel="stylesheet" href="style.css?v=72">
   <script>
     window.onerror = function(msg, src, line, col, err) {
       var d = document.createElement('div');
@@ -65,6 +65,7 @@
       <span id="zoom-label">100%</span>
       <button id="btn-zoom-in" class="btn icon" title="Inzoomen">+</button>
       <button id="btn-zoom-fit" class="btn small" title="Alles tonen">Passend</button>
+      <button id="btn-smart-view" class="btn small" title="Smart View: compact overzicht">🔍 Smart</button>
     </div>
     <div class="toolbar-right desktop-only">
       <button id="btn-pdf" class="btn small" title="Download als PDF">📄 PDF</button>
@@ -136,6 +137,7 @@
         <span class="sidebar-section-title">EXTRA</span>
         <button class="btn primary" onclick="document.getElementById('btn-add-person').click()">+ Persoon</button>
         <button class="btn secondary" onclick="document.getElementById('btn-add-relation').click()">+ Relatie</button>
+        <button class="btn small secondary" onclick="document.getElementById('btn-smart-view').click()">🔍 Smart View</button>
         <button class="btn small secondary" onclick="document.getElementById('btn-pdf').click()">📄 PDF</button>
         <button class="btn small secondary" onclick="document.getElementById('btn-export').click()">Exporteer JSON</button>
         <button class="btn small secondary" onclick="document.getElementById('btn-import').click()">Importeer JSON</button>
@@ -145,6 +147,7 @@
 
     <!-- CANVAS WRAPPER -->
     <div id="canvas-wrapper">
+      <button id="btn-back-overview" class="btn primary hidden">← Overzicht</button>
       <div id="canvas">
         <svg id="svg-lines" xmlns="http://www.w3.org/2000/svg"></svg>
         <div id="cards-container"></div>
@@ -334,6 +337,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="app.js?v=69"></script>
+  <script src="app.js?v=75"></script>
 </body>
 </html>
