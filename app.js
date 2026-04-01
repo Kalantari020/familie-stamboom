@@ -1675,6 +1675,15 @@ const START_DATA = {
 // STORAGE
 // ============================================================
 const STORAGE_KEY = 'familieboom_v11';
+const DATA_VERSION_KEY = 'fb_data_version';
+
+// DATA_VERSION: verhoog dit getal ELKE keer dat START_DATA wordt gewijzigd.
+// Dit triggert een smart sync die:
+//   ✅ bestaande persoonsvelden updatet (naam, geboortedatum, etc.)
+//   ✅ nieuwe personen/relaties toevoegt
+//   ✅ relaties verwijdert die niet meer in START_DATA staan
+//   ✅ door gebruiker toegevoegde personen/relaties behoudt
+const DATA_VERSION = 2;
 
 function saveState() {
   try {
@@ -1689,11 +1698,8 @@ function loadState() {
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      // Altijd lokale data gebruiken als die bestaat — gebruikerswijzigingen gaan nooit verloren
       state = parsed;
-      // Smart merge: voeg ontbrekende personen en relaties toe uit START_DATA
-      // zodat updates aan START_DATA (bijv. 106→121 personen) automatisch verschijnen
-      mergeStartData();
+      syncWithStartData();
       return true;
     } catch (e) {
       console.error('[Stamboom] localStorage data is corrupt:', e);
@@ -1703,87 +1709,89 @@ function loadState() {
   return false;
 }
 
-function mergeStartData() {
-  const existingIds = new Set(state.persons.map(p => p.id));
-  // Bouw mapping om duplicaten te detecteren op naam + geboortedatum (of naam + familie als geen geboortedatum)
-  const findExistingMatch = (p) => {
-    return state.persons.find(ep => {
-      if (ep.name !== p.name) return false;
-      // Zelfde naam EN zelfde geboortedatum → duplicaat
-      if (ep.birthdate && p.birthdate) return ep.birthdate === p.birthdate;
-      // Een van beide heeft geen geboortedatum → match alleen als zelfde familienaam
-      if (!ep.birthdate || !p.birthdate) return (ep.family || '') === (p.family || '') && (ep.family || '') !== '';
-      return false;
-    });
-  };
-  const idMap = {}; // START_DATA id → bestaand id (voor relatie-remapping)
-  let added = 0;
+// Smart sync: synchroniseer localStorage met START_DATA op basis van DATA_VERSION.
+// Drie operaties:
+//   1. UPDATE: personen die in START_DATA staan → update velden (naam, geboortedatum, etc.)
+//   2. ADD:    personen/relaties in START_DATA die niet in localStorage staan → toevoegen
+//   3. DELETE: relaties die in de VORIGE versie van START_DATA stonden maar nu niet meer → verwijderen
+//
+// Alles wat de gebruiker zelf heeft toegevoegd via de UI blijft behouden.
+function syncWithStartData() {
+  const storedVersion = parseInt(localStorage.getItem(DATA_VERSION_KEY) || '0', 10);
+  if (storedVersion >= DATA_VERSION) return; // al gesynchroniseerd
 
-  // Voeg ontbrekende personen toe (check op ID én naam)
-  START_DATA.persons.forEach(p => {
-    if (existingIds.has(p.id)) return; // ID bestaat al
-    const match = findExistingMatch(p);
-    if (match) {
-      // Persoon bestaat al onder ander ID — remap, niet toevoegen
-      idMap[p.id] = match.id;
-      return;
-    }
-    state.persons.push(JSON.parse(JSON.stringify(p)));
-    existingIds.add(p.id);
+  console.log(`[Stamboom] Data sync: v${storedVersion} → v${DATA_VERSION}`);
+  const startIds = new Set(START_DATA.persons.map(p => p.id));
+  let updated = 0, added = 0, removed = 0;
+
+  // --- Relatie-sleutel helper ---
+  const relKey = r => {
+    if (r.type === 'partner' || r.type === 'sibling')
+      return `${r.type}|${[r.person1Id, r.person2Id].sort().join(',')}`;
+    return `${r.type}|${r.parentId || r.person1Id}|${r.childId || r.person2Id}`;
+  };
+
+  // --- 1. UPDATE bestaande personen ---
+  // Alleen velden die in START_DATA staan worden bijgewerkt.
+  // Foto's en notities van de gebruiker worden NIET overschreven.
+  const userOnlyFields = ['photo', 'notes']; // velden die de gebruiker zelf beheert
+  START_DATA.persons.forEach(sp => {
+    const existing = state.persons.find(p => p.id === sp.id);
+    if (!existing) return;
+    Object.keys(sp).forEach(key => {
+      if (key === 'id') return; // ID nooit wijzigen
+      if (userOnlyFields.includes(key) && existing[key]) return; // gebruikersdata behouden
+      if (existing[key] !== sp[key]) {
+        existing[key] = sp[key];
+        updated++;
+      }
+    });
+  });
+
+  // --- 2. ADD ontbrekende personen ---
+  const existingIds = new Set(state.persons.map(p => p.id));
+  START_DATA.persons.forEach(sp => {
+    if (existingIds.has(sp.id)) return;
+    state.persons.push(JSON.parse(JSON.stringify(sp)));
+    existingIds.add(sp.id);
     added++;
   });
 
-  // Voeg ontbrekende relaties toe (met ID-remapping)
-  const remapId = id => idMap[id] || id;
-  const relKey = r => {
-    if (r.type === 'partner') return `${r.type}|${[remapId(r.person1Id),remapId(r.person2Id)].sort().join(',')}`;
-    return `${r.type}|${remapId(r.parentId||r.person1Id)}|${remapId(r.childId||r.person2Id)}`;
-  };
+  // --- 3. ADD ontbrekende relaties ---
   const existingRels = new Set(state.relationships.map(relKey));
-  START_DATA.relationships.forEach(r => {
-    const mapped = JSON.parse(JSON.stringify(r));
-    if (mapped.parentId) mapped.parentId = remapId(mapped.parentId);
-    if (mapped.childId) mapped.childId = remapId(mapped.childId);
-    if (mapped.person1Id) mapped.person1Id = remapId(mapped.person1Id);
-    if (mapped.person2Id) mapped.person2Id = remapId(mapped.person2Id);
-    const key = relKey(mapped);
+  START_DATA.relationships.forEach(sr => {
+    const key = relKey(sr);
     if (!existingRels.has(key)) {
-      state.relationships.push(mapped);
+      state.relationships.push(JSON.parse(JSON.stringify(sr)));
       existingRels.add(key);
       added++;
     }
   });
 
-  // Dedup: verwijder dubbele personen (zelfde naam + geboortedatum, of zelfde naam + familie als geen geboortedatum) en merge hun relaties
-  const dedupKey = (p) => {
-    if (p.birthdate) return `${p.name}|bd:${p.birthdate}`;
-    return `${p.name}|fam:${(p.family || '').toLowerCase()}`;
-  };
-  const byKey = {};
-  state.persons.forEach(p => {
-    const k = dedupKey(p);
-    if (!byKey[k]) byKey[k] = [];
-    byKey[k].push(p);
-  });
-  let deduped = 0;
-  Object.values(byKey).forEach(group => {
-    if (group.length < 2) return;
-    // Houd de eerste, merge relaties van de rest
-    const keep = group[0];
-    for (let i = 1; i < group.length; i++) {
-      const dupe = group[i];
-      // Hermap alle relaties van dupe naar keep
-      state.relationships.forEach(r => {
-        if (r.parentId === dupe.id) r.parentId = keep.id;
-        if (r.childId === dupe.id) r.childId = keep.id;
-        if (r.person1Id === dupe.id) r.person1Id = keep.id;
-        if (r.person2Id === dupe.id) r.person2Id = keep.id;
-      });
-      // Verwijder dubbele persoon
-      state.persons = state.persons.filter(p => p.id !== dupe.id);
-      deduped++;
+  // --- 4. DELETE relaties die niet meer in START_DATA staan ---
+  // Alleen relaties verwijderen waarvan BEIDE personen in START_DATA staan
+  // (= relaties die oorspronkelijk uit START_DATA kwamen).
+  // Relaties met door-gebruiker-toegevoegde personen blijven altijd behouden.
+  const startRelKeys = new Set(START_DATA.relationships.map(relKey));
+  const before = state.relationships.length;
+  state.relationships = state.relationships.filter(r => {
+    const key = relKey(r);
+    // Relatie staat in START_DATA → behouden
+    if (startRelKeys.has(key)) return true;
+    // Check of BEIDE personen uit START_DATA komen
+    const ids = [r.parentId, r.childId, r.person1Id, r.person2Id].filter(Boolean);
+    const bothFromStart = ids.every(id => startIds.has(id));
+    if (bothFromStart) {
+      // Relatie was oorspronkelijk uit START_DATA maar is verwijderd → ook hier verwijderen
+      removed++;
+      return false;
     }
-    // Verwijder dubbele relaties na merge
+    // Minstens één persoon is door gebruiker toegevoegd → behouden
+    return true;
+  });
+
+  // --- 5. DEDUP: verwijder dubbele relaties ---
+  {
     const seen = new Set();
     state.relationships = state.relationships.filter(r => {
       const k = relKey(r);
@@ -1791,11 +1799,14 @@ function mergeStartData() {
       seen.add(k);
       return true;
     });
-  });
+  }
 
-  if (added > 0 || deduped > 0) {
-    saveState();
-    console.log(`[Stamboom] Merge: ${added} toegevoegd, ${deduped} duplicaten samengevoegd`);
+  // Opslaan en versie bijwerken
+  localStorage.setItem(DATA_VERSION_KEY, String(DATA_VERSION));
+  saveState();
+
+  if (updated || added || removed) {
+    console.log(`[Stamboom] Sync klaar: ${updated} bijgewerkt, ${added} toegevoegd, ${removed} verwijderd`);
   }
 }
 
