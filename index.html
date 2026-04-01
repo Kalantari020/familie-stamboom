@@ -65,6 +65,7 @@
       <span id="zoom-label">100%</span>
       <button id="btn-zoom-in" class="btn icon" title="Inzoomen">+</button>
       <button id="btn-zoom-fit" class="btn small" title="Alles tonen">Passend</button>
+      <button id="btn-layout-toggle" class="btn small layout-toggle" title="Wissel layout: rij of matrix">═══ Rij</button>
     </div>
     <div class="toolbar-right desktop-only">
       <button id="btn-publish" class="btn small publish" title="Exporteer en publiceer wijzigingen voor de familie">📤 Publiceer</button>
@@ -164,6 +165,10 @@
       <div id="canvas">
         <svg id="svg-lines" xmlns="http://www.w3.org/2000/svg"></svg>
         <div id="cards-container"></div>
+      </div>
+      <div id="minimap">
+        <canvas id="minimap-canvas"></canvas>
+        <div id="minimap-viewport"></div>
       </div>
     </div>
 

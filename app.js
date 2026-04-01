@@ -8,6 +8,10 @@ const V_GAP   = 90;
 const PADDING = 50;
 const USER_ID = 's11'; // Hakim Khan Sayedi
 
+// Layout mode: 'row' (standaard) of 'matrix' (kinderen in grid)
+let layoutMode = localStorage.getItem('fb_layout_mode') || 'row';
+const MATRIX_COLS = 3; // aantal kolommen in matrix-layout
+
 // ============================================================
 // STATE
 // ============================================================
@@ -4184,14 +4188,59 @@ function computeLayout(overrideIds) {
         });
       });
 
-      const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
-      let startX = parentCenter - totalW / 2;
-      if (startX < cursorX) startX = cursorX;
+      // === Matrix vs Rij plaatsing ===
+      if (layoutMode === 'matrix' && group.children.length > MATRIX_COLS) {
+        // Matrix-layout: kinderen + partners in een grid
+        // Bouw "units" per kind: [partner1?, kind, partner2?, ghost?]
+        const childUnits = [];
+        const expandedSet = new Set(expanded);
+        let ei = 0;
+        while (ei < expanded.length) {
+          const unit = [];
+          // Zoek het volgende kind uit group.children
+          while (ei < expanded.length && !group.children.includes(expanded[ei])) {
+            unit.push(expanded[ei]); ei++;
+          }
+          if (ei < expanded.length) {
+            unit.push(expanded[ei]); ei++;
+            // Pak partners/ghosts die erna komen (tot volgend kind of einde)
+            while (ei < expanded.length && !group.children.includes(expanded[ei])) {
+              unit.push(expanded[ei]); ei++;
+            }
+          }
+          if (unit.length) childUnits.push(unit);
+        }
+        const cols = MATRIX_COLS;
+        const rows = Math.ceil(childUnits.length / cols);
+        // Bereken maximale unit-breedte per kolom
+        const maxUnitW = Math.max(...childUnits.map(u => u.length * NODE_W + (u.length - 1) * H_GAP));
+        const gridW = cols * maxUnitW + (cols - 1) * H_GAP;
+        let startX = parentCenter - gridW / 2;
+        if (startX < cursorX) startX = cursorX;
+        const matrixRowGap = NODE_H + V_GAP * 0.5; // minder ruimte tussen matrix-rijen
+        childUnits.forEach((unit, idx) => {
+          const col = idx % cols;
+          const row = Math.floor(idx / cols);
+          const unitStartX = startX + col * (maxUnitW + H_GAP);
+          const unitY = yPos + row * matrixRowGap;
+          unit.forEach((id, j) => {
+            pos[id] = { x: unitStartX + j * (NODE_W + H_GAP), y: unitY };
+          });
+        });
+        cursorX = startX + gridW + H_GAP;
+        // Track extra generaties door matrix-rijen (voor juiste lijn-tekening)
+        // Matrix-kinderen op rij > 0 krijgen een aangepaste y maar blijven in dezelfde generatie
+      } else {
+        // Standaard rij-layout
+        const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
+        let startX = parentCenter - totalW / 2;
+        if (startX < cursorX) startX = cursorX;
 
-      expanded.forEach((id, i) => {
-        pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
-      });
-      cursorX = startX + totalW + H_GAP;
+        expanded.forEach((id, i) => {
+          pos[id] = { x: startX + i * (NODE_W + H_GAP), y: yPos };
+        });
+        cursorX = startX + totalW + H_GAP;
+      }
 
       // --- Cross-family ghost-kinderen aanmaken ---
       // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
@@ -4577,6 +4626,72 @@ function computeLayout(overrideIds) {
       // Na verschuiving: scanX aanpassen (volgende scan start eerder)
       scanX -= shift;
     }
+  }
+
+  // --- Sugiyama barycenter: minimaliseer lijnkruisingen ---
+  // Veilige versie: herorder alleen SIBLINGS binnen dezelfde ouder-groep
+  // Dit voorkomt dat partners uit elkaar getrokken worden
+  {
+    // Groepeer siblings per ouderpaar
+    const siblingGroups = {};
+    gens.filter(g => g > 0).forEach(gen => {
+      (byGen[gen] || []).forEach(id => {
+        if (!pos[id] || id.startsWith(CROSS_GHOST_PREFIX)) return;
+        const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
+        if (!ps.length) return;
+        const key = gen + ':' + ps.join(',');
+        if (!siblingGroups[key]) siblingGroups[key] = [];
+        siblingGroups[key].push(id);
+      });
+    });
+
+    // Per sibling-groep: herorder op basis van barycenter van hun kinderen
+    // Dit minimaliseert kruisingen naar de volgende generatie
+    Object.values(siblingGroups).forEach(siblings => {
+      if (siblings.length < 2) return;
+
+      // Bouw units (sibling + partners) zodat ze als geheel verschuiven
+      const units = siblings.map(id => {
+        const partners = (partnersOf[id] || []).filter(pid =>
+          pos[pid] && genOf[pid] === genOf[id] &&
+          Math.abs(pos[pid].x - pos[id].x) <= MAX_PARTNER_DIST
+        );
+        // Voeg ghosts toe
+        const ghosts = (ghostsAdjacentTo[id] || []).filter(gid => pos[gid]);
+        return { lead: id, members: [id, ...partners, ...ghosts].sort((a, b) => pos[a].x - pos[b].x) };
+      });
+
+      // Bereken barycenter per unit (gemiddelde x van alle kinderen)
+      units.forEach(u => {
+        const allKids = [];
+        u.members.forEach(mid => {
+          (childrenOf[mid] || []).filter(cid => pos[cid]).forEach(cid => allKids.push(cid));
+        });
+        u.bary = allKids.length > 0
+          ? allKids.reduce((s, cid) => s + pos[cid].x, 0) / allKids.length
+          : pos[u.lead].x;
+      });
+
+      // Huidige volgorde (op x-positie)
+      const currentOrder = [...units].sort((a, b) => pos[a.lead].x - pos[b.lead].x);
+      const desiredOrder = [...units].sort((a, b) => a.bary - b.bary);
+
+      // Als volgorde al correct is, niets doen
+      if (currentOrder.every((u, i) => u.lead === desiredOrder[i].lead)) return;
+
+      // Swap: wijs gewenste volgorde toe aan bestaande slot-posities
+      const slotXs = currentOrder.map(u => Math.min(...u.members.map(m => pos[m].x)));
+      desiredOrder.forEach((unit, i) => {
+        const currentMinX = Math.min(...unit.members.map(m => pos[m].x));
+        const dx = slotXs[i] - currentMinX;
+        if (Math.abs(dx) > 0.5) {
+          unit.members.forEach(m => { pos[m].x += dx; });
+        }
+      });
+    });
+
+    // Eén fixOverlaps pass na alle swaps
+    gens.forEach(gen => fixOverlaps(gen));
   }
 
   // Normalize so minimum is at PADDING
@@ -5462,7 +5577,146 @@ function render() {
   renderTreeLabels(pos, treeRanges);
   renderCollapseToggles(pos);
   renderSidebar(document.getElementById('search').value);
+  updateMinimap(pos);
+  applyVirtualization(pos);
 }
+
+// ============================================================
+// MINIMAP
+// ============================================================
+function updateMinimap(pos) {
+  const minimap = document.getElementById('minimap');
+  const canvas = document.getElementById('minimap-canvas');
+  if (!minimap || !canvas || !pos) return;
+
+  const ctx = canvas.getContext('2d');
+  const mmW = 200, mmH = 150;
+  canvas.width = mmW;
+  canvas.height = mmH;
+
+  // Bereken bounds van alle nodes
+  const ids = Object.keys(pos).filter(id => !id.startsWith('__cg__'));
+  if (!ids.length) { minimap.style.display = 'none'; return; }
+  minimap.style.display = '';
+
+  const minPosX = Math.min(...ids.map(id => pos[id].x));
+  const maxPosX = Math.max(...ids.map(id => pos[id].x + NODE_W));
+  const minPosY = Math.min(...ids.map(id => pos[id].y));
+  const maxPosY = Math.max(...ids.map(id => pos[id].y + NODE_H));
+  const treeW = maxPosX - minPosX || 1;
+  const treeH = maxPosY - minPosY || 1;
+
+  const scale = Math.min((mmW - 8) / treeW, (mmH - 8) / treeH);
+  const offX = (mmW - treeW * scale) / 2;
+  const offY = (mmH - treeH * scale) / 2;
+
+  ctx.clearRect(0, 0, mmW, mmH);
+
+  // Teken stippen voor elke persoon
+  ids.forEach(id => {
+    const p = pos[id];
+    const person = getPerson(id);
+    const cx = offX + (p.x - minPosX + NODE_W / 2) * scale;
+    const cy = offY + (p.y - minPosY + NODE_H / 2) * scale;
+    const r = Math.max(1.5, Math.min(4, NODE_W * scale * 0.3));
+
+    ctx.fillStyle = person?.gender === 'f' ? '#f472b6' :
+                    person?.gender === 'm' ? '#60a5fa' : '#94a3b8';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Update viewport indicator
+  const wrapper = document.getElementById('canvas-wrapper');
+  const viewport = document.getElementById('minimap-viewport');
+  if (!wrapper || !viewport) return;
+
+  const z = zoom || 1;
+  const vpX = wrapper.scrollLeft / z;
+  const vpY = wrapper.scrollTop / z;
+  const vpW = wrapper.clientWidth / z;
+  const vpH = wrapper.clientHeight / z;
+
+  viewport.style.left   = (offX + (vpX - minPosX) * scale) + 'px';
+  viewport.style.top    = (offY + (vpY - minPosY) * scale) + 'px';
+  viewport.style.width  = (vpW * scale) + 'px';
+  viewport.style.height = (vpH * scale) + 'px';
+
+  // Sla minimap-data op voor klik-navigatie
+  minimap._mmData = { minPosX, minPosY, treeW, treeH, scale, offX, offY };
+}
+
+// Minimap klik/drag navigatie
+(function() {
+  const minimap = document.getElementById('minimap');
+  if (!minimap) return;
+
+  function navigateToMinimap(e) {
+    const data = minimap._mmData;
+    if (!data) return;
+    const rect = minimap.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    // Vertaal minimap-coördinaten naar canvas-coördinaten
+    const canvasX = data.minPosX + (mx - data.offX) / data.scale;
+    const canvasY = data.minPosY + (my - data.offY) / data.scale;
+
+    const wrapper = document.getElementById('canvas-wrapper');
+    const z = zoom || 1;
+    wrapper.scrollLeft = canvasX * z - wrapper.clientWidth / 2;
+    wrapper.scrollTop  = canvasY * z - wrapper.clientHeight / 2;
+  }
+
+  let dragging = false;
+  minimap.addEventListener('mousedown', e => { dragging = true; navigateToMinimap(e); });
+  window.addEventListener('mousemove', e => { if (dragging) navigateToMinimap(e); });
+  window.addEventListener('mouseup', () => { dragging = false; });
+})();
+
+// ============================================================
+// VIEWPORT VIRTUALISATIE
+// ============================================================
+function applyVirtualization(pos) {
+  const wrapper = document.getElementById('canvas-wrapper');
+  if (!wrapper || !pos) return;
+
+  const z = zoom || 1;
+  const vpLeft   = wrapper.scrollLeft / z - 300;  // marge
+  const vpTop    = wrapper.scrollTop / z - 300;
+  const vpRight  = (wrapper.scrollLeft + wrapper.clientWidth) / z + 300;
+  const vpBottom = (wrapper.scrollTop + wrapper.clientHeight) / z + 300;
+
+  const container = document.getElementById('cards-container');
+  if (!container) return;
+
+  const cards = container.querySelectorAll('.card');
+  cards.forEach(card => {
+    const id = card.dataset.id;
+    if (!id || !pos[id]) return;
+    const p = pos[id];
+    const visible = p.x + NODE_W >= vpLeft && p.x <= vpRight &&
+                    p.y + NODE_H >= vpTop && p.y <= vpBottom;
+    card.classList.toggle('virtualized-hidden', !visible);
+  });
+}
+
+// Update virtualisatie bij scroll
+(function() {
+  const wrapper = document.getElementById('canvas-wrapper');
+  if (!wrapper) return;
+  let scrollTimer;
+  wrapper.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      if (lastPositions) {
+        applyVirtualization(lastPositions);
+        updateMinimap(lastPositions);
+      }
+    }, 80);
+  });
+})();
 
 // ============================================================
 // ZOOM
@@ -6587,6 +6841,28 @@ document.getElementById('btn-new-family').addEventListener('click', () => {
 document.getElementById('btn-zoom-in').addEventListener('click',  () => setZoom(zoom + 0.1));
 document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
 document.getElementById('btn-zoom-fit').addEventListener('click', zoomFit);
+
+// Layout toggle: rij ↔ matrix
+(function() {
+  const btn = document.getElementById('btn-layout-toggle');
+  function updateLabel() {
+    if (layoutMode === 'matrix') {
+      btn.textContent = '▦ Matrix';
+      btn.classList.add('matrix');
+    } else {
+      btn.textContent = '═══ Rij';
+      btn.classList.remove('matrix');
+    }
+  }
+  updateLabel();
+  btn.addEventListener('click', () => {
+    layoutMode = layoutMode === 'row' ? 'matrix' : 'row';
+    localStorage.setItem('fb_layout_mode', layoutMode);
+    updateLabel();
+    render();
+    setTimeout(zoomFit, 50);
+  });
+})();
 
 // Mobiel: sidebar toggle
 (function() {
