@@ -1051,6 +1051,20 @@ function computeLayout(overrideIds) {
     fixOverlaps(gen);
   });
 
+  // --- Cross-family childrenOf fix: voorkom dubbele cascade ---
+  // Na het bepalen van crossFamilyChildAnchor, verwijder cross-family kinderen
+  // uit childrenOf voor de niet-anchor ouder. Zo cascaden alle ouder-shifts
+  // alleen via de anchor-ouder naar de kinderen.
+  Object.entries(crossFamilyChildAnchor).forEach(([childId, anchorParentId]) => {
+    // Vind alle ouders van dit kind
+    const allParents = (parentsOf[childId] || []);
+    allParents.forEach(pid => {
+      if (pid !== anchorParentId && childrenOf[pid]) {
+        childrenOf[pid] = childrenOf[pid].filter(cid => cid !== childId);
+      }
+    });
+  });
+
   // --- Compactie (vóór bottom-up): sluit gaten op elke generatie ---
   // Door eerst te compacteren, worden kinderen dichter bij elkaar geplaatst.
   // De bottom-up centering die hierna volgt plaatst ouders dan ook dichter bij elkaar.
@@ -1199,7 +1213,13 @@ function computeLayout(overrideIds) {
 
       Object.values(sibGroups).forEach(siblings => {
         if (siblings.length < 2) return;
-        if (!siblings.some(id => getPerson(id)?.birthOrder != null)) return;
+        // Ook sorteren op geboortedatum als niemand birthOrder heeft
+        const hasBirthOrder = siblings.some(id => getPerson(id)?.birthOrder != null);
+        const hasBirthdate = siblings.some(id => {
+          const bd = parseBirthdate(getPerson(id)?.birthdate);
+          return bd && bd.year;
+        });
+        if (!hasBirthOrder && !hasBirthdate) return;
 
         const currentOrder = [...siblings].sort((a, b) => pos[a].x - pos[b].x);
         const desiredOrder = [...siblings].sort((a, b) => {
@@ -1221,21 +1241,45 @@ function computeLayout(overrideIds) {
         if (desiredOrder.every((id, i) => id === currentOrder[i])) return;
 
         // Verzamel units (sibling + partners op dezelfde generatie)
+        // Filter cross-family partners eruit (net als centering) en neem ghosts mee
         const units = {};
         siblings.forEach(id => {
-          const partners = (partnersOf[id] || []).filter(pid => genOf[pid] === gen && pos[pid]);
-          units[id] = [id, ...partners];
+          const partners = (partnersOf[id] || []).filter(pid => {
+            if (genOf[pid] !== gen || !pos[pid]) return false;
+            // Skip cross-family partner originelen die ver weg staan
+            const dist = Math.abs(pos[pid].x - pos[id].x);
+            if (dist > 3 * (NODE_W + H_GAP)) {
+              const ghostId = CROSS_GHOST_PREFIX + pid + '_' + id;
+              if (pos[ghostId]) return false;
+            }
+            return true;
+          });
+          // Voeg ghost-partners toe in plaats van ver-weg originelen
+          const ghostPartners = [];
+          (ghostsAdjacentTo[id] || []).forEach(gid => {
+            if (pos[gid] && !partners.includes(gid)) ghostPartners.push(gid);
+          });
+          units[id] = [id, ...partners, ...ghostPartners];
         });
         // Huidige slot-posities: linkerkant van elke unit in huidige volgorde
         const slotXs = currentOrder.map(id => Math.min(...units[id].map(uid => pos[uid].x)));
         // Wijs gewenste volgorde toe aan de bestaande slots
+        // Track verschuivingen om nakomelingen mee te cascaden
+        const birthOrderShifts = {};
         desiredOrder.forEach((id, i) => {
           const unit = units[id];
           const currentMinX = Math.min(...unit.map(uid => pos[uid].x));
           const dx = slotXs[i] - currentMinX;
           if (Math.abs(dx) > 0.5) {
             unit.forEach(uid => { pos[uid].x += dx; });
+            birthOrderShifts[id] = dx;
           }
+        });
+        // Cascade: verschuif nakomelingen mee na birthOrder swap
+        Object.entries(birthOrderShifts).forEach(([id, dx]) => {
+          (childrenOf[id] || []).forEach(cid => {
+            if (pos[cid]) shiftWithDescendants(cid, dx);
+          });
         });
       });
     }
@@ -1433,7 +1477,24 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const validChildren = [...children].filter(cid => lpos[cid]);
       if (!validParents.length || !validChildren.length) return;
 
-      const parentCXs = validParents.map(pid => lcx(pid));
+      // --- Fix A: Cross-family aware drop point ---
+      // Als ouders > 3*(NODE_W+H_GAP) uit elkaar staan, gebruik alleen de ouder
+      // die het dichtst bij de kinderen staat. Ghost-kinderen worden apart afgehandeld (Fix C).
+      let effectiveParents = validParents;
+      if (validParents.length === 2) {
+        const CROSS_THRESHOLD = 3 * (NODE_W + H_GAP);
+        const dist = Math.abs(lcx(validParents[0]) - lcx(validParents[1]));
+        if (dist > CROSS_THRESHOLD) {
+          // Bepaal welke ouder het dichtst bij de kinderen staat
+          const childCenterX = validChildren.reduce((s, cid) => s + lcx(cid), 0) / validChildren.length;
+          const dist0 = Math.abs(lcx(validParents[0]) - childCenterX);
+          const dist1 = Math.abs(lcx(validParents[1]) - childCenterX);
+          // Gebruik alleen de dichtstbijzijnde ouder; de andere wordt via ghost-kinderen afgehandeld
+          effectiveParents = dist0 <= dist1 ? [validParents[0]] : [validParents[1]];
+        }
+      }
+
+      const parentCXs = effectiveParents.map(pid => lcx(pid));
       const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
       const dropY = Math.max(...validParents.map(pid => lbotY(pid)));
       const childTopY = Math.min(...validChildren.map(cid => ltopY(cid)));
@@ -1577,6 +1638,87 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
           const my  = Math.min(ry, gy) - dip;
           parts.push(`<path d="M ${rx} ${ry} Q ${mx} ${my}, ${gx} ${gy}" class="duplicate-link"/>`);
         }
+      }
+    });
+
+    // --- Fix C: Ghost-kinderen lijnen tekenen ---
+    // Groepeer ghost-kinderen en ghost-ouders uit duplicates per treeHeadId
+    const dupArr = Object.values(duplicates);
+
+    // Identificeer ghost-kinderen: entries waarvan personId als kind voorkomt in parent-child relaties
+    // en adjacentTo een ouder is (= de ghost staat naast een ouder)
+    const ghostChildren = dupArr.filter(dup => {
+      if (!dup.adjacentTo) return false;
+      // Check of adjacentTo een ouder is van personId
+      return state.relationships.some(r =>
+        r.type === 'parent-child' && r.childId === dup.personId && r.parentId === dup.adjacentTo
+      );
+    });
+
+    // Groepeer ghost-kinderen per ouder-set (adjacentTo + mede-ouder)
+    const ghostChildFamilies = new Map();
+    ghostChildren.forEach(gc => {
+      // Vind alle ouders van dit kind
+      const parentIds = state.relationships
+        .filter(r => r.type === 'parent-child' && r.childId === gc.personId)
+        .map(r => r.parentId)
+        .sort();
+      const key = parentIds.join(',') + ':' + (gc.treeHeadId || '');
+      if (!ghostChildFamilies.has(key)) {
+        ghostChildFamilies.set(key, { parentIds, children: [], treeHeadId: gc.treeHeadId });
+      }
+      ghostChildFamilies.get(key).children.push(gc);
+    });
+
+    // Teken lijnen voor elke ghost-kind familie
+    ghostChildFamilies.forEach(({ parentIds, children, treeHeadId }) => {
+      // Vind ghost-ouder posities: duplicates van de ouders in dezelfde boom,
+      // of de adjacentTo ouder (die in pos staat)
+      const ghostParentPositions = [];
+      parentIds.forEach(pid => {
+        // Zoek ghost-ouder in duplicates (zelfde boom)
+        const ghostParent = dupArr.find(d =>
+          d.personId === pid && d.adjacentTo && d.treeHeadId === treeHeadId
+        );
+        if (ghostParent) {
+          ghostParentPositions.push({ x: ghostParent.x + NODE_W / 2, y: ghostParent.y + NODE_H });
+        } else if (pos[pid]) {
+          // Originele positie als fallback (als ouder in pos staat in deze buurt)
+          const avgChildX = children.reduce((s, c) => s + c.x, 0) / children.length;
+          const dist = Math.abs(pos[pid].x - avgChildX);
+          if (dist < 3 * (NODE_W + H_GAP)) {
+            ghostParentPositions.push({ x: pos[pid].x + NODE_W / 2, y: pos[pid].y + NODE_H });
+          }
+        }
+      });
+
+      if (!ghostParentPositions.length || !children.length) return;
+
+      const dropX = ghostParentPositions.reduce((s, p) => s + p.x, 0) / ghostParentPositions.length;
+      const dropY = Math.max(...ghostParentPositions.map(p => p.y));
+      const childTopY = Math.min(...children.map(c => c.y));
+      const midDropY = dropY + (childTopY - dropY) * 0.45;
+
+      // Verticale lijn van ouders naar midDropY
+      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
+
+      // Sorteer kinderen op x-positie
+      children.sort((a, b) => a.x - b.x);
+      const childCXs = children.map(c => c.x + NODE_W / 2);
+
+      if (children.length === 1) {
+        const cx = childCXs[0];
+        parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${cx}" y2="${midDropY}" class="child-line"/>`);
+        parts.push(`<line x1="${cx}" y1="${midDropY}" x2="${cx}" y2="${children[0].y}" class="child-line"/>`);
+      } else {
+        const leftX = childCXs[0];
+        const rightX = childCXs[childCXs.length - 1];
+        // Horizontale balk
+        parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+        // Verticale lijnen naar elk ghost-kind
+        children.forEach((c, i) => {
+          parts.push(`<line x1="${childCXs[i]}" y1="${midDropY}" x2="${childCXs[i]}" y2="${c.y}" class="child-line"/>`);
+        });
       }
     });
   }
