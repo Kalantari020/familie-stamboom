@@ -451,6 +451,7 @@ html, body {
   background: var(--canvas-bg);
   position: relative;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
 #canvas-wrapper::-webkit-scrollbar { width: 8px; height: 8px; }
 #canvas-wrapper::-webkit-scrollbar-track { background: #e2e8f0; }

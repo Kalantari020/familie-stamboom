@@ -6881,31 +6881,48 @@ document.getElementById('btn-zoom-fit').addEventListener('click', zoomFit);
 // Pinch-to-zoom op mobiel
 (function() {
   const wrapper = document.getElementById('canvas-wrapper');
+  let pinching = false;
   let startDist = 0;
   let startZoom = 1;
+  let lastZoom = 1;
 
-  function getDist(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
+  function getDist(t1, t2) {
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
   wrapper.addEventListener('touchstart', function(e) {
     if (e.touches.length === 2) {
-      e.preventDefault();
-      startDist = getDist(e.touches);
+      pinching = true;
+      startDist = getDist(e.touches[0], e.touches[1]);
       startZoom = zoom;
+    }
+  }, { passive: true });
+
+  wrapper.addEventListener('touchmove', function(e) {
+    if (pinching && e.touches.length === 2) {
+      e.preventDefault();
+      e.stopPropagation();
+      const dist = getDist(e.touches[0], e.touches[1]);
+      const ratio = dist / startDist;
+      const newZoom = Math.min(2, Math.max(0.15, startZoom * ratio));
+      if (Math.abs(newZoom - lastZoom) > 0.01) {
+        lastZoom = newZoom;
+        setZoom(newZoom);
+      }
     }
   }, { passive: false });
 
-  wrapper.addEventListener('touchmove', function(e) {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      const dist = getDist(e.touches);
-      const scale = dist / startDist;
-      setZoom(startZoom * scale);
+  wrapper.addEventListener('touchend', function(e) {
+    if (e.touches.length < 2) {
+      pinching = false;
     }
-  }, { passive: false });
+  }, { passive: true });
+
+  wrapper.addEventListener('touchcancel', function() {
+    pinching = false;
+  }, { passive: true });
 })();
 
 // Mobiel: sidebar toggle
