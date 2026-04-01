@@ -974,7 +974,8 @@
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1
+      "birthOrder": 1,
+      "socialBirthOrder": 3
     },
     {
       "id": "pmndyeaduhd1o",
@@ -1553,7 +1554,8 @@
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1
+      "birthOrder": null,
+      "socialBirthOrder": 1
     },
     {
       "id": "pmnfx5u9dct4w",
@@ -1565,7 +1567,8 @@
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 2
+      "birthOrder": 2,
+      "socialBirthOrder": 2
     },
     {
       "id": "pmnfx5u9dbm8a",
@@ -1575,7 +1578,10 @@
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2,
+      "socialBirthOrder": 4
     },
     {
       "id": "pmnfx8zrswvz9",
@@ -3043,6 +3049,11 @@
       "type": "parent-child",
       "parentId": "pmnfxaot46h83",
       "childId": "pmnfxbasnbq7c"
+    },
+    {
+      "type": "social-parent",
+      "parentId": "pmnfx2dl6dya9",
+      "childId": "pmndydlr61are"
     }
   ],
   "_version": 20260330020

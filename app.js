@@ -1161,7 +1161,8 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1
+      "birthOrder": 1,
+      "socialBirthOrder": 3
     },
     {
       "id": "pmndyeaduhd1o",
@@ -1740,7 +1741,8 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1
+      "birthOrder": null,
+      "socialBirthOrder": 1
     },
     {
       "id": "pmnfx5u9dct4w",
@@ -1752,7 +1754,8 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 2
+      "birthOrder": 2,
+      "socialBirthOrder": 2
     },
     {
       "id": "pmnfx5u9dbm8a",
@@ -1762,7 +1765,10 @@ const START_DATA = {
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2,
+      "socialBirthOrder": 4
     },
     {
       "id": "pmnfx8zrswvz9",
@@ -3230,6 +3236,11 @@ const START_DATA = {
       "type": "parent-child",
       "parentId": "pmnfxaot46h83",
       "childId": "pmnfxbasnbq7c"
+    },
+    {
+      "type": "social-parent",
+      "parentId": "pmnfx2dl6dya9",
+      "childId": "pmndydlr61are"
     }
   ],
   "_version": 20260330020
@@ -3248,7 +3259,7 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 4;
+const DATA_VERSION = 5;
 
 function saveState() {
   try {
@@ -3678,11 +3689,9 @@ function computeLayout(overrideIds) {
   }
 
   // Social-parent relaties verwerken:
-  // Alleen als het kind GEEN biologische ouders heeft in deze layout.
-  // Als het kind al bio-ouders heeft → het is een biologisch kind in deze boom,
-  // social-parent relatie negeren (die is alleen relevant in de boom van de social parent).
+  // Altijd registreren in socialChildIds (voor socialBirthOrder sortering).
+  // Alleen als parent-child toevoegen als het kind GEEN bio-ouders heeft.
   const socialChildIds = new Set(); // Track sociale kinderen voor sortering
-  // Bewaar de set van kinderen die al bio-ouders hebben VÓÓR social processing
   const hasBioParents = new Set();
   persons.forEach(p => {
     if (parentsOf[p.id].length > 0) hasBioParents.add(p.id);
@@ -3690,12 +3699,13 @@ function computeLayout(overrideIds) {
   pendingSocialParent.forEach(r => {
     if (childrenOf[r.parentId] === undefined) return; // social parent niet in layout
     if (parentsOf[r.childId] === undefined) return;   // kind niet in layout
-    // Heeft het kind biologische ouders in deze layout? (check vóór social processing)
-    if (hasBioParents.has(r.childId)) return; // ja → negeer social-parent
+    // Altijd als sociaal kind registreren (voor socialBirthOrder)
+    socialChildIds.add(r.childId);
+    // Heeft het kind biologische ouders in deze layout?
+    if (hasBioParents.has(r.childId)) return; // ja → NIET als parent-child toevoegen (voorkomt gen-shift)
     // Geen bio-ouders → social-parent als parent-child behandelen
     childrenOf[r.parentId].push(r.childId);
     parentsOf[r.childId].push(r.parentId);
-    socialChildIds.add(r.childId);
   });
 
   // Infer co-ouder paren (delen een kind maar hebben geen expliciete partner-relatie)
@@ -4009,25 +4019,56 @@ function computeLayout(overrideIds) {
     });
 
     // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
-    // Sociale kinderen krijgen een aparte groep zodat ze apart geplaatst worden
+    // Sociale kinderen worden samengevoegd met bio-kinderen van hun
+    // sociale ouder, zodat socialBirthOrder en birthOrder samen de volgorde bepalen.
     const groups = {};
+
+    // Bouw een map van sociale ouder → kind (voor het samenvoegen)
+    const socialParentOfChild = {}; // childId → [socialParentIds]
+    state.relationships.forEach(r => {
+      if (r.type !== 'social-parent') return;
+      if (!socialParentOfChild[r.childId]) socialParentOfChild[r.childId] = [];
+      socialParentOfChild[r.childId].push(r.parentId);
+    });
+
     withParents.forEach(id => {
-      const ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
-      const suffix = socialChildIds.has(id) ? ':social' : '';
-      const key = ps.join(',') + suffix;
+      let ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
+
+      // Als dit een sociaal kind is, voeg de sociale ouder (+ diens partner) toe
+      // aan de ouder-set zodat het kind in dezelfde groep terechtkomt als bio-kinderen
+      if (socialChildIds.has(id) && socialParentOfChild[id]) {
+        const allParents = new Set(ps);
+        socialParentOfChild[id].forEach(spId => {
+          if (pos[spId]) allParents.add(spId);
+          // Voeg ook de partner van de sociale ouder toe
+          (partnersOf[spId] || []).forEach(partnerId => {
+            if (pos[partnerId] && genOf[partnerId] === genOf[spId]) allParents.add(partnerId);
+          });
+        });
+        ps = [...allParents].sort();
+      }
+
+      const key = ps.join(',');
       if (!groups[key]) groups[key] = { parentIds: ps, children: [] };
       groups[key].children.push(id);
     });
 
     // Sorteer kinderen binnen elke groep: geboorte-volgorde → geboortedatum → onbekend
-    // birthOrder heeft ALTIJD voorrang (ook boven geboortedatum)
-    Object.values(groups).forEach(group => {
+    // socialBirthOrder heeft voorrang in sociale-kind groepen,
+    // birthOrder heeft voorrang in biologische groepen
+    Object.values(groups).forEach((group, _, __, groupKey) => {
       group.children.sort((a, b) => {
         const personA = getPerson(a);
         const personB = getPerson(b);
-        const boA = personA?.birthOrder;
-        const boB = personB?.birthOrder;
-        // birthOrder heeft altijd voorrang
+        // Kies de juiste volgorde: socialBirthOrder voor sociale kinderen,
+        // anders birthOrder
+        const isSocialA = socialChildIds.has(a);
+        const isSocialB = socialChildIds.has(b);
+        const boA = (isSocialA && personA?.socialBirthOrder != null)
+          ? personA.socialBirthOrder : personA?.birthOrder;
+        const boB = (isSocialB && personB?.socialBirthOrder != null)
+          ? personB.socialBirthOrder : personB?.birthOrder;
+        // Volgorde heeft altijd voorrang (ook boven geboortedatum)
         if (boA != null && boB != null) return boA - boB;
         if (boA != null) return -1;
         if (boB != null) return 1;
@@ -4045,7 +4086,6 @@ function computeLayout(overrideIds) {
     });
 
     // Sorteer groepen op het x-midden van hun ouders.
-    // Sociale-kind groepen komen NA bio groepen met dezelfde ouders.
     const sortedGroups = Object.entries(groups).sort(([keyA, a], [keyB, b]) => {
       const cx = g => {
         const xs = g.parentIds.map(pid => pos[pid].x + NODE_W / 2);
@@ -4053,9 +4093,8 @@ function computeLayout(overrideIds) {
       };
       const cxDiff = cx(a) - cx(b);
       if (Math.abs(cxDiff) > 1) return cxDiff;
-      // Zelfde ouders: bio groep eerst, social groep erna
-      const aSocial = keyA.endsWith(':social') ? 1 : 0;
-      const bSocial = keyB.endsWith(':social') ? 1 : 0;
+      const aSocial = 0;
+      const bSocial = 0;
       return aSocial - bSocial;
     }).map(([, g]) => g);
 
@@ -4367,7 +4406,11 @@ function computeLayout(overrideIds) {
       Object.values(sibGroups).forEach(siblings => {
         if (siblings.length < 2) return;
         // Ook sorteren op geboortedatum als niemand birthOrder heeft
-        const hasBirthOrder = siblings.some(id => getPerson(id)?.birthOrder != null);
+        const hasBirthOrder = siblings.some(id => {
+          const p = getPerson(id);
+          return p?.birthOrder != null ||
+            (socialChildIds.has(id) && p?.socialBirthOrder != null);
+        });
         const hasBirthdate = siblings.some(id => {
           const bd = parseBirthdate(getPerson(id)?.birthdate);
           return bd && bd.year;
@@ -4377,7 +4420,12 @@ function computeLayout(overrideIds) {
         const currentOrder = [...siblings].sort((a, b) => pos[a].x - pos[b].x);
         const desiredOrder = [...siblings].sort((a, b) => {
           const personA = getPerson(a), personB = getPerson(b);
-          const boA = personA?.birthOrder, boB = personB?.birthOrder;
+          const isSocA = socialChildIds.has(a);
+          const isSocB = socialChildIds.has(b);
+          const boA = (isSocA && personA?.socialBirthOrder != null)
+            ? personA.socialBirthOrder : personA?.birthOrder;
+          const boB = (isSocB && personB?.socialBirthOrder != null)
+            ? personB.socialBirthOrder : personB?.birthOrder;
           if (boA != null && boB != null) return boA - boB;
           if (boA != null) return -1;
           if (boB != null) return 1;
@@ -5574,6 +5622,7 @@ function openEditModal(id) {
   form.deathdate.value = person.deathdate || '';
   form.notes.value     = person.notes     || '';
   form.birthOrder.value = person.birthOrder || '';
+  form.socialBirthOrder.value = person.socialBirthOrder || '';
   document.getElementById('chk-deceased').checked = !!person.deceased;
   setPhotoPreview(person.photo || null);
 
@@ -5828,7 +5877,8 @@ document.getElementById('form-person').addEventListener('submit', e => {
     deceased:  form.deceased.checked,
     photo:     currentPhotoData,
     notes:     form.notes.value.trim(),
-    birthOrder: form.birthOrder.value ? parseInt(form.birthOrder.value, 10) : null
+    birthOrder: form.birthOrder.value ? parseInt(form.birthOrder.value, 10) : null,
+    socialBirthOrder: form.socialBirthOrder.value ? parseInt(form.socialBirthOrder.value, 10) : null
   };
   if (!data.name) return;
 
@@ -6216,11 +6266,19 @@ function openDetailModal(id) {
   const qaRelation     = modal.querySelector('#qa-relation');
   const qaOtherParentRow = modal.querySelector('#qa-other-parent-row');
   if (qaRelation && qaOtherParentRow) {
-    const updateOtherParentRow = () => {
-      qaOtherParentRow.style.display = qaRelation.value === 'child' ? '' : 'none';
+    const updateQaRelationUI = () => {
+      const val = qaRelation.value;
+      qaOtherParentRow.style.display = val === 'child' ? '' : 'none';
+      // Toon/verberg pleeg-volgorde veld op basis van relatietype
+      const isSocial = val === 'social-child-of';
+      const rows = modal.querySelectorAll('.qa-multi-row');
+      rows.forEach(row => {
+        const sboInput = row.querySelector('.qa-row-sbo');
+        if (sboInput) sboInput.style.display = isSocial ? '' : 'none';
+      });
     };
-    qaRelation.addEventListener('change', updateOtherParentRow);
-    updateOtherParentRow(); // direct tonen als "kind" al geselecteerd is
+    qaRelation.addEventListener('change', updateQaRelationUI);
+    updateQaRelationUI();
   }
 
   // ── Helper: maak één autocomplete-rij ─────────────────────────
@@ -6240,6 +6298,8 @@ function openDetailModal(id) {
         <option value="?">?</option>
       </select>
       <input type="text" class="qa-row-bd" placeholder="Geboortejaar" style="flex:2;min-width:90px">
+      <input type="number" class="qa-row-bo" placeholder="Volgorde" min="1" style="width:68px;flex-shrink:0" title="Geboorte-volgorde">
+      <input type="number" class="qa-row-sbo" placeholder="Pleeg-nr" min="1" style="width:68px;flex-shrink:0;display:none" title="Pleeg-volgorde (bij sociale ouder)">
       <button type="button" class="btn small danger qa-row-remove" style="flex-shrink:0;padding:4px 8px">✕</button>
     `;
 
@@ -6311,6 +6371,11 @@ function openDetailModal(id) {
     qaAddRow.addEventListener('click', () => {
       const newRow = createQaRow();
       qaRowsContainer.appendChild(newRow);
+      // Toon pleeg-volgorde als sociaal kind geselecteerd is
+      if (qaRelation && qaRelation.value === 'social-child-of') {
+        const sbo = newRow.querySelector('.qa-row-sbo');
+        if (sbo) sbo.style.display = '';
+      }
       newRow.querySelector('.qa-row-name').focus();
     });
   }
@@ -6330,10 +6395,19 @@ function openDetailModal(id) {
         const existId    = row.querySelector('.qa-row-existing-id').value;
         const gender     = row.querySelector('.qa-row-gender').value;
         const birthdate  = row.querySelector('.qa-row-bd').value.trim();
+        const boVal      = row.querySelector('.qa-row-bo')?.value;
+        const sboVal     = row.querySelector('.qa-row-sbo')?.value;
+        const birthOrder = boVal ? parseInt(boVal, 10) : null;
+        const socialBirthOrder = sboVal ? parseInt(sboVal, 10) : null;
         if (!nameTxt) return;
 
         if (existId) {
-          // ── Bestaande persoon: alleen relatie aanmaken ──────────
+          // ── Bestaande persoon: relatie aanmaken + volgorde updaten ──
+          const existPerson = getPerson(existId);
+          if (existPerson) {
+            if (birthOrder != null) existPerson.birthOrder = birthOrder;
+            if (socialBirthOrder != null) existPerson.socialBirthOrder = socialBirthOrder;
+          }
           if (relation === 'partner') {
             const exists = state.relationships.some(r =>
               r.type === 'partner' &&
@@ -6378,7 +6452,7 @@ function openDetailModal(id) {
 
         } else {
           // ── Nieuwe persoon aanmaken + relatie ───────────────────
-          const newPerson = { id: uid(), name: nameTxt, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false };
+          const newPerson = { id: uid(), name: nameTxt, gender, family: person.family || '', birthdate, deathdate: '', notes: '', deceased: false, birthOrder, socialBirthOrder };
           state.persons.push(newPerson);
 
           if (relation === 'partner') {
