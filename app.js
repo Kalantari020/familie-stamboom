@@ -5581,111 +5581,8 @@ function render() {
   renderTreeLabels(pos, treeRanges);
   renderCollapseToggles(pos);
   renderSidebar(document.getElementById('search').value);
-  updateMinimap(pos);
   applyVirtualization(pos);
 }
-
-// ============================================================
-// MINIMAP
-// ============================================================
-function updateMinimap(pos) {
-  const minimap = document.getElementById('minimap');
-  const canvas = document.getElementById('minimap-canvas');
-  if (!minimap || !canvas || !pos) return;
-
-  const ctx = canvas.getContext('2d');
-  const mmW = 200, mmH = 150;
-  canvas.width = mmW;
-  canvas.height = mmH;
-
-  // Bereken bounds van alle nodes
-  const ids = Object.keys(pos).filter(id => !id.startsWith('__cg__'));
-  if (!ids.length) { minimap.style.display = 'none'; return; }
-  minimap.style.display = '';
-
-  const minPosX = Math.min(...ids.map(id => pos[id].x));
-  const maxPosX = Math.max(...ids.map(id => pos[id].x + NODE_W));
-  const minPosY = Math.min(...ids.map(id => pos[id].y));
-  const maxPosY = Math.max(...ids.map(id => pos[id].y + NODE_H));
-  const treeW = maxPosX - minPosX || 1;
-  const treeH = maxPosY - minPosY || 1;
-
-  const scale = Math.min((mmW - 8) / treeW, (mmH - 8) / treeH);
-  const offX = (mmW - treeW * scale) / 2;
-  const offY = (mmH - treeH * scale) / 2;
-
-  ctx.clearRect(0, 0, mmW, mmH);
-
-  // Teken stippen voor elke persoon
-  ids.forEach(id => {
-    const p = pos[id];
-    const person = getPerson(id);
-    const cx = offX + (p.x - minPosX + NODE_W / 2) * scale;
-    const cy = offY + (p.y - minPosY + NODE_H / 2) * scale;
-    const r = Math.max(1.5, Math.min(4, NODE_W * scale * 0.3));
-
-    ctx.fillStyle = person?.gender === 'f' ? '#f472b6' :
-                    person?.gender === 'm' ? '#60a5fa' : '#94a3b8';
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Update viewport indicator
-  const wrapper = document.getElementById('canvas-wrapper');
-  const viewport = document.getElementById('minimap-viewport');
-  if (!wrapper || !viewport) return;
-
-  const z = zoom || 1;
-  const vpX = wrapper.scrollLeft / z;
-  const vpY = wrapper.scrollTop / z;
-  const vpW = wrapper.clientWidth / z;
-  const vpH = wrapper.clientHeight / z;
-
-  const vpLeft = Math.max(0, offX + (vpX - minPosX) * scale);
-  const vpTop  = Math.max(0, offY + (vpY - minPosY) * scale);
-  const vpWidth  = Math.min(mmW - vpLeft, vpW * scale);
-  const vpHeight = Math.min(mmH - vpTop, vpH * scale);
-  viewport.style.left   = vpLeft + 'px';
-  viewport.style.top    = vpTop + 'px';
-  viewport.style.width  = Math.max(8, vpWidth) + 'px';
-  viewport.style.height = Math.max(8, vpHeight) + 'px';
-
-  // Sla minimap-data op voor klik-navigatie
-  minimap._mmData = { minPosX, minPosY, treeW, treeH, scale, offX, offY };
-}
-
-// Minimap klik/drag navigatie
-(function() {
-  const minimap = document.getElementById('minimap');
-  if (!minimap) return;
-
-  function navigateToMinimap(e) {
-    const data = minimap._mmData;
-    if (!data) return;
-    const rect = minimap.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    // Vertaal minimap-coördinaten naar canvas-coördinaten
-    const canvasX = data.minPosX + (mx - data.offX) / data.scale;
-    const canvasY = data.minPosY + (my - data.offY) / data.scale;
-
-    const wrapper = document.getElementById('canvas-wrapper');
-    const z = zoom || 1;
-    wrapper.scrollLeft = canvasX * z - wrapper.clientWidth / 2;
-    wrapper.scrollTop  = canvasY * z - wrapper.clientHeight / 2;
-  }
-
-  let dragging = false;
-  minimap.addEventListener('mousedown', e => { dragging = true; navigateToMinimap(e); });
-  window.addEventListener('mousemove', e => { if (dragging) navigateToMinimap(e); });
-  window.addEventListener('mouseup', () => { dragging = false; });
-  // Touch support voor mobiel
-  minimap.addEventListener('touchstart', e => { dragging = true; navigateToMinimap(e.touches[0]); e.preventDefault(); }, { passive: false });
-  minimap.addEventListener('touchmove', e => { if (dragging) { navigateToMinimap(e.touches[0]); e.preventDefault(); } }, { passive: false });
-  minimap.addEventListener('touchend', () => { dragging = false; });
-})();
 
 // ============================================================
 // VIEWPORT VIRTUALISATIE
@@ -5724,7 +5621,6 @@ function applyVirtualization(pos) {
     scrollTimer = setTimeout(() => {
       if (lastPositions) {
         applyVirtualization(lastPositions);
-        updateMinimap(lastPositions);
       }
     }, 80);
   });
@@ -5737,9 +5633,8 @@ function setZoom(z) {
   zoom = Math.min(2, Math.max(0.25, z));
   document.getElementById('canvas').style.transform = `scale(${zoom})`;
   document.getElementById('zoom-label').textContent  = Math.round(zoom * 100) + '%';
-  // Update minimap viewport en virtualisatie na zoom
+  // Update virtualisatie na zoom
   if (lastPositions) {
-    updateMinimap(lastPositions);
     applyVirtualization(lastPositions);
   }
 }
