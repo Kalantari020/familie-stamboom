@@ -4275,18 +4275,54 @@ function computeLayout(overrideIds) {
       const isVertical = verticalGezinnen.has(gezinKey);
 
       if (isVertical) {
-        // Verticale plaatsing: plaats eerst als 1 kolom (allemaal zelfde X, zelfde Y)
-        // Na alle layout-passes worden ze verticaal uitgespreid
+        // Verticale plaatsing: kinderen verticaal, partners rechts ernaast
+        // Splits expanded in kind-partner paren
+        const vertChildren = []; // alleen kinderen (in volgorde)
+        const childPartnerMap = {}; // childId → [partnerIds]
+        const partnerSet = new Set();
+        group.children.forEach(cid => {
+          vertChildren.push(cid);
+          const partners = expanded.filter(eid =>
+            eid !== cid && !group.children.includes(eid) &&
+            ((partnersOf[cid] || []).includes(eid) ||
+             (eid.startsWith && eid.startsWith(CROSS_GHOST_PREFIX) && eid.includes('_' + cid)))
+          );
+          childPartnerMap[cid] = partners;
+          partners.forEach(pid => partnerSet.add(pid));
+        });
+
+        // Sorteer kinderen op birthOrder
+        vertChildren.sort((a, b) => {
+          const pa = state.persons.find(p => p.id === a);
+          const pb = state.persons.find(p => p.id === b);
+          const oa = (pa && pa.birthOrder) || 999;
+          const ob = (pb && pb.birthOrder) || 999;
+          return oa - ob;
+        });
+
+        // Plaats als placeholder op dezelfde positie (voor layout-engine)
         let startX = parentCenter - NODE_W / 2;
         if (startX < cursorX) startX = cursorX;
+        const hasPartners = vertChildren.some(cid => (childPartnerMap[cid] || []).length > 0);
+        const slotW = hasPartners ? 2 * NODE_W + H_GAP : NODE_W;
 
-        expanded.forEach((id, i) => {
-          pos[id] = { x: startX, y: yPos };
+        // Alle kinderen op zelfde X,Y (worden later uitgespreid)
+        vertChildren.forEach(cid => {
+          pos[cid] = { x: startX, y: yPos };
         });
-        // Registreer voor post-layout verticale spreiding
-        const vGroupIds = expanded.slice();
-        expanded.forEach(id => { verticalGroupMap[id] = vGroupIds; });
-        cursorX = startX + NODE_W + H_GAP;
+        // Partners ook op zelfde Y maar rechts ervan
+        vertChildren.forEach(cid => {
+          (childPartnerMap[cid] || []).forEach(pid => {
+            pos[pid] = { x: startX + NODE_W + H_GAP, y: yPos };
+          });
+        });
+
+        // Registreer verticale groep (alleen kinderen, partners volgen in post-layout)
+        verticalGroupMap.__groups = verticalGroupMap.__groups || [];
+        verticalGroupMap.__groups.push({ children: vertChildren, childPartnerMap });
+        vertChildren.forEach(id => { verticalGroupMap[id] = vertChildren; });
+
+        cursorX = startX + slotW + H_GAP;
       } else {
         // Standaard horizontale plaatsing
         const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
@@ -4696,22 +4732,30 @@ function computeLayout(overrideIds) {
   // KERNREGEL: geen overlappende kaarten
   resolveOverlaps(pos, verticalGroupMap);
 
-  // --- Post-layout: spreid verticale groepen uit ---
-  const processedVGroups = new Set();
-  Object.keys(verticalGroupMap).forEach(id => {
-    const group = verticalGroupMap[id];
-    const groupKey = group.join(',');
-    if (processedVGroups.has(groupKey)) return;
-    processedVGroups.add(groupKey);
-    const validMembers = group.filter(gid => pos[gid]);
-    if (validMembers.length < 2) return;
-    const baseX = pos[validMembers[0]].x;
-    const baseY = pos[validMembers[0]].y;
-    validMembers.forEach((gid, i) => {
-      pos[gid].x = baseX;
-      pos[gid].y = baseY + i * (NODE_H + V_GAP * 0.5);
+  // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
+  if (verticalGroupMap.__groups) {
+    verticalGroupMap.__groups.forEach(({ children, childPartnerMap }) => {
+      const validChildren = children.filter(cid => pos[cid]);
+      if (validChildren.length === 0) return;
+      const baseX = pos[validChildren[0]].x;
+      const baseY = pos[validChildren[0]].y;
+      validChildren.forEach((cid, i) => {
+        const rowY = baseY + i * (NODE_H + V_GAP * 0.5);
+        pos[cid].x = baseX;
+        pos[cid].y = rowY;
+        // Plaats partners rechts naast het kind
+        (childPartnerMap[cid] || []).forEach(pid => {
+          if (pos[pid]) {
+            pos[pid].x = baseX + NODE_W + H_GAP;
+            pos[pid].y = rowY;
+          }
+        });
+      });
     });
-  });
+  }
+
+  // Finale overlap-fix na verticale spreiding
+  resolveOverlaps(pos);
 
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
@@ -4907,32 +4951,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     drawLinesForPositions(pos);
   }
 
-  // Duplicaat-verbindingslijnen: lichtblauwe stippellijn tussen dezelfde persoon
-  // op verschillende plekken in het canvas
-  if (duplicates) {
-    const drawnDupLinks = new Set();
-    Object.values(duplicates).forEach(dup => {
-      if (!dup.personId || !pos[dup.personId]) return;
-      const linkKey = dup.personId + ':' + (dup.treeHeadId || '');
-      if (drawnDupLinks.has(linkKey)) return;
-      drawnDupLinks.add(linkKey);
-
-      const x1 = pos[dup.personId].x + NODE_W / 2;
-      const y1 = pos[dup.personId].y + NODE_H / 2;
-      const x2 = dup.x + NODE_W / 2;
-      const y2 = dup.y + NODE_H / 2;
-
-      const horizDist = Math.abs(x2 - x1);
-      const vertDist  = Math.abs(y2 - y1);
-      const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
-      if (dist < NODE_W) return; // te dicht, skip
-      const dip  = Math.max(40, dist * 0.1);
-      const mx   = (x1 + x2) / 2;
-      const my   = Math.min(y1, y2) - dip;
-
-      parts.push(`<path d="M ${x1} ${y1} Q ${mx} ${my}, ${x2} ${y2}" class="duplicate-link"/>`);
-    });
-  }
+  // Duplicaat-verbindingslijnen verwijderd (blauwe stippellijnen)
 
   // ── Cross-family ghost partner lijnen en duplicate-links ──
   if (duplicates) {
@@ -4949,22 +4968,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       if (x2 > x1) {
         parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
       }
-      // Teken gebogen duplicate-link van real positie naar ghost
-      if (pos[dup.personId]) {
-        const rx = pos[dup.personId].x + NODE_W / 2;
-        const ry = pos[dup.personId].y + NODE_H / 2;
-        const gx = dup.x + NODE_W / 2;
-        const gy = dup.y + NODE_H / 2;
-        const horizDist = Math.abs(gx - rx);
-        const vertDist  = Math.abs(gy - ry);
-        const dist = Math.sqrt(horizDist * horizDist + vertDist * vertDist);
-        if (dist > NODE_W) { // Alleen tekenen als ver genoeg uit elkaar
-          const dip = Math.max(40, dist * 0.1);
-          const mx  = (rx + gx) / 2;
-          const my  = Math.min(ry, gy) - dip;
-          parts.push(`<path d="M ${rx} ${ry} Q ${mx} ${my}, ${gx} ${gy}" class="duplicate-link"/>`);
-        }
-      }
+      // Duplicate-link verwijderd (blauwe stippellijnen)
     });
 
     // --- Fix C: Ghost-kinderen lijnen tekenen ---
