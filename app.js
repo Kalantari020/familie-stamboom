@@ -4193,49 +4193,9 @@ function computeLayout(overrideIds) {
         });
       });
 
-      // === Matrix vs Rij plaatsing ===
-      if (layoutMode === 'matrix' && group.children.length > MATRIX_COLS) {
-        // Matrix-layout: kinderen + partners in een grid
-        // Bouw "units" per kind: [partner1?, kind, partner2?, ghost?]
-        const childUnits = [];
-        let ei = 0;
-        while (ei < expanded.length) {
-          const unit = [];
-          // Zoek het volgende kind uit group.children
-          while (ei < expanded.length && !group.children.includes(expanded[ei])) {
-            unit.push(expanded[ei]); ei++;
-          }
-          if (ei < expanded.length) {
-            unit.push(expanded[ei]); ei++;
-            // Pak partners/ghosts die erna komen (tot volgend kind of einde)
-            while (ei < expanded.length && !group.children.includes(expanded[ei])) {
-              unit.push(expanded[ei]); ei++;
-            }
-          }
-          if (unit.length) childUnits.push(unit);
-        }
-        const cols = MATRIX_COLS;
-        const rows = Math.ceil(childUnits.length / cols);
-        // Bereken maximale unit-breedte per kolom
-        const maxUnitW = Math.max(...childUnits.map(u => u.length * NODE_W + (u.length - 1) * H_GAP));
-        const gridW = cols * maxUnitW + (cols - 1) * H_GAP;
-        let startX = parentCenter - gridW / 2;
-        if (startX < cursorX) startX = cursorX;
-        const matrixRowGap = NODE_H + V_GAP * 0.5; // minder ruimte tussen matrix-rijen
-        childUnits.forEach((unit, idx) => {
-          const col = idx % cols;
-          const row = Math.floor(idx / cols);
-          const unitStartX = startX + col * (maxUnitW + H_GAP);
-          const unitY = yPos + row * matrixRowGap;
-          unit.forEach((id, j) => {
-            pos[id] = { x: unitStartX + j * (NODE_W + H_GAP), y: unitY };
-          });
-        });
-        cursorX = startX + gridW + H_GAP;
-        // Track extra generaties door matrix-rijen (voor juiste lijn-tekening)
-        // Matrix-kinderen op rij > 0 krijgen een aangepaste y maar blijven in dezelfde generatie
-      } else {
-        // Standaard rij-layout
+      // Standaard rij-layout (zowel rij als matrix-modus plaatsen kinderen in een rij)
+      // Matrix-modus compacteert subtrees later via subtree-staffeling
+      {
         const totalW = expanded.length * NODE_W + (expanded.length - 1) * H_GAP;
         let startX = parentCenter - totalW / 2;
         if (startX < cursorX) startX = cursorX;
@@ -4704,6 +4664,85 @@ function computeLayout(overrideIds) {
   if (minX < PADDING) {
     const shift = PADDING - minX;
     Object.values(pos).forEach(p => { p.x += shift; });
+  }
+
+  // === MATRIX-MODUS: Subtree-compactie ===
+  // Staffel subtrees van siblings verticaal: als twee subtrees horizontaal
+  // overlappen, schuif de rechter subtree NAAR BENEDEN zodat ze Y-ruimte
+  // delen in plaats van X-ruimte. Dit maakt de boom dieper maar smaller.
+  if (layoutMode === 'matrix') {
+    // Helper: verzamel alle nakomelingen van een persoon
+    function getDescendantIds(rootId) {
+      const result = [];
+      const visited = new Set();
+      function walk(id) {
+        if (visited.has(id) || !pos[id]) return;
+        visited.add(id);
+        result.push(id);
+        (childrenOf[id] || []).forEach(cid => walk(cid));
+        // Partners van nakomelingen meenemen (inlaws)
+        (partnersOf[id] || []).forEach(pid => {
+          if (pos[pid] && !visited.has(pid) && genOf[pid] === genOf[id]) {
+            visited.add(pid);
+            result.push(pid);
+          }
+        });
+      }
+      (childrenOf[rootId] || []).forEach(cid => walk(cid));
+      return result;
+    }
+
+    // Vind alle ouders met 3+ kinderen
+    const compactedParents = new Set();
+    Object.keys(childrenOf).forEach(pid => {
+      if (compactedParents.has(pid) || !pos[pid]) return;
+      const kids = (childrenOf[pid] || []).filter(cid => pos[cid]);
+      if (kids.length < 3) return;
+      // Markeer partner ook als verwerkt
+      (partnersOf[pid] || []).forEach(ppid => compactedParents.add(ppid));
+      compactedParents.add(pid);
+
+      // Sorteer kinderen op X-positie
+      kids.sort((a, b) => pos[a].x - pos[b].x);
+
+      // Voor elk kind: bereken subtree bounding box
+      const subtreeData = kids.map(cid => {
+        const descIds = getDescendantIds(cid);
+        if (descIds.length === 0) return { childId: cid, descIds: [], hasSubtree: false };
+        const minX = Math.min(...descIds.map(id => pos[id].x));
+        const maxX = Math.max(...descIds.map(id => pos[id].x + NODE_W));
+        const minY = Math.min(...descIds.map(id => pos[id].y));
+        const maxY = Math.max(...descIds.map(id => pos[id].y + NODE_H));
+        return { childId: cid, descIds, hasSubtree: true, minX, maxX, minY, maxY };
+      });
+
+      // Staffel: schuif subtrees naar beneden als ze X-overlap hebben met eerdere subtrees
+      const occupiedAreas = []; // [{minX, maxX, maxY}]
+      subtreeData.forEach(st => {
+        if (!st.hasSubtree) return;
+
+        // Bereken hoeveel we naar beneden moeten schuiven
+        let shiftY = 0;
+        occupiedAreas.forEach(area => {
+          // Check X-overlap (met marge)
+          const xOverlap = st.minX < area.maxX + H_GAP && st.maxX > area.minX - H_GAP;
+          if (xOverlap) {
+            // Er is horizontale overlap → subtree moet onder vorige uitkomen
+            const needed = (area.maxY + V_GAP * 0.4) - st.minY;
+            if (needed > 0) shiftY = Math.max(shiftY, needed);
+          }
+        });
+
+        if (shiftY > 0) {
+          // Verschuif alle nakomelingen naar beneden
+          st.descIds.forEach(id => { pos[id].y += shiftY; });
+          st.minY += shiftY;
+          st.maxY += shiftY;
+        }
+
+        occupiedAreas.push({ minX: st.minX, maxX: st.maxX, maxY: st.maxY });
+      });
+    });
   }
 
   // === KERNREGEL: geen twee kaarten mogen overlappen (2D) ===
