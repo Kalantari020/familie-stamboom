@@ -1116,10 +1116,34 @@ body.readonly .card:hover   { cursor: default; }
 
   /* Toolbar compacter */
   #toolbar {
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 6px;
+    gap: 2px;
   }
   .app-title {
+    display: none;
+  }
+  .toolbar-center {
+    gap: 3px;
+    flex-wrap: nowrap;
+  }
+  .toolbar-center .btn.small {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+  .toolbar-center .btn.icon {
+    padding: 4px 7px;
+    font-size: 14px;
+  }
+  #zoom-label {
+    min-width: 28px;
+    font-size: 11px;
+  }
+  /* Passend knop tekst verkorten via CSS */
+  #btn-zoom-fit {
+    font-size: 0;
+  }
+  #btn-zoom-fit::after {
+    content: '⊞';
     font-size: 14px;
   }
 
