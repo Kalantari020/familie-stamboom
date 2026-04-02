@@ -6116,6 +6116,59 @@ function computeLayout(overrideIds) {
     Object.values(pos).forEach(p => { p.x += shift; });
   }
 
+  // --- Post-layout: herpositioneer cross-family kinderen onder hun anchor-ouderpaar ---
+  // Na bottom-up cascade en compactie kunnen kinderen wegdrijven van hun ouders.
+  // Hakims regel: "eigen stamboom = leidend" — kinderen moeten gecentreerd zijn
+  // onder (anchor-ouder + ghost-partner), precies zoals in de eigen stamboom.
+  Object.entries(crossFamilyChildAnchor).forEach(([childId, anchorParentId]) => {
+    if (!pos[childId] || !pos[anchorParentId]) return;
+    const otherParentId = (parentsOf[childId] || []).find(pid => pid !== anchorParentId && pos[pid]);
+    if (!otherParentId) return;
+
+    // Zoek de ghost-partner naast de anchor-ouder
+    const ghostId = CROSS_GHOST_PREFIX + otherParentId + '_' + anchorParentId;
+    if (!pos[ghostId]) return;
+
+    // Bereken correct center van anchor + ghost (= eigen stamboom weergave)
+    const anchorCX = pos[anchorParentId].x + NODE_W / 2;
+    const ghostCX = pos[ghostId].x + NODE_W / 2;
+    const coupleCenter = (anchorCX + ghostCX) / 2;
+
+    // Verzamel alle siblings in deze groep (zelfde ouder-set)
+    const siblingGroup = Object.entries(crossFamilyChildAnchor)
+      .filter(([, anchor]) => anchor === anchorParentId)
+      .map(([cid]) => cid)
+      .filter(cid => pos[cid]);
+
+    if (!siblingGroup.length) return;
+
+    // Verzamel expanded list (siblings + hun inlaw-partners + ghosts)
+    const expandedIds = [];
+    siblingGroup.forEach(cid => {
+      // Voeg inlaw-partners toe (partners zonder ouders in layout)
+      const partners = (partnersOf[cid] || []).filter(pid =>
+        pos[pid] && !(parentsOf[pid] || []).some(ppid => pos[ppid])
+      );
+      // Voeg ghost-partners toe
+      const ghostPartners = (ghostsAdjacentTo[cid] || []).filter(gid => pos[gid]);
+
+      // Sorteer: partner links of rechts afhankelijk van huidige positie
+      const allSlots = [cid, ...partners, ...ghostPartners];
+      allSlots.sort((a, b) => pos[a].x - pos[b].x);
+      allSlots.forEach(id => {
+        if (!expandedIds.includes(id)) expandedIds.push(id);
+      });
+    });
+
+    // Herpositioneer: centreer de expanded groep onder het ouderpaar
+    const totalW = expandedIds.length * NODE_W + (expandedIds.length - 1) * H_GAP;
+    const newStartX = coupleCenter - totalW / 2;
+    expandedIds.sort((a, b) => pos[a].x - pos[b].x);
+    expandedIds.forEach((id, i) => {
+      pos[id].x = newStartX + i * (NODE_W + H_GAP);
+    });
+  });
+
   // KERNREGEL: geen overlappende kaarten
   resolveOverlaps(pos, verticalGroupMap);
 
@@ -6248,7 +6301,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
   }
 
   // ── Helper: teken alle relatielijnen voor een gegeven positie-map ──
-  function drawLinesForPositions(lpos) {
+  function drawLinesForPositions(lpos, dups) {
     const pids = new Set(Object.keys(lpos));
     const lcx   = id => (lpos[id]?.x || 0) + NODE_W / 2;
     const lmidY = id => (lpos[id]?.y || 0) + NODE_H / 2;
@@ -6332,25 +6385,53 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       }
 
       // --- Fix A: Cross-family aware drop point ---
-      // Als ouders > 2*(NODE_W+H_GAP) uit elkaar staan, gebruik alleen de ouder
-      // die het dichtst bij de kinderen staat. Ghost-kinderen worden apart afgehandeld (Fix C).
-      let effectiveParents = validParents;
+      // Als ouders ver uit elkaar staan, zoek de ghost-partner naast de dichtstbijzijnde
+      // ouder en gebruik het midden van (ouder + ghost) als drop point.
+      // Dit matcht de eigen-stamboom weergave (Hakims regel 1).
+      let dropX, dropY;
       if (validParents.length === 2) {
         const CROSS_THRESHOLD = 2 * (NODE_W + H_GAP);
         const dist = Math.abs(lcx(validParents[0]) - lcx(validParents[1]));
         if (dist > CROSS_THRESHOLD) {
-          // Bepaal welke ouder het dichtst bij de kinderen staat
+          // Ouders ver uit elkaar — zoek ghost-partner naast dichtstbijzijnde ouder
           const childCenterX = validChildren.reduce((s, cid) => s + lcx(cid), 0) / validChildren.length;
           const dist0 = Math.abs(lcx(validParents[0]) - childCenterX);
           const dist1 = Math.abs(lcx(validParents[1]) - childCenterX);
-          // Gebruik alleen de dichtstbijzijnde ouder; de andere wordt via ghost-kinderen afgehandeld
-          effectiveParents = dist0 <= dist1 ? [validParents[0]] : [validParents[1]];
+          const closeParent = dist0 <= dist1 ? validParents[0] : validParents[1];
+          const farParent   = dist0 <= dist1 ? validParents[1] : validParents[0];
+
+          // Zoek ghost van farParent naast closeParent in duplicates
+          let ghostPos = null;
+          if (dups) {
+            for (const d of Object.values(dups)) {
+              if (d.personId === farParent && d.adjacentTo === closeParent) {
+                ghostPos = d; break;
+              }
+            }
+          }
+
+          if (ghostPos) {
+            // Gebruik midden van (closeParent + ghost) — matcht eigen-stamboom weergave
+            const ghostCX = ghostPos.x + NODE_W / 2;
+            dropX = (lcx(closeParent) + ghostCX) / 2;
+            dropY = Math.max(lbotY(closeParent), ghostPos.y + NODE_H);
+          } else {
+            // Geen ghost gevonden — val terug op enkele ouder
+            dropX = lcx(closeParent);
+            dropY = lbotY(closeParent);
+          }
+        } else {
+          // Ouders dicht genoeg bij elkaar — gebruik beide
+          const parentCXs = validParents.map(pid => lcx(pid));
+          dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
+          dropY = Math.max(...validParents.map(pid => lbotY(pid)));
         }
+      } else {
+        // Eén ouder
+        dropX = lcx(validParents[0]);
+        dropY = lbotY(validParents[0]);
       }
 
-      const parentCXs = effectiveParents.map(pid => lcx(pid));
-      const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
-      const dropY = Math.max(...validParents.map(pid => lbotY(pid)));
       const childTopY = Math.min(...validChildren.map(cid => ltopY(cid)));
       const midDropY  = dropY + (childTopY - dropY) * 0.45;
 
@@ -6428,10 +6509,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
   // ── Lijnen tekenen ──
   if (activeTreeId === null && treePositions && Object.keys(treePositions).length) {
     // Alle-families modus met per-boom posities: teken lijnen PER stamboom-eiland
-    Object.values(treePositions).forEach(treePos => drawLinesForPositions(treePos));
+    Object.values(treePositions).forEach(treePos => drawLinesForPositions(treePos, duplicates));
   } else {
     // Enkele stamboom of unified alle-families modus: teken vanuit pos
-    drawLinesForPositions(pos);
+    drawLinesForPositions(pos, duplicates);
   }
 
   // Duplicaat-verbindingslijnen verwijderd (blauwe stippellijnen)
