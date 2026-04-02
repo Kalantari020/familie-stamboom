@@ -4650,6 +4650,7 @@ function loadState() {
 //
 // Alles wat de gebruiker zelf heeft toegevoegd via de UI blijft behouden.
 function syncWithStartData() {
+  const BASELINE_KEY = 'fb_start_baseline';
   const storedVersion = parseInt(localStorage.getItem(DATA_VERSION_KEY) || '0', 10);
   if (storedVersion >= DATA_VERSION) return; // al gesynchroniseerd
 
@@ -4679,7 +4680,6 @@ function syncWithStartData() {
   // Als localStorage-waarde == baseline → gebruiker heeft NIET gewijzigd → update naar nieuwe START_DATA
   // Als localStorage-waarde != baseline → gebruiker HEEFT gewijzigd → behoud gebruikerswaarde
   // Bij eerste sync (geen baseline): NIET updaten — gebruiker heeft mogelijk al wijzigingen gemaakt
-  const BASELINE_KEY = 'fb_start_baseline';
   const baselineRaw = localStorage.getItem(BASELINE_KEY);
   const baseline = baselineRaw ? JSON.parse(baselineRaw) : null;
   const baselinePersons = {};
@@ -5447,14 +5447,64 @@ function computeLayout(overrideIds) {
     const inlaws     = genIds.filter(id => (parentsOf[id] || []).filter(pid => pos[pid]).length === 0);
 
     // Detecteer cross-family partner paren (beide hebben ouders in layout)
+    // MAAR: als beide partners een gemeenschappelijke voorouder delen (neef-nicht huwelijk),
+    // behandel ze NIET als cross-family → één partner wordt als inlaw geplaatst.
     const crossFamilyPartnerMap = new Map();
+    const cousinPairs = new Set(); // paren die neven/nichten zijn → skip cross-family
+
+    // Helper: verzamel alle voorouders van een persoon in de layout
+    const getAncestors = (personId) => {
+      const ancestors = new Set();
+      const queue = [personId];
+      while (queue.length > 0) {
+        const current = queue.shift();
+        (parentsOf[current] || []).forEach(pid => {
+          if (pos[pid] || byGen[0]?.includes(pid) || Object.values(byGen).flat().includes(pid)) {
+            if (!ancestors.has(pid)) {
+              ancestors.add(pid);
+              queue.push(pid);
+            }
+          }
+        });
+      }
+      return ancestors;
+    };
+
     withParents.forEach(id => {
       (partnersOf[id] || []).forEach(pid => {
         if (withParents.includes(pid)) {
-          if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
-          crossFamilyPartnerMap.get(id).add(pid);
+          // Check of ze een gemeenschappelijke voorouder hebben (neef-nicht)
+          const ancestorsA = getAncestors(id);
+          const ancestorsB = getAncestors(pid);
+          let sharedAncestor = false;
+          for (const anc of ancestorsA) {
+            if (ancestorsB.has(anc)) { sharedAncestor = true; break; }
+          }
+          if (sharedAncestor) {
+            // Neef-nicht huwelijk: NIET als cross-family behandelen
+            cousinPairs.add([id, pid].sort().join(','));
+          } else {
+            if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
+            crossFamilyPartnerMap.get(id).add(pid);
+          }
         }
       });
+    });
+
+    // Neef-nicht paren: verplaats de partner met minste kinderen naar inlaws
+    // zodat die als aangetrouwd naast het kind wordt geplaatst
+    cousinPairs.forEach(pairKey => {
+      const [idA, idB] = pairKey.split(',');
+      // Kies welke als inlaw behandeld wordt: degene wiens ouders het verst weg staan
+      const parentXsA = (parentsOf[idA] || []).filter(pid => pos[pid]).map(pid => pos[pid].x);
+      const parentXsB = (parentsOf[idB] || []).filter(pid => pos[pid]).map(pid => pos[pid].x);
+      const centerA = parentXsA.length ? parentXsA.reduce((a,b)=>a+b,0) / parentXsA.length : 0;
+      const centerB = parentXsB.length ? parentXsB.reduce((a,b)=>a+b,0) / parentXsB.length : 0;
+      // De partner die het verst van de ander staat wordt inlaw
+      const makeInlaw = centerA < centerB ? idB : idA;
+      if (!inlaws.includes(makeInlaw)) inlaws.push(makeInlaw);
+      const idx = withParents.indexOf(makeInlaw);
+      if (idx !== -1) withParents.splice(idx, 1);
     });
 
     // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
