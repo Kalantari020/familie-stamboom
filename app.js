@@ -4615,7 +4615,8 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 6;
+const DATA_VERSION = 7;
+const FORCE_RESET_VERSION = 7; // Bij deze versie: volledige reset van localStorage
 
 function saveState() {
   try {
@@ -4651,6 +4652,16 @@ function loadState() {
 function syncWithStartData() {
   const storedVersion = parseInt(localStorage.getItem(DATA_VERSION_KEY) || '0', 10);
   if (storedVersion >= DATA_VERSION) return; // al gesynchroniseerd
+
+  // Harde reset: vervang localStorage volledig door START_DATA
+  if (storedVersion < FORCE_RESET_VERSION) {
+    console.log(`[Stamboom] Harde reset: v${storedVersion} → v${DATA_VERSION} (${START_DATA.persons.length} personen)`);
+    state = JSON.parse(JSON.stringify(START_DATA));
+    localStorage.setItem(BASELINE_KEY, JSON.stringify(START_DATA));
+    localStorage.setItem(DATA_VERSION_KEY, String(DATA_VERSION));
+    saveState();
+    return;
+  }
 
   console.log(`[Stamboom] Data sync: v${storedVersion} → v${DATA_VERSION}`);
   const startIds = new Set(START_DATA.persons.map(p => p.id));
