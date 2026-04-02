@@ -5448,9 +5448,9 @@ function computeLayout(overrideIds) {
 
     // Detecteer cross-family partner paren (beide hebben ouders in layout)
     // MAAR: als beide partners een gemeenschappelijke voorouder delen (neef-nicht huwelijk),
-    // behandel ze NIET als cross-family → één partner wordt als inlaw geplaatst.
+    // markeer als cousin-pair → geen ghost-duplicaten, wel stippellijn-verbinding.
     const crossFamilyPartnerMap = new Map();
-    const cousinPairs = new Set(); // paren die neven/nichten zijn → skip cross-family
+    const cousinPairSet = new Set(); // "idA,idB" keys van neef-nicht paren
 
     // Helper: verzamel alle voorouders van een persoon in de layout
     const getAncestors = (personId) => {
@@ -5481,30 +5481,14 @@ function computeLayout(overrideIds) {
             if (ancestorsB.has(anc)) { sharedAncestor = true; break; }
           }
           if (sharedAncestor) {
-            // Neef-nicht huwelijk: NIET als cross-family behandelen
-            cousinPairs.add([id, pid].sort().join(','));
+            // Neef-nicht huwelijk: markeer als cousin-pair (geen ghosts, geen inlaw-verplaatsing)
+            cousinPairSet.add([id, pid].sort().join(','));
           } else {
             if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
             crossFamilyPartnerMap.get(id).add(pid);
           }
         }
       });
-    });
-
-    // Neef-nicht paren: verplaats de partner met minste kinderen naar inlaws
-    // zodat die als aangetrouwd naast het kind wordt geplaatst
-    cousinPairs.forEach(pairKey => {
-      const [idA, idB] = pairKey.split(',');
-      // Kies welke als inlaw behandeld wordt: degene wiens ouders het verst weg staan
-      const parentXsA = (parentsOf[idA] || []).filter(pid => pos[pid]).map(pid => pos[pid].x);
-      const parentXsB = (parentsOf[idB] || []).filter(pid => pos[pid]).map(pid => pos[pid].x);
-      const centerA = parentXsA.length ? parentXsA.reduce((a,b)=>a+b,0) / parentXsA.length : 0;
-      const centerB = parentXsB.length ? parentXsB.reduce((a,b)=>a+b,0) / parentXsB.length : 0;
-      // De partner die het verst van de ander staat wordt inlaw
-      const makeInlaw = centerA < centerB ? idB : idA;
-      if (!inlaws.includes(makeInlaw)) inlaws.push(makeInlaw);
-      const idx = withParents.indexOf(makeInlaw);
-      if (idx !== -1) withParents.splice(idx, 1);
     });
 
     // Groepeer kinderen per ouder-set (broers/zussen in dezelfde groep)
@@ -5601,8 +5585,21 @@ function computeLayout(overrideIds) {
       const parentXs = group.parentIds.map(pid => pos[pid].x + NODE_W / 2);
       const parentDist = Math.abs(Math.max(...parentXs) - Math.min(...parentXs));
 
-      if (group.parentIds.length === 2 && parentDist > 3 * (NODE_W + H_GAP)) {
-        // Mogelijke cross-family: zoek ghost van ouder B naast ouder A
+      // Check of dit een cousin-pair is
+      const isCousin = group.parentIds.length === 2 &&
+        cousinPairSet.has([...group.parentIds].sort().join(','));
+
+      if (isCousin && parentDist > 3 * (NODE_W + H_GAP)) {
+        // Neef-nicht huwelijk: geen ghosts, plaats kinderen bij de eerste ouder
+        // Kies de ouder die het meeste links staat als anchor
+        const [pA, pB] = group.parentIds;
+        const xA = pos[pA] ? pos[pA].x : 0;
+        const xB = pos[pB] ? pos[pB].x : 0;
+        const anchor = xA <= xB ? pA : pB;
+        parentCenter = pos[anchor].x + NODE_W / 2;
+        group.children.forEach(cid => { crossFamilyChildAnchor[cid] = anchor; });
+      } else if (group.parentIds.length === 2 && parentDist > 3 * (NODE_W + H_GAP)) {
+        // Niet-verwante cross-family: zoek ghost van ouder B naast ouder A
         const [pA, pB] = group.parentIds;
         const ghostBnearA = CROSS_GHOST_PREFIX + pB + '_' + pA;
         const ghostAnearB = CROSS_GHOST_PREFIX + pA + '_' + pB;
