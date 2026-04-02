@@ -5481,12 +5481,12 @@ function computeLayout(overrideIds) {
             if (ancestorsB.has(anc)) { sharedAncestor = true; break; }
           }
           if (sharedAncestor) {
-            // Neef-nicht huwelijk: markeer als cousin-pair (geen ghosts, geen inlaw-verplaatsing)
+            // Neef-nicht huwelijk: markeer als cousin-pair
             cousinPairSet.add([id, pid].sort().join(','));
-          } else {
-            if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
-            crossFamilyPartnerMap.get(id).add(pid);
           }
+          // Altijd als cross-family registreren (voor ghost-partner naast kind)
+          if (!crossFamilyPartnerMap.has(id)) crossFamilyPartnerMap.set(id, new Set());
+          crossFamilyPartnerMap.get(id).add(pid);
         }
       });
     });
@@ -5585,20 +5585,7 @@ function computeLayout(overrideIds) {
       const parentXs = group.parentIds.map(pid => pos[pid].x + NODE_W / 2);
       const parentDist = Math.abs(Math.max(...parentXs) - Math.min(...parentXs));
 
-      // Check of dit een cousin-pair is
-      const isCousin = group.parentIds.length === 2 &&
-        cousinPairSet.has([...group.parentIds].sort().join(','));
-
-      if (isCousin && parentDist > 3 * (NODE_W + H_GAP)) {
-        // Neef-nicht huwelijk: geen ghosts, plaats kinderen bij de eerste ouder
-        // Kies de ouder die het meeste links staat als anchor
-        const [pA, pB] = group.parentIds;
-        const xA = pos[pA] ? pos[pA].x : 0;
-        const xB = pos[pB] ? pos[pB].x : 0;
-        const anchor = xA <= xB ? pA : pB;
-        parentCenter = pos[anchor].x + NODE_W / 2;
-        group.children.forEach(cid => { crossFamilyChildAnchor[cid] = anchor; });
-      } else if (group.parentIds.length === 2 && parentDist > 3 * (NODE_W + H_GAP)) {
+      if (group.parentIds.length === 2 && parentDist > 3 * (NODE_W + H_GAP)) {
         // Niet-verwante cross-family: zoek ghost van ouder B naast ouder A
         const [pA, pB] = group.parentIds;
         const ghostBnearA = CROSS_GHOST_PREFIX + pB + '_' + pA;
