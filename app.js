@@ -5843,6 +5843,7 @@ function computeLayout(overrideIds) {
 
   // --- Bouw ghost-adjacentie map voor cascade ---
   // Zodat ghosts meeschuiven als hun partner verschuift
+  // NOTE: nodig vóór bottom-up cascade EN vóór gezin-snapshot bouw
   const ghostsAdjacentTo = {}; // personId → [ghostIds]
   Object.entries(ghostMeta).forEach(([ghostId, meta]) => {
     if (!ghostsAdjacentTo[meta.adjacentTo]) ghostsAdjacentTo[meta.adjacentTo] = [];
@@ -6043,16 +6044,67 @@ function computeLayout(overrideIds) {
     });
   });
 
-  // --- Finale fixOverlaps MET cascade: de bottom-up cascade kan overlaps op lagere
-  // generaties veroorzaken (ouder verschuift → kinderen cascaden → overlap met buren).
-  // Eén extra fixOverlaps-pass MET cascade lost dit op, zodat kinderen hun ouders volgen.
+  // === GEZIN-SNAPSHOT SYSTEEM ===
+  // Na de bottom-up cascade zijn ouders gecentreerd boven hun kinderen.
+  // Sla de relatieve posities van kinderen t.o.v. hun ouder-centrum op als snapshot.
+  // Na ELKE stap die posities wijzigt, worden deze snapshots afgedwongen zodat
+  // gezinnen er ALTIJD identiek uitzien, ongeacht de context (eigen boom vs grotere boom).
+  const gezinSnapshots = [];
+  {
+    const processedPairs = new Set();
+    Object.keys(childrenOf).forEach(parentId => {
+      if (!pos[parentId]) return;
+      const partners = (partnersOf[parentId] || []).filter(pid =>
+        pos[pid] && genOf[pid] === genOf[parentId]
+      );
+      const parentUnit = [parentId, ...partners].sort();
+      const gezinKey = parentUnit.join('+');
+      if (processedPairs.has(gezinKey)) return;
+      processedPairs.add(gezinKey);
+
+      const children = new Set();
+      parentUnit.forEach(pid => {
+        (childrenOf[pid] || []).filter(cid => pos[cid]).forEach(cid => children.add(cid));
+      });
+      if (children.size === 0) return;
+
+      const parentXs = parentUnit.filter(pid => pos[pid]).map(pid => pos[pid].x);
+      const parentCenterX = (Math.min(...parentXs) + Math.max(...parentXs) + NODE_W) / 2;
+
+      const members = {};
+      [...children].forEach(cid => {
+        if (!pos[cid]) return;
+        members[cid] = { dx: pos[cid].x - parentCenterX };
+        // Inlaw-partners (partners zonder ouders in layout)
+        (partnersOf[cid] || []).filter(pid =>
+          pos[pid] && !(parentsOf[pid] || []).some(ppid => pos[ppid])
+        ).forEach(pid => {
+          members[pid] = { dx: pos[pid].x - parentCenterX };
+        });
+        // Ghost-partners
+        (ghostsAdjacentTo[cid] || []).forEach(gid => {
+          if (pos[gid]) {
+            members[gid] = { dx: pos[gid].x - parentCenterX };
+          }
+        });
+      });
+
+      gezinSnapshots.push({ parentIds: parentUnit, members });
+    });
+
+    // Sorteer top-down (op generatie van ouders) zodat enforcement correct cascadeert
+    gezinSnapshots.sort((a, b) => {
+      const genA = genOf[a.parentIds[0]] || 0;
+      const genB = genOf[b.parentIds[0]] || 0;
+      return genA - genB;
+    });
+  }
+
+  // --- Finale fixOverlaps MET cascade ---
   gens.forEach(gen => {
     const beforeFixX = {};
     (byGen[gen] || []).forEach(id => { if (pos[id]) beforeFixX[id] = pos[id].x; });
-
     fixOverlaps(gen);
-
-    // Cascade fixOverlaps verschuivingen naar kinderen (zoals in bottom-up cascade)
     const cascadedFix = new Set();
     (byGen[gen] || []).forEach(id => {
       if (!pos[id] || beforeFixX[id] === undefined) return;
@@ -6068,72 +6120,43 @@ function computeLayout(overrideIds) {
     });
   });
 
-  // --- Compactie: schuif alles rechts van verticale snijlijnen naar links ---
-  // Scan x-as in stappen en zoek verticale "snijlijnen" waar er op ALLE generaties
-  // voldoende ruimte is. Schuif alles rechts van de snijlijn naar links.
+  // --- Compactie ---
   for (let pass = 0; pass < 5; pass++) {
-    // Verzamel alle node-rechterkanten, gesorteerd
     const allPositions = Object.entries(pos).map(([id, p]) => ({
       id, x: p.x, right: p.x + NODE_W, gen: genOf[id]
     }));
     allPositions.sort((a, b) => a.x - b.x);
     if (!allPositions.length) break;
-
-    // Scan van links naar rechts: zoek x-posities waar alles links ervan
-    // gescheiden is van alles rechts ervan door minstens H_GAP op ELKE generatie
     const maxX = Math.max(...allPositions.map(p => p.right));
-    const step = Math.max(20, H_GAP / 2); // fijnere scan voor betere compactie
-
+    const step = Math.max(20, H_GAP / 2);
     for (let scanX = PADDING + step; scanX < maxX; scanX += step) {
-      // Voor elke generatie: vind de maximale rechterrand links van scanX
-      // en de minimale linkerrand rechts van (of op) scanX
       let minGap = Infinity;
       let hasLeft = false, hasRight = false;
-
       gens.forEach(gen => {
         const members = (byGen[gen] || []).filter(id => pos[id]);
         if (!members.length) return;
-
-        let maxRight = -Infinity;  // rechterrand van nodes links van scanX
-        let minLeft = Infinity;    // linkerrand van nodes rechts van scanX
-
+        let maxRight = -Infinity, minLeft = Infinity;
         members.forEach(id => {
-          if (pos[id].x + NODE_W <= scanX) {
-            maxRight = Math.max(maxRight, pos[id].x + NODE_W);
-            hasLeft = true;
-          } else if (pos[id].x >= scanX) {
-            minLeft = Math.min(minLeft, pos[id].x);
-            hasRight = true;
-          }
-          // Nodes die scanX kruisen: gap = 0
-          else {
-            minGap = 0;
-          }
+          if (pos[id].x + NODE_W <= scanX) { maxRight = Math.max(maxRight, pos[id].x + NODE_W); hasLeft = true; }
+          else if (pos[id].x >= scanX) { minLeft = Math.min(minLeft, pos[id].x); hasRight = true; }
+          else { minGap = 0; }
         });
-
         if (maxRight > -Infinity && minLeft < Infinity) {
           const genGap = minLeft - maxRight;
           if (genGap < minGap) minGap = genGap;
         }
       });
-
       if (!hasLeft || !hasRight || minGap <= H_GAP) continue;
-
-      // Er is een snijlijn bij scanX met minGap > H_GAP op alle generaties
       const shift = minGap - H_GAP;
       if (shift < 2) continue;
-
-      // Schuif alles met x >= scanX naar links
       for (const id of Object.keys(pos)) {
         if (pos[id].x >= scanX) pos[id].x -= shift;
       }
-
-      // Na verschuiving: scanX aanpassen (volgende scan start eerder)
       scanX -= shift;
     }
   }
 
-  // Normalize so minimum is at PADDING
+  // Normalize
   const allX = Object.values(pos).map(p => p.x);
   const minX = Math.min(...allX);
   if (minX < PADDING) {
@@ -6141,79 +6164,47 @@ function computeLayout(overrideIds) {
     Object.values(pos).forEach(p => { p.x += shift; });
   }
 
-  // --- Post-layout: herpositioneer cross-family kinderen onder hun anchor-ouderpaar ---
-  // Na bottom-up cascade en compactie kunnen kinderen wegdrijven van hun ouders.
-  // Hakims regel: "eigen stamboom = leidend" — kinderen moeten gecentreerd zijn
-  // onder (anchor-ouder + ghost-partner), precies zoals in de eigen stamboom.
-  const postLayoutAnchorGroups = []; // bewaar groepen voor re-enforcement na resolveOverlaps
+  // --- Cross-family kinderen herpositioneren ---
+  const postLayoutAnchorGroups = [];
   {
     const processedAnchors = new Set();
     Object.entries(crossFamilyChildAnchor).forEach(([childId, anchorParentId]) => {
-      // Verwerk elke anchor-groep maar één keer
       if (processedAnchors.has(anchorParentId)) return;
       processedAnchors.add(anchorParentId);
-
       if (!pos[childId] || !pos[anchorParentId]) return;
       const otherParentId = (parentsOf[childId] || []).find(pid => pid !== anchorParentId && pos[pid]);
       if (!otherParentId) return;
-
-      // Zoek de ghost-partner naast de anchor-ouder
       const ghostId = CROSS_GHOST_PREFIX + otherParentId + '_' + anchorParentId;
       if (!pos[ghostId]) return;
-
-      // Bereken correct center van anchor + ghost (= eigen stamboom weergave)
       const anchorCX = pos[anchorParentId].x + NODE_W / 2;
       const ghostCX = pos[ghostId].x + NODE_W / 2;
       const coupleCenter = (anchorCX + ghostCX) / 2;
-
-      // Verzamel alle siblings in deze groep (zelfde anchor-ouder)
       const siblingGroup = Object.entries(crossFamilyChildAnchor)
         .filter(([, anchor]) => anchor === anchorParentId)
-        .map(([cid]) => cid)
-        .filter(cid => pos[cid]);
-
+        .map(([cid]) => cid).filter(cid => pos[cid]);
       if (!siblingGroup.length) return;
-
-      // Verzamel expanded list: siblings + hun inlaw-partners (GEEN ghosts!)
       const expandedIds = [];
       siblingGroup.forEach(cid => {
-        // Voeg inlaw-partners toe (partners zonder ouders in layout)
         const partners = (partnersOf[cid] || []).filter(pid =>
-          pos[pid] &&
-          !pid.startsWith(CROSS_GHOST_PREFIX) &&  // Geen ghost-partners
+          pos[pid] && !pid.startsWith(CROSS_GHOST_PREFIX) &&
           !(parentsOf[pid] || []).some(ppid => pos[ppid])
         );
-
-        const allSlots = [cid, ...partners];
-        allSlots.sort((a, b) => pos[a].x - pos[b].x);
-        allSlots.forEach(id => {
+        [cid, ...partners].sort((a, b) => pos[a].x - pos[b].x).forEach(id => {
           if (!expandedIds.includes(id)) expandedIds.push(id);
         });
       });
-
-      // Herpositioneer: centreer de expanded groep onder het ouderpaar
       const totalW = expandedIds.length * NODE_W + (expandedIds.length - 1) * H_GAP;
       const newStartX = coupleCenter - totalW / 2;
       expandedIds.sort((a, b) => pos[a].x - pos[b].x);
-
-      expandedIds.forEach((id, i) => {
-        pos[id].x = newStartX + i * (NODE_W + H_GAP);
-      });
-
-      // Bewaar groep voor re-enforcement na resolveOverlaps
+      expandedIds.forEach((id, i) => { pos[id].x = newStartX + i * (NODE_W + H_GAP); });
       postLayoutAnchorGroups.push({ siblingGroup, anchorParentId, ghostId });
     });
   }
 
-  // KERNREGEL: geen overlappende kaarten
-  // Sla posities op vóór resolveOverlaps voor cascade
+  // --- resolveOverlaps + cascade ---
   const beforeResolveX = {};
   Object.entries(pos).forEach(([id, p]) => { beforeResolveX[id] = p.x; });
-
   resolveOverlaps(pos, verticalGroupMap);
-
-  // Cascade resolveOverlaps verschuivingen naar kinderen
-  // Hakims regel: kinderen mogen NOOIT losraken van hun ouders
   gens.forEach(gen => {
     const cascadedResolve = new Set();
     (byGen[gen] || []).forEach(id => {
@@ -6230,31 +6221,21 @@ function computeLayout(overrideIds) {
     });
   });
 
-  // --- Re-enforce: na resolveOverlaps kunnen kinderen verschoven zijn ---
-  // Hercentreer anchor-ouderpaar boven de kinderen (niet andersom, want overlap is al opgelost)
+  // Re-enforce cross-family anchor groups
   postLayoutAnchorGroups.forEach(({ siblingGroup, anchorParentId, ghostId }) => {
-    // Herbereken children center na resolveOverlaps
     const validSiblings = siblingGroup.filter(cid => pos[cid]);
     if (!validSiblings.length || !pos[anchorParentId] || !pos[ghostId]) return;
-
-    // Verzamel expanded children (siblings + hun inlaw-partners, geen ghosts)
     const expandedIds = [];
     validSiblings.forEach(cid => {
       const partners = (partnersOf[cid] || []).filter(pid =>
-        pos[pid] &&
-        !pid.startsWith(CROSS_GHOST_PREFIX) &&
+        pos[pid] && !pid.startsWith(CROSS_GHOST_PREFIX) &&
         !(parentsOf[pid] || []).some(ppid => pos[ppid])
       );
-      [cid, ...partners].forEach(id => {
-        if (!expandedIds.includes(id)) expandedIds.push(id);
-      });
+      [cid, ...partners].forEach(id => { if (!expandedIds.includes(id)) expandedIds.push(id); });
     });
     expandedIds.sort((a, b) => pos[a].x - pos[b].x);
-
     const childXs = expandedIds.map(id => pos[id].x);
     const childCenter = (Math.min(...childXs) + Math.max(...childXs) + NODE_W) / 2;
-
-    // Herpositioneer ouders: anchor + ghost gecentreerd boven kinderen
     const anchorLeft = pos[anchorParentId].x < pos[ghostId].x;
     if (anchorLeft) {
       pos[anchorParentId].x = childCenter - NODE_W - H_GAP / 2;
@@ -6263,15 +6244,130 @@ function computeLayout(overrideIds) {
       pos[ghostId].x = childCenter - NODE_W - H_GAP / 2;
       pos[anchorParentId].x = childCenter + H_GAP / 2;
     }
-
-    // Ghost-partners van kinderen naast hun sibling
     validSiblings.forEach(cid => {
-      const adjGhosts = (ghostsAdjacentTo[cid] || []).filter(gid => pos[gid]);
-      adjGhosts.forEach(gid => {
+      (ghostsAdjacentTo[cid] || []).filter(gid => pos[gid]).forEach(gid => {
         pos[gid].x = pos[cid].x + NODE_W + H_GAP;
       });
     });
   });
+
+  // Finale convergentie-loop
+  for (let cycle = 0; cycle < 3; cycle++) {
+    const beforeCycleX = {};
+    Object.entries(pos).forEach(([id, p]) => { beforeCycleX[id] = p.x; });
+    resolveOverlaps(pos, verticalGroupMap);
+    let hadShift = false;
+    gens.forEach(gen => {
+      const cascadedCycle = new Set();
+      (byGen[gen] || []).forEach(id => {
+        if (!pos[id] || beforeCycleX[id] === undefined) return;
+        const dx = pos[id].x - beforeCycleX[id];
+        if (Math.abs(dx) > 0.5) {
+          hadShift = true;
+          (childrenOf[id] || []).forEach(cid => {
+            if (pos[cid] && !cascadedCycle.has(cid)) {
+              cascadedCycle.add(cid);
+              shiftWithDescendants(cid, dx);
+            }
+          });
+        }
+      });
+    });
+    if (!hadShift) break;
+  }
+
+  // ===== FINALE GEZIN-CENTERING =====
+  // Herhaalde bottom-up centering: verschuif ouder-unit naar kindercentrum,
+  // dan fixOverlaps + cascade. Dezelfde logica als de initiële centering-pass,
+  // maar nu NA compactie/resolveOverlaps/cross-family herpositionering.
+  // Dit herstelt de centering die door die stappen is gebroken.
+  for (let finalePass = 0; finalePass < 6; finalePass++) {
+    let anyShift = false;
+
+    [...gens].reverse().forEach(gen => {
+      shiftedInlaws = new Set();
+      const processed = new Set();
+      (byGen[gen] || []).forEach(id => {
+        if (processed.has(id) || !pos[id]) return;
+        const myPartners = (partnersOf[id] || []).filter(pid => {
+          if (genOf[pid] !== gen || !pos[pid]) return false;
+          const dist = Math.abs(pos[pid].x - pos[id].x);
+          if (dist > MAX_PARTNER_DIST) {
+            const ghostId = CROSS_GHOST_PREFIX + pid + '_' + id;
+            if (pos[ghostId]) return false;
+          }
+          return true;
+        });
+        const unit = [id, ...myPartners];
+        unit.forEach(pid => processed.add(pid));
+
+        const allChildren = new Set();
+        unit.forEach(pid => (childrenOf[pid] || []).filter(cid => pos[cid]).forEach(cid => {
+          if (crossFamilyChildAnchor[cid] && !unit.includes(crossFamilyChildAnchor[cid])) return;
+          allChildren.add(cid);
+        }));
+        if (!allChildren.size) return;
+
+        const childXs = [...allChildren].map(cid => pos[cid].x + NODE_W / 2);
+        const childCenter = (Math.min(...childXs) + Math.max(...childXs)) / 2;
+        const unitXs = unit.map(pid => pos[pid].x);
+        const unitCenter = (Math.min(...unitXs) + Math.max(...unitXs) + NODE_W) / 2;
+        const shift = childCenter - unitCenter;
+        if (Math.abs(shift) > 1) {
+          anyShift = true;
+          unit.forEach(pid => {
+            pos[pid].x += shift;
+            (ghostsAdjacentTo[pid] || []).forEach(gid => {
+              if (pos[gid]) pos[gid].x += shift;
+            });
+          });
+        }
+      });
+
+      // fixOverlaps + cascade voor deze generatie
+      shiftedInlaws = new Set();
+      const beforeX = {};
+      (byGen[gen] || []).forEach(id => { if (pos[id]) beforeX[id] = pos[id].x; });
+      fixOverlaps(gen);
+      const cascaded = new Set();
+      (byGen[gen] || []).forEach(id => {
+        if (!pos[id] || beforeX[id] === undefined) return;
+        const dx = pos[id].x - beforeX[id];
+        if (Math.abs(dx) > 0.5) {
+          (childrenOf[id] || []).forEach(cid => {
+            if (pos[cid] && !cascaded.has(cid)) {
+              cascaded.add(cid);
+              shiftWithDescendants(cid, dx);
+            }
+          });
+        }
+      });
+    });
+
+    if (!anyShift) break;
+
+    // Na centering + fixOverlaps: resolveOverlaps voor cross-generatie overlaps
+    const beforeResolveFinX = {};
+    Object.entries(pos).forEach(([id, p]) => { beforeResolveFinX[id] = p.x; });
+    resolveOverlaps(pos, verticalGroupMap);
+    gens.forEach(gen => {
+      shiftedInlaws = new Set();
+      const cascadedResFin = new Set();
+      (byGen[gen] || []).forEach(id => {
+        if (!pos[id] || beforeResolveFinX[id] === undefined) return;
+        const dx = pos[id].x - beforeResolveFinX[id];
+        if (Math.abs(dx) > 0.5) {
+          anyShift = true;
+          (childrenOf[id] || []).forEach(cid => {
+            if (pos[cid] && !cascadedResFin.has(cid)) {
+              cascadedResFin.add(cid);
+              shiftWithDescendants(cid, dx);
+            }
+          });
+        }
+      });
+    });
+  }
 
   // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
   // Strategie: houd kaarten op de correcte X (onder ouders) en verschuif naar
