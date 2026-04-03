@@ -5724,17 +5724,22 @@ function computeLayout(overrideIds) {
       // --- Cross-family ghost-kinderen aanmaken ---
       // Als dit een cross-family koppel is, maak ghost-kinderen aan onder het andere paar
       if (crossFamilyGhostParentCenter !== null) {
+        // Bepaal de niet-anchor ouder (de ouder aan de ghost-kant)
+        const anchorForGroup = crossFamilyChildAnchor[group.children[0]];
+        const nonAnchorParent = group.parentIds.find(pid => pid !== anchorForGroup);
+        if (!nonAnchorParent) return; // Geen non-anchor ouder gevonden, skip ghost-kinderen
         crossFamilyChildGhosts.push({
           children: group.children,
           center: crossFamilyGhostParentCenter,
           gen: gen,
-          parentIds: group.parentIds
+          parentIds: group.parentIds,
+          nonAnchorParent: nonAnchorParent
         });
       }
     });
 
     // Plaats cross-family ghost-kinderen (na alle originele kinderen geplaatst zijn)
-    crossFamilyChildGhosts.forEach(({ children, center, gen: childGen, parentIds }) => {
+    crossFamilyChildGhosts.forEach(({ children, center, gen: childGen, parentIds, nonAnchorParent }) => {
       const ghostExpanded = [];
       children.forEach(cid => {
         const ghostChildId = CROSS_GHOST_PREFIX + cid + '_cf_' + parentIds.join('_');
@@ -5742,7 +5747,7 @@ function computeLayout(overrideIds) {
         if (!byGen[childGen]) byGen[childGen] = [];
         if (!byGen[childGen].includes(ghostChildId)) byGen[childGen].push(ghostChildId);
         genOf[ghostChildId] = childGen;
-        ghostMeta[ghostChildId] = { personId: cid, adjacentTo: parentIds[1] };
+        ghostMeta[ghostChildId] = { personId: cid, adjacentTo: nonAnchorParent };
       });
 
       const totalW = ghostExpanded.length * NODE_W + (ghostExpanded.length - 1) * H_GAP;
@@ -6120,57 +6125,111 @@ function computeLayout(overrideIds) {
   // Na bottom-up cascade en compactie kunnen kinderen wegdrijven van hun ouders.
   // Hakims regel: "eigen stamboom = leidend" — kinderen moeten gecentreerd zijn
   // onder (anchor-ouder + ghost-partner), precies zoals in de eigen stamboom.
-  Object.entries(crossFamilyChildAnchor).forEach(([childId, anchorParentId]) => {
-    if (!pos[childId] || !pos[anchorParentId]) return;
-    const otherParentId = (parentsOf[childId] || []).find(pid => pid !== anchorParentId && pos[pid]);
-    if (!otherParentId) return;
+  const postLayoutAnchorGroups = []; // bewaar groepen voor re-enforcement na resolveOverlaps
+  {
+    const processedAnchors = new Set();
+    Object.entries(crossFamilyChildAnchor).forEach(([childId, anchorParentId]) => {
+      // Verwerk elke anchor-groep maar één keer
+      if (processedAnchors.has(anchorParentId)) return;
+      processedAnchors.add(anchorParentId);
 
-    // Zoek de ghost-partner naast de anchor-ouder
-    const ghostId = CROSS_GHOST_PREFIX + otherParentId + '_' + anchorParentId;
-    if (!pos[ghostId]) return;
+      if (!pos[childId] || !pos[anchorParentId]) return;
+      const otherParentId = (parentsOf[childId] || []).find(pid => pid !== anchorParentId && pos[pid]);
+      if (!otherParentId) return;
 
-    // Bereken correct center van anchor + ghost (= eigen stamboom weergave)
-    const anchorCX = pos[anchorParentId].x + NODE_W / 2;
-    const ghostCX = pos[ghostId].x + NODE_W / 2;
-    const coupleCenter = (anchorCX + ghostCX) / 2;
+      // Zoek de ghost-partner naast de anchor-ouder
+      const ghostId = CROSS_GHOST_PREFIX + otherParentId + '_' + anchorParentId;
+      if (!pos[ghostId]) return;
 
-    // Verzamel alle siblings in deze groep (zelfde ouder-set)
-    const siblingGroup = Object.entries(crossFamilyChildAnchor)
-      .filter(([, anchor]) => anchor === anchorParentId)
-      .map(([cid]) => cid)
-      .filter(cid => pos[cid]);
+      // Bereken correct center van anchor + ghost (= eigen stamboom weergave)
+      const anchorCX = pos[anchorParentId].x + NODE_W / 2;
+      const ghostCX = pos[ghostId].x + NODE_W / 2;
+      const coupleCenter = (anchorCX + ghostCX) / 2;
 
-    if (!siblingGroup.length) return;
+      // Verzamel alle siblings in deze groep (zelfde anchor-ouder)
+      const siblingGroup = Object.entries(crossFamilyChildAnchor)
+        .filter(([, anchor]) => anchor === anchorParentId)
+        .map(([cid]) => cid)
+        .filter(cid => pos[cid]);
 
-    // Verzamel expanded list (siblings + hun inlaw-partners + ghosts)
-    const expandedIds = [];
-    siblingGroup.forEach(cid => {
-      // Voeg inlaw-partners toe (partners zonder ouders in layout)
-      const partners = (partnersOf[cid] || []).filter(pid =>
-        pos[pid] && !(parentsOf[pid] || []).some(ppid => pos[ppid])
-      );
-      // Voeg ghost-partners toe
-      const ghostPartners = (ghostsAdjacentTo[cid] || []).filter(gid => pos[gid]);
+      if (!siblingGroup.length) return;
 
-      // Sorteer: partner links of rechts afhankelijk van huidige positie
-      const allSlots = [cid, ...partners, ...ghostPartners];
-      allSlots.sort((a, b) => pos[a].x - pos[b].x);
-      allSlots.forEach(id => {
-        if (!expandedIds.includes(id)) expandedIds.push(id);
+      // Verzamel expanded list: siblings + hun inlaw-partners (GEEN ghosts!)
+      const expandedIds = [];
+      siblingGroup.forEach(cid => {
+        // Voeg inlaw-partners toe (partners zonder ouders in layout)
+        const partners = (partnersOf[cid] || []).filter(pid =>
+          pos[pid] &&
+          !pid.startsWith(CROSS_GHOST_PREFIX) &&  // Geen ghost-partners
+          !(parentsOf[pid] || []).some(ppid => pos[ppid])
+        );
+
+        const allSlots = [cid, ...partners];
+        allSlots.sort((a, b) => pos[a].x - pos[b].x);
+        allSlots.forEach(id => {
+          if (!expandedIds.includes(id)) expandedIds.push(id);
+        });
       });
-    });
 
-    // Herpositioneer: centreer de expanded groep onder het ouderpaar
-    const totalW = expandedIds.length * NODE_W + (expandedIds.length - 1) * H_GAP;
-    const newStartX = coupleCenter - totalW / 2;
-    expandedIds.sort((a, b) => pos[a].x - pos[b].x);
-    expandedIds.forEach((id, i) => {
-      pos[id].x = newStartX + i * (NODE_W + H_GAP);
+      // Herpositioneer: centreer de expanded groep onder het ouderpaar
+      const totalW = expandedIds.length * NODE_W + (expandedIds.length - 1) * H_GAP;
+      const newStartX = coupleCenter - totalW / 2;
+      expandedIds.sort((a, b) => pos[a].x - pos[b].x);
+
+      expandedIds.forEach((id, i) => {
+        pos[id].x = newStartX + i * (NODE_W + H_GAP);
+      });
+
+      // Bewaar groep voor re-enforcement na resolveOverlaps
+      postLayoutAnchorGroups.push({ siblingGroup, anchorParentId, ghostId });
     });
-  });
+  }
 
   // KERNREGEL: geen overlappende kaarten
   resolveOverlaps(pos, verticalGroupMap);
+
+  // --- Re-enforce: na resolveOverlaps kunnen kinderen verschoven zijn ---
+  // Hercentreer anchor-ouderpaar boven de kinderen (niet andersom, want overlap is al opgelost)
+  postLayoutAnchorGroups.forEach(({ siblingGroup, anchorParentId, ghostId }) => {
+    // Herbereken children center na resolveOverlaps
+    const validSiblings = siblingGroup.filter(cid => pos[cid]);
+    if (!validSiblings.length || !pos[anchorParentId] || !pos[ghostId]) return;
+
+    // Verzamel expanded children (siblings + hun inlaw-partners, geen ghosts)
+    const expandedIds = [];
+    validSiblings.forEach(cid => {
+      const partners = (partnersOf[cid] || []).filter(pid =>
+        pos[pid] &&
+        !pid.startsWith(CROSS_GHOST_PREFIX) &&
+        !(parentsOf[pid] || []).some(ppid => pos[ppid])
+      );
+      [cid, ...partners].forEach(id => {
+        if (!expandedIds.includes(id)) expandedIds.push(id);
+      });
+    });
+    expandedIds.sort((a, b) => pos[a].x - pos[b].x);
+
+    const childXs = expandedIds.map(id => pos[id].x);
+    const childCenter = (Math.min(...childXs) + Math.max(...childXs) + NODE_W) / 2;
+
+    // Herpositioneer ouders: anchor + ghost gecentreerd boven kinderen
+    const anchorLeft = pos[anchorParentId].x < pos[ghostId].x;
+    if (anchorLeft) {
+      pos[anchorParentId].x = childCenter - NODE_W - H_GAP / 2;
+      pos[ghostId].x = childCenter + H_GAP / 2;
+    } else {
+      pos[ghostId].x = childCenter - NODE_W - H_GAP / 2;
+      pos[anchorParentId].x = childCenter + H_GAP / 2;
+    }
+
+    // Ghost-partners van kinderen naast hun sibling
+    validSiblings.forEach(cid => {
+      const adjGhosts = (ghostsAdjacentTo[cid] || []).filter(gid => pos[gid]);
+      adjGhosts.forEach(gid => {
+        pos[gid].x = pos[cid].x + NODE_W + H_GAP;
+      });
+    });
+  });
 
   // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
   // Strategie: houd kaarten op de correcte X (onder ouders) en verschuif naar
@@ -6762,6 +6821,8 @@ function renderCards(pos, treeRanges, ghosts) {
     Object.entries(ghosts).forEach(([key, g]) => {
       const person = getPerson(g.personId);
       if (!person) return;
+      // Valideer coördinaten — voorkom lege dozen bij ongeldige posities
+      if (typeof g.x !== 'number' || typeof g.y !== 'number' || isNaN(g.x) || isNaN(g.y)) return;
       const gClass = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
       const dupDiv = document.createElement('div');
       dupDiv.className = `card ${gClass} duplicate-card`;
