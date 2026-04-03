@@ -6043,10 +6043,30 @@ function computeLayout(overrideIds) {
     });
   });
 
-  // --- Finale fixOverlaps: de bottom-up cascade kan overlaps op lagere generaties
-  // veroorzaken (ouder verschuift → kinderen cascaden → overlap met buren).
-  // Eén extra fixOverlaps-pass lost dit op.
-  gens.forEach(gen => fixOverlaps(gen));
+  // --- Finale fixOverlaps MET cascade: de bottom-up cascade kan overlaps op lagere
+  // generaties veroorzaken (ouder verschuift → kinderen cascaden → overlap met buren).
+  // Eén extra fixOverlaps-pass MET cascade lost dit op, zodat kinderen hun ouders volgen.
+  gens.forEach(gen => {
+    const beforeFixX = {};
+    (byGen[gen] || []).forEach(id => { if (pos[id]) beforeFixX[id] = pos[id].x; });
+
+    fixOverlaps(gen);
+
+    // Cascade fixOverlaps verschuivingen naar kinderen (zoals in bottom-up cascade)
+    const cascadedFix = new Set();
+    (byGen[gen] || []).forEach(id => {
+      if (!pos[id] || beforeFixX[id] === undefined) return;
+      const dx = pos[id].x - beforeFixX[id];
+      if (Math.abs(dx) > 0.5) {
+        (childrenOf[id] || []).forEach(cid => {
+          if (pos[cid] && !cascadedFix.has(cid)) {
+            cascadedFix.add(cid);
+            shiftWithDescendants(cid, dx);
+          }
+        });
+      }
+    });
+  });
 
   // --- Compactie: schuif alles rechts van verticale snijlijnen naar links ---
   // Scan x-as in stappen en zoek verticale "snijlijnen" waar er op ALLE generaties
@@ -6186,7 +6206,29 @@ function computeLayout(overrideIds) {
   }
 
   // KERNREGEL: geen overlappende kaarten
+  // Sla posities op vóór resolveOverlaps voor cascade
+  const beforeResolveX = {};
+  Object.entries(pos).forEach(([id, p]) => { beforeResolveX[id] = p.x; });
+
   resolveOverlaps(pos, verticalGroupMap);
+
+  // Cascade resolveOverlaps verschuivingen naar kinderen
+  // Hakims regel: kinderen mogen NOOIT losraken van hun ouders
+  gens.forEach(gen => {
+    const cascadedResolve = new Set();
+    (byGen[gen] || []).forEach(id => {
+      if (!pos[id] || beforeResolveX[id] === undefined) return;
+      const dx = pos[id].x - beforeResolveX[id];
+      if (Math.abs(dx) > 0.5) {
+        (childrenOf[id] || []).forEach(cid => {
+          if (pos[cid] && !cascadedResolve.has(cid)) {
+            cascadedResolve.add(cid);
+            shiftWithDescendants(cid, dx);
+          }
+        });
+      }
+    });
+  });
 
   // --- Re-enforce: na resolveOverlaps kunnen kinderen verschoven zijn ---
   // Hercentreer anchor-ouderpaar boven de kinderen (niet andersom, want overlap is al opgelost)
