@@ -191,6 +191,11 @@ function saveVerticalState() {
 function toggleVerticalGezin(key) {
   if (verticalGezinnen.has(key)) {
     verticalGezinnen.delete(key);
+    // Als dit een auto-verticaal gezin is (>5 kinderen), markeer als expliciet horizontaal
+    verticalGezinnen.add(key + ':horiz');
+  } else if (verticalGezinnen.has(key + ':horiz')) {
+    // Was expliciet horizontaal gezet, terug naar auto-verticaal
+    verticalGezinnen.delete(key + ':horiz');
   } else {
     verticalGezinnen.add(key);
   }
@@ -5028,8 +5033,9 @@ function resolveOverlaps(pos, verticalGroupMap) {
           const shiftNeeded = (a.x + NODE_W + H_GAP) - b.x;
           if (shiftNeeded > 0) {
             const bY = b.y;
+            const bX = b.x;
             allNodeIds.forEach(nid => {
-              if (pos[nid] && pos[nid].y === bY && pos[nid].x >= b.x) {
+              if (pos[nid] && pos[nid].y === bY && pos[nid].x >= bX && nid !== idA) {
                 pos[nid].x += shiftNeeded;
               }
             });
@@ -5365,7 +5371,7 @@ function computeLayout(overrideIds) {
 
   // --- Place gen 0 (roots + their partners) ---
   {
-    const TREE_EXTRA_GAP = 150; // extra ruimte tussen verschillende stambomen
+    const TREE_EXTRA_GAP = 80; // ruimte tussen verschillende stambomen
     const gen0 = byGen[0] || [];
     const seen = new Set();
     const ordered = [];
@@ -5658,8 +5664,12 @@ function computeLayout(overrideIds) {
       });
 
       // Check of dit gezin verticaal moet worden weergegeven
+      // Auto-verticaal: gezinnen met >5 kinderen worden automatisch gestapeld
+      // tenzij de gebruiker ze expliciet horizontaal heeft gezet
       const gezinKey = [...group.parentIds].sort().join(',');
-      const isVertical = verticalGezinnen.has(gezinKey);
+      const AUTO_VERTICAL_THRESHOLD = 8;
+      const isVertical = verticalGezinnen.has(gezinKey) ||
+        (group.children.length > AUTO_VERTICAL_THRESHOLD && !verticalGezinnen.has(gezinKey + ':horiz'));
 
       if (isVertical) {
         // Verticale plaatsing: kinderen verticaal, partners rechts ernaast
@@ -5793,10 +5803,10 @@ function computeLayout(overrideIds) {
   // De bottom-up centering die hierna volgt plaatst ouders dan ook dichter bij elkaar.
   // Gebruik de verticale-snijlijn methode: schuif alleen als er op ALLE generaties
   // voldoende ruimte is, zodat er geen overlaps ontstaan.
-  for (let cPass = 0; cPass < 5; cPass++) {
+  for (let cPass = 0; cPass < 7; cPass++) {
     const allIds = Object.keys(pos);
     const maxX = Math.max(...allIds.map(id => pos[id].x + NODE_W));
-    const scanStep = Math.max(20, H_GAP / 2); // fijnere scan voor betere compactie
+    const scanStep = 15;
 
     for (let scanX = PADDING + scanStep; scanX < maxX; scanX += scanStep) {
       let minGap = Infinity;
@@ -6100,6 +6110,31 @@ function computeLayout(overrideIds) {
     });
   }
 
+  // Herstel gezins-integriteit: kinderen terug naar correcte relatieve positie t.o.v. ouders.
+  // Wordt aangeroepen na layout-stappen die posities wijzigen.
+  // Skip inlaw-partners die ook kinderen zijn van een ander gezin (cross-family koppels) —
+  // die worden door hun EIGEN ouder-snapshot gepositioneerd.
+  function enforceGezinSnapshots() {
+    gezinSnapshots.forEach(({ parentIds, members }) => {
+      const parentXs = parentIds.filter(pid => pos[pid]).map(pid => pos[pid].x);
+      if (!parentXs.length) return;
+      const parentCenterX = (Math.min(...parentXs) + Math.max(...parentXs) + NODE_W) / 2;
+      Object.entries(members).forEach(([mid, { dx }]) => {
+        if (!pos[mid]) return;
+        // Skip inlaw-partners die hun eigen ouders in de layout hebben
+        // (cross-family koppels). Die worden door hun EIGEN ouder-snapshot gepositioneerd.
+        const isChildOfThisFamily = parentIds.some(pid => (childrenOf[pid] || []).includes(mid));
+        if (!isChildOfThisFamily) {
+          const hasOwnParents = (parentsOf[mid] || []).some(ppid => pos[ppid]);
+          if (hasOwnParents) return;
+        }
+        // Skip kinderen met crossFamilyChildAnchor die naar een ANDERE familie wijst
+        if (crossFamilyChildAnchor[mid] && !parentIds.includes(crossFamilyChildAnchor[mid])) return;
+        pos[mid].x = parentCenterX + dx;
+      });
+    });
+  }
+
   // --- Finale fixOverlaps MET cascade ---
   gens.forEach(gen => {
     const beforeFixX = {};
@@ -6121,14 +6156,14 @@ function computeLayout(overrideIds) {
   });
 
   // --- Compactie ---
-  for (let pass = 0; pass < 5; pass++) {
+  for (let pass = 0; pass < 7; pass++) {
     const allPositions = Object.entries(pos).map(([id, p]) => ({
       id, x: p.x, right: p.x + NODE_W, gen: genOf[id]
     }));
     allPositions.sort((a, b) => a.x - b.x);
     if (!allPositions.length) break;
     const maxX = Math.max(...allPositions.map(p => p.right));
-    const step = Math.max(20, H_GAP / 2);
+    const step = 15;
     for (let scanX = PADDING + step; scanX < maxX; scanX += step) {
       let minGap = Infinity;
       let hasLeft = false, hasRight = false;
@@ -6146,8 +6181,8 @@ function computeLayout(overrideIds) {
           if (genGap < minGap) minGap = genGap;
         }
       });
-      if (!hasLeft || !hasRight || minGap <= H_GAP) continue;
-      const shift = minGap - H_GAP;
+      if (!hasLeft || !hasRight || minGap <= 25) continue;
+      const shift = minGap - 25;
       if (shift < 2) continue;
       for (const id of Object.keys(pos)) {
         if (pos[id].x >= scanX) pos[id].x -= shift;
@@ -6276,6 +6311,10 @@ function computeLayout(overrideIds) {
     if (!hadShift) break;
   }
 
+  // Gezin-snapshot enforcement na convergentie-loop — DISABLED: veroorzaakt overlaps bij cross-family koppels
+  // enforceGezinSnapshots();
+  // resolveOverlaps(pos, verticalGroupMap);
+
   // ===== FINALE GEZIN-CENTERING =====
   // Herhaalde bottom-up centering: verschuif ouder-unit naar kindercentrum,
   // dan fixOverlaps + cascade. Dezelfde logica als de initiële centering-pass,
@@ -6370,17 +6409,24 @@ function computeLayout(overrideIds) {
   }
 
   // Helper: verschuif een persoon en al zijn afstammelingen in Y-richting
+  // Partners worden meegenomen als ze (1) op ~zelfde Y stonden en (2) dichtbij in X staan.
+  // Dit voorkomt dat verre cross-family partners worden meegesleurd (isCloseX check),
+  // maar vangt wel inlaw-partners die net op een iets andere Y staan (SHIFT_AMOUNT tolerantie).
   function shiftDescendantsY(id, dy, visited) {
     if (!pos[id] || visited.has(id)) return;
     visited.add(id);
     pos[id].y += dy;
     (partnersOf[id] || []).forEach(pid => {
-      if (pos[pid] && !visited.has(pid) && Math.abs(pos[pid].y - (pos[id].y - dy)) < 5) {
-        visited.add(pid);
-        pos[pid].y += dy;
-        (childrenOf[pid] || []).forEach(gcid => {
-          if (pos[gcid] && !visited.has(gcid)) shiftDescendantsY(gcid, dy, visited);
-        });
+      if (pos[pid] && !visited.has(pid)) {
+        const wasAtSameY = Math.abs(pos[pid].y - (pos[id].y - dy)) < 20;
+        const isCloseX = Math.abs(pos[pid].x - pos[id].x) < MAX_PARTNER_DIST;
+        if (wasAtSameY && isCloseX) {
+          visited.add(pid);
+          pos[pid].y += dy;
+          (childrenOf[pid] || []).forEach(gcid => {
+            if (pos[gcid] && !visited.has(gcid)) shiftDescendantsY(gcid, dy, visited);
+          });
+        }
       }
     });
     (childrenOf[id] || []).forEach(cid => {
@@ -6425,6 +6471,10 @@ function computeLayout(overrideIds) {
         familyUnits.set(key, { parentIds: unit, childIds: childArr, childY, barLeft, barRight });
       });
     });
+
+    // Ghost-family T-bar detectie UITGESCHAKELD — veroorzaakt meer Y-shifts
+    // waardoor langere verticale lijnen door kaarten lopen (89 violations vs 12).
+    // TODO: Herontwerp ghost T-bar handling zonder cascade-Y-shifts.
 
     // Vergelijk ALLE families: check of een gezin's bar door een ander gezin's
     // kaartgebied loopt (of omgekeerd), EN de X-ranges overlappen.
@@ -6499,6 +6549,10 @@ function computeLayout(overrideIds) {
     resolveOverlaps(pos, verticalGroupMap);
     if (!anyTbarShift) break;
   }
+
+  // Gezin-snapshot enforcement na T-bar loop — DISABLED: veroorzaakt overlaps bij cross-family koppels
+  // enforceGezinSnapshots();
+  // resolveOverlaps(pos, verticalGroupMap);
 
   // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
   // Strategie: houd kaarten op de correcte X (onder ouders) en verschuif naar
@@ -6591,6 +6645,9 @@ function computeLayout(overrideIds) {
 
   // --- Cross-family ghosts: extraheer uit pos ---
   const crossFamilyGhosts = {};
+  // Finale overlap-check na alle layout-stappen
+  resolveOverlaps(pos, verticalGroupMap);
+
   Object.keys(pos).forEach(id => {
     if (id.startsWith(CROSS_GHOST_PREFIX)) {
       const meta = ghostMeta[id];
@@ -6654,6 +6711,8 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const x1 = lpos[leftId].x + NODE_W;
       const x2 = lpos[rightId].x;
       if (x2 <= x1) return;
+      // Geen lange partner-lijnen tekenen — gaan door andere kaarten heen
+      if ((x2 - x1) > 3 * (NODE_W + H_GAP)) return;
 
       parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
     });
@@ -6686,7 +6745,8 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       if (!validParents.length || !validChildren.length) return;
 
       const gezinKey = [...parents].sort().join(',');
-      const isVerticalFamily = verticalGezinnen.has(gezinKey);
+      const isVerticalFamily = verticalGezinnen.has(gezinKey) ||
+        (validChildren.length > 8 && !verticalGezinnen.has(gezinKey + ':horiz'));
 
       if (isVerticalFamily && validChildren.length > 0) {
         tbarData.push({ validParents, validChildren, isVertical: true, gezinKey });
@@ -6759,50 +6819,91 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
         const dropY = Math.max(...data.validParents.map(pid => lbotY(pid)));
 
-        data.validChildren.sort((a, b) => ltopY(a) - ltopY(b));
+        // Splits kinderen in nabij (horizontale stub) en ver weg (eigen verticale connector)
+        const MAX_STUB = 2 * (NODE_W + H_GAP); // 460px max voor horizontale stubs
+        const nearChildren = data.validChildren.filter(cid => Math.abs(lcx(cid) - dropX) <= MAX_STUB);
+        const farChildren = data.validChildren.filter(cid => Math.abs(lcx(cid) - dropX) > MAX_STUB);
 
-        const lastChildY = ltopY(data.validChildren[data.validChildren.length - 1]);
+        if (nearChildren.length > 0) {
+          nearChildren.sort((a, b) => ltopY(a) - ltopY(b));
+          const lastChildY = ltopY(nearChildren[nearChildren.length - 1]);
+          parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${lastChildY + NODE_H / 2}" class="child-line"/>`);
 
-        parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${lastChildY + NODE_H / 2}" class="child-line"/>`);
+          nearChildren.forEach(cid => {
+            const cx = lcx(cid);
+            const cy = ltopY(cid) + NODE_H / 2;
+            if (Math.abs(cx - dropX) > 2) {
+              parts.push(`<line x1="${dropX}" y1="${cy}" x2="${cx}" y2="${cy}" class="child-line"/>`);
+            }
+            parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${ltopY(cid)}" class="child-line"/>`);
+          });
+        }
 
-        data.validChildren.forEach(cid => {
-          const cx = lcx(cid);
-          const cy = ltopY(cid) + NODE_H / 2;
-          if (Math.abs(cx - dropX) > 2) {
-            parts.push(`<line x1="${dropX}" y1="${cy}" x2="${cx}" y2="${cy}" class="child-line"/>`);
-          }
-          parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${ltopY(cid)}" class="child-line"/>`);
-        });
+        // Verre kinderen: GEEN directe verbinding tekenen.
+        // Het ghost/duplicate systeem plaatst een kopie van de ouder naast het kind,
+        // zodat de lokale T-bar de verbinding biedt. Een lange lijn zou door andere kaarten lopen.
         return;
       }
 
-      const { dropX, dropY, midDropY, validChildren } = data;
-
-      // Balk loopt ALLEEN van linkerkind tot rechterkind
-      const childCXs = validChildren.map(cid => lcx(cid));
-      const barLeftX  = Math.min(...childCXs);
-      const barRightX = Math.max(...childCXs);
+      const { dropX, dropY, midDropY, validChildren, clusters, hasDistantClusters } = data;
 
       // Verticale lijn van ouder naar midDropY
       parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
 
-      // Als dropX buiten het kinderbereik valt: horizontale connector
-      // van dropX naar de dichtstbijzijnde rand van de balk
-      if (dropX < barLeftX - 2) {
-        parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${barLeftX}" y2="${midDropY}" class="child-line"/>`);
-      } else if (dropX > barRightX + 2) {
-        parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
-      }
+      if (!hasDistantClusters) {
+        // Alle kinderen dicht bij elkaar: één balk van linkerkind tot rechterkind
+        const childCXs = validChildren.map(cid => lcx(cid));
+        const barLeftX  = Math.min(...childCXs);
+        const barRightX = Math.max(...childCXs);
 
-      // Horizontale balk van linkerkind tot rechterkind
-      if (barRightX - barLeftX > 2) {
-        parts.push(`<line x1="${barLeftX}" y1="${midDropY}" x2="${barRightX}" y2="${midDropY}" class="child-line"/>`);
-      }
+        if (dropX < barLeftX - 2) {
+          parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${barLeftX}" y2="${midDropY}" class="child-line"/>`);
+        } else if (dropX > barRightX + 2) {
+          parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
+        }
 
-      // Verticale lijntjes van balk naar elk kind
-      validChildren.forEach(cid => {
-        parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-      });
+        if (barRightX - barLeftX > 2) {
+          parts.push(`<line x1="${barLeftX}" y1="${midDropY}" x2="${barRightX}" y2="${midDropY}" class="child-line"/>`);
+        }
+
+        validChildren.forEach(cid => {
+          parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+        });
+      } else {
+        // Meerdere ver uit elkaar liggende clusters: SEGMENTED bars per cluster.
+        // Elke cluster krijgt zijn eigen korte balk. Lange horizontale bars die door
+        // kaarten van andere families lopen worden zo voorkomen.
+        clusters.forEach(cluster => {
+          const clusterCXs = cluster.map(cid => lcx(cid));
+          const clLeft  = Math.min(...clusterCXs);
+          const clRight = Math.max(...clusterCXs);
+          const clMidX  = (clLeft + clRight) / 2;
+
+          // Korte horizontale balk binnen het cluster
+          if (clRight - clLeft > 2) {
+            parts.push(`<line x1="${clLeft}" y1="${midDropY}" x2="${clRight}" y2="${midDropY}" class="child-line"/>`);
+          }
+
+          // Connector van dropX naar het cluster: horizontale lijn alleen als dropX
+          // dicht bij het cluster is (binnen het cluster bereik + marge)
+          const CONNECTOR_MARGIN = 2 * (NODE_W + H_GAP); // 460px
+          if (dropX >= clLeft - CONNECTOR_MARGIN && dropX <= clRight + CONNECTOR_MARGIN) {
+            // DropX is dichtbij dit cluster: verbind met horizontale lijn
+            if (dropX < clLeft - 2) {
+              parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${clLeft}" y2="${midDropY}" class="child-line"/>`);
+            } else if (dropX > clRight + 2) {
+              parts.push(`<line x1="${clRight}" y1="${midDropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
+            }
+          }
+          // Als dropX ver weg is: GEEN connector tekenen.
+          // Het ghost/duplicate systeem biedt de visuele link met de ouder.
+
+          // Verticale lijntjes van balk naar elk kind in het cluster
+          cluster.forEach(cid => {
+            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+          });
+        });
+      }
     });
   }
 
@@ -6829,7 +6930,9 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const y = pos[dup.adjacentTo].y + NODE_H / 2;
       const x1 = leftX + NODE_W;
       const x2 = rightX;
-      if (x2 > x1) {
+      // Alleen tekenen als ghost dichtbij is — lange partner-lijnen gaan door andere kaarten
+      const MAX_PARTNER_LINE = 3 * (NODE_W + H_GAP); // ~690px
+      if (x2 > x1 && (x2 - x1) < MAX_PARTNER_LINE) {
         parts.push(`<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" class="partner-line"/>`);
       }
       // Duplicate-link verwijderd (blauwe stippellijnen)
@@ -7444,7 +7547,8 @@ function renderCollapseToggles(pos) {
 
     // Verticaal-toggle knop bij elk gezin met zichtbare kinderen
     if (!isCollapsed && hasVisibleChildren && gezin.childIds.size >= 1) {
-      const isVert = verticalGezinnen.has(key);
+      const isAutoVertical = gezin.childIds.size > 8 && !verticalGezinnen.has(key + ':horiz');
+      const isVert = verticalGezinnen.has(key) || isAutoVertical;
       const vBtn = document.createElement('div');
       vBtn.className = 'gezin-toggle vertical-toggle' + (isVert ? ' active' : '');
       vBtn.style.left = (midX + 24) + 'px';
