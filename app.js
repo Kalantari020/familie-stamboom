@@ -6369,6 +6369,137 @@ function computeLayout(overrideIds) {
     });
   }
 
+  // Helper: verschuif een persoon en al zijn afstammelingen in Y-richting
+  function shiftDescendantsY(id, dy, visited) {
+    if (!pos[id] || visited.has(id)) return;
+    visited.add(id);
+    pos[id].y += dy;
+    (partnersOf[id] || []).forEach(pid => {
+      if (pos[pid] && !visited.has(pid) && Math.abs(pos[pid].y - (pos[id].y - dy)) < 5) {
+        visited.add(pid);
+        pos[pid].y += dy;
+        (childrenOf[pid] || []).forEach(gcid => {
+          if (pos[gcid] && !visited.has(gcid)) shiftDescendantsY(gcid, dy, visited);
+        });
+      }
+    });
+    (childrenOf[id] || []).forEach(cid => {
+      if (pos[cid] && !visited.has(cid)) shiftDescendantsY(cid, dy, visited);
+    });
+  }
+
+  // ===== T-BAR OVERLAP DETECTIE EN Y-VERSCHUIVING =====
+  // Als twee gezinnen op dezelfde generatie kinderen hebben wiens X-ranges overlappen,
+  // worden de kinderen (+ afstammelingen) van het conflicterende gezin naar beneden verschoven.
+  // Dit voorkomt dat horizontale T-bars van verschillende gezinnen over elkaar lopen.
+  // Iteratief: Y-verschuivingen kunnen nieuwe overlaps creëren, dus herhaal tot convergentie.
+  for (let tbarPass = 0; tbarPass < 5; tbarPass++) {
+    let anyTbarShift = false;
+    // Bouw gezin-groepen: ouder(s) → kinderen
+    const familyUnits = new Map(); // key → { parentIds, childIds, childY, barLeft, barRight }
+    gens.forEach(gen => {
+      const processed = new Set();
+      (byGen[gen] || []).forEach(id => {
+        if (processed.has(id) || !pos[id]) return;
+        const myPartners = (partnersOf[id] || []).filter(pid => {
+          if (genOf[pid] !== gen || !pos[pid]) return false;
+          if (Math.abs(pos[pid].x - pos[id].x) > MAX_PARTNER_DIST) return false;
+          return true;
+        });
+        const unit = [id, ...myPartners];
+        unit.forEach(pid => processed.add(pid));
+
+        const allChildren = new Set();
+        unit.forEach(pid => (childrenOf[pid] || []).filter(cid => pos[cid]).forEach(cid => {
+          if (crossFamilyChildAnchor[cid] && !unit.includes(crossFamilyChildAnchor[cid])) return;
+          allChildren.add(cid);
+        }));
+        if (!allChildren.size) return;
+
+        const childArr = [...allChildren];
+        const childY = Math.min(...childArr.map(cid => pos[cid].y));
+        const childCXs = childArr.map(cid => pos[cid].x + NODE_W / 2);
+        const barLeft = Math.min(...childCXs);
+        const barRight = Math.max(...childCXs);
+        const key = unit.sort().join(',');
+        familyUnits.set(key, { parentIds: unit, childIds: childArr, childY, barLeft, barRight });
+      });
+    });
+
+    // Vergelijk ALLE families: check of een gezin's bar door een ander gezin's
+    // kaartgebied loopt (of omgekeerd), EN de X-ranges overlappen.
+    const SHIFT_AMOUNT = NODE_H + V_GAP; // 100 + 90 = 190px naar beneden
+    const famArr = [];
+    familyUnits.forEach((fam, key) => {
+      // childBottomY: alleen kinderen op hetzelfde Y-level (±SHIFT_AMOUNT) meerekenen.
+      // Kinderen die door eerdere cascade-shifts ver naar beneden zijn geschoven
+      // horen niet tot de "voetafdruk" van dit gezin op dit level.
+      const sameYChildren = fam.childIds.filter(cid => Math.abs(pos[cid].y - fam.childY) < SHIFT_AMOUNT);
+      const childBottomY = sameYChildren.length > 0
+        ? Math.max(...sameYChildren.map(cid => pos[cid].y + NODE_H))
+        : fam.childY + NODE_H;
+      // barLeft/barRight: gebruik ALLE kinderen (de bar wordt over alle kinderen getekend)
+      famArr.push({ key, ...fam, childBottomY, barY: fam.childY - 15 });
+    });
+
+    // Sorteer op childY (bovenste eerst krijgen prioriteit)
+    famArr.sort((a, b) => a.childY - b.childY);
+
+    // Geplaatste gezinnen bijhouden met hun actuele Y-range
+    const placedFams = []; // { barLeft, barRight, barY, childY, childBottomY }
+
+    famArr.forEach(fam => {
+      let needShift = 0;
+
+      // Check of dit gezin's bar of kaartgebied conflicteert met geplaatste gezinnen
+      for (const p of placedFams) {
+        // X-overlap check
+        if (fam.barLeft > p.barRight + H_GAP || fam.barRight < p.barLeft - H_GAP) continue;
+
+        // Y-conflict: fam's bar door p's kaartgebied, of p's bar door fam's kaartgebied,
+        // of kaartgebieden overlappen
+        const famBarY = fam.childY + needShift - 15;
+        const famTopY = fam.childY + needShift;
+        const famBotY = fam.childBottomY + needShift;
+
+        const conflict =
+          // fam's bar loopt door p's kaarten
+          (famBarY >= p.childY - 15 && famBarY <= p.childBottomY) ||
+          // p's bar loopt door fam's kaarten
+          (p.barY >= famTopY - 15 && p.barY <= famBotY) ||
+          // kaartgebieden overlappen
+          (famTopY < p.childBottomY && famBotY > p.childY);
+
+        if (conflict) {
+          // Verschuif naar onder p's kaartgebied
+          const minShift = p.childBottomY - fam.childY + V_GAP;
+          needShift = Math.max(needShift, Math.ceil(minShift / SHIFT_AMOUNT) * SHIFT_AMOUNT);
+        }
+      }
+
+      placedFams.push({
+        barLeft: fam.barLeft, barRight: fam.barRight,
+        barY: fam.childY + needShift - 15,
+        childY: fam.childY + needShift,
+        childBottomY: fam.childBottomY + needShift
+      });
+
+      if (needShift > 0) {
+        anyTbarShift = true;
+        const shifted = new Set();
+        fam.childIds.forEach(cid => {
+          if (pos[cid] && !shifted.has(cid)) {
+            shiftDescendantsY(cid, needShift, shifted);
+          }
+        });
+      }
+    });
+
+    // Na Y-verschuiving: resolveOverlaps opnieuw draaien om nieuwe overlaps op te lossen
+    resolveOverlaps(pos, verticalGroupMap);
+    if (!anyTbarShift) break;
+  }
+
   // --- Post-layout: spreid verticale groepen uit (kinderen + partners) ---
   // Strategie: houd kaarten op de correcte X (onder ouders) en verschuif naar
   // beneden als er overlaps zijn. Lijnen worden langer i.p.v. kaarten verplaatst.
@@ -6645,16 +6776,30 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         return;
       }
 
-      const { dropX, dropY, midDropY, validChildren, clusters, hasDistantClusters } = data;
+      const { dropX, dropY, midDropY, validChildren } = data;
 
-      // Verticale lijn van ouder naar midDropY (net boven kinderkaarten)
+      // Balk loopt ALLEEN van linkerkind tot rechterkind
+      const childCXs = validChildren.map(cid => lcx(cid));
+      const barLeftX  = Math.min(...childCXs);
+      const barRightX = Math.max(...childCXs);
+
+      // Verticale lijn van ouder naar midDropY
       parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
 
-      // Horizontale balk altijd op midDropY (= childTopY - 15)
-      // Alle kinderen hangen eronder, ongeacht afstand
-      const leftX  = Math.min(dropX, ...validChildren.map(cid => lcx(cid)));
-      const rightX = Math.max(dropX, ...validChildren.map(cid => lcx(cid)));
-      parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+      // Als dropX buiten het kinderbereik valt: horizontale connector
+      // van dropX naar de dichtstbijzijnde rand van de balk
+      if (dropX < barLeftX - 2) {
+        parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${barLeftX}" y2="${midDropY}" class="child-line"/>`);
+      } else if (dropX > barRightX + 2) {
+        parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
+      }
+
+      // Horizontale balk van linkerkind tot rechterkind
+      if (barRightX - barLeftX > 2) {
+        parts.push(`<line x1="${barLeftX}" y1="${midDropY}" x2="${barRightX}" y2="${midDropY}" class="child-line"/>`);
+      }
+
+      // Verticale lijntjes van balk naar elk kind
       validChildren.forEach(cid => {
         parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
       });
@@ -6748,12 +6893,12 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const childTopY = Math.min(...children.map(c => c.y));
       const midDropY = childTopY - 15; // Horizontale balk net BOVEN de kinderkaarten
 
-      // Verticale lijn van ouders naar midDropY
-      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
-
       // Sorteer kinderen op x-positie
       children.sort((a, b) => a.x - b.x);
       const childCXs = children.map(c => c.x + NODE_W / 2);
+
+      // Verticale lijn van ouders naar midDropY
+      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
 
       if (children.length === 1) {
         const cx = childCXs[0];
