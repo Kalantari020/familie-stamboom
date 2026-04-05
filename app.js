@@ -6544,60 +6544,36 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       familyGroups.get(key).children.add(r.childId);
     });
 
+    // ── Fase 1: Bereken alle T-bar data per familiegroep ──
+    // Verzamel horizontale T-bar segmenten zodat we overlappen kunnen detecteren
+    // en conflicterende bars naar beneden kunnen verschuiven.
+    const tbarData = []; // Array van { dropX, dropY, midDropY, validParents, validChildren, clusters, hasDistantClusters, isVertical, gezinKey }
+
     familyGroups.forEach(({ parents, children }) => {
       const validParents  = parents.filter(pid => lpos[pid]);
       const validChildren = [...children].filter(cid => lpos[cid]);
       if (!validParents.length || !validChildren.length) return;
 
-      // Check of dit gezin verticaal gestapeld is
       const gezinKey = [...parents].sort().join(',');
       const isVerticalFamily = verticalGezinnen.has(gezinKey);
 
       if (isVerticalFamily && validChildren.length > 0) {
-        // Verticale lijnen: stamlijn van ouders naar beneden, met takken naar elk kind
-        const parentCXs = validParents.map(pid => lcx(pid));
-        const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
-        const dropY = Math.max(...validParents.map(pid => lbotY(pid)));
-
-        // Sorteer kinderen op Y-positie (boven naar beneden)
-        validChildren.sort((a, b) => ltopY(a) - ltopY(b));
-
-        const lastChildY = ltopY(validChildren[validChildren.length - 1]);
-
-        // Verticale stamlijn van ouder naar laatste kind
-        parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${lastChildY + NODE_H / 2}" class="child-line"/>`);
-
-        // Horizontale tak naar elk kind
-        validChildren.forEach(cid => {
-          const cx = lcx(cid);
-          const cy = ltopY(cid) + NODE_H / 2;
-          if (Math.abs(cx - dropX) > 2) {
-            // Kind staat niet direct onder de stamlijn — trek horizontale tak
-            parts.push(`<line x1="${dropX}" y1="${cy}" x2="${cx}" y2="${cy}" class="child-line"/>`);
-          }
-          // Korte verticale lijn naar bovenkant kind
-          parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${ltopY(cid)}" class="child-line"/>`);
-        });
+        tbarData.push({ validParents, validChildren, isVertical: true, gezinKey });
         return;
       }
 
-      // --- Fix A: Cross-family aware drop point ---
-      // Als ouders ver uit elkaar staan, zoek de ghost-partner naast de dichtstbijzijnde
-      // ouder en gebruik het midden van (ouder + ghost) als drop point.
-      // Dit matcht de eigen-stamboom weergave (Hakims regel 1).
+      // --- Drop point berekening (Fix A: Cross-family aware) ---
       let dropX, dropY;
       if (validParents.length === 2) {
         const CROSS_THRESHOLD = 2 * (NODE_W + H_GAP);
         const dist = Math.abs(lcx(validParents[0]) - lcx(validParents[1]));
         if (dist > CROSS_THRESHOLD) {
-          // Ouders ver uit elkaar — zoek ghost-partner naast dichtstbijzijnde ouder
           const childCenterX = validChildren.reduce((s, cid) => s + lcx(cid), 0) / validChildren.length;
           const dist0 = Math.abs(lcx(validParents[0]) - childCenterX);
           const dist1 = Math.abs(lcx(validParents[1]) - childCenterX);
           const closeParent = dist0 <= dist1 ? validParents[0] : validParents[1];
           const farParent   = dist0 <= dist1 ? validParents[1] : validParents[0];
 
-          // Zoek ghost van farParent naast closeParent in duplicates
           let ghostPos = null;
           if (dups) {
             for (const d of Object.values(dups)) {
@@ -6608,23 +6584,19 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
           }
 
           if (ghostPos) {
-            // Gebruik midden van (closeParent + ghost) — matcht eigen-stamboom weergave
             const ghostCX = ghostPos.x + NODE_W / 2;
             dropX = (lcx(closeParent) + ghostCX) / 2;
             dropY = Math.max(lbotY(closeParent), ghostPos.y + NODE_H);
           } else {
-            // Geen ghost gevonden — val terug op enkele ouder
             dropX = lcx(closeParent);
             dropY = lbotY(closeParent);
           }
         } else {
-          // Ouders dicht genoeg bij elkaar — gebruik beide
           const parentCXs = validParents.map(pid => lcx(pid));
           dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
           dropY = Math.max(...validParents.map(pid => lbotY(pid)));
         }
       } else {
-        // Eén ouder
         dropX = lcx(validParents[0]);
         dropY = lbotY(validParents[0]);
       }
@@ -6632,14 +6604,8 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const childTopY = Math.min(...validChildren.map(cid => ltopY(cid)));
       const midDropY  = dropY + (childTopY - dropY) * 0.45;
 
-      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
-
       validChildren.sort((a, b) => lcx(a) - lcx(b));
 
-      // Splits kinderen in clusters: als het gat tussen opeenvolgende kinderen
-      // groter is dan 2× (NODE_W + H_GAP), breek de horizontale balk.
-      // Dit voorkomt dat kinderen die als aangetrouwde partner ver weg staan
-      // visueel verbonden worden met hun broers/zussen.
       const GAP_THRESHOLD = 2 * (NODE_W + H_GAP);
       const clusters = [[]];
       validChildren.forEach((cid, i) => {
@@ -6649,51 +6615,118 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         clusters[clusters.length - 1].push(cid);
       });
 
-      // Bepaal of er meerdere clusters zijn (= er is minstens 1 kind ver weg)
       const hasDistantClusters = clusters.length > 1;
-      // Voor verre clusters: gebruik een offset-Y zodat de connector niet
-      // visueel samensmelt met horizontale balken van andere familiegroepen
+
+      tbarData.push({ dropX, dropY, midDropY, childTopY, validParents, validChildren, clusters, hasDistantClusters, isVertical: false, gezinKey });
+    });
+
+    // ── Fase 2: Detecteer en los horizontale T-bar overlappen op ──
+    // Verzamel alle horizontale segmenten per approximate Y-niveau.
+    // Als twee segmenten op (bijna) dezelfde Y overlappende X-ranges hebben,
+    // verschuif de tweede naar beneden (onder de kinderkaarten).
+    const usedHBars = []; // Array van { y, xMin, xMax, childBottomY }
+
+    function findNonOverlappingY(barY, xMin, xMax, childBottomY) {
+      // Check of dit segment overlapt met bestaande bars (iteratief, max 20 pogingen)
+      const TOLERANCE = 8; // Y-verschil < 8px = zelfde hoogte
+      let currentY = barY;
+      for (let attempt = 0; attempt < 20; attempt++) {
+        let conflict = false;
+        for (const bar of usedHBars) {
+          if (Math.abs(bar.y - currentY) < TOLERANCE) {
+            // Zelfde Y-niveau — check X-overlap
+            if (xMin <= bar.xMax + 10 && xMax >= bar.xMin - 10) {
+              // Overlap gevonden! Verschuif naar onder de kinderkaarten van de andere bar
+              currentY = Math.max(bar.childBottomY, childBottomY) + 20;
+              conflict = true;
+              break;
+            }
+          }
+        }
+        if (!conflict) break;
+      }
+      return currentY;
+    }
+
+    function registerHBar(y, xMin, xMax, childBottomY) {
+      usedHBars.push({ y, xMin, xMax, childBottomY });
+    }
+
+    // ── Fase 3: Teken de lijnen met overlap-bewuste Y-posities ──
+    tbarData.forEach(data => {
+      if (data.isVertical) {
+        // Verticale lijnen: stamlijn van ouders naar beneden, met takken naar elk kind
+        const parentCXs = data.validParents.map(pid => lcx(pid));
+        const dropX = parentCXs.reduce((s, x) => s + x, 0) / parentCXs.length;
+        const dropY = Math.max(...data.validParents.map(pid => lbotY(pid)));
+
+        data.validChildren.sort((a, b) => ltopY(a) - ltopY(b));
+
+        const lastChildY = ltopY(data.validChildren[data.validChildren.length - 1]);
+
+        parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${lastChildY + NODE_H / 2}" class="child-line"/>`);
+
+        data.validChildren.forEach(cid => {
+          const cx = lcx(cid);
+          const cy = ltopY(cid) + NODE_H / 2;
+          if (Math.abs(cx - dropX) > 2) {
+            parts.push(`<line x1="${dropX}" y1="${cy}" x2="${cx}" y2="${cy}" class="child-line"/>`);
+          }
+          parts.push(`<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${ltopY(cid)}" class="child-line"/>`);
+        });
+        return;
+      }
+
+      const { dropX, dropY, midDropY, validChildren, clusters, hasDistantClusters } = data;
+      // childBottomY = onderkant van de kinderkaarten van dit gezin
+      const childBottomY = Math.max(...validChildren.map(cid => ltopY(cid) + NODE_H));
+
+      // Bereken de totale X-range van alle kinderen in het hoofdcluster
+      const allChildXs = validChildren.map(cid => lcx(cid));
+      const totalXMin = Math.min(...allChildXs) - NODE_W / 2;
+      const totalXMax = Math.max(...allChildXs) + NODE_W / 2;
+
+      // Check of midDropY overlapt met bestaande bars en verschuif indien nodig
+      const adjustedMidDropY = findNonOverlappingY(midDropY, Math.min(dropX, totalXMin), Math.max(dropX, totalXMax), childBottomY);
+
+      // Registreer de hoofdbalk
+      registerHBar(adjustedMidDropY, Math.min(dropX, totalXMin), Math.max(dropX, totalXMax), childBottomY);
+
+      // Verticale lijn van ouder naar (aangepaste) midDropY
+      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${adjustedMidDropY}" class="child-line"/>`);
+
       const connectorOffsetY = 28;
 
       clusters.forEach(cluster => {
         if (cluster.length === 1) {
           const cid = cluster[0];
+          const GAP_THRESHOLD = 2 * (NODE_W + H_GAP);
           const dist = Math.abs(lcx(cid) - dropX);
           if (dist > GAP_THRESHOLD && hasDistantClusters) {
-            // Kind is ver van de ouders — teken connector via offset-Y
-            const offsetY = midDropY + connectorOffsetY;
-            // Horizontale lijn van drop point naar boven het kind
-            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
+            const offsetY = adjustedMidDropY + connectorOffsetY;
+            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
             parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${lcx(cid)}" y2="${offsetY}" class="child-line"/>`);
-            // Verticale lijn naar het kind
             parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
           } else {
-            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${lcx(cid)}" y2="${midDropY}" class="child-line"/>`);
-            parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${adjustedMidDropY}" class="child-line"/>`);
+            parts.push(`<line x1="${lcx(cid)}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
           }
         } else {
           const leftX  = lcx(cluster[0]);
           const rightX = lcx(cluster[cluster.length - 1]);
-          // Check of het drop point binnen het cluster valt
           const dropInCluster = dropX >= leftX && dropX <= rightX;
 
           if (dropInCluster || !hasDistantClusters) {
-            // Standaard: horizontale balk op midDropY (drop point zit in dit cluster)
-            parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+            parts.push(`<line x1="${leftX}" y1="${adjustedMidDropY}" x2="${rightX}" y2="${adjustedMidDropY}" class="child-line"/>`);
             cluster.forEach(cid => {
-              parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
+              parts.push(`<line x1="${lcx(cid)}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
             });
           } else {
-            // Ver cluster: teken balk en connector op een offset-Y zodat ze
-            // niet overlappen met horizontale balken van andere familiegroepen.
-            const offsetY = midDropY + connectorOffsetY;
-            // Horizontale balk per cluster op offset-Y
+            const offsetY = adjustedMidDropY + connectorOffsetY;
             parts.push(`<line x1="${leftX}" y1="${offsetY}" x2="${rightX}" y2="${offsetY}" class="child-line"/>`);
-            // Connector van drop punt naar cluster op offset-Y
             const connectX = dropX < leftX ? leftX : (dropX > rightX ? rightX : dropX);
-            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
+            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
             parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${connectX}" y2="${offsetY}" class="child-line"/>`);
-            // Verticale lijnen van balk naar elk kind
             cluster.forEach(cid => {
               parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
             });
@@ -7268,16 +7301,17 @@ function renderCollapseToggles(pos) {
   container.querySelectorAll('.gezin-toggle').forEach(el => el.remove());
 
   // Verzamel alle gezinnen: groepeer kinderen per ouderpaar
+  // Belangrijk: toon knoppen voor ALLE gezinnen met zichtbare ouders,
+  // ongeacht of kinderen momenteel zichtbaar zijn (ze kunnen verborgen zijn
+  // door collapse van een ander gezin, of cross-family).
   const gezinMap = {}; // key → { parentIds, childIds }
   state.relationships.forEach(r => {
     if (r.type !== 'parent-child') return;
     if (!pos[r.parentId]) return; // ouder niet in layout
-    const childParents = getParentsOf(r.childId).filter(pid => pos[pid] || collapsedGezinnen.size > 0).sort();
-    if (childParents.length === 0) return;
-    // Gebruik alleen ouders die in pos staan OF wiens gezin ingeklapt is
-    const visibleParents = childParents.filter(pid => pos[pid]);
+    // Gebruik alleen ouders die in pos staan
+    const visibleParents = getParentsOf(r.childId).filter(pid => pos[pid]).sort();
     if (visibleParents.length === 0) return;
-    const key = visibleParents.sort().join(',');
+    const key = visibleParents.join(',');
     if (!gezinMap[key]) gezinMap[key] = { parentIds: visibleParents, childIds: new Set() };
     gezinMap[key].childIds.add(r.childId);
   });
@@ -7307,9 +7341,8 @@ function renderCollapseToggles(pos) {
       collapsedGezinnen = oldSet;
     }
 
-    // Heeft dit gezin zichtbare kinderen of verborgen kinderen?
+    // Check of kinderen zichtbaar zijn in layout
     const hasVisibleChildren = [...gezin.childIds].some(cid => pos[cid]);
-    if (!hasVisibleChildren && !isCollapsed) return; // geen kinderen in layout en niet ingeklapt
 
     // Positie: midden-onder het ouderpaar
     const parentPositions = gezin.parentIds.map(pid => pos[pid]).filter(Boolean);
@@ -7339,8 +7372,8 @@ function renderCollapseToggles(pos) {
 
     container.appendChild(btn);
 
-    // Verticaal-toggle knop bij elk gezin met kinderen
-    if (!isCollapsed && gezin.childIds.size >= 1) {
+    // Verticaal-toggle knop bij elk gezin met zichtbare kinderen
+    if (!isCollapsed && hasVisibleChildren && gezin.childIds.size >= 1) {
       const isVert = verticalGezinnen.has(key);
       const vBtn = document.createElement('div');
       vBtn.className = 'gezin-toggle vertical-toggle' + (isVert ? ' active' : '');
