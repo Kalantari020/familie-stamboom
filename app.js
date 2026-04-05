@@ -6602,7 +6602,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       }
 
       const childTopY = Math.min(...validChildren.map(cid => ltopY(cid)));
-      const midDropY  = dropY + (childTopY - dropY) * 0.45;
+      const midDropY  = childTopY - 15; // Horizontale balk net BOVEN de kinderkaarten
 
       validChildren.sort((a, b) => lcx(a) - lcx(b));
 
@@ -6620,39 +6620,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       tbarData.push({ dropX, dropY, midDropY, childTopY, validParents, validChildren, clusters, hasDistantClusters, isVertical: false, gezinKey });
     });
 
-    // ── Fase 2: Detecteer en los horizontale T-bar overlappen op ──
-    // Verzamel alle horizontale segmenten per approximate Y-niveau.
-    // Als twee segmenten op (bijna) dezelfde Y overlappende X-ranges hebben,
-    // verschuif de tweede naar beneden (onder de kinderkaarten).
-    const usedHBars = []; // Array van { y, xMin, xMax, childBottomY }
-
-    function findNonOverlappingY(barY, xMin, xMax, childBottomY) {
-      // Check of dit segment overlapt met bestaande bars (iteratief, max 20 pogingen)
-      const TOLERANCE = 8; // Y-verschil < 8px = zelfde hoogte
-      let currentY = barY;
-      for (let attempt = 0; attempt < 20; attempt++) {
-        let conflict = false;
-        for (const bar of usedHBars) {
-          if (Math.abs(bar.y - currentY) < TOLERANCE) {
-            // Zelfde Y-niveau — check X-overlap
-            if (xMin <= bar.xMax + 10 && xMax >= bar.xMin - 10) {
-              // Overlap gevonden! Verschuif naar onder de kinderkaarten van de andere bar
-              currentY = Math.max(bar.childBottomY, childBottomY) + 20;
-              conflict = true;
-              break;
-            }
-          }
-        }
-        if (!conflict) break;
-      }
-      return currentY;
-    }
-
-    function registerHBar(y, xMin, xMax, childBottomY) {
-      usedHBars.push({ y, xMin, xMax, childBottomY });
-    }
-
-    // ── Fase 3: Teken de lijnen met overlap-bewuste Y-posities ──
+    // ── Fase 2: Teken de lijnen — balk altijd net boven kinderkaarten ──
     tbarData.forEach(data => {
       if (data.isVertical) {
         // Verticale lijnen: stamlijn van ouders naar beneden, met takken naar elk kind
@@ -6678,60 +6646,17 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       }
 
       const { dropX, dropY, midDropY, validChildren, clusters, hasDistantClusters } = data;
-      // childBottomY = onderkant van de kinderkaarten van dit gezin
-      const childBottomY = Math.max(...validChildren.map(cid => ltopY(cid) + NODE_H));
 
-      // Bereken de totale X-range van alle kinderen in het hoofdcluster
-      const allChildXs = validChildren.map(cid => lcx(cid));
-      const totalXMin = Math.min(...allChildXs) - NODE_W / 2;
-      const totalXMax = Math.max(...allChildXs) + NODE_W / 2;
+      // Verticale lijn van ouder naar midDropY (net boven kinderkaarten)
+      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
 
-      // Check of midDropY overlapt met bestaande bars en verschuif indien nodig
-      const adjustedMidDropY = findNonOverlappingY(midDropY, Math.min(dropX, totalXMin), Math.max(dropX, totalXMax), childBottomY);
-
-      // Registreer de hoofdbalk
-      registerHBar(adjustedMidDropY, Math.min(dropX, totalXMin), Math.max(dropX, totalXMax), childBottomY);
-
-      // Verticale lijn van ouder naar (aangepaste) midDropY
-      parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${adjustedMidDropY}" class="child-line"/>`);
-
-      const connectorOffsetY = 28;
-
-      clusters.forEach(cluster => {
-        if (cluster.length === 1) {
-          const cid = cluster[0];
-          const GAP_THRESHOLD = 2 * (NODE_W + H_GAP);
-          const dist = Math.abs(lcx(cid) - dropX);
-          if (dist > GAP_THRESHOLD && hasDistantClusters) {
-            const offsetY = adjustedMidDropY + connectorOffsetY;
-            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
-            parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${lcx(cid)}" y2="${offsetY}" class="child-line"/>`);
-            parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-          } else {
-            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${adjustedMidDropY}" class="child-line"/>`);
-            parts.push(`<line x1="${lcx(cid)}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-          }
-        } else {
-          const leftX  = lcx(cluster[0]);
-          const rightX = lcx(cluster[cluster.length - 1]);
-          const dropInCluster = dropX >= leftX && dropX <= rightX;
-
-          if (dropInCluster || !hasDistantClusters) {
-            parts.push(`<line x1="${leftX}" y1="${adjustedMidDropY}" x2="${rightX}" y2="${adjustedMidDropY}" class="child-line"/>`);
-            cluster.forEach(cid => {
-              parts.push(`<line x1="${lcx(cid)}" y1="${adjustedMidDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-            });
-          } else {
-            const offsetY = adjustedMidDropY + connectorOffsetY;
-            parts.push(`<line x1="${leftX}" y1="${offsetY}" x2="${rightX}" y2="${offsetY}" class="child-line"/>`);
-            const connectX = dropX < leftX ? leftX : (dropX > rightX ? rightX : dropX);
-            parts.push(`<line x1="${dropX}" y1="${adjustedMidDropY}" x2="${dropX}" y2="${offsetY}" class="child-line"/>`);
-            parts.push(`<line x1="${dropX}" y1="${offsetY}" x2="${connectX}" y2="${offsetY}" class="child-line"/>`);
-            cluster.forEach(cid => {
-              parts.push(`<line x1="${lcx(cid)}" y1="${offsetY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
-            });
-          }
-        }
+      // Horizontale balk altijd op midDropY (= childTopY - 15)
+      // Alle kinderen hangen eronder, ongeacht afstand
+      const leftX  = Math.min(dropX, ...validChildren.map(cid => lcx(cid)));
+      const rightX = Math.max(dropX, ...validChildren.map(cid => lcx(cid)));
+      parts.push(`<line x1="${leftX}" y1="${midDropY}" x2="${rightX}" y2="${midDropY}" class="child-line"/>`);
+      validChildren.forEach(cid => {
+        parts.push(`<line x1="${lcx(cid)}" y1="${midDropY}" x2="${lcx(cid)}" y2="${ltopY(cid)}" class="child-line"/>`);
       });
     });
   }
@@ -6821,7 +6746,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const dropX = ghostParentPositions.reduce((s, p) => s + p.x, 0) / ghostParentPositions.length;
       const dropY = Math.max(...ghostParentPositions.map(p => p.y));
       const childTopY = Math.min(...children.map(c => c.y));
-      const midDropY = dropY + (childTopY - dropY) * 0.45;
+      const midDropY = childTopY - 15; // Horizontale balk net BOVEN de kinderkaarten
 
       // Verticale lijn van ouders naar midDropY
       parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${dropX}" y2="${midDropY}" class="child-line"/>`);
