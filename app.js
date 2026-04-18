@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v503';
+const APP_VERSION = 'v504';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -15018,6 +15018,44 @@ function computeLayout(overrideIds, headId) {
       const shift = yShifts.get(yKey) || 0;
       if (shift > 0) g.y += shift;
     });
+  }
+
+  // ===== ABSOLUTE FINALE OVERLAP-FIX =====
+  // Detecteer kaarten die exact op dezelfde Y én bijna dezelfde X staan.
+  // Voorbeeld: Babogal landde op Zakira's positie (X=4995, Y=240) doordat
+  // MULTI-PARTNER LAYOUT Zakira naar rechts van Ali Ahmad verplaatste, maar
+  // Babogal was daar al gepositioneerd. Schuif overlap-cards (+ hun partners en
+  // bio-descendants) naar rechts om ruimte te maken.
+  {
+    const STEP = NODE_W + H_GAP; // 230
+    for (let pass = 0; pass < 5; pass++) {
+      let fixedAny = false;
+      const idsByY = {};
+      Object.entries(pos).forEach(([id, p]) => {
+        if (!p) return;
+        const yKey = Math.round(p.y);
+        if (!idsByY[yKey]) idsByY[yKey] = [];
+        idsByY[yKey].push({ id, x: p.x });
+      });
+      Object.values(idsByY).forEach(ids => {
+        ids.sort((a, b) => a.x - b.x);
+        for (let i = 0; i < ids.length - 1; i++) {
+          const a = ids[i], b = ids[i + 1];
+          if (b.x - a.x < NODE_W) {
+            // Overlap: shift b en alle naar rechts liggende cards op zelfde Y
+            const dx = (a.x + NODE_W + H_GAP) - b.x;
+            for (let j = i + 1; j < ids.length; j++) {
+              if (pos[ids[j].id]) {
+                pos[ids[j].id].x += dx;
+                ids[j].x += dx;
+              }
+            }
+            fixedAny = true;
+          }
+        }
+      });
+      if (!fixedAny) break;
+    }
   }
 
   return { pos, crossFamilyGhosts, cousinChildReferences };
