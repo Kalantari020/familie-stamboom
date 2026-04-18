@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v504';
+const APP_VERSION = 'v505';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -15055,6 +15055,33 @@ function computeLayout(overrideIds, headId) {
         }
       });
       if (!fixedAny) break;
+    }
+    // Stap 2: gap compactie head-rij — sluit overbodige gaten op de
+    // hoofd-children rij die ontstaan door overlap-shifts.
+    {
+      const headY = pos[headId]?.y;
+      if (headY !== undefined) {
+        const targetY = Math.round(headY + NODE_H + V_GAP);
+        const ids = [];
+        Object.entries(pos).forEach(([id, p]) => {
+          if (!p) return;
+          if (Math.abs(Math.round(p.y) - targetY) < 5) ids.push({ id, x: p.x });
+        });
+        ids.sort((a, b) => a.x - b.x);
+        for (let i = 0; i < ids.length - 1; i++) {
+          const a = ids[i], b = ids[i + 1];
+          const gap = b.x - a.x;
+          if (gap > STEP + 5) {
+            const shift = gap - STEP;
+            for (let j = i + 1; j < ids.length; j++) {
+              if (pos[ids[j].id]) {
+                pos[ids[j].id].x -= shift;
+                ids[j].x -= shift;
+              }
+            }
+          }
+        }
+      }
     }
   }
 
