@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v501';
+const APP_VERSION = 'v502';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -6681,7 +6681,7 @@ function computeLayout(overrideIds, headId) {
     // In Fazelahmad: Emamuddin-Nilab, Rahimgul-Alia, Hemat-Husna paren.
     // In Hagig Gull: Hemat-Husna paar (beiden kleinkinderen via Khanaga/Shughla).
     // In Mahmadgul: Bader-Golgotai paar (beide kleinkinderen via Hagig Gull/Huzurgol).
-    if (headId === 'pmni0mtna5vxw' || headId === 'pmndo2vxafahz' || headId === 'pmndyxhre0zi1') {
+    if (headId === 'pmni0mtna5vxw' || headId === 'pmndo2vxafahz' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
       withParents.forEach(id => {
         (partnersOf[id] || []).forEach(pid => {
           if (withParents.includes(pid)) {
@@ -6990,7 +6990,7 @@ function computeLayout(overrideIds, headId) {
   // De per-gen detectie hierboven mist cousin-pairs waar partners in
   // verschillende generaties zitten (bijv. Alina gen 2 + Noman gen 3 in Hagig
   // tree). Deze pas detecteert ze wel en voegt ze toe aan cousinPairSet.
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndo2vxafahz' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndo2vxafahz' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     const inPos = id => !!pos[id];
     const getAllAncestors = (personId) => {
       const ancestors = new Set();
@@ -13240,7 +13240,7 @@ function computeLayout(overrideIds, headId) {
   // Wijst Y-levels van kleinkind-families toe op basis van ouder-birthOrder.
   // Verzamelt huidige Y-levels, sorteert, en wijst toe aan ouders in BO-volgorde.
   // Beweegt hele family-groepen (ouder's kinderen + inlaws + kleinkinderen).
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     // Vind alle directe kinderen van de tree head (Fazelahmad)
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
 
@@ -13822,7 +13822,7 @@ function computeLayout(overrideIds, headId) {
   // Voorkomt visuele inconsistentie waar bv. Muhammad Salehi boven zijn moeder Nilab
   // eindigt door pipeline-shifts.
   // Alleen voor Mahmadgul-style trees met diepe shifts.
-  if (headId === 'pmndyxhre0zi1' || headId === 'pmni0mtna5vxw') {
+  if (headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7' || headId === 'pmni0mtna5vxw') {
     const Y_STEP = NODE_H + V_GAP; // 190
     const visited = new Set();
     state.persons.forEach(person => {
@@ -13871,7 +13871,7 @@ function computeLayout(overrideIds, headId) {
   // staat terwijl ze partners zijn.
   // Mover = partner zonder ouders in tree (ingetrouwd); anchor = partner met
   // ouders in tree (bloed-afstammeling).
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     if (typeof window !== 'undefined') {
       window._debugAlignLog = [];
       window._debugAllPartnersLog = [];
@@ -14337,7 +14337,7 @@ function computeLayout(overrideIds, headId) {
   // die head-child's eigen tree, OVERSCHRIJF zijn descendant posities met die uit
   // de snapshot (met X/Y offset zodat hij past in Mahmadgul context).
   // Resultaat: visueel identiek aan elke individueel goedgekeurde sub-stamboom.
-  if (headId === 'pmndyxhre0zi1' && typeof window !== 'undefined' && window._loadedSnapshots) {
+  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') && typeof window !== 'undefined' && window._loadedSnapshots) {
     const snapshots = window._loadedSnapshots;
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
     headChildren.forEach(hcid => {
@@ -14361,7 +14361,7 @@ function computeLayout(overrideIds, headId) {
   // Run als laatste stap na ALLE pipeline shifts. Garandeert dat kleinkind-rijen
   // op Y-laag-volgorde van head-children's BO eindigen, ongeacht welke vorige
   // pipeline-stap families dieper trok.
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
     const familyGroups = [];
     headChildren.forEach(hcid => {
@@ -14407,7 +14407,7 @@ function computeLayout(overrideIds, headId) {
   }
 
   // ===== ABSOLUTE FINALE PARTNER-ALIGNMENT (na BO Y-reassign) =====
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     state.relationships.forEach(rel => {
       if (rel.type !== 'partner') return;
       const a = rel.person1Id, b = rel.person2Id;
@@ -14431,7 +14431,7 @@ function computeLayout(overrideIds, headId) {
 
   // ===== FINALE Y-NORMALISATIE 2: zorg dat min Y == PADDING =====
   // Na BO-reassign en partner-align kunnen Y-waarden weer negatief zijn.
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     const allY = [
       ...Object.values(pos).map(p => p.y),
       ...Object.values(crossFamilyGhosts).map(g => g.y)
@@ -14451,7 +14451,7 @@ function computeLayout(overrideIds, headId) {
   // Daarna enforce minimum gap van 190px tussen opeenvolgende Y-rijen.
   // Resultaat: schone discrete Y-niveaus zonder rare 4/13/26px micro-gaps.
   // Alleen voor Mahmadgul — Fazelahmad heeft eigen specifieke layout.
-  if (headId === 'pmndyxhre0zi1') {
+  if (headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     const Y_MERGE_THRESHOLD = 100; // Y-waarden binnen 100px → samen
     const Y_MIN_GAP = NODE_H + V_GAP; // 190px tussen rijen
 
@@ -14648,7 +14648,7 @@ function computeLayout(overrideIds, headId) {
   // ===== ABSOLUTE FINALE SUB-TREE OVERLAY (Mahmadgul) =====
   // STACK sub-trees verticaal per BO. Alleen BIO-descendants van head-child
   // worden geshift (geen cousin-pair ghosts van andere bomen).
-  if (headId === 'pmndyxhre0zi1' && typeof window !== 'undefined' && window._loadedSnapshots) {
+  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') && typeof window !== 'undefined' && window._loadedSnapshots) {
     const snapshots = window._loadedSnapshots;
     const Y_STEP = NODE_H + V_GAP;
     // Helper: is descendant bio van head-child (via parent-child relations)?
