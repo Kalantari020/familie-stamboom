@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v502';
+const APP_VERSION = 'v503';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -6760,12 +6760,15 @@ function computeLayout(overrideIds, headId) {
       socialParentOfChild[r.childId].push(r.parentId);
     });
 
+    // Sayedahmed boom: geen social-parent merging — kinderen verschijnen
+    // alleen onder hun bio-ouders (geen sociale dubbele groepering).
+    const skipSocialMerge = (headId === 'pmndyrysy3eq7');
     withParents.forEach(id => {
       let ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
 
       // Als dit een sociaal kind is, voeg de sociale ouder (+ diens partner) toe
       // aan de ouder-set zodat het kind in dezelfde groep terechtkomt als bio-kinderen
-      if (socialChildIds.has(id) && socialParentOfChild[id]) {
+      if (!skipSocialMerge && socialChildIds.has(id) && socialParentOfChild[id]) {
         const allParents = new Set(ps);
         socialParentOfChild[id].forEach(spId => {
           if (pos[spId]) allParents.add(spId);
@@ -15372,13 +15375,16 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     // bio-parents (Khanaga+Benazier) maar zijn visueel verplaatst naar Agha Gol's rij
     // als inlaw. Tekening van T-bar Khanaga→Nilab zou een lange foutieve lijn maken.
     const reclassifiedMovers = window._reclassifiedMovers || new Set();
+    // Per-tree config: voor Sayedahmed wil de gebruiker GEEN social-parent lijnen.
+    // Kinderen verschijnen alleen onder hun bio-ouders.
+    const skipSocialParent = (typeof activeTreeId !== 'undefined' && activeTreeId === 'pmndyrysy3eq7');
     const familyGroups = new Map();
     state.relationships.forEach(r => {
       if (r.type !== 'parent-child') return;
       if (!pids.has(r.parentId) || !pids.has(r.childId)) return;
       if (reclassifiedMovers.has(r.childId)) return; // skip reclassified movers
       const allParentsOfChild = state.relationships
-        .filter(rel => (rel.type === 'parent-child' || rel.type === 'social-parent') && rel.childId === r.childId)
+        .filter(rel => (rel.type === 'parent-child' || (rel.type === 'social-parent' && !skipSocialParent)) && rel.childId === r.childId)
         .map(rel => rel.parentId)
         .filter(pid => pids.has(pid))
         .sort();
