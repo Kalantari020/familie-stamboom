@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v499';
+const APP_VERSION = 'v500';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -230,9 +230,16 @@ try {
 } catch(e) {}
 
 const FAMILY_COLORS = [
-  '#dc2626','#0d9488','#7c3aed','#ea580c',
-  '#16a34a','#c026d3','#2563eb','#ca8a04',
-  '#059669','#65a30d','#0369a1','#be185d'
+  '#dc2626',  // strong red
+  '#1d4ed8',  // royal blue
+  '#16a34a',  // bright green
+  '#7c3aed',  // purple
+  '#ea580c',  // orange
+  '#0891b2',  // cyan/teal
+  '#c026d3',  // magenta
+  '#ca8a04',  // amber/gold
+  '#000000',  // black (rust voor extra spacing)
+  '#475569'   // slate gray
 ];
 
 // Read-only modus: ?view=1 in de URL schakelt beheer uit
@@ -15159,19 +15166,19 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
   // ── V8: Globale gezin-kleurmap opbouwen uit ALLE parent-child relaties ──
   // Kleur-groepen voor contrast-check: kleuren in DEZELFDE groep worden
   // visueel als "vergelijkbaar" gezien en mogen niet samen bij nabije gezinnen.
+  // Gebruik HUE-families: red/orange/yellow zijn warm-rood-tinten, blue/cyan
+  // zijn blauw-tinten, etc. Voorkomt naburige paren met vergelijkbare warmte.
   const COLOR_GROUP = {
-    '#dc2626': 'red',
-    '#ea580c': 'warm',     // orange en yellow visueel te vergelijkbaar → samen
-    '#ca8a04': 'warm',
-    '#65a30d': 'green',
-    '#16a34a': 'green',
-    '#059669': 'green',
-    '#0d9488': 'green',    // teal valt visueel onder green
-    '#0369a1': 'blue',
-    '#2563eb': 'blue',
-    '#7c3aed': 'purple',
-    '#c026d3': 'pink',
-    '#be185d': 'pink'
+    '#dc2626': 'red-orange',     // rood
+    '#ea580c': 'red-orange',     // oranje (warm-rood familie)
+    '#ca8a04': 'yellow',         // geel/amber (eigen groep, los van rood-warm)
+    '#16a34a': 'green',          // groen
+    '#0891b2': 'blue',           // cyaan/teal valt onder blauw-koel
+    '#1d4ed8': 'blue',           // royal blue
+    '#7c3aed': 'purple-pink',    // paars
+    '#c026d3': 'purple-pink',    // magenta (paars-roze familie)
+    '#000000': 'neutral',        // zwart
+    '#475569': 'neutral'         // grijs
   };
   const colorGroup = (c) => COLOR_GROUP[c] || c;
   const colorsConflict = (a, b) => colorGroup(a) === colorGroup(b);
@@ -15203,7 +15210,7 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     // en parent op Y=276) als "overlap" wordt gezien met alle gezinnen ertussen.
     {
       const famPos = new Map();
-      const VIS_Y_MARGIN = 2 * (NODE_H + V_GAP); // Y-marge voor visuele nabijheid (380px)
+      const VIS_Y_MARGIN = 4 * (NODE_H + V_GAP); // Y-marge voor visuele nabijheid (760px) — striktere check
       gezinColorMap.forEach((color, key) => {
         const pids = key.split(',');
         // T-BAR positie: kids Y + X span van kids (waar de horizontale lijn loopt)
