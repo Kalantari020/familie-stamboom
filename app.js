@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v505';
+const APP_VERSION = 'v511';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -6760,19 +6760,27 @@ function computeLayout(overrideIds, headId) {
       socialParentOfChild[r.childId].push(r.parentId);
     });
 
-    // Sayedahmed boom: geen social-parent merging — kinderen verschijnen
-    // alleen onder hun bio-ouders (geen sociale dubbele groepering).
-    const skipSocialMerge = (headId === 'pmndyrysy3eq7');
+    // Sayedahmed boom: geen social-parent merging voor "echte" sociale ouders
+    // (bv. Hekmat onder Mahmad). MAAR wel mergen voor stiefouders — sociale
+    // ouders die partner zijn van een bio-ouder van dit kind. Voorbeeld: Mina
+    // is bio-dochter van Mastora, sociale dochter van Mahmad. Mahmad is
+    // Mastora's man → stiefvader → Mina hoort bij siblings (Matiullah, Nasrat)
+    // die ook Mastora als bio-moeder hebben.
+    const skipFullSocialMerge = (headId === 'pmndyrysy3eq7');
     withParents.forEach(id => {
       let ps = (parentsOf[id] || []).filter(pid => pos[pid]).sort();
 
-      // Als dit een sociaal kind is, voeg de sociale ouder (+ diens partner) toe
-      // aan de ouder-set zodat het kind in dezelfde groep terechtkomt als bio-kinderen
-      if (!skipSocialMerge && socialChildIds.has(id) && socialParentOfChild[id]) {
+      if (socialChildIds.has(id) && socialParentOfChild[id]) {
         const allParents = new Set(ps);
         socialParentOfChild[id].forEach(spId => {
+          if (skipFullSocialMerge) {
+            // Sayedahmed: alleen mergen als spId partner is van een bio-ouder
+            const isStepParent = ps.some(bp => (partnersOf[bp] || []).includes(spId));
+            if (!isStepParent) return;
+          }
+          // Behoud OUD gedrag (v505 en eerder): voeg spId toe als pos bestaat,
+          // maar partner WORDT TOEGEVOEGD ZELFS als spId zelf geen pos heeft
           if (pos[spId]) allParents.add(spId);
-          // Voeg ook de partner van de sociale ouder toe
           (partnersOf[spId] || []).forEach(partnerId => {
             if (pos[partnerId] && genOf[partnerId] === genOf[spId]) allParents.add(partnerId);
           });
@@ -14655,11 +14663,28 @@ function computeLayout(overrideIds, headId) {
     const snapshots = window._loadedSnapshots;
     const Y_STEP = NODE_H + V_GAP;
     // Helper: is descendant bio van head-child (via parent-child relations)?
+    // OOK voor Sayedahmed: stepchildren via partner — als head-child's partner
+    // bio-ouder is van X, dan hoort X bij deze head-child's huishouden
+    // (bv. Mina via Mastora bij Mahmad). Niet voor Mahmadgul (zou snapshot breken).
+    const includeStepchildren = (headId === 'pmndyrysy3eq7');
     const bioDescendantsCache = new Map();
     const getBioDescendants = (hcid) => {
       if (bioDescendantsCache.has(hcid)) return bioDescendantsCache.get(hcid);
       const result = new Set([hcid]);
       const queue = [hcid];
+      if (includeStepchildren) {
+        // Voeg stepchildren toe: bio-kids van head-child's partners
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === hcid || r.person2Id === hcid))
+          .forEach(r => {
+            const pid = r.person1Id === hcid ? r.person2Id : r.person1Id;
+            state.relationships
+              .filter(rr => rr.type === 'parent-child' && rr.parentId === pid)
+              .forEach(rr => {
+                if (!result.has(rr.childId)) { result.add(rr.childId); queue.push(rr.childId); }
+              });
+          });
+      }
       while (queue.length) {
         const id = queue.shift();
         state.relationships
@@ -14699,6 +14724,23 @@ function computeLayout(overrideIds, headId) {
     sortedHC.forEach(hcid => {
       const visited = new Map([[hcid, 0]]);
       const queue = [[hcid, 0]];
+      // Stepchildren via partner: dist=2 (head-child → partner → stepchild)
+      // Alleen voor Sayedahmed (Mahmadgul snapshot mag niet wijzigen).
+      if (includeStepchildren) {
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === hcid || r.person2Id === hcid))
+          .forEach(r => {
+            const pid = r.person1Id === hcid ? r.person2Id : r.person1Id;
+            state.relationships
+              .filter(rr => rr.type === 'parent-child' && rr.parentId === pid)
+              .forEach(rr => {
+                if (!visited.has(rr.childId)) {
+                  visited.set(rr.childId, 2);
+                  queue.push([rr.childId, 2]);
+                }
+              });
+          });
+      }
       while (queue.length) {
         const [id, dist] = queue.shift();
         state.relationships
@@ -14890,6 +14932,53 @@ function computeLayout(overrideIds, headId) {
       }
       nextSubTreeStartY = nextSubTreeStartY + (snapMaxY - snapMinY) + BLOCK_GAP;
     });
+
+    // ── POST-OVERLAY SIBLING-Y ALIGNMENT (alleen Sayedahmed) ──
+    // Snapshots kunnen Mina (stepkind) op andere Y plaatsen dan Matiullah/Nasrat
+    // (bio-siblings). Regel 5 stamboom-architect: broers/zussen altijd op zelfde Y.
+    // Groepeer per gemerged ouder-set (incl. stepparents) en align alle Y's
+    // naar laagste Y in de groep. Scoped naar Sayedahmed om Mahmadgul-snapshot
+    // niet te verstoren.
+    if (headId === 'pmndyrysy3eq7') {
+      const sibGroups = {};
+      Object.keys(pos).forEach(cid => {
+        if (!pos[cid] || cid.startsWith(CROSS_GHOST_PREFIX)) return;
+        const bioParents = state.relationships
+          .filter(r => r.type === 'parent-child' && r.childId === cid && pos[r.parentId])
+          .map(r => r.parentId);
+        if (bioParents.length === 0) return;
+        // Voeg stepparents toe (partners van bio parents die ook social parent van cid zijn)
+        const allP = new Set(bioParents);
+        const socialParents = state.relationships
+          .filter(r => r.type === 'social-parent' && r.childId === cid && pos[r.parentId])
+          .map(r => r.parentId);
+        socialParents.forEach(spId => {
+          // Alleen als spId partner is van een bio parent
+          const isStep = bioParents.some(bp => state.relationships.some(rr =>
+            rr.type === 'partner' &&
+            ((rr.person1Id === bp && rr.person2Id === spId) ||
+             (rr.person2Id === bp && rr.person1Id === spId))
+          ));
+          if (isStep) allP.add(spId);
+        });
+        const key = [...allP].sort().join(',');
+        if (!sibGroups[key]) sibGroups[key] = [];
+        sibGroups[key].push(cid);
+      });
+      Object.values(sibGroups).forEach(cids => {
+        if (cids.length < 2) return;
+        // Alleen aligneren als verschillende Y's binnen Y_STEP * 1.5 — voorkomt
+        // dat we cross-block siblings misalign'en
+        const ys = cids.map(id => pos[id].y);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        if (maxY - minY < 1) return; // al gealigneerd
+        if (maxY - minY > Y_STEP * 1.5) return; // te ver uit elkaar
+        // Align alle siblings naar minY
+        cids.forEach(id => { pos[id].y = minY; });
+      });
+    }
+
     // Y-NORM na overlay: zorg dat min Y == PADDING
     const allYf = [
       ...Object.values(pos).map(p => p.y),
@@ -15440,22 +15529,39 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     // bio-parents (Khanaga+Benazier) maar zijn visueel verplaatst naar Agha Gol's rij
     // als inlaw. Tekening van T-bar Khanaga→Nilab zou een lange foutieve lijn maken.
     const reclassifiedMovers = window._reclassifiedMovers || new Set();
-    // Per-tree config: voor Sayedahmed wil de gebruiker GEEN social-parent lijnen.
-    // Kinderen verschijnen alleen onder hun bio-ouders.
-    const skipSocialParent = (typeof activeTreeId !== 'undefined' && activeTreeId === 'pmndyrysy3eq7');
+    // Per-tree config: voor Sayedahmed wil de gebruiker GEEN echte social-parent
+    // lijnen, maar wel stiefouders (sociale ouders die partner zijn van een
+    // bio-ouder). Mina (bio van Mastora, sociaal van Mahmad=stiefvader) hoort
+    // bij siblings Matiullah+Nasrat onder Mahmad+Mastora T-bar.
+    const skipFullSocialParent = (typeof activeTreeId !== 'undefined' && activeTreeId === 'pmndyrysy3eq7');
     const familyGroups = new Map();
     state.relationships.forEach(r => {
       if (r.type !== 'parent-child') return;
       if (!pids.has(r.parentId) || !pids.has(r.childId)) return;
       if (reclassifiedMovers.has(r.childId)) return; // skip reclassified movers
-      const allParentsOfChild = state.relationships
-        .filter(rel => (rel.type === 'parent-child' || (rel.type === 'social-parent' && !skipSocialParent)) && rel.childId === r.childId)
-        .map(rel => rel.parentId)
-        .filter(pid => pids.has(pid))
-        .sort();
-      const key = allParentsOfChild.join(',');
+      const childId = r.childId;
+      const bioParents = state.relationships
+        .filter(rel => rel.type === 'parent-child' && rel.childId === childId && pids.has(rel.parentId))
+        .map(rel => rel.parentId);
+      const socialParents = state.relationships
+        .filter(rel => rel.type === 'social-parent' && rel.childId === childId && pids.has(rel.parentId))
+        .map(rel => rel.parentId);
+      const partnersOfFn = (id) => state.relationships
+        .filter(rel => rel.type === 'partner' && (rel.person1Id === id || rel.person2Id === id))
+        .map(rel => rel.person1Id === id ? rel.person2Id : rel.person1Id);
+      let effectiveParents;
+      if (skipFullSocialParent) {
+        // Alleen stiefouders meenemen (social-parent die partner is van een bio)
+        const stepParents = socialParents.filter(spId =>
+          bioParents.some(bp => partnersOfFn(bp).includes(spId))
+        );
+        effectiveParents = [...new Set([...bioParents, ...stepParents])].sort();
+      } else {
+        effectiveParents = [...new Set([...bioParents, ...socialParents])].sort();
+      }
+      const key = effectiveParents.join(',');
       if (!familyGroups.has(key)) {
-        familyGroups.set(key, { parents: allParentsOfChild, children: new Set() });
+        familyGroups.set(key, { parents: effectiveParents, children: new Set() });
       }
       familyGroups.get(key).children.add(r.childId);
     });
