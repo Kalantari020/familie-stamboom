@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v493';
+const APP_VERSION = 'v494';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -5702,14 +5702,9 @@ const START_DATA = {
       "type": "parent-child",
       "parentId": "pmndyy6j6wndl",
       "childId": "pmo4ahx86c7rh"
-    },
-    {
-      "type": "partner",
-      "person1Id": "pmo4acfl57fx5",
-      "person2Id": "pmni0d7t9876w"
     }
   ],
-  "_version": 1776515332494
+  "_version": 1776516206169
 };
 // __START_DATA_END__
 
@@ -5725,8 +5720,8 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 11;
-const FORCE_RESET_VERSION = 11; // Bij deze versie: volledige reset van localStorage
+const DATA_VERSION = 12;
+const FORCE_RESET_VERSION = 12; // Bij deze versie: volledige reset van localStorage
 
 function saveState() {
   try {
