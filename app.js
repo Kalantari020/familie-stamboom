@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v498';
+const APP_VERSION = 'v499';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -6893,8 +6893,13 @@ function computeLayout(overrideIds, headId) {
         (partnersOf[cid] || []).forEach(pid => {
           if (inlaws.includes(pid) && placedInlaws.has(pid)) return; // al geplaatst
           if (inlaws.includes(pid) && !placedInlaws.has(pid)) return; // al afgehandeld hierboven
-          if (crossFamilyPartnerMap.has(cid) && crossFamilyPartnerMap.get(cid).has(pid)) {
-            // Cross-family partner: heeft eigen ouders in layout
+          // Cross-family partner: heeft eigen ouders in layout. Check zowel
+          // same-gen partners (crossFamilyPartnerMap) als cross-gen partners
+          // (partner heeft parents in pos, ongeacht gen). Cross-gen voorbeeld:
+          // Alina gen 2 + Noman gen 3 in Hagig boom — beide kleinkinderen.
+          const isSameGenCross = crossFamilyPartnerMap.has(cid) && crossFamilyPartnerMap.get(cid).has(pid);
+          const isCrossGenCousin = !isSameGenCross && (parentsOf[pid] || []).some(ppid => pos[ppid]);
+          if (isSameGenCross || isCrossGenCousin) {
             // Voeg ghost-slot toe zodat er ruimte is naast het kind
             const ghostId = CROSS_GHOST_PREFIX + pid + '_' + cid;
             expanded.push(ghostId);
@@ -6973,6 +6978,46 @@ function computeLayout(overrideIds, headId) {
     fixOverlaps(gen);
 
   });
+
+  // ── GLOBAL CROSS-GEN COUSIN-PAIR DETECTIE ──
+  // De per-gen detectie hierboven mist cousin-pairs waar partners in
+  // verschillende generaties zitten (bijv. Alina gen 2 + Noman gen 3 in Hagig
+  // tree). Deze pas detecteert ze wel en voegt ze toe aan cousinPairSet.
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndo2vxafahz' || headId === 'pmndyxhre0zi1') {
+    const inPos = id => !!pos[id];
+    const getAllAncestors = (personId) => {
+      const ancestors = new Set();
+      const queue = [personId];
+      while (queue.length > 0) {
+        const cur = queue.shift();
+        (parentsOf[cur] || []).forEach(pid => {
+          if (inPos(pid) && !ancestors.has(pid)) {
+            ancestors.add(pid);
+            queue.push(pid);
+          }
+        });
+      }
+      return ancestors;
+    };
+    state.relationships.forEach(rel => {
+      if (rel.type !== 'partner') return;
+      const a = rel.person1Id, b = rel.person2Id;
+      if (!inPos(a) || !inPos(b)) return;
+      // Beide moeten ouders in pos hebben (geen pure inlaws)
+      if ((parentsOf[a] || []).filter(inPos).length === 0) return;
+      if ((parentsOf[b] || []).filter(inPos).length === 0) return;
+      const key = [a, b].sort().join(',');
+      if (cousinPairSet.has(key)) return; // al gedetecteerd
+      const ancA = getAllAncestors(a);
+      const ancB = getAllAncestors(b);
+      for (const anc of ancA) {
+        if (ancB.has(anc)) {
+          cousinPairSet.add(key);
+          break;
+        }
+      }
+    });
+  }
 
   // --- Bewaar volledige childrenOf VOOR cross-family removal ---
   // Nodig zodat shiftWithDescendants OOK cross-family kinderen kan cascaden
@@ -14038,6 +14083,9 @@ function computeLayout(overrideIds, headId) {
       // Skip bioRow ghosts (Fazelahmad neef-nicht): die zijn bewust geplaatst
       // in de bio-rij ondanks dat real-positie dichtbij adjacentTo kan staan.
       if (key.endsWith(':cg:bioRow')) return;
+      // Skip cousin-pair ghosts: die moeten ALTIJD zichtbaar blijven
+      // (bijv. Alina+Noman in Hagig boom, beide kleinkinderen op verschillende rijen)
+      if (cousinPairSet.has([ghost.personId, ghost.adjacentTo].sort().join(','))) return;
       const realPos = pos[ghost.personId];
       const adjPos = pos[ghost.adjacentTo];
       if (realPos && adjPos &&
@@ -14911,6 +14959,57 @@ function computeLayout(overrideIds, headId) {
     });
   }
 
+  // ===== ABSOLUTE FINALE Y-SPACING tussen overlappende kinderen-rijen =====
+  // Zorg dat opeenvolgende kinderen-rijen die in X overlappen minimaal Y_STEP
+  // (190px) uit elkaar staan. Voorkomt situaties zoals Nawab kids op Y=856 en
+  // Zavar Rashid kids op Y=967 (slechts 111px gap) waardoor T-bars elkaar raken.
+  {
+    const Y_STEP = NODE_H + V_GAP; // 190
+    // Verzamel alle bestaande Y-rijen
+    const yToCards = new Map();
+    Object.entries(pos).forEach(([id, p]) => {
+      if (!p) return;
+      const yKey = Math.round(p.y);
+      if (!yToCards.has(yKey)) yToCards.set(yKey, []);
+      yToCards.get(yKey).push({ id, x: p.x });
+    });
+    const sortedYs = [...yToCards.keys()].sort((a, b) => a - b);
+    // Bouw cumulatieve Y-shifts per Y-niveau (vanaf bovenaan, schuif rijen
+    // daaronder mee als ze te dicht op de vorige overlapping zitten)
+    const yShifts = new Map();
+    let cumulativeShift = 0;
+    for (let i = 1; i < sortedYs.length; i++) {
+      const prevY = sortedYs[i - 1];
+      const curY = sortedYs[i];
+      const actualGap = (curY + cumulativeShift) - (prevY + (yShifts.get(prevY) || 0));
+      // Check of rijen X-overlappen
+      const prevCards = yToCards.get(prevY);
+      const curCards = yToCards.get(curY);
+      const prevMinX = Math.min(...prevCards.map(c => c.x));
+      const prevMaxX = Math.max(...prevCards.map(c => c.x)) + NODE_W;
+      const curMinX = Math.min(...curCards.map(c => c.x));
+      const curMaxX = Math.max(...curCards.map(c => c.x)) + NODE_W;
+      const xOverlap = prevMaxX > curMinX && prevMinX < curMaxX;
+      if (xOverlap && actualGap < Y_STEP - 5) {
+        cumulativeShift += (Y_STEP - actualGap);
+      }
+      yShifts.set(curY, cumulativeShift);
+    }
+    // Pas cumulative shifts toe
+    Object.values(pos).forEach(p => {
+      if (!p) return;
+      const yKey = Math.round(p.y);
+      const shift = yShifts.get(yKey) || 0;
+      if (shift > 0) p.y += shift;
+    });
+    Object.values(crossFamilyGhosts).forEach(g => {
+      if (!g) return;
+      const yKey = Math.round(g.y);
+      const shift = yShifts.get(yKey) || 0;
+      if (shift > 0) g.y += shift;
+    });
+  }
+
   return { pos, crossFamilyGhosts, cousinChildReferences };
 }
 
@@ -15425,6 +15524,15 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const MARGIN = 8, Y_TOL = 5;
       const visited = new Set();
 
+      // Helper: check of twee T-bars een gedeelde ouder hebben (bv. multi-partner
+      // persoon zoals Store met 2 partners → 2 child-families). In dat geval
+      // moeten beide T-bars op DEZELFDE Y blijven.
+      const sharesParent = (i, j) => {
+        const pi = hBars[i].data.validParents || [];
+        const pj = hBars[j].data.validParents || [];
+        return pi.some(p => pj.includes(p));
+      };
+
       for (let i = 0; i < hBars.length; i++) {
         if (visited.has(i)) continue;
         // Transitive closure: vind alle bars die overlappen in X en zelfde childTopY
@@ -15437,6 +15545,8 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
             for (let j = 0; j < hBars.length; j++) {
               if (visited.has(j)) continue;
               if (Math.abs(hBars[qi].childTopY - hBars[j].childTopY) > Y_TOL) continue;
+              // Skip Y-distribute als deze twee bars een ouder delen (multi-partner)
+              if (sharesParent(qi, j)) continue;
               const aL = Math.min(hBars[qi].left, hBars[qi].dropX);
               const aR = Math.max(hBars[qi].right, hBars[qi].dropX);
               const bL = Math.min(hBars[j].left, hBars[j].dropX);
