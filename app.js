@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v496';
+const APP_VERSION = 'v497';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -14847,6 +14847,68 @@ function computeLayout(overrideIds, headId) {
     }
   }
 
+  // ===== ABSOLUTE FINALE LEAF-CHILD CENTERING =====
+  // Allerlaatste stap NA alles. Centreer leaf-kinderen (geen eigen nakomelingen)
+  // onder hun ouder-couple center. Voorkomt dat post-pipeline shifts (compactie,
+  // ghost-sync, sub-tree overlay) de centering breken — bv. Asma+Rafi → Zoya+Zaynab
+  // die op de volledige kids-row stonden maar 115px naar links waren geshift.
+  {
+    const leafGroups = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child' || !pos[r.childId]) return;
+      const pids = state.relationships
+        .filter(rel => rel.type === 'parent-child' && rel.childId === r.childId && pos[rel.parentId])
+        .map(rel => rel.parentId).sort();
+      if (!pids.length) return;
+      const key = pids.join(',');
+      if (!leafGroups[key]) leafGroups[key] = { parents: pids, children: new Set() };
+      leafGroups[key].children.add(r.childId);
+    });
+    Object.values(leafGroups).forEach(({ parents, children }) => {
+      const cids = [...children].filter(id => pos[id] && !id.startsWith(CROSS_GHOST_PREFIX));
+      if (!cids.length) return;
+      // Alleen leaf-kinderen
+      if (cids.some(cid => (childrenOf[cid] || []).some(did => pos[did]))) return;
+      // Alleen bij meerdere ouders (couple)
+      if (parents.length < 2) return;
+      const pxs = parents.map(pid => pos[pid].x);
+      const pys = parents.map(pid => pos[pid].y);
+      // Skip als ouders niet op zelfde Y
+      if (Math.max(...pys) - Math.min(...pys) > NODE_H) return;
+      // Skip cross-family (ouders ver uit elkaar)
+      const pSpan = Math.max(...pxs) + NODE_W - Math.min(...pxs);
+      if (pSpan > 3 * (NODE_W + H_GAP)) return;
+      const pCenter = (Math.min(...pxs) + Math.max(...pxs) + NODE_W) / 2;
+      const cRow = pos[cids[0]].y;
+      const sameRow = cids.filter(cid => Math.abs(pos[cid].y - cRow) < 20);
+      if (sameRow.length === 0) return;
+      const cMinX = Math.min(...sameRow.map(id => pos[id].x));
+      const cMaxR = Math.max(...sameRow.map(id => pos[id].x)) + NODE_W;
+      const cCenter = (cMinX + cMaxR) / 2;
+      // Alleen shiften als ouders dichtbij in Y (niet bv. cross-block)
+      if (Math.abs(pos[cids[0]].y - pys[0]) > 3 * (NODE_H + V_GAP)) return;
+      const dx = pCenter - cCenter;
+      if (Math.abs(dx) < 3) return;
+      // Clamp tegen andere kaarten op kids-rij
+      let minDx = -Infinity, maxDx = Infinity;
+      const cSet = new Set(sameRow);
+      Object.keys(pos).forEach(nid => {
+        const p = pos[nid];
+        if (!p || cSet.has(nid) || Math.abs(p.y - cRow) >= NODE_H) return;
+        if (p.x + NODE_W <= cMinX) {
+          minDx = Math.max(minDx, p.x + NODE_W + H_GAP - cMinX);
+        }
+        if (p.x >= cMaxR) {
+          maxDx = Math.min(maxDx, p.x - H_GAP - cMaxR);
+        }
+      });
+      if (minDx > maxDx) return;
+      const clamped = Math.max(minDx, Math.min(maxDx, dx));
+      if (Math.abs(clamped) < 3) return;
+      sameRow.forEach(id => { pos[id].x += clamped; });
+    });
+  }
+
   return { pos, crossFamilyGhosts, cousinChildReferences };
 }
 
@@ -15245,17 +15307,21 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         return best;
       };
 
-      // Bouw "effectieve" parent-positie map. Als een parent FAR is in Y van
-      // de kinderen (> 2 Y_STEP) maar zijn ghost staat dichtbij, gebruik ghost.
-      // Dit voorkomt T-bars die enorme afstanden over de hele tree spannen.
+      // Bouw "effectieve" parent-positie map. Voor elke parent: als er een ghost
+      // bestaat die dichter bij de kinderen staat dan de echte positie → gebruik
+      // de ghost. Voorkomt enorme verticale T-bar drops over de hele tree als
+      // bijv. Golgotai (REAL in Huzurgol-block, Y=4238) partner is van Bader
+      // (in Hagig-block, Y=1382). Haar ghost staat naast Bader (Y=1382) → die
+      // ghost moet gebruikt worden voor de T-bar naar de gedeelde kinderen.
       const childMinY = Math.min(...validChildren.map(cid => ltopY(cid)));
-      const Y_FAR_THRESHOLD = 2 * (NODE_H + V_GAP); // 380px
       const effParentPos = new Map();
       validParents.forEach(pid => {
-        const py = lpos[pid].y;
-        if (Math.abs(py - childMinY) > Y_FAR_THRESHOLD) {
-          const ghost = findGhostNearY(pid, childMinY);
-          if (ghost && Math.abs(ghost.y - childMinY) < Y_FAR_THRESHOLD) {
+        const realY = lpos[pid].y;
+        const realDist = Math.abs(realY - childMinY);
+        const ghost = findGhostNearY(pid, childMinY);
+        if (ghost) {
+          const ghostDist = Math.abs(ghost.y - childMinY);
+          if (ghostDist < realDist) {
             effParentPos.set(pid, { x: ghost.x, y: ghost.y, isGhost: true });
             return;
           }

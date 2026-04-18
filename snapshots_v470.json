@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "v495",
+    "version": "v497",
     "date": "2026-04-18",
-    "description": "All approved trees - data v494 (260 persons / 459 rels)",
+    "description": "All approved trees - data v497",
     "totalTrees": 52,
     "allOverlaps": 0,
     "excludedTrees": [
@@ -1704,7 +1704,7 @@
         "name": "Spogme Rashid"
       },
       "pmo34ycrl4b8j": {
-        "x": 2350,
+        "x": 2580,
         "y": 262,
         "name": "Store"
       },
@@ -1819,32 +1819,32 @@
         "name": "Mariam"
       },
       "pmo357kjbhmd5": {
-        "x": 2810,
+        "x": 2350,
         "y": 262,
         "name": "Zavar"
       },
       "pmo358jhjmb83": {
-        "x": 2810,
+        "x": 2350,
         "y": 452,
         "name": "Burhan Rashid"
       },
       "pmo358jhpzptz": {
-        "x": 3040,
+        "x": 2580,
         "y": 452,
         "name": "Kawsar Rashid"
       },
       "pmo358vl3n6yf": {
-        "x": 2580,
+        "x": 2810,
         "y": 262,
         "name": "Didar"
       },
       "pmo359q5jrkg1": {
-        "x": 2350,
+        "x": 3040,
         "y": 452,
         "name": "Mujda"
       },
       "pmo359q5q3jz9": {
-        "x": 2580,
+        "x": 3270,
         "y": 452,
         "name": "Osman"
       },
@@ -1854,7 +1854,7 @@
         "name": "Lina"
       },
       "pmo4a1a67tuyw": {
-        "x": 3270,
+        "x": 2810,
         "y": 452,
         "name": "Yunus"
       },
@@ -2604,12 +2604,12 @@
         "name": "Rafi"
       },
       "pmndn3i30g9js": {
-        "x": 2580,
+        "x": 2695,
         "y": 1695,
         "name": "Zoya"
       },
       "pmndn3u2sqdff": {
-        "x": 2810,
+        "x": 2925,
         "y": 1695,
         "name": "Zaynab"
       },
@@ -3186,182 +3186,182 @@
       },
       "s03": {
         "x": 4650,
-        "y": 4767,
+        "y": 4815,
         "name": "Ajab Khan Sayedi"
       },
       "s04": {
         "x": 4880,
-        "y": 4767,
+        "y": 4815,
         "name": "Sanga Hassanzai"
       },
       "s05": {
         "x": 5110,
-        "y": 4767,
+        "y": 4815,
         "name": "Ajmal Khan Sayedi"
       },
       "s06": {
         "x": 5340,
-        "y": 4767,
+        "y": 4815,
         "name": "Helai Sayedi"
       },
       "s07": {
-        "x": 4408,
-        "y": 1380,
+        "x": 4535,
+        "y": 1382,
         "name": "Gaffar Khan Rashid"
       },
       "s08": {
-        "x": 4523,
-        "y": 1615,
+        "x": 4650,
+        "y": 1617,
         "name": "Benjamin Rahman Khan Rashid"
       },
       "s09": {
         "x": 5800,
-        "y": 4767,
+        "y": 4815,
         "name": "Fereshta Sayedi"
       },
       "s10": {
         "x": 6030,
-        "y": 4767,
+        "y": 4815,
         "name": "Jawed Sabur"
       },
       "s11": {
         "x": 6260,
-        "y": 4767,
+        "y": 4815,
         "name": "Hakim Khan Sayedi"
       },
       "s12": {
         "x": 6490,
-        "y": 4767,
+        "y": 4815,
         "name": "Halima Sayedi"
       },
       "s13": {
         "x": 6720,
-        "y": 4767,
+        "y": 4815,
         "name": "Saleh Mohammad Raoefi"
       },
       "s14": {
         "x": 6490,
-        "y": 4967,
+        "y": 5015,
         "name": "Amira Nora Raoefi"
       },
       "s15": {
         "x": 6720,
-        "y": 4967,
+        "y": 5015,
         "name": "Lina Maryam Raoefi"
       },
       "f01": {
-        "x": 2798,
-        "y": 1380,
+        "x": 2925,
+        "y": 1382,
         "name": "Khanaga Faizi"
       },
       "f02": {
-        "x": 2568,
-        "y": 1380,
+        "x": 2695,
+        "y": 1382,
         "name": "Benazier Rashid"
       },
       "f03": {
-        "x": 1418,
-        "y": 1615,
+        "x": 1545,
+        "y": 1618,
         "name": "Hemat Faizi"
       },
       "f05": {
-        "x": 4408,
-        "y": 2745,
+        "x": 4650,
+        "y": 2793,
         "name": "Amina Faizi"
       },
       "f06": {
-        "x": 1878,
-        "y": 1615,
+        "x": 2005,
+        "y": 1618,
         "name": "Nilab Faizi"
       },
       "f07": {
-        "x": 2108,
-        "y": 1615,
+        "x": 2235,
+        "y": 1618,
         "name": "Emamuddin Salehi"
       },
       "f08": {
-        "x": 1763,
-        "y": 1995,
+        "x": 1890,
+        "y": 2234,
         "name": "Muhammad Salehi"
       },
       "f09": {
-        "x": 1993,
-        "y": 1995,
+        "x": 2120,
+        "y": 2234,
         "name": "Ahmad Salehi"
       },
       "f10": {
-        "x": 2338,
-        "y": 1615,
+        "x": 2465,
+        "y": 1618,
         "name": "Alia Faizi"
       },
       "f11": {
-        "x": 2568,
-        "y": 1615,
+        "x": 2695,
+        "y": 1618,
         "name": "Rahimgul Salehi"
       },
       "f12": {
-        "x": 2338,
-        "y": 1850,
+        "x": 2465,
+        "y": 1853,
         "name": "Zainab Salehi"
       },
       "f13": {
-        "x": 2798,
-        "y": 1615,
+        "x": 2925,
+        "y": 1618,
         "name": "Meraj Faizi"
       },
       "f14": {
-        "x": 3028,
-        "y": 1615,
+        "x": 3155,
+        "y": 1618,
         "name": "Mona Saidi"
       },
       "f15": {
-        "x": 3258,
-        "y": 1615,
+        "x": 3385,
+        "y": 1618,
         "name": "Erfan Faizi"
       },
       "f16": {
-        "x": 3488,
-        "y": 1615,
+        "x": 3615,
+        "y": 1618,
         "name": "Alina Faizi"
       },
       "f17": {
-        "x": 3948,
-        "y": 1615,
+        "x": 4075,
+        "y": 1618,
         "name": "Hamza Faizi"
       },
       "pmncyghyo65ha": {
         "x": 4765,
-        "y": 4967,
+        "y": 5015,
         "name": "Mirwais Khan Wazir Sayedi"
       },
       "pmnczpeoyc4hd": {
         "x": 5915,
-        "y": 4967,
+        "y": 5015,
         "name": "Arman Haydar Khan Sabur"
       },
       "r01": {
-        "x": 6478,
-        "y": 1380,
+        "x": 6605,
+        "y": 1382,
         "name": "Abed Rahmani"
       },
       "r02": {
-        "x": 6248,
-        "y": 1380,
+        "x": 6375,
+        "y": 1382,
         "name": "Shaesta Faizi"
       },
       "r03": {
-        "x": 6248,
-        "y": 1805,
+        "x": 6375,
+        "y": 1807,
         "name": "Yaqub Rahmani"
       },
       "r04": {
-        "x": 6478,
-        "y": 1805,
+        "x": 6605,
+        "y": 1807,
         "name": "Muzammil Rahmani"
       },
       "pmnd6s4yespmb": {
-        "x": 2568,
-        "y": 1850,
+        "x": 2695,
+        "y": 1853,
         "name": "Zahra Salehi"
       },
       "pmnd79y13i65o": {
@@ -3376,212 +3376,212 @@
       },
       "pmnd7bkdrm6yz": {
         "x": 4190,
-        "y": 4190,
+        "y": 4238,
         "name": "Asif Khan Ghorbandi"
       },
       "pmnd7cfmvqiff": {
         "x": 4650,
-        "y": 4190,
+        "y": 4238,
         "name": "Mussa Khan Emran Ghorbandi"
       },
       "pmnd7cuzr39r9": {
         "x": 5110,
-        "y": 4190,
+        "y": 4238,
         "name": "Issa Khan Qader Ghorbandi"
       },
       "pmnd7ej1rf33c": {
         "x": 3730,
-        "y": 4190,
+        "y": 4238,
         "name": "Golgotai Ghorbandi"
       },
       "pmnd7hzc067x0": {
         "x": 6030,
-        "y": 4190,
+        "y": 4238,
         "name": "Lema Ghorbandi"
       },
       "pmnd7janquizq": {
         "x": 5570,
-        "y": 4190,
+        "y": 4238,
         "name": "Golalai Ghorbandi"
       },
       "pmnd7n0jbe5kc": {
         "x": 6490,
-        "y": 4190,
+        "y": 4238,
         "name": "Atifa Ghorbandi"
       },
       "pmnd7o54wo1ew": {
         "x": 6950,
-        "y": 4190,
+        "y": 4238,
         "name": "Shaista Ghorbandi"
       },
       "pmnd7oyi85tgd": {
         "x": 7180,
-        "y": 4190,
+        "y": 4238,
         "name": "Amena Ghorbandi"
       },
       "pmnd7qhxj4baj": {
-        "x": 3488,
-        "y": 1380,
+        "x": 3615,
+        "y": 1382,
         "name": "Bader Khan Rashid"
       },
       "pmnd7shvzi3c4": {
-        "x": 3143,
-        "y": 1805,
+        "x": 3270,
+        "y": 1808,
         "name": "Beheshta Rashid"
       },
       "pmnd7t84wv60c": {
-        "x": 3373,
-        "y": 1805,
+        "x": 3500,
+        "y": 1808,
         "name": "Moqahdas Rashid"
       },
       "pmnd7u7dc1sv8": {
-        "x": 3603,
-        "y": 1805,
+        "x": 3730,
+        "y": 1808,
         "name": "Malaika Rashid"
       },
       "pmnd7v4fly7vb": {
-        "x": 3833,
-        "y": 1805,
+        "x": 3960,
+        "y": 1808,
         "name": "Bilal Rashid"
       },
       "pmndmqi8yk35j": {
         "x": 5800,
-        "y": 4190,
+        "y": 4238,
         "name": "Abdelqadir Ahmadzai"
       },
       "pmndmre7xwo3z": {
         "x": 5455,
-        "y": 4397,
+        "y": 4445,
         "name": "Madina Noor Ahmadzai"
       },
       "pmndmscnasvm5": {
         "x": 5685,
-        "y": 4397,
+        "y": 4445,
         "name": "Idris Omar Ahmadzai"
       },
       "pmndmt69g664c": {
         "x": 5915,
-        "y": 4397,
+        "y": 4445,
         "name": "Hawa Umrah Ahmadzai"
       },
       "pmndmv0pe6bnt": {
-        "x": 5098,
-        "y": 1380,
+        "x": 5225,
+        "y": 1382,
         "name": "Mohammaddel Amiri"
       },
       "pmndmvgb61us6": {
-        "x": 4868,
-        "y": 1380,
+        "x": 4995,
+        "y": 1382,
         "name": "Shughla Rashid"
       },
       "pmndmw6tmszgx": {
-        "x": 4868,
-        "y": 2555,
+        "x": 5110,
+        "y": 2557,
         "name": "Aisha Amiri"
       },
       "pmndmwy22inp5": {
-        "x": 5098,
-        "y": 2555,
+        "x": 5340,
+        "y": 2557,
         "name": "Alwina Amiri"
       },
       "pmndmxo0wy25u": {
-        "x": 5328,
-        "y": 2555,
+        "x": 5570,
+        "y": 2557,
         "name": "Khadija Amiri"
       },
       "pmndn04a6kp3h": {
-        "x": 5558,
-        "y": 2555,
+        "x": 5800,
+        "y": 2557,
         "name": "Kawsar Amiri"
       },
       "pmndn0xa5x3gg": {
-        "x": 5788,
-        "y": 2555,
+        "x": 6030,
+        "y": 2557,
         "name": "Asra Amiri"
       },
       "pmndn2984pmss": {
-        "x": 3948,
-        "y": 2555,
+        "x": 4190,
+        "y": 2557,
         "name": "Asma Amiri"
       },
       "pmndn30vhfz8r": {
-        "x": 4178,
-        "y": 2555,
+        "x": 4420,
+        "y": 2557,
         "name": "Rafi"
       },
       "pmndn3i30g9js": {
-        "x": 3948,
-        "y": 2745,
+        "x": 4190,
+        "y": 2793,
         "name": "Zoya"
       },
       "pmndn3u2sqdff": {
-        "x": 4178,
-        "y": 2745,
+        "x": 4420,
+        "y": 2793,
         "name": "Zaynab"
       },
       "pmndn4sw3j1fb": {
-        "x": 4408,
-        "y": 2555,
+        "x": 4650,
+        "y": 2557,
         "name": "Husna Amiri"
       },
       "pmndn7m9expkq": {
-        "x": 4638,
-        "y": 2745,
+        "x": 4880,
+        "y": 2793,
         "name": "Aisya Faizi"
       },
       "pmndnoxx6ndgz": {
-        "x": 3258,
-        "y": 1380,
+        "x": 3385,
+        "y": 1382,
         "name": "Jamal Nader Rashid"
       },
       "pmndnpzkp3vwu": {
-        "x": 3028,
-        "y": 1380,
+        "x": 3155,
+        "y": 1382,
         "name": "Zarlakhta Rashid"
       },
       "pmndnrdrc68lf": {
-        "x": 2453,
-        "y": 2320,
+        "x": 2580,
+        "y": 2087,
         "name": "Sejad Rashid"
       },
       "pmndnrn9438x5": {
-        "x": 2913,
-        "y": 2320,
+        "x": 3040,
+        "y": 2087,
         "name": "Noman Rashid"
       },
       "pmndnryswhsem": {
-        "x": 3373,
-        "y": 2320,
+        "x": 3500,
+        "y": 2087,
         "name": "Adel Rashid"
       },
       "pmndns7ewdxvw": {
-        "x": 3603,
-        "y": 2320,
+        "x": 3730,
+        "y": 2087,
         "name": "Amer Rashid"
       },
       "pmndnsji2txom": {
-        "x": 3833,
-        "y": 2320,
+        "x": 3960,
+        "y": 2087,
         "name": "Adam Rashid"
       },
       "pmndnticv1qox": {
-        "x": 2683,
-        "y": 2320,
+        "x": 2810,
+        "y": 2087,
         "name": "Homaira Hakimi"
       },
       "pmndwllk8hld1": {
-        "x": 3948,
-        "y": 1380,
+        "x": 4075,
+        "y": 1382,
         "name": "Azghar Khan Rashid"
       },
       "pmndwllk9fukl": {
-        "x": 5328,
-        "y": 1380,
+        "x": 5455,
+        "y": 1382,
         "name": "Davud Khan Durrani"
       },
       "pmndwllk96xxz": {
-        "x": 5788,
-        "y": 1380,
+        "x": 5915,
+        "y": 1382,
         "name": "Nabila"
       },
       "pmndyxhre0zi1": {
@@ -3596,67 +3596,67 @@
       },
       "pmnepe8ob5cod": {
         "x": 4420,
-        "y": 4190,
+        "y": 4238,
         "name": "Soraya"
       },
       "pmnepfhttgn51": {
         "x": 4880,
-        "y": 4190,
+        "y": 4238,
         "name": "Amanda Jennah Hulsbergen"
       },
       "pmnepimbckf8a": {
         "x": 4650,
-        "y": 4397,
+        "y": 4445,
         "name": "Jamil Ghorbandi"
       },
       "pmnepimbeuxuf": {
         "x": 4880,
-        "y": 4397,
+        "y": 4445,
         "name": "Zidan Ghorbandi"
       },
       "pmnepl5nzikm3": {
         "x": 5340,
-        "y": 4190,
+        "y": 4238,
         "name": "Muchda Kakar"
       },
       "pmnepmjsmeuk6": {
         "x": 6260,
-        "y": 4190,
+        "y": 4238,
         "name": "Sohail Durani"
       },
       "pmnepnt0eu2k2": {
         "x": 6720,
-        "y": 4190,
+        "y": 4238,
         "name": "Ezatullah Achmadzai"
       },
       "pmnepp0idbklv": {
         "x": 6605,
-        "y": 4397,
+        "y": 4445,
         "name": "Zunaira Dua Achmadzai"
       },
       "pmneptum4xnzi": {
-        "x": 5558,
-        "y": 1380,
+        "x": 5685,
+        "y": 1382,
         "name": "Alia Miakhel"
       },
       "pmnepytxdqi9y": {
-        "x": 5098,
-        "y": 1995,
+        "x": 4995,
+        "y": 2042,
         "name": "Mustafa Durrani"
       },
       "pmnepytxga1sz": {
-        "x": 5328,
-        "y": 1995,
+        "x": 5225,
+        "y": 2042,
         "name": "Mujtaba Durrani"
       },
       "pmnepytxh5z3q": {
-        "x": 5558,
-        "y": 1995,
+        "x": 5455,
+        "y": 2042,
         "name": "Muskaan Durrani"
       },
       "pmnepytxiuzsg": {
-        "x": 5788,
-        "y": 1995,
+        "x": 5685,
+        "y": 2042,
         "name": "Abud Musawwir Durrani"
       },
       "pmneq7p4nynu3": {
@@ -3680,348 +3680,348 @@
         "name": "Hagig Gull Durrani"
       },
       "pmndo3i84yw8g": {
-        "x": 4625,
+        "x": 4650,
         "y": 240,
         "name": "Babogal Sayedi"
       },
       "pmnfv2r03xoij": {
-        "x": 2223,
-        "y": 1995,
+        "x": 2350,
+        "y": 2234,
         "name": "Fatima Zahra Salehi"
       },
       "pmnfvopdootvl": {
-        "x": 4063,
-        "y": 1805,
+        "x": 4190,
+        "y": 1808,
         "name": "Haya Rashid"
       },
       "pmnfwl6r2i0v6": {
-        "x": 6018,
-        "y": 1380,
+        "x": 6145,
+        "y": 1382,
         "name": "Farid Saidi"
       },
       "pmnfwl6r2gzuz": {
-        "x": 4178,
-        "y": 1380,
+        "x": 4305,
+        "y": 1382,
         "name": "Latifa Saidi"
       },
       "pmni01k22obxh": {
-        "x": 3718,
-        "y": 1995,
+        "x": 3845,
+        "y": 2234,
         "name": "Haajar Rashid"
       },
       "pmni01k23erra": {
-        "x": 3948,
-        "y": 1995,
+        "x": 4075,
+        "y": 2234,
         "name": "Yahya Rashid"
       },
       "pmni01k24zyhf": {
-        "x": 4178,
-        "y": 1995,
+        "x": 4305,
+        "y": 2234,
         "name": "Omar Rashid"
       },
       "pmni01k25pnza": {
-        "x": 4408,
-        "y": 1995,
+        "x": 4535,
+        "y": 2234,
         "name": "Iqra Rashid"
       },
       "pmni053i84su6": {
-        "x": 5328,
-        "y": 1615,
+        "x": 5455,
+        "y": 1617,
         "name": "Sarah Saidi"
       },
       "pmni053iamxzp": {
-        "x": 5558,
-        "y": 1615,
+        "x": 5685,
+        "y": 1617,
         "name": "Sama Saidi"
       },
       "pmni053icew6m": {
-        "x": 5788,
-        "y": 1615,
+        "x": 5915,
+        "y": 1617,
         "name": "Hafsa Saidi"
       },
       "pmni053ie8pn9": {
-        "x": 6018,
-        "y": 1615,
+        "x": 6145,
+        "y": 1617,
         "name": "Yaqub Saidi"
       },
       "pmni053ifs7ju": {
-        "x": 6248,
-        "y": 1615,
+        "x": 6375,
+        "y": 1617,
         "name": "Ishaq Saidi"
       },
       "pmni053ih3c7e": {
-        "x": 6478,
-        "y": 1615,
+        "x": 6605,
+        "y": 1617,
         "name": "Safia Saidi"
       },
       "pmni06p0ji4hg": {
-        "x": 4165,
+        "x": 4190,
         "y": 240,
         "name": "Laila Babo"
       },
       "pmni0aw5mfovo": {
-        "x": 3143,
+        "x": 3155,
         "y": 610,
         "name": "Mergalela Durrani"
       },
       "pmni0aw5rt7j6": {
-        "x": 4063,
+        "x": 4075,
         "y": 610,
         "name": "Habibrahman Durrani"
       },
       "pmni0aw5t19yo": {
-        "x": 4293,
+        "x": 4305,
         "y": 610,
         "name": "Saifrahman Durrani"
       },
       "pmni0aw5wzj12": {
-        "x": 4523,
+        "x": 4535,
         "y": 610,
         "name": "Parwana Durrani"
       },
       "pmni0aw5zil6x": {
-        "x": 4753,
+        "x": 4765,
         "y": 610,
         "name": "Asina Durrani"
       },
       "pmni0aw61wfnn": {
-        "x": 4983,
+        "x": 4995,
         "y": 610,
         "name": "Samia Durrani"
       },
       "pmni0aw63vtas": {
-        "x": 3603,
+        "x": 3615,
         "y": 610,
         "name": "Malalai Durrani"
       },
       "pmni0byqqbuqw": {
-        "x": 3373,
+        "x": 3385,
         "y": 610,
         "name": "Shirnagha"
       },
       "pmni0d7t09vcm": {
-        "x": 2798,
-        "y": 810,
+        "x": 2810,
+        "y": 811,
         "name": "Baryalai"
       },
       "pmni0d7t6qrt0": {
-        "x": 3258,
-        "y": 810,
+        "x": 3270,
+        "y": 811,
         "name": "Khalid"
       },
       "pmni0d7t9876w": {
-        "x": 3488,
-        "y": 810,
+        "x": 3500,
+        "y": 811,
         "name": "Abubakr"
       },
       "pmni0d7tck3oc": {
-        "x": 3718,
-        "y": 810,
+        "x": 3730,
+        "y": 811,
         "name": "Marwa"
       },
       "pmni0dr4npt6r": {
-        "x": 3833,
+        "x": 3845,
         "y": 610,
         "name": "Abdullah"
       },
       "pmni0e8yfpn37": {
-        "x": 3718,
-        "y": 1010,
+        "x": 3845,
+        "y": 1012,
         "name": "Zaiynab"
       },
       "pmni0fiiiy1qs": {
-        "x": 3028,
-        "y": 810,
+        "x": 3040,
+        "y": 811,
         "name": "Ferdaws"
       },
       "pmo34v17r5l0j": {
-        "x": 5110,
+        "x": 5085,
         "y": 240,
         "name": "Rabia Rashid"
       },
       "pmo34ycr3rguf": {
-        "x": 3500,
-        "y": 3115,
+        "x": 3488,
+        "y": 3163,
         "name": "Ayoub Rashid"
       },
       "pmo34ycr7lser": {
-        "x": 3960,
-        "y": 3115,
+        "x": 3948,
+        "y": 3163,
         "name": "Nawaab Rashid"
       },
       "pmo34ycrdz5uf": {
-        "x": 4420,
-        "y": 3115,
+        "x": 4408,
+        "y": 3163,
         "name": "Zavar Rashid"
       },
       "pmo34ycrhfbhs": {
-        "x": 4880,
-        "y": 3115,
+        "x": 4868,
+        "y": 3163,
         "name": "Spogme Rashid"
       },
       "pmo34ycrl4b8j": {
-        "x": 5570,
-        "y": 3115,
+        "x": 5558,
+        "y": 3163,
         "name": "Store"
       },
       "pmo34ycrplrzh": {
-        "x": 6030,
-        "y": 3115,
+        "x": 6018,
+        "y": 3163,
         "name": "Mohabbat"
       },
       "pmo34ycrwm0ax": {
-        "x": 6260,
-        "y": 3115,
+        "x": 6248,
+        "y": 3163,
         "name": "Hejrat"
       },
       "pmo34z25i1fky": {
-        "x": 3730,
-        "y": 3115,
+        "x": 3718,
+        "y": 3163,
         "name": "Nazifa Rashid"
       },
       "pmo350x9zbuxz": {
-        "x": 3040,
-        "y": 3327,
+        "x": 3028,
+        "y": 3376,
         "name": "Mashal Rashid"
       },
       "pmo350xa4any3": {
-        "x": 3270,
-        "y": 3327,
+        "x": 3258,
+        "y": 3376,
         "name": "Maiwand Rashid"
       },
       "pmo350xa8twge": {
-        "x": 3500,
-        "y": 3327,
+        "x": 3488,
+        "y": 3376,
         "name": "Morsal Rashid"
       },
       "pmo350xacwuzv": {
-        "x": 3730,
-        "y": 3327,
+        "x": 3718,
+        "y": 3376,
         "name": "Yousuf Rashid"
       },
       "pmo350xag72uv": {
-        "x": 3960,
-        "y": 3327,
+        "x": 3948,
+        "y": 3376,
         "name": "Ashraf Rashid"
       },
       "pmo350xaj9g7p": {
-        "x": 4190,
-        "y": 3327,
+        "x": 4178,
+        "y": 3376,
         "name": "Momina Rashid"
       },
       "pmo351h5beg9f": {
-        "x": 4190,
-        "y": 3115,
+        "x": 4178,
+        "y": 3163,
         "name": "Samira Rashid"
       },
       "pmo352v2f85e1": {
-        "x": 3615,
-        "y": 3820,
+        "x": 3603,
+        "y": 3757,
         "name": "Hadya Rashid"
       },
       "pmo352v2m7cyp": {
-        "x": 3845,
-        "y": 3820,
+        "x": 3833,
+        "y": 3757,
         "name": "Madinah Rashid"
       },
       "pmo352v2qd6mg": {
-        "x": 4075,
-        "y": 3820,
+        "x": 4063,
+        "y": 3757,
         "name": "Sanna Rashid"
       },
       "pmo352v2v4165": {
-        "x": 4305,
-        "y": 3820,
+        "x": 4293,
+        "y": 3757,
         "name": "Ismail Rashid"
       },
       "pmo352v30t7ge": {
-        "x": 4535,
-        "y": 3820,
+        "x": 4523,
+        "y": 3757,
         "name": "Yousra Rashid"
       },
       "pmo353ouw5u1k": {
-        "x": 4650,
-        "y": 3115,
+        "x": 4638,
+        "y": 3163,
         "name": "Azima"
       },
       "pmo354mcnbz26": {
-        "x": 4305,
-        "y": 3538,
+        "x": 4178,
+        "y": 3868,
         "name": "Sulaiman Rashid"
       },
       "pmo354mcujmgy": {
-        "x": 4535,
-        "y": 3538,
+        "x": 4408,
+        "y": 3868,
         "name": "Zainab Rashid"
       },
       "pmo354mczv982": {
-        "x": 4765,
-        "y": 3538,
+        "x": 4638,
+        "y": 3868,
         "name": "Marwa Rashid"
       },
       "pmo3552jz6uwr": {
-        "x": 5110,
-        "y": 3115,
+        "x": 5098,
+        "y": 3163,
         "name": "Khaybar"
       },
       "pmo3561dkcpxd": {
-        "x": 4880,
-        "y": 3350,
+        "x": 4868,
+        "y": 3353,
         "name": "Zikria"
       },
       "pmo3561dq8ahj": {
-        "x": 5110,
-        "y": 3350,
+        "x": 5098,
+        "y": 3353,
         "name": "Mariam"
       },
       "pmo357kjbhmd5": {
-        "x": 5340,
-        "y": 3115,
+        "x": 5328,
+        "y": 3163,
         "name": "Zavar"
       },
       "pmo358jhjmb83": {
-        "x": 5340,
-        "y": 3305,
+        "x": 5328,
+        "y": 3353,
         "name": "Burhan Rashid"
       },
       "pmo358jhpzptz": {
-        "x": 5570,
-        "y": 3305,
+        "x": 5558,
+        "y": 3353,
         "name": "Kawsar Rashid"
       },
       "pmo358vl3n6yf": {
-        "x": 5800,
-        "y": 3115,
+        "x": 5788,
+        "y": 3163,
         "name": "Didar"
       },
       "pmo359q5jrkg1": {
-        "x": 5800,
-        "y": 3305,
+        "x": 6018,
+        "y": 3353,
         "name": "Mujda"
       },
       "pmo359q5q3jz9": {
-        "x": 6030,
-        "y": 3305,
+        "x": 6248,
+        "y": 3353,
         "name": "Osman"
       },
       "pmo35a6zz26rc": {
-        "x": 6490,
-        "y": 3115,
+        "x": 6478,
+        "y": 3163,
         "name": "Lina"
       },
       "pmo49w9tiqty7": {
-        "x": 3730,
-        "y": 1000,
+        "x": 3615,
+        "y": 1012,
         "name": "Mohammad"
       },
       "pmo4a1a67tuyw": {
-        "x": 6950,
-        "y": 4610,
+        "x": 5788,
+        "y": 3353,
         "name": "Yunus"
       },
       "pmo4a26jk7k5x": {
-        "x": 4880,
-        "y": 4800,
+        "x": 4868,
+        "y": 3868,
         "name": "Raana Rashid"
       },
       "pmo4abxn5ihq5": {
@@ -4035,8 +4035,8 @@
         "name": "Hamidgul"
       },
       "pmo4adrr9bkk1": {
-        "x": 970,
-        "y": 2330,
+        "x": 2465,
+        "y": 1382,
         "name": "Sarah Durrani"
       },
       "pmo4ahx86c7rh": {
@@ -4048,98 +4048,86 @@
     "ghosts": [
       {
         "id": "s06",
-        "x": 4638,
-        "y": 1380,
+        "x": 4765,
+        "y": 1382,
         "adjacentTo": "s07"
       },
       {
         "id": "pmnd7ej1rf33c",
-        "x": 3718,
-        "y": 1380,
+        "x": 3845,
+        "y": 1382,
         "adjacentTo": "pmnd7qhxj4baj"
       },
       {
         "id": "pmndn4sw3j1fb",
-        "x": 1648,
-        "y": 1615,
+        "x": 1775,
+        "y": 1618,
         "adjacentTo": "f03"
       },
       {
-        "id": "pmndnrn9438x5",
-        "x": 3718,
-        "y": 1615,
-        "adjacentTo": "f16"
-      },
-      {
-        "id": "f16",
-        "x": 3143,
-        "y": 2320,
-        "adjacentTo": "pmndnrn9438x5"
-      },
-      {
         "id": "f03",
-        "x": 4638,
-        "y": 2555,
+        "x": 4880,
+        "y": 2557,
         "adjacentTo": "pmndn4sw3j1fb"
       },
       {
         "id": "f05",
-        "x": 1418,
-        "y": 1805,
+        "x": 1545,
+        "y": 1808,
         "adjacentTo": "f03"
       },
       {
         "id": "pmndn7m9expkq",
-        "x": 1648,
-        "y": 1805,
+        "x": 1775,
+        "y": 1808,
         "adjacentTo": "f03"
       },
       {
         "id": "pmnd7qhxj4baj",
         "x": 3960,
-        "y": 4190,
+        "y": 4238,
         "adjacentTo": "pmnd7ej1rf33c"
       },
       {
         "id": "pmnd7shvzi3c4",
         "x": 3385,
-        "y": 4397,
+        "y": 4445,
         "adjacentTo": "pmnd7ej1rf33c"
       },
       {
         "id": "pmnd7t84wv60c",
         "x": 3615,
-        "y": 4397,
+        "y": 4445,
         "adjacentTo": "pmnd7ej1rf33c"
       },
       {
         "id": "pmnd7u7dc1sv8",
         "x": 3845,
-        "y": 4397,
+        "y": 4445,
         "adjacentTo": "pmnd7qhxj4baj"
       },
       {
         "id": "pmnd7v4fly7vb",
         "x": 4075,
-        "y": 4397,
+        "y": 4445,
         "adjacentTo": "pmnd7qhxj4baj"
       },
       {
         "id": "pmnfvopdootvl",
         "x": 4305,
-        "y": 4397,
+        "y": 4445,
         "adjacentTo": "pmnd7qhxj4baj"
       },
       {
         "id": "s07",
         "x": 5570,
-        "y": 4767,
+        "y": 4815,
         "adjacentTo": "s06"
       },
       {
         "id": "s08",
         "x": 5455,
-        "y": 4967,
+        "y": 5015,
         "adjacentTo": "s06"
       }
     ]
