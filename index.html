@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Forceer altijd verse index.html: voorkomt dat mobiele browsers een
+       oude versie tonen waarin nog naar oude app.js?v=X verwezen wordt.
+       Met deze tags vraagt de browser elke pagina-load opnieuw of er een
+       nieuwere versie is. De ?v=N busters zorgen daarna voor app.js/style.css. -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Familie Stamboom</title>
   <link rel="stylesheet" href="style.css?v=87">
   <script>
@@ -338,6 +345,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="app.js?v=489"></script>
+  <script src="app.js?v=490"></script>
 </body>
 </html>

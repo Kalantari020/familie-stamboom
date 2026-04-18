@@ -1,4 +1,31 @@
 // ============================================================
+// VERSION + AUTO-REFRESH BIJ STALE CACHE (mobiel-vriendelijk)
+// ============================================================
+// Versie van deze build. Wordt vergeleken met live index.html om te
+// detecteren of de mobiele browser een verouderde versie cached.
+const APP_VERSION = 'v490';
+(function checkForUpdate() {
+  // Op pageload: vergelijk geladen versie met index.html van server
+  // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
+  if (typeof window === 'undefined' || !window.fetch) return;
+  setTimeout(async () => {
+    try {
+      const resp = await fetch(window.location.pathname + '?nc=' + Date.now(), { cache: 'no-store' });
+      if (!resp.ok) return;
+      const html = await resp.text();
+      const m = html.match(/app\.js\?v=(\d+)/);
+      if (!m) return;
+      const liveV = parseInt(m[1]);
+      const localV = parseInt(APP_VERSION.replace('v', ''));
+      if (liveV > localV) {
+        console.log('[Stamboom] Nieuwere versie beschikbaar (' + liveV + ' vs lokaal ' + localV + ') - herladen...');
+        window.location.href = window.location.pathname + '?v=' + liveV + '&t=' + Date.now();
+      }
+    } catch (e) { /* offline of fout — negeer */ }
+  }, 1500);
+})();
+
+// ============================================================
 // CONSTANTS
 // ============================================================
 const NODE_W  = 180;
