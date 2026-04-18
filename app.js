@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v491';
+const APP_VERSION = 'v493';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -308,11 +308,12 @@ const START_DATA = {
       "gender": "m",
       "birthdate": "02-02-1984",
       "deathdate": "",
-      "family": "Rashid",
+      "family": "Durrani",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 5
+      "birthOrder": 6,
+      "socialBirthOrder": null
     },
     {
       "id": "s08",
@@ -417,11 +418,12 @@ const START_DATA = {
       "gender": "f",
       "birthdate": "03-12-1967",
       "deathdate": "",
-      "family": "Rashid",
+      "family": "Durrani",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1
+      "birthOrder": 2,
+      "socialBirthOrder": null
     },
     {
       "id": "f03",
@@ -621,7 +623,7 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 9,
+      "birthOrder": 10,
       "socialBirthOrder": null
     },
     {
@@ -661,17 +663,22 @@ const START_DATA = {
       "deathdate": "",
       "deceased": false,
       "notes": "",
-      "photo": null
+      "photo": null,
+      "birthOrder": 7,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnd7akkugpv5",
       "name": "Bibi Hura Qasim",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Qasim",
       "birthdate": "02-02-1961",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnd7bkdrm6yz",
@@ -786,13 +793,13 @@ const START_DATA = {
       "id": "pmnd7qhxj4baj",
       "name": "Bader Khan Rashid",
       "gender": "m",
-      "family": "Rashid",
+      "family": "Durrani",
       "birthdate": "01-07-1980",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 3,
+      "birthOrder": 4,
       "socialBirthOrder": null
     },
     {
@@ -841,41 +848,53 @@ const START_DATA = {
       "id": "pmndmqi8yk35j",
       "name": "Abdelqadir Ahmadzai",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Ahmadzai",
       "birthdate": "04-04-1984",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmre7xwo3z",
       "name": "Madina Noor Ahmadzai",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Ahmadzai",
       "birthdate": "08-12-2016",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmscnasvm5",
       "name": "Idris Omar Ahmadzai",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Ahmadzai",
       "birthdate": "30-10-2018",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmt69g664c",
       "name": "Hawa Umrah Ahmadzai",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Ahmadzai",
       "birthdate": "10-07-2022",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmv0pe6bnt",
@@ -891,13 +910,14 @@ const START_DATA = {
       "id": "pmndmvgb61us6",
       "name": "Shughla Rashid",
       "gender": "f",
-      "family": "Rashid",
+      "family": "Durrani",
       "birthdate": "27-07-1979",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 6
+      "birthOrder": 7,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmw6tmszgx",
@@ -980,10 +1000,14 @@ const START_DATA = {
       "id": "pmndn30vhfz8r",
       "name": "Rafi",
       "gender": "m",
-      "family": "Amiri",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndn3i30g9js",
@@ -1020,102 +1044,118 @@ const START_DATA = {
       "id": "pmndn7m9expkq",
       "name": "Aisya Faizi",
       "gender": "f",
-      "family": "Amiri",
+      "family": "Faizi",
       "birthdate": "16-09-2025",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnoxx6ndgz",
       "name": "Jamal Nader Rashid",
       "gender": "m",
-      "family": "",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "deceased": false,
-      "notes": ""
+      "notes": "",
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnpzkp3vwu",
       "name": "Zarlakhta Rashid",
       "gender": "f",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmndnrdrc68lf",
+      "name": "Sejad Rashid",
+      "gender": "m",
       "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 2
-    },
-    {
-      "id": "pmndnrdrc68lf",
-      "name": "Sejad Rashid",
-      "gender": "m",
-      "family": "",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "photo": null,
-      "birthOrder": 1
+      "birthOrder": 1,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnrn9438x5",
       "name": "Noman Rashid",
       "gender": "m",
-      "family": "",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 2
+      "birthOrder": 2,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnryswhsem",
       "name": "Adel Rashid",
       "gender": "m",
-      "family": "",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 3
+      "birthOrder": 3,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndns7ewdxvw",
       "name": "Amer Rashid",
       "gender": "m",
-      "family": "",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 4
+      "birthOrder": 4,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnsji2txom",
       "name": "Adam Rashid",
       "gender": "m",
-      "family": "",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 5
+      "birthOrder": 5,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndnticv1qox",
       "name": "Homaira Hakimi",
       "gender": "f",
-      "family": "",
+      "family": "Hakimi",
       "birthdate": "",
       "deathdate": "",
-      "notes": ""
+      "notes": "",
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndwllk8hld1",
@@ -1127,7 +1167,8 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 4
+      "birthOrder": 5,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndwllk9fukl",
@@ -1139,7 +1180,8 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 7
+      "birthOrder": 8,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndwllk96xxz",
@@ -1151,7 +1193,7 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 8,
+      "birthOrder": 9,
       "socialBirthOrder": null
     },
     {
@@ -1206,13 +1248,14 @@ const START_DATA = {
       "id": "pmndya3ei0k93",
       "name": "Mahmad Salehi",
       "gender": "m",
-      "family": "",
+      "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 7
+      "birthOrder": 7,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndya3eip3zu",
@@ -1278,12 +1321,14 @@ const START_DATA = {
       "id": "pmndyhcgqdpb9",
       "name": "Zakira",
       "gender": "f",
-      "family": "Salehi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
-      "photo": null
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyjcrfva0k",
@@ -1419,11 +1464,14 @@ const START_DATA = {
       "id": "pmnepe8ob5cod",
       "name": "Soraya",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnepfhttgn51",
@@ -1460,51 +1508,66 @@ const START_DATA = {
       "id": "pmnepl5nzikm3",
       "name": "Muchda Kakar",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Kakar",
       "birthdate": "11-05",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnepmjsmeuk6",
       "name": "Sohail Durani",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durani",
       "birthdate": "20-03-1994",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnepnt0eu2k2",
       "name": "Ezatullah Achmadzai",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Achmadzai",
       "birthdate": "05-12-1991",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnepp0idbklv",
       "name": "Zunaira Dua Achmadzai",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Achmadzai",
       "birthdate": "03-05-2025",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmneptum4xnzi",
       "name": "Alia Miakhel",
       "gender": "f",
-      "family": "Durrani",
+      "family": "",
       "birthdate": "04-04-1992",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnepytxdqi9y",
@@ -1554,26 +1617,26 @@ const START_DATA = {
       "id": "pmneq7p4nynu3",
       "name": "Habib Gull Durrani",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 1,
+      "birthOrder": 4,
       "socialBirthOrder": null
     },
     {
       "id": "pmneq7p4ss5hl",
       "name": "Sakhi Gull Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 3,
+      "birthOrder": 6,
       "socialBirthOrder": null
     },
     {
@@ -1586,7 +1649,7 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 4,
+      "birthOrder": 8,
       "socialBirthOrder": null
     },
     {
@@ -1599,7 +1662,7 @@ const START_DATA = {
       "deceased": false,
       "notes": "",
       "photo": null,
-      "birthOrder": 2,
+      "birthOrder": 5,
       "socialBirthOrder": null
     },
     {
@@ -1849,7 +1912,7 @@ const START_DATA = {
       "id": "pmnfx5u9dct4w",
       "name": "Matiullah Salehi",
       "gender": "m",
-      "family": "",
+      "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -1862,7 +1925,7 @@ const START_DATA = {
       "id": "pmnfx5u9dbm8a",
       "name": "Nasratullah Salehi",
       "gender": "m",
-      "family": "",
+      "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -1885,31 +1948,40 @@ const START_DATA = {
       "id": "pmnfxa0in4tc9",
       "name": "Ibrahim Sediqi",
       "gender": "m",
-      "family": "",
+      "family": "Sediqi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnfxa0io0z5u",
       "name": "Maryam Sediqi",
       "gender": "f",
-      "family": "",
+      "family": "Sediqi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnfxa0iou6j0",
       "name": "Sarah Sediqi",
       "gender": "f",
-      "family": "",
+      "family": "Sediqi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnfxaot46h83",
@@ -1925,21 +1997,27 @@ const START_DATA = {
       "id": "pmnfxbasnb3sh",
       "name": "Abdurrahman Salehi",
       "gender": "m",
-      "family": "",
+      "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmnfxbasnbq7c",
       "name": "Abdullah Saledhi",
       "gender": "m",
-      "family": "",
+      "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": null,
+      "socialBirthOrder": null
     },
     {
       "id": "pmni01k22obxh",
@@ -2065,127 +2143,137 @@ const START_DATA = {
       "id": "pmni06p0ji4hg",
       "name": "Laila Babo",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw5mfovo",
       "name": "Mergalela Durrani",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw5rt7j6",
       "name": "Habibrahman Durrani",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 3,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw5t19yo",
       "name": "Saifrahman Durrani",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 4,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw5wzj12",
       "name": "Parwana Durrani",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 5,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw5zil6x",
       "name": "Asina Durrani",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 6,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw61wfnn",
       "name": "Samia Durrani",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 7,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0aw63vtas",
-      "name": "Malalai  Durrani",
+      "name": "Malalai Durrani",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 2,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0byqqbuqw",
       "name": "Shirnagha",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0d7t09vcm",
       "name": "Baryalai",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0d7t6qrt0",
       "name": "Khalid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -2198,7 +2286,7 @@ const START_DATA = {
       "id": "pmni0d7t9876w",
       "name": "Abubakr",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -2211,7 +2299,7 @@ const START_DATA = {
       "id": "pmni0d7tck3oc",
       "name": "Marwa",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -2222,33 +2310,35 @@ const START_DATA = {
     },
     {
       "id": "pmni0dr4npt6r",
-      "name": "Mohammad",
+      "name": "Abdullah",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0e8yfpn37",
       "name": "Zaiynab",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
-      "birthOrder": null,
-      "socialBirthOrder": null
+      "birthOrder": 2,
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmni0fiiiy1qs",
       "name": "Ferdaws",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -2761,67 +2851,72 @@ const START_DATA = {
       "id": "pmo0h2kl0159h",
       "name": "Fahim",
       "gender": "m",
-      "family": "Salehi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34v17r5l0j",
       "name": "Rabia Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycr3rguf",
       "name": "Ayoub Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycr7lser",
       "name": "Nawaab Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 2,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycrdz5uf",
       "name": "Zavar Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 3,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycrhfbhs",
       "name": "Spogme Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
@@ -2834,209 +2929,434 @@ const START_DATA = {
       "id": "pmo34ycrl4b8j",
       "name": "Store",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 5,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycrplrzh",
       "name": "Mohabbat",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 6,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34ycrwm0ax",
       "name": "Hejrat",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 7,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo34z25i1fky",
       "name": "Nazifa Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350x9zbuxz",
       "name": "Mashal Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350xa4any3",
       "name": "Maiwand Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 2,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350xa8twge",
       "name": "Morsal Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 3,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350xacwuzv",
       "name": "Yousuf Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 4,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350xag72uv",
       "name": "Ashraf Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 5,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo350xaj9g7p",
       "name": "Momina Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 6,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo351h5beg9f",
       "name": "Samira Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo352v2f85e1",
       "name": "Hadya Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo352v2m7cyp",
       "name": "Madinah Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 2,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo352v2qd6mg",
       "name": "Sanna Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 3,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo352v2v4165",
       "name": "Ismail Rashid",
       "gender": "m",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 4,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo352v30t7ge",
       "name": "Yousra Rashid",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "Rashid",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 5,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo353ouw5u1k",
       "name": "Azima",
       "gender": "f",
-      "family": "Ghorbandi",
+      "family": "",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
       "id": "pmo354mcnbz26",
       "name": "Sulaiman Rashid",
+      "gender": "m",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo354mcujmgy",
+      "name": "Zainab Rashid",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo354mczv982",
+      "name": "Marwa Rashid",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo3552jz6uwr",
+      "name": "Khaybar",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo3561dkcpxd",
+      "name": "Zikria",
+      "gender": "m",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo3561dq8ahj",
+      "name": "Mariam",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo357kjbhmd5",
+      "name": "Zavar",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo358jhjmb83",
+      "name": "Burhan Rashid",
+      "gender": "m",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo358jhpzptz",
+      "name": "Kawsar Rashid",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo358vl3n6yf",
+      "name": "Didar",
+      "gender": "m",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo359q5jrkg1",
+      "name": "Mujda",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo359q5q3jz9",
+      "name": "Osman",
+      "gender": "m",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo35a6zz26rc",
+      "name": "Lina",
+      "gender": "f",
+      "family": "",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo49w9tiqty7",
+      "name": "Mohammad",
+      "gender": "m",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo4a1a67tuyw",
+      "name": "Yunus",
+      "gender": "m",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo4a26jk7k5x",
+      "name": "Raana Rashid",
+      "gender": "f",
+      "family": "Rashid",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 4,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo4abxn5ihq5",
+      "name": "Rahimgul",
       "gender": "m",
       "family": "Ghorbandi",
       "birthdate": "",
@@ -3044,151 +3364,47 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "birthOrder": 1,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
-      "id": "pmo354mcujmgy",
-      "name": "Zainab Rashid",
-      "gender": "f",
-      "family": "Ghorbandi",
+      "id": "pmo4acfl57fx5",
+      "name": "Hamidgul",
+      "gender": "m",
+      "family": "Durrani",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 2,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     },
     {
-      "id": "pmo354mczv982",
-      "name": "Marwa Rashid",
+      "id": "pmo4adrr9bkk1",
+      "name": "Sarah Durrani",
       "gender": "f",
+      "family": "Durrani",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo4ahx86c7rh",
+      "name": "??",
+      "gender": "m",
       "family": "Ghorbandi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "birthOrder": 3,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo3552jz6uwr",
-      "name": "Khaybar",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": null,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo3561dkcpxd",
-      "name": "Zikria",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 1,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo3561dq8ahj",
-      "name": "Mariam",
-      "gender": "f",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 2,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo357kjbhmd5",
-      "name": "Zavar",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": null,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo358jhjmb83",
-      "name": "Burhan Rashid",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 1,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo358jhpzptz",
-      "name": "Kawsar Rashid",
-      "gender": "f",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 2,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo358vl3n6yf",
-      "name": "Didar",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": null,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo359q5jrkg1",
-      "name": "Mujda",
-      "gender": "f",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 1,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo359q5q3jz9",
-      "name": "Osman",
-      "gender": "m",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": 2,
-      "socialBirthOrder": null
-    },
-    {
-      "id": "pmo35a6zz26rc",
-      "name": "Lina",
-      "gender": "f",
-      "family": "Ghorbandi",
-      "birthdate": "",
-      "deathdate": "",
-      "notes": "",
-      "deceased": false,
-      "birthOrder": null,
-      "socialBirthOrder": null
+      "socialBirthOrder": null,
+      "photo": null
     }
   ],
   "relationships": [
@@ -5416,9 +5632,84 @@ const START_DATA = {
       "type": "partner",
       "person1Id": "pmo34ycrwm0ax",
       "person2Id": "pmo35a6zz26rc"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmni0aw63vtas",
+      "childId": "pmo49w9tiqty7"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmni0dr4npt6r",
+      "childId": "pmo49w9tiqty7"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrl4b8j",
+      "childId": "pmo4a1a67tuyw"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo357kjbhmd5",
+      "childId": "pmo4a1a67tuyw"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrdz5uf",
+      "childId": "pmo4a26jk7k5x"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo353ouw5u1k",
+      "childId": "pmo4a26jk7k5x"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmo4abxn5ihq5"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmo4abxn5ihq5"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmo4acfl57fx5"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmo4acfl57fx5"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo2vxafahz",
+      "childId": "pmo4adrr9bkk1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndo3i84yw8g",
+      "childId": "pmo4adrr9bkk1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyxhre0zi1",
+      "childId": "pmo4ahx86c7rh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyy6j6wndl",
+      "childId": "pmo4ahx86c7rh"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo4acfl57fx5",
+      "person2Id": "pmni0d7t9876w"
     }
   ],
-  "_version": 1776510389360
+  "_version": 1776515332494
 };
 // __START_DATA_END__
 
@@ -5434,8 +5725,8 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 9;
-const FORCE_RESET_VERSION = 9; // Bij deze versie: volledige reset van localStorage
+const DATA_VERSION = 11;
+const FORCE_RESET_VERSION = 11; // Bij deze versie: volledige reset van localStorage
 
 function saveState() {
   try {
