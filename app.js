@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v495';
+const APP_VERSION = 'v496';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11087,10 +11087,22 @@ function computeLayout(overrideIds, headId) {
     {
       const pcStep = NODE_W + H_GAP;
       const partnerRels = state.relationships.filter(r => r.type === 'partner');
+      // Bouw map: persoon → aantal partners op zelfde Y rij
+      // Bij multi-partner (2+) is de MULTI-PARTNER LAYOUT al gerund en heeft de
+      // partners correct als [P_links][Person][P_rechts] geplaatst. Skip deze
+      // partner-relaties — anders verstoort POST-COMPACT die volgorde.
+      const multiPartnerCenters = new Set();
+      Object.keys(pos).forEach(id => {
+        const samerow = (partnersOf[id] || []).filter(pid =>
+          pos[pid] && Math.abs(pos[pid].y - pos[id].y) < NODE_H);
+        if (samerow.length >= 2) multiPartnerCenters.add(id);
+      });
       partnerRels.forEach(rel => {
         const p1 = rel.person1Id, p2 = rel.person2Id;
         if (!pos[p1] || !pos[p2]) return;
         if (Math.abs(pos[p1].y - pos[p2].y) >= NODE_H) return;
+        // Skip als één van beide een multi-partner center is
+        if (multiPartnerCenters.has(p1) || multiPartnerCenters.has(p2)) return;
         const dist = Math.abs(pos[p1].x - pos[p2].x);
         if (dist <= pcStep + 5) return;
 
