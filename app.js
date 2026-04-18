@@ -17029,47 +17029,46 @@ async function downloadPDF() {
   const treeW = parseFloat(canvas.style.width) || 800;
   const treeH = parseFloat(canvas.style.height) || 600;
 
-  // Papierformaten (landscape, in mm)
-  const PAPERS = [
-    { name: 'A4', w: 297, h: 210 },
-    { name: 'A3', w: 420, h: 297 },
-    { name: 'A2', w: 594, h: 420 },
-    { name: 'A1', w: 841, h: 594 },
-    { name: 'A0', w: 1189, h: 841 },
-  ];
-
-  const MARGIN_MM = 10;
+  // ── Eén-pagina PDF op maat ──
+  // Maak één PDF-pagina met afmetingen die exact de hele boom bevatten,
+  // zodat PDF-viewers (Adobe, Chrome, Preview) er gewoon in kunnen scrollen
+  // i.p.v. de boom opgesplitst over meerdere pagina's.
+  const MARGIN_MM = 12;
   const MM_TO_PX = 96 / 25.4;
-  const MIN_SCALE = 0.30;
+  // Render-scale voor html2canvas (1 = 96 DPI, 1.5 = 144 DPI). Hoger = scherper PDF
+  // maar grotere file. Bij grote bomen krimpen we de scale om te voorkomen dat de
+  // canvas te groot wordt (browsers cappen rond 16384 px en ~268 megapixels).
+  const MAX_CANVAS_DIM = 14000; // veilige bovengrens per dimensie
+  const MAX_CANVAS_AREA = 200_000_000; // ~200 megapixels veilig
+  let RENDER_SCALE = 1.5;
+  const dimScale = Math.min(MAX_CANVAS_DIM / treeW, MAX_CANVAS_DIM / treeH);
+  const areaScale = Math.sqrt(MAX_CANVAS_AREA / (treeW * treeH));
+  RENDER_SCALE = Math.max(0.5, Math.min(RENDER_SCALE, dimScale, areaScale));
 
-  // Kies kleinste papierformaat waar tekst leesbaar blijft
-  let selectedPaper = null;
-  let bestScale = 0;
-  for (const paper of PAPERS) {
-    const printW = (paper.w - 2 * MARGIN_MM) * MM_TO_PX;
-    const printH = (paper.h - 2 * MARGIN_MM) * MM_TO_PX;
-    const scale = Math.min(printW / treeW, printH / treeH);
-    if (scale >= MIN_SCALE) {
-      selectedPaper = paper;
-      bestScale = scale;
-      break;
-    }
-  }
+  // Boom-afmetingen omrekenen naar mm + paginamarges erbij
+  const treeWmm = treeW / MM_TO_PX;
+  const treeHmm = treeH / MM_TO_PX;
+  const pageWmm = treeWmm + 2 * MARGIN_MM;
+  // Extra ruimte onderaan voor footer (titel/datum)
+  const FOOTER_MM = 10;
+  const pageHmm = treeHmm + 2 * MARGIN_MM + FOOTER_MM;
 
-  // Fallback: multi-page als zelfs A0 te klein is
-  if (!selectedPaper) {
+  // jsPDF heeft geen technische bovengrens voor pagina-afmetingen, maar erg grote
+  // pagina's kunnen sommige viewers traag maken. Bij gigantische bomen vallen we
+  // terug op multi-page tegelmodus.
+  const MAX_PAGE_DIM_MM = 5000;
+  if (pageWmm > MAX_PAGE_DIM_MM || pageHmm > MAX_PAGE_DIM_MM) {
     return downloadPDFMultiPage(treeW, treeH);
   }
 
-  // Maak offscreen clone voor capture
-  const clone = prepareClone(canvas, bestScale);
+  // Maak offscreen clone op 1:1 schaal (geen krimp — boom blijft scherp)
+  const clone = prepareClone(canvas, 1);
   document.body.appendChild(clone);
 
   try {
-    // Capture cards (html2canvas)
-    const renderScale = Math.min(2, 16000 / Math.max(treeW, treeH));
+    // Capture met html2canvas
     const cardsCanvas = await html2canvas(clone, {
-      scale: renderScale,
+      scale: RENDER_SCALE,
       backgroundColor: '#f1f5f9',
       useCORS: true,
       logging: false,
@@ -17077,32 +17076,30 @@ async function downloadPDF() {
       height: treeH,
     });
 
-    // Teken SVG-lijnen eroverheen
-    await compositeSVGOnCanvas(cardsCanvas, clone, treeW, treeH, renderScale);
+    // SVG-lijnen eroverheen tekenen
+    await compositeSVGOnCanvas(cardsCanvas, clone, treeW, treeH, RENDER_SCALE);
 
-    // Maak PDF
+    // Bepaal landscape vs portrait op basis van afmetingen
+    const orientation = pageWmm >= pageHmm ? 'landscape' : 'portrait';
     const pdf = new jsPDF({
-      orientation: 'landscape',
+      orientation,
       unit: 'mm',
-      format: [selectedPaper.w, selectedPaper.h],
+      format: [pageWmm, pageHmm],
+      compress: true,
     });
 
     const imgData = cardsCanvas.toDataURL('image/jpeg', 0.92);
-    const imgWmm = (treeW * bestScale) / MM_TO_PX;
-    const imgHmm = (treeH * bestScale) / MM_TO_PX;
-    const offsetX = (selectedPaper.w - imgWmm) / 2;
-    const offsetY = (selectedPaper.h - imgHmm) / 2;
-
-    pdf.addImage(imgData, 'JPEG', offsetX, offsetY, imgWmm, imgHmm);
+    pdf.addImage(imgData, 'JPEG', MARGIN_MM, MARGIN_MM, treeWmm, treeHmm);
 
     // Footer
-    pdf.setFontSize(8);
+    pdf.setFontSize(9);
     pdf.setTextColor(100);
     const title = document.querySelector('.tree-item.active .tree-label');
     const titleText = title ? title.textContent : 'Familie Stamboom';
-    pdf.text(titleText, MARGIN_MM, selectedPaper.h - 5);
-    pdf.text(new Date().toLocaleDateString('nl-NL'), selectedPaper.w - MARGIN_MM, selectedPaper.h - 5, { align: 'right' });
-    pdf.text(selectedPaper.name + ' landscape', selectedPaper.w / 2, selectedPaper.h - 5, { align: 'center' });
+    const footerY = pageHmm - 4;
+    pdf.text(titleText, MARGIN_MM, footerY);
+    pdf.text(new Date().toLocaleDateString('nl-NL'), pageWmm - MARGIN_MM, footerY, { align: 'right' });
+    pdf.text(`${Math.round(pageWmm)}×${Math.round(pageHmm)} mm`, pageWmm / 2, footerY, { align: 'center' });
 
     pdf.save(`stamboom_${new Date().toISOString().slice(0, 10)}.pdf`);
   } finally {
