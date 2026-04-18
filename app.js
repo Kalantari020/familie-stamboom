@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v497';
+const APP_VERSION = 'v498';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -14885,8 +14885,10 @@ function computeLayout(overrideIds, headId) {
       const cMinX = Math.min(...sameRow.map(id => pos[id].x));
       const cMaxR = Math.max(...sameRow.map(id => pos[id].x)) + NODE_W;
       const cCenter = (cMinX + cMaxR) / 2;
-      // Alleen shiften als ouders dichtbij in Y (niet bv. cross-block)
-      if (Math.abs(pos[cids[0]].y - pys[0]) > 3 * (NODE_H + V_GAP)) return;
+      // Alleen shiften als ouders binnen redelijke Y-afstand (niet cross-block)
+      // 5 Y_STEPS = 950px is genoeg voor kinderen die 2 generaties dieper liggen
+      // door layout-distributie (bijv. Davud's kids op Y=944 met Davud op Y=284)
+      if (Math.abs(pos[cids[0]].y - pys[0]) > 5 * (NODE_H + V_GAP)) return;
       const dx = pCenter - cCenter;
       if (Math.abs(dx) < 3) return;
       // Clamp tegen andere kaarten op kids-rij
