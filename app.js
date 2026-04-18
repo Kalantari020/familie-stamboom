@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v490';
+const APP_VERSION = 'v491';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -907,7 +907,10 @@ const START_DATA = {
       "birthdate": "30-04-2007",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 3,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmwy22inp5",
@@ -917,7 +920,10 @@ const START_DATA = {
       "birthdate": "24-04-2009",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 4,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndmxo0wy25u",
@@ -927,7 +933,10 @@ const START_DATA = {
       "birthdate": "27-06-2014",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 5,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndn04a6kp3h",
@@ -937,7 +946,10 @@ const START_DATA = {
       "birthdate": "25-05-2017",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 6,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndn0xa5x3gg",
@@ -947,7 +959,10 @@ const START_DATA = {
       "birthdate": "02-02-2021",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 7,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndn2984pmss",
@@ -996,7 +1011,10 @@ const START_DATA = {
       "birthdate": "24-11-2001",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 2,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndn7m9expkq",
@@ -1251,7 +1269,10 @@ const START_DATA = {
       "birthdate": "",
       "deathdate": "",
       "notes": "",
-      "deceased": false
+      "deceased": false,
+      "photo": null,
+      "birthOrder": 1,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyhcgqdpb9",
@@ -1303,50 +1324,54 @@ const START_DATA = {
     {
       "id": "pmndyjcripek7",
       "name": "Muqadas",
-      "gender": "m",
+      "gender": "f",
       "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 5
+      "birthOrder": 5,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyjcrjsvwo",
       "name": "Marwa",
-      "gender": "m",
+      "gender": "f",
       "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 6
+      "birthOrder": 6,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyjcrkl9zf",
       "name": "Safya",
-      "gender": "m",
+      "gender": "f",
       "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 7
+      "birthOrder": 7,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyjcrl3njh",
       "name": "Humairah",
-      "gender": "m",
+      "gender": "f",
       "family": "Salehi",
       "birthdate": "",
       "deathdate": "",
       "notes": "",
       "deceased": false,
       "photo": null,
-      "birthOrder": 8
+      "birthOrder": 8,
+      "socialBirthOrder": null
     },
     {
       "id": "pmndyrysy3eq7",
@@ -2718,6 +2743,451 @@ const START_DATA = {
       "notes": "",
       "deceased": false,
       "birthOrder": 5,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo007gyaqm2k",
+      "name": "Aqsa Hanifa",
+      "gender": "f",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo0h2kl0159h",
+      "name": "Fahim",
+      "gender": "m",
+      "family": "Salehi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34v17r5l0j",
+      "name": "Rabia Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycr3rguf",
+      "name": "Ayoub Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycr7lser",
+      "name": "Nawaab Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycrdz5uf",
+      "name": "Zavar Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycrhfbhs",
+      "name": "Spogme Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 4,
+      "socialBirthOrder": null,
+      "photo": null
+    },
+    {
+      "id": "pmo34ycrl4b8j",
+      "name": "Store",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 5,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycrplrzh",
+      "name": "Mohabbat",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 6,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34ycrwm0ax",
+      "name": "Hejrat",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 7,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo34z25i1fky",
+      "name": "Nazifa Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350x9zbuxz",
+      "name": "Mashal Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350xa4any3",
+      "name": "Maiwand Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350xa8twge",
+      "name": "Morsal Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350xacwuzv",
+      "name": "Yousuf Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 4,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350xag72uv",
+      "name": "Ashraf Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 5,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo350xaj9g7p",
+      "name": "Momina Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 6,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo351h5beg9f",
+      "name": "Samira Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo352v2f85e1",
+      "name": "Hadya Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo352v2m7cyp",
+      "name": "Madinah Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo352v2qd6mg",
+      "name": "Sanna Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo352v2v4165",
+      "name": "Ismail Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 4,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo352v30t7ge",
+      "name": "Yousra Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 5,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo353ouw5u1k",
+      "name": "Azima",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo354mcnbz26",
+      "name": "Sulaiman Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo354mcujmgy",
+      "name": "Zainab Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo354mczv982",
+      "name": "Marwa Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 3,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo3552jz6uwr",
+      "name": "Khaybar",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo3561dkcpxd",
+      "name": "Zikria",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo3561dq8ahj",
+      "name": "Mariam",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo357kjbhmd5",
+      "name": "Zavar",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo358jhjmb83",
+      "name": "Burhan Rashid",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo358jhpzptz",
+      "name": "Kawsar Rashid",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo358vl3n6yf",
+      "name": "Didar",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo359q5jrkg1",
+      "name": "Mujda",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 1,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo359q5q3jz9",
+      "name": "Osman",
+      "gender": "m",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": 2,
+      "socialBirthOrder": null
+    },
+    {
+      "id": "pmo35a6zz26rc",
+      "name": "Lina",
+      "gender": "f",
+      "family": "Ghorbandi",
+      "birthdate": "",
+      "deathdate": "",
+      "notes": "",
+      "deceased": false,
+      "birthOrder": null,
       "socialBirthOrder": null
     }
   ],
@@ -4621,9 +5091,334 @@ const START_DATA = {
       "type": "parent-child",
       "parentId": "pmni0s7etwzn0",
       "childId": "pmni14pyai87w"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndydlr61are",
+      "childId": "pmo007gyaqm2k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmndyeaduhd1o",
+      "childId": "pmo007gyaqm2k"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmndyjcripek7",
+      "person2Id": "pmo0h2kl0159h"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmneq7p4ss5hl",
+      "person2Id": "pmo34v17r5l0j"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycr3rguf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycr3rguf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycr7lser"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycr7lser"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycrdz5uf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycrdz5uf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycrhfbhs"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycrhfbhs"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycrl4b8j"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycrl4b8j"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycrplrzh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycrplrzh"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmneq7p4ss5hl",
+      "childId": "pmo34ycrwm0ax"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34v17r5l0j",
+      "childId": "pmo34ycrwm0ax"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycr3rguf",
+      "person2Id": "pmo34z25i1fky"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350x9zbuxz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350x9zbuxz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350xa4any3"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350xa4any3"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350xa8twge"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350xa8twge"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350xacwuzv"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350xacwuzv"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350xag72uv"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350xag72uv"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr3rguf",
+      "childId": "pmo350xaj9g7p"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34z25i1fky",
+      "childId": "pmo350xaj9g7p"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycr7lser",
+      "person2Id": "pmo351h5beg9f"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr7lser",
+      "childId": "pmo352v2f85e1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo351h5beg9f",
+      "childId": "pmo352v2f85e1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr7lser",
+      "childId": "pmo352v2m7cyp"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo351h5beg9f",
+      "childId": "pmo352v2m7cyp"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr7lser",
+      "childId": "pmo352v2qd6mg"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo351h5beg9f",
+      "childId": "pmo352v2qd6mg"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr7lser",
+      "childId": "pmo352v2v4165"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo351h5beg9f",
+      "childId": "pmo352v2v4165"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycr7lser",
+      "childId": "pmo352v30t7ge"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo351h5beg9f",
+      "childId": "pmo352v30t7ge"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycrdz5uf",
+      "person2Id": "pmo353ouw5u1k"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrdz5uf",
+      "childId": "pmo354mcnbz26"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo353ouw5u1k",
+      "childId": "pmo354mcnbz26"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrdz5uf",
+      "childId": "pmo354mcujmgy"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo353ouw5u1k",
+      "childId": "pmo354mcujmgy"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrdz5uf",
+      "childId": "pmo354mczv982"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo353ouw5u1k",
+      "childId": "pmo354mczv982"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycrhfbhs",
+      "person2Id": "pmo3552jz6uwr"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrhfbhs",
+      "childId": "pmo3561dkcpxd"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo3552jz6uwr",
+      "childId": "pmo3561dkcpxd"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrhfbhs",
+      "childId": "pmo3561dq8ahj"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo3552jz6uwr",
+      "childId": "pmo3561dq8ahj"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycrl4b8j",
+      "person2Id": "pmo357kjbhmd5"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrl4b8j",
+      "childId": "pmo358jhjmb83"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo357kjbhmd5",
+      "childId": "pmo358jhjmb83"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrl4b8j",
+      "childId": "pmo358jhpzptz"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo357kjbhmd5",
+      "childId": "pmo358jhpzptz"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycrl4b8j",
+      "person2Id": "pmo358vl3n6yf"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrl4b8j",
+      "childId": "pmo359q5jrkg1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo358vl3n6yf",
+      "childId": "pmo359q5jrkg1"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo34ycrl4b8j",
+      "childId": "pmo359q5q3jz9"
+    },
+    {
+      "type": "parent-child",
+      "parentId": "pmo358vl3n6yf",
+      "childId": "pmo359q5q3jz9"
+    },
+    {
+      "type": "partner",
+      "person1Id": "pmo34ycrwm0ax",
+      "person2Id": "pmo35a6zz26rc"
     }
   ],
-  "_version": 20260330020
+  "_version": 1776510389360
 };
 // __START_DATA_END__
 
@@ -4639,8 +5434,8 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ nieuwe personen/relaties toevoegt
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
-const DATA_VERSION = 8;
-const FORCE_RESET_VERSION = 7; // Bij deze versie: volledige reset van localStorage
+const DATA_VERSION = 9;
+const FORCE_RESET_VERSION = 9; // Bij deze versie: volledige reset van localStorage
 
 function saveState() {
   try {
