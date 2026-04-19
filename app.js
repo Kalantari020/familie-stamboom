@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v513';
+const APP_VERSION = 'v515';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -8480,6 +8480,74 @@ function computeLayout(overrideIds, headId) {
     });
   }
 
+  // ===== GENERIC Y-SPACING ENFORCEMENT (Regel 13) =====
+  // Voor alle bomen: minimum Y-gap tussen consecutive kids-rijen = NODE_H + V_GAP = 190px.
+  // Voorkomt dat T-bars (op kidY-15) door kaarten van bovenliggende rij lopen.
+  // Snap eerst Y-rijen die <40px uit elkaar staan (floating-point of T-bar shift)
+  // naar dezelfde Y. Daarna: voor elke gap < 190, push alles eronder naar beneden.
+  // SAFEGUARD: alleen draaien als alle pos.y geldige nummers zijn (geen NaN).
+  {
+    const allPosValues = Object.values(pos).filter(p => p && typeof p.y === 'number' && !isNaN(p.y));
+    const allGhostValues = Object.values(crossFamilyGhosts).filter(g => g && typeof g.y === 'number' && !isNaN(g.y));
+    if (allPosValues.length > 0) {
+      const MIN_Y_GAP = NODE_H + V_GAP; // 190
+      const SNAP_THRESHOLD = 40; // Y-rijen binnen 40px snappen naar zelfde Y
+
+      // Stap 1: SNAP — verzamel alle unieke Y's, snap close-rows naar min Y
+      const allYsRaw = new Set();
+      allPosValues.forEach(p => allYsRaw.add(Math.round(p.y)));
+      allGhostValues.forEach(g => allYsRaw.add(Math.round(g.y)));
+      const sortedRaw = [...allYsRaw].sort((a, b) => a - b);
+      const snapMap = {};
+      let groupStart = sortedRaw[0];
+      sortedRaw.forEach(y => {
+        if (y - groupStart > SNAP_THRESHOLD) groupStart = y;
+        snapMap[y] = groupStart;
+      });
+      allPosValues.forEach(p => {
+        const ry = Math.round(p.y);
+        if (snapMap[ry] !== undefined && snapMap[ry] !== ry) p.y = snapMap[ry];
+      });
+      allGhostValues.forEach(g => {
+        const ry = Math.round(g.y);
+        if (snapMap[ry] !== undefined && snapMap[ry] !== ry) g.y = snapMap[ry];
+      });
+
+      // Stap 2: Y-GAP push — verzamel UPDATED unieke Y's, push als gap < 190
+      const ySet = new Set();
+      allPosValues.forEach(p => ySet.add(Math.round(p.y)));
+      allGhostValues.forEach(g => ySet.add(Math.round(g.y)));
+      const sortedYs = [...ySet].sort((a, b) => a - b);
+
+      let totalShift = 0;
+      const yShiftMap = {};
+      for (let i = 1; i < sortedYs.length; i++) {
+        const prevY = sortedYs[i - 1];
+        const curY = sortedYs[i];
+        const effectivePrevY = prevY + (yShiftMap[prevY] || 0);
+        const effectiveCurY = curY + totalShift;
+        const gap = effectiveCurY - effectivePrevY;
+        if (gap < MIN_Y_GAP) {
+          totalShift += MIN_Y_GAP - gap;
+        }
+        yShiftMap[curY] = totalShift;
+      }
+      if (totalShift > 0) {
+        const applyShift = (rec) => {
+          const origY = Math.round(rec.y);
+          for (let i = sortedYs.length - 1; i >= 0; i--) {
+            if (origY >= sortedYs[i]) {
+              rec.y += yShiftMap[sortedYs[i]] || 0;
+              return;
+            }
+          }
+        };
+        allPosValues.forEach(applyShift);
+        allGhostValues.forEach(applyShift);
+      }
+    }
+  }
+
   // ===== FINALE Y-NORMALISATIE =====
   // Verschuif ALLE nodes zodat de topmost Y exact PADDING is.
   // Voorkomt dat cards op negatieve Y eindigen (boven viewport, niet bereikbaar).
@@ -8496,6 +8564,35 @@ function computeLayout(overrideIds, headId) {
         Object.values(crossFamilyGhosts).forEach(g => { g.y += normShiftY; });
       }
     }
+  }
+
+  // ===== FALLBACK X PLACEMENT BIJ NaN (safety net) =====
+  // Als de pipeline ergens NaN-x produceert (bekende bug bij sommige bomen
+  // met veel descendants), ken alsnog X-waarden toe per generatie zodat de
+  // boom tenminste zichtbaar is (niet perfect gelayout maar leesbaar).
+  {
+    const nanIds = Object.entries(pos).filter(([_, p]) => p && (typeof p.x !== 'number' || isNaN(p.x))).map(([id]) => id);
+    if (nanIds.length > 0) {
+      console.warn('[Layout] NaN x voor ' + nanIds.length + ' personen — fallback placement.');
+      // Group NaN ids by Y, place horizontaal naast elkaar per Y-rij
+      const byY = {};
+      nanIds.forEach(id => {
+        const yKey = (typeof pos[id].y === 'number' && !isNaN(pos[id].y)) ? Math.round(pos[id].y) : 0;
+        if (!byY[yKey]) byY[yKey] = [];
+        byY[yKey].push(id);
+      });
+      Object.entries(byY).forEach(([yStr, ids]) => {
+        ids.forEach((id, i) => {
+          pos[id].x = PADDING + i * (NODE_W + H_GAP);
+          if (typeof pos[id].y !== 'number' || isNaN(pos[id].y)) pos[id].y = PADDING;
+        });
+      });
+    }
+    // Idem voor crossFamilyGhosts
+    Object.values(crossFamilyGhosts).forEach(g => {
+      if (typeof g.x !== 'number' || isNaN(g.x)) g.x = PADDING;
+      if (typeof g.y !== 'number' || isNaN(g.y)) g.y = PADDING;
+    });
   }
 
   // ===== FINALE X-NORMALISATIE =====
