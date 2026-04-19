@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v516';
+const APP_VERSION = 'v517';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10499,13 +10499,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         const barLeftX  = Math.min(...childCXs);
         const barRightX = Math.max(...childCXs);
 
-        // Detecteer of de extended-lijn (dropX → kids cluster) over een ANDERE
-        // T-bar op dezelfde Y heen zou lopen (bijv. multi-vrouwen scenario waar
-        // 2 T-bars op zelfde Y elkaar dreigen te raken). Zo ja: route extended
-        // lijn via een Y-offset (kink omhoog 25px) zodat T-bars visueel duidelijk
-        // gescheiden blijven.
-        const extLineY = midDropY;
-        const KINK_OFFSET = 25;
+        // Multi-vrouwen scenario: als de extended lijn (dropX → kids cluster)
+        // over een ANDERE gezin's T-bar op zelfde Y zou lopen, SKIP de extended
+        // lijn helemaal. De vertical line van couple naar T-bar cluster wordt
+        // diagonaal hierdoor — visueel: 2 T-bars met X-gap ertussen.
         const otherTBarsAtY = (window._renderedTBarZones || []).filter(z =>
           Math.abs(z.y - midDropY) < 5 && z.gezinKey !== data.gezinKey
         );
@@ -10514,22 +10511,18 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
           return otherTBarsAtY.some(z => !(maxX <= z.xMin + 2 || minX >= z.xMax - 2));
         };
 
+        let skipExtended = false;
         if (dropX < barLeftX - 2) {
           if (extOverlapsOther(dropX, barLeftX)) {
-            // Route met kink: omhoog → horizontaal hoger → omlaag
-            const kinkY = midDropY - KINK_OFFSET;
-            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            fgParts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${barLeftX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            parts.push(`<line x1="${barLeftX}" y1="${kinkY}" x2="${barLeftX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
+            skipExtended = true;
+            // Vertical drop gaat naar T-bar cluster center ipv dropX
+            // (zodat lijn de T-bar kan raken, dus geen losse cards)
           } else {
             fgParts.push(drawHLineAvoiding(midDropY, dropX, barLeftX, 'child-line', lpos, familyIds, cAttr));
           }
         } else if (dropX > barRightX + 2) {
           if (extOverlapsOther(barRightX, dropX)) {
-            const kinkY = midDropY - KINK_OFFSET;
-            parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${barRightX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            fgParts.push(`<line x1="${barRightX}" y1="${kinkY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            parts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${dropX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
+            skipExtended = true;
           } else {
             fgParts.push(drawHLineAvoiding(midDropY, barRightX, dropX, 'child-line', lpos, familyIds, cAttr));
           }
@@ -10537,6 +10530,15 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
         if (barRightX - barLeftX > 2) {
           fgParts.push(drawHLineAvoiding(midDropY, barLeftX, barRightX, 'child-line', lpos, familyIds, cAttr));
+        }
+
+        // Als skipExtended: vervang de eerder getekende verticale lijn van couple → midDropY
+        // door een diagonale lijn van couple → cluster center op midDropY
+        if (skipExtended) {
+          // Verwijder de laatste getekende verticale (van couple naar dropX,midDropY)
+          parts.pop();
+          const clusterCenterX = (barLeftX + barRightX) / 2;
+          parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${clusterCenterX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
         }
 
         validChildren.forEach(cid => {
