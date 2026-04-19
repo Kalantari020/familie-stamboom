@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v528';
+const APP_VERSION = 'v529';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9104,8 +9104,8 @@ function computeLayout(overrideIds, headId) {
   // ===== ABSOLUTE FINALE BIRTHORDER Y-REASSIGNMENT =====
   // Run als laatste stap na ALLE pipeline shifts. Garandeert dat kleinkind-rijen
   // op Y-laag-volgorde van head-children's BO eindigen, ongeacht welke vorige
-  // pipeline-stap families dieper trok. Lager BO-nummer = hoger op canvas (kleiner Y).
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7' || headId === 'pmndya3eilyn1') {
+  // pipeline-stap families dieper trok.
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
     const familyGroups = [];
     headChildren.forEach(hcid => {
