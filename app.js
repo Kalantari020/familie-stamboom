@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v517';
+const APP_VERSION = 'v518';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -8595,6 +8595,79 @@ function computeLayout(overrideIds, headId) {
     });
   }
 
+  // ===== MULTI-PARTNER CLUSTER X-GAP =====
+  // Voor heads met meerdere partners (bijv. Agha Gol met Fatema + Gulsherien):
+  // voeg extra X-gap toe tussen de kinderen-clusters van verschillende moeders.
+  // Head row blijft normaal (vrouwen direct naast Agha Gol).
+  // Resultaat: 2 aparte T-bars op zelfde Y met visible X-gap ertussen.
+  {
+    // Helper: krijg alle bio-descendants van een persoon (bereikbaar via parent-child)
+    const getBioDesc = (rootId) => {
+      const result = new Set([rootId]);
+      const queue = [rootId];
+      while (queue.length) {
+        const id = queue.shift();
+        (childrenOf[id] || []).forEach(cid => {
+          if (!result.has(cid) && pos[cid]) { result.add(cid); queue.push(cid); }
+        });
+      }
+      return result;
+    };
+
+    // Vind alle multi-partner heads
+    const processed = new Set();
+    persons.forEach(p => {
+      if (processed.has(p.id)) return;
+      const headId = p.id;
+      if (!pos[headId]) return;
+      const myPartners = (partnersOf[headId] || []).filter(pid =>
+        pos[pid] && genOf[pid] === genOf[headId]
+      );
+      if (myPartners.length < 2) return;
+
+      // Sort partners by current X
+      const sortedPartners = [...myPartners].sort((a, b) => pos[a].x - pos[b].x);
+      const leftP = sortedPartners[0];
+      const rightP = sortedPartners[sortedPartners.length - 1];
+      if (pos[leftP].x >= pos[headId].x || pos[rightP].x <= pos[headId].x) return;
+
+      // Verzamel kids per couple
+      const leftKids = (childrenOf[headId] || []).filter(cid =>
+        pos[cid] && (parentsOf[cid] || []).includes(leftP)
+      );
+      const rightKids = (childrenOf[headId] || []).filter(cid =>
+        pos[cid] && (parentsOf[cid] || []).includes(rightP)
+      );
+      if (leftKids.length === 0 || rightKids.length === 0) return;
+
+      processed.add(headId);
+      sortedPartners.forEach(pid => processed.add(pid));
+
+      // Bepaal cluster boundaries
+      // Right cluster = rightKids + hun inlaws + hun descendants
+      const rightCluster = new Set();
+      rightKids.forEach(kid => {
+        getBioDesc(kid).forEach(id => rightCluster.add(id));
+        (partnersOf[kid] || []).forEach(pid => {
+          if (pos[pid]) {
+            rightCluster.add(pid);
+            // Inlaws hun bio descendants ook
+            getBioDesc(pid).forEach(id => rightCluster.add(id));
+          }
+        });
+      });
+
+      // Bereken huidige rightCluster minX (zou direct na leftCluster end zijn)
+      const rightMinX = Math.min(...[...rightCluster].filter(id => pos[id]).map(id => pos[id].x));
+
+      // Shift right cluster naar rechts om visible gap te creëren
+      const EXTRA_GAP = NODE_W + H_GAP; // 230px extra (= 1 normale slot)
+      rightCluster.forEach(id => {
+        if (pos[id]) pos[id].x += EXTRA_GAP;
+      });
+    });
+  }
+
   // ===== FINALE X-NORMALISATIE =====
   // Verschuif ALLE nodes zodat de leftmost X exact PADDING is.
   // Zo begint elke boom links in beeld (geen onnodig wit/scrollen naar rechts).
@@ -10278,8 +10351,13 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
             dropX = (eCX(closeParent) + ghostCX) / 2;
             dropY = Math.max(eBotY(closeParent), ghostPos.y + NODE_H);
           } else {
-            dropX = eCX(closeParent);
-            dropY = eBotY(closeParent);
+            // GEEN ghost: neem couple center (midpoint van de 2 parents).
+            // Voor multi-partner heads (Agha Gol-Fatema, Agha Gol-Gulsherien)
+            // staat de couple center boven de kinder-cluster.
+            const cx0 = eCX(validParents[0]);
+            const cx1 = eCX(validParents[1]);
+            dropX = (cx0 + cx1) / 2;
+            dropY = Math.max(eBotY(validParents[0]), eBotY(validParents[1]));
           }
         } else {
           const parentCXs = validParents.map(pid => eCX(pid));
@@ -10397,16 +10475,12 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     }
 
     // ── Fase 1.5: PRE-COLLECT T-bar zones voor multi-vrouwen overlap detectie ──
-    // Voor elke gezin: de hoofd T-bar X-range (linkste kind tot rechtste kind)
-    // op midDropY. Wordt gebruikt in Fase 2 om extended-lijn (dropX → cluster)
-    // om te leiden via Y-kink wanneer de extended lijn over ANDER gezin's T-bar loopt.
     if (!window._renderedTBarZones) window._renderedTBarZones = [];
     tbarData.forEach(data => {
       if (!data.validChildren?.length) return;
       const cxs = data.validChildren.map(cid => lcx(cid));
       const xMin = Math.min(...cxs);
       const xMax = Math.max(...cxs);
-      // Voor distant clusters: voeg ook dropX in (de hoofdbalk loopt van min(dropX, kids) tot max)
       const finalMin = data.hasDistantClusters ? Math.min(xMin, data.dropX) : xMin;
       const finalMax = data.hasDistantClusters ? Math.max(xMax, data.dropX) : xMax;
       window._renderedTBarZones.push({ y: data.midDropY, xMin: finalMin, xMax: finalMax, gezinKey: data.gezinKey });
@@ -10499,10 +10573,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         const barLeftX  = Math.min(...childCXs);
         const barRightX = Math.max(...childCXs);
 
-        // Multi-vrouwen scenario: als de extended lijn (dropX → kids cluster)
-        // over een ANDERE gezin's T-bar op zelfde Y zou lopen, SKIP de extended
-        // lijn helemaal. De vertical line van couple naar T-bar cluster wordt
-        // diagonaal hierdoor — visueel: 2 T-bars met X-gap ertussen.
+        // Detecteer of de extended-lijn (dropX → cluster) over een ANDERE
+        // gezin's T-bar op zelfde Y zou lopen (multi-vrouwen scenario).
+        // Zo ja: route via een Y-kink (omhoog 25px) zodat lijn niet door
+        // Fatema's T-bar gaat.
         const otherTBarsAtY = (window._renderedTBarZones || []).filter(z =>
           Math.abs(z.y - midDropY) < 5 && z.gezinKey !== data.gezinKey
         );
@@ -10510,19 +10584,26 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
           const minX = Math.min(xA, xB), maxX = Math.max(xA, xB);
           return otherTBarsAtY.some(z => !(maxX <= z.xMin + 2 || minX >= z.xMax - 2));
         };
+        const KINK_OFFSET = 25;
 
-        let skipExtended = false;
         if (dropX < barLeftX - 2) {
           if (extOverlapsOther(dropX, barLeftX)) {
-            skipExtended = true;
-            // Vertical drop gaat naar T-bar cluster center ipv dropX
-            // (zodat lijn de T-bar kan raken, dus geen losse cards)
+            // Kink-routing: vertical OMHOOG → horizontaal hoger → vertical OMLAAG
+            const kinkY = midDropY - KINK_OFFSET;
+            // De main vertical drop ging al van couple naar midDropY. Verleng iets
+            // omhoog vanaf midDropY naar kinkY:
+            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
+            fgParts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${barLeftX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
+            parts.push(`<line x1="${barLeftX}" y1="${kinkY}" x2="${barLeftX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
           } else {
             fgParts.push(drawHLineAvoiding(midDropY, dropX, barLeftX, 'child-line', lpos, familyIds, cAttr));
           }
         } else if (dropX > barRightX + 2) {
           if (extOverlapsOther(barRightX, dropX)) {
-            skipExtended = true;
+            const kinkY = midDropY - KINK_OFFSET;
+            parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${barRightX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
+            fgParts.push(`<line x1="${barRightX}" y1="${kinkY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
+            parts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${dropX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
           } else {
             fgParts.push(drawHLineAvoiding(midDropY, barRightX, dropX, 'child-line', lpos, familyIds, cAttr));
           }
@@ -10530,15 +10611,6 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
         if (barRightX - barLeftX > 2) {
           fgParts.push(drawHLineAvoiding(midDropY, barLeftX, barRightX, 'child-line', lpos, familyIds, cAttr));
-        }
-
-        // Als skipExtended: vervang de eerder getekende verticale lijn van couple → midDropY
-        // door een diagonale lijn van couple → cluster center op midDropY
-        if (skipExtended) {
-          // Verwijder de laatste getekende verticale (van couple naar dropX,midDropY)
-          parts.pop();
-          const clusterCenterX = (barLeftX + barRightX) / 2;
-          parts.push(`<line x1="${dropX}" y1="${dropY}" x2="${clusterCenterX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
         }
 
         validChildren.forEach(cid => {
