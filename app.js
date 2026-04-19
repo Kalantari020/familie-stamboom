@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v518';
+const APP_VERSION = 'v519';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10573,40 +10573,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
         const barLeftX  = Math.min(...childCXs);
         const barRightX = Math.max(...childCXs);
 
-        // Detecteer of de extended-lijn (dropX → cluster) over een ANDERE
-        // gezin's T-bar op zelfde Y zou lopen (multi-vrouwen scenario).
-        // Zo ja: route via een Y-kink (omhoog 25px) zodat lijn niet door
-        // Fatema's T-bar gaat.
-        const otherTBarsAtY = (window._renderedTBarZones || []).filter(z =>
-          Math.abs(z.y - midDropY) < 5 && z.gezinKey !== data.gezinKey
-        );
-        const extOverlapsOther = (xA, xB) => {
-          const minX = Math.min(xA, xB), maxX = Math.max(xA, xB);
-          return otherTBarsAtY.some(z => !(maxX <= z.xMin + 2 || minX >= z.xMax - 2));
-        };
-        const KINK_OFFSET = 25;
-
         if (dropX < barLeftX - 2) {
-          if (extOverlapsOther(dropX, barLeftX)) {
-            // Kink-routing: vertical OMHOOG → horizontaal hoger → vertical OMLAAG
-            const kinkY = midDropY - KINK_OFFSET;
-            // De main vertical drop ging al van couple naar midDropY. Verleng iets
-            // omhoog vanaf midDropY naar kinkY:
-            parts.push(`<line x1="${dropX}" y1="${midDropY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            fgParts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${barLeftX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            parts.push(`<line x1="${barLeftX}" y1="${kinkY}" x2="${barLeftX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
-          } else {
-            fgParts.push(drawHLineAvoiding(midDropY, dropX, barLeftX, 'child-line', lpos, familyIds, cAttr));
-          }
+          fgParts.push(drawHLineAvoiding(midDropY, dropX, barLeftX, 'child-line', lpos, familyIds, cAttr));
         } else if (dropX > barRightX + 2) {
-          if (extOverlapsOther(barRightX, dropX)) {
-            const kinkY = midDropY - KINK_OFFSET;
-            parts.push(`<line x1="${barRightX}" y1="${midDropY}" x2="${barRightX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            fgParts.push(`<line x1="${barRightX}" y1="${kinkY}" x2="${dropX}" y2="${kinkY}" class="child-line" ${cAttr}/>`);
-            parts.push(`<line x1="${dropX}" y1="${kinkY}" x2="${dropX}" y2="${midDropY}" class="child-line" ${cAttr}/>`);
-          } else {
-            fgParts.push(drawHLineAvoiding(midDropY, barRightX, dropX, 'child-line', lpos, familyIds, cAttr));
-          }
+          fgParts.push(drawHLineAvoiding(midDropY, barRightX, dropX, 'child-line', lpos, familyIds, cAttr));
         }
 
         if (barRightX - barLeftX > 2) {
