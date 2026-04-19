@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v532';
+const APP_VERSION = 'v533';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9961,6 +9961,17 @@ function computeLayout(overrideIds, headId) {
       const numCards = sortedCluster.length;
       const totalW = numCards * NODE_W + (numCards - 1) * H_GAP;
       const startX = coupleCenterX - totalW / 2;
+      // OVERLAP CHECK: zou nieuwe placement met andere cards op zelfde Y botsen?
+      const newRanges = sortedCluster.map((_, i) => ({
+        l: startX + i * (NODE_W + H_GAP),
+        r: startX + i * (NODE_W + H_GAP) + NODE_W
+      }));
+      const blocked = Object.entries(pos).some(([id, p]) => {
+        if (sortedCluster.includes(id)) return false;
+        if (Math.abs(p.y - sharedY) >= NODE_H) return false;
+        return newRanges.some(r => !(p.x + NODE_W <= r.l - H_GAP || p.x >= r.r + H_GAP));
+      });
+      if (blocked) return; // skip merge — zou overlap geven
       sortedCluster.forEach((id, i) => {
         pos[id].x = startX + i * (NODE_W + H_GAP);
         pos[id].y = sharedY;
