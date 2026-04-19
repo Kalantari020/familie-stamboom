@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v519';
+const APP_VERSION = 'v520';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -8595,13 +8595,13 @@ function computeLayout(overrideIds, headId) {
     });
   }
 
-  // ===== MULTI-PARTNER CLUSTER X-GAP =====
+  // ===== MULTI-PARTNER LAYOUT =====
   // Voor heads met meerdere partners (bijv. Agha Gol met Fatema + Gulsherien):
-  // voeg extra X-gap toe tussen de kinderen-clusters van verschillende moeders.
-  // Head row blijft normaal (vrouwen direct naast Agha Gol).
-  // Resultaat: 2 aparte T-bars op zelfde Y met visible X-gap ertussen.
+  // 1. Voeg extra X-gap toe tussen de kinderen-clusters van verschillende moeders
+  // 2. Verplaats head row naar de GAP-area zodat couple-drop net naast elke cluster
+  //    eindigt (T-lijn tussen ouders gaat met korte extended line naar zijn cluster).
   {
-    // Helper: krijg alle bio-descendants van een persoon (bereikbaar via parent-child)
+    // Helper: krijg alle bio-descendants van een persoon
     const getBioDesc = (rootId) => {
       const result = new Set([rootId]);
       const queue = [rootId];
@@ -8614,7 +8614,6 @@ function computeLayout(overrideIds, headId) {
       return result;
     };
 
-    // Vind alle multi-partner heads
     const processed = new Set();
     persons.forEach(p => {
       if (processed.has(p.id)) return;
@@ -8625,13 +8624,11 @@ function computeLayout(overrideIds, headId) {
       );
       if (myPartners.length < 2) return;
 
-      // Sort partners by current X
       const sortedPartners = [...myPartners].sort((a, b) => pos[a].x - pos[b].x);
       const leftP = sortedPartners[0];
       const rightP = sortedPartners[sortedPartners.length - 1];
       if (pos[leftP].x >= pos[headId].x || pos[rightP].x <= pos[headId].x) return;
 
-      // Verzamel kids per couple
       const leftKids = (childrenOf[headId] || []).filter(cid =>
         pos[cid] && (parentsOf[cid] || []).includes(leftP)
       );
@@ -8643,28 +8640,54 @@ function computeLayout(overrideIds, headId) {
       processed.add(headId);
       sortedPartners.forEach(pid => processed.add(pid));
 
-      // Bepaal cluster boundaries
-      // Right cluster = rightKids + hun inlaws + hun descendants
+      // Bepaal LEFT cluster (kids van leftP + inlaws + descendants)
+      const leftCluster = new Set();
+      leftKids.forEach(kid => {
+        getBioDesc(kid).forEach(id => leftCluster.add(id));
+        (partnersOf[kid] || []).forEach(pid => {
+          if (pos[pid]) {
+            leftCluster.add(pid);
+            getBioDesc(pid).forEach(id => leftCluster.add(id));
+          }
+        });
+      });
       const rightCluster = new Set();
       rightKids.forEach(kid => {
         getBioDesc(kid).forEach(id => rightCluster.add(id));
         (partnersOf[kid] || []).forEach(pid => {
           if (pos[pid]) {
             rightCluster.add(pid);
-            // Inlaws hun bio descendants ook
             getBioDesc(pid).forEach(id => rightCluster.add(id));
           }
         });
       });
 
-      // Bereken huidige rightCluster minX (zou direct na leftCluster end zijn)
-      const rightMinX = Math.min(...[...rightCluster].filter(id => pos[id]).map(id => pos[id].x));
-
-      // Shift right cluster naar rechts om visible gap te creëren
-      const EXTRA_GAP = NODE_W + H_GAP; // 230px extra (= 1 normale slot)
+      // Stap 1: shift right cluster naar rechts voor visible gap
+      const EXTRA_GAP = NODE_W + H_GAP; // 230
       rightCluster.forEach(id => {
         if (pos[id]) pos[id].x += EXTRA_GAP;
       });
+
+      // Stap 2: verplaats head row (Fatema, Agha Gol, Gulsherien) naar GAP center
+      // tussen left cluster end en right cluster start.
+      const leftClusterMaxX = Math.max(...[...leftCluster].filter(id => pos[id]).map(id => pos[id].x + NODE_W));
+      const rightClusterMinX = Math.min(...[...rightCluster].filter(id => pos[id]).map(id => pos[id].x));
+      const gapCenter = (leftClusterMaxX + rightClusterMinX) / 2;
+
+      // Plaats head row gecentreerd op gapCenter
+      // Volgorde: leftP - head - rightP (3 cards), totaal width = 3*NODE_W + 2*H_GAP = 640
+      const totalHeadW = 3 * NODE_W + 2 * H_GAP;
+      const headRowStartX = gapCenter - totalHeadW / 2;
+
+      const oldLeftX = pos[leftP].x;
+      const oldHeadX = pos[headId].x;
+      const oldRightX = pos[rightP].x;
+      const newLeftX = headRowStartX;
+      const newHeadX = headRowStartX + NODE_W + H_GAP;
+      const newRightX = headRowStartX + 2 * (NODE_W + H_GAP);
+      pos[leftP].x = newLeftX;
+      pos[headId].x = newHeadX;
+      pos[rightP].x = newRightX;
     });
   }
 
