@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v521';
+const APP_VERSION = 'v523';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -6012,8 +6012,11 @@ function computeLayout(overrideIds, headId) {
         // (zou Y-LEVEL SPACING triggeren en boom groter maken)
         // Gebruik originalYLevels (vóór Y-PROXIMITY) zodat cascade-gecreëerde
         // Y-niveaus (bijv. y=945) latere groepen niet blokkeren
+        // tooCloseToExisting: skip levels die te dicht bij ander Y-niveau zitten.
+        // BUG-FIX: minimum-afstand 5px (was 0px) — voorkomt dat 648/649 (1px apart)
+        // elkaar wederzijds blokkeren bij snap-candidates.
         const tooCloseToExisting = originalYLevels.some(uy =>
-          Math.abs(uy - tryY) > 0 && Math.abs(uy - tryY) < MIN_Y_STEP_YP);
+          Math.abs(uy - tryY) > 5 && Math.abs(uy - tryY) < MIN_Y_STEP_YP);
         if (tooCloseToExisting) {
           continue;
         }
@@ -8688,6 +8691,112 @@ function computeLayout(overrideIds, headId) {
       pos[leftP].x = newLeftX;
       pos[headId].x = newHeadX;
       pos[rightP].x = newRightX;
+    });
+  }
+
+  // ===== POST-PIPELINE: SHORT T-LINES =====
+  // Pull up leaf-children (geen descendants) die >2 Y_STEP onder hun ouders
+  // staan, naar de dichtstbijzijnde Y-level boven hen MET HORIZONTALE RUIMTE.
+  // Bijv. Mumin/Milad in Ahmad Saidi: parents Y=268, kids Y=1134, ideale Y=458.
+  // Andere gen=2 zit op Y=458/648/649. Pull naar Y=648 of 649 (eerste passend).
+  {
+    const Y_STEP = NODE_H + V_GAP; // 190
+    const TOO_DEEP_THRESHOLD = Y_STEP * 1.8; // > 342
+    // Helper
+    const isLeaf = id => !(childrenOf[id] || []).some(cid => pos[cid]);
+
+    // Group children by parent set
+    const grpsByParent = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!pos[r.childId]) return;
+      const parents = state.relationships
+        .filter(rel => rel.type === 'parent-child' && rel.childId === r.childId && pos[rel.parentId])
+        .map(rel => rel.parentId).sort();
+      if (!parents.length) return;
+      const key = parents.join(',');
+      if (!grpsByParent[key]) grpsByParent[key] = { parents, children: new Set() };
+      grpsByParent[key].children.add(r.childId);
+    });
+
+    Object.values(grpsByParent).forEach(({ parents, children }) => {
+      const cids = [...children].filter(id => pos[id] && isLeaf(id));
+      if (!cids.length) return;
+      const parentY = Math.max(...parents.map(pid => pos[pid].y));
+      const cY = pos[cids[0]].y;
+      if (cY - parentY < TOO_DEEP_THRESHOLD) return; // niet te diep
+
+      // Verzamel slots: kids + inlaws van kids
+      const slots = [];
+      cids.forEach(cid => {
+        slots.push(cid);
+        (partnersOf[cid] || []).forEach(pid => {
+          if (pos[pid] && !(parentsOf[pid] || []).some(p => pos[p])) {
+            slots.push(pid);
+          }
+        });
+      });
+      const slotsSet = new Set(slots);
+      const needW = slots.length * NODE_W + (slots.length - 1) * H_GAP;
+      const pCX = parents.reduce((s, pid) => s + pos[pid].x + NODE_W / 2, 0) / parents.length;
+
+      // Vind beschikbare Y-levels boven huidige Y (Y >= parentY + Y_STEP)
+      const allYs = [...new Set(Object.values(pos).map(p => Math.round(p.y)))]
+        .filter(y => y >= parentY + Y_STEP - 5 && y < cY - 5)
+        .sort((a, b) => a - b);
+
+      for (const tryY of allYs) {
+        // Bezette intervallen op dit Y
+        const occupied = [];
+        for (const nid of Object.keys(pos)) {
+          if (slotsSet.has(nid) || !pos[nid]) continue;
+          if (Math.abs(pos[nid].y - tryY) >= NODE_H) continue;
+          occupied.push({ l: pos[nid].x - H_GAP, r: pos[nid].x + NODE_W + H_GAP });
+        }
+        Object.values(crossFamilyGhosts).forEach(gh => {
+          if (Math.abs(gh.y - tryY) >= NODE_H) return;
+          occupied.push({ l: gh.x - H_GAP, r: gh.x + NODE_W + H_GAP });
+        });
+        occupied.sort((a, b) => a.l - b.l);
+        const merged = [];
+        occupied.forEach(o => {
+          if (merged.length && o.l <= merged[merged.length - 1].r) {
+            merged[merged.length - 1].r = Math.max(merged[merged.length - 1].r, o.r);
+          } else {
+            merged.push({ ...o });
+          }
+        });
+        // Vind grootste vrije gat dat needW bevat
+        const candidates = [];
+        if (!merged.length) {
+          candidates.push({ l: PADDING, r: Infinity });
+        } else {
+          if (merged[0].l - PADDING >= needW) candidates.push({ l: PADDING, r: merged[0].l });
+          for (let i = 0; i < merged.length - 1; i++) {
+            if (merged[i + 1].l - merged[i].r >= needW) candidates.push({ l: merged[i].r, r: merged[i + 1].l });
+          }
+          candidates.push({ l: merged[merged.length - 1].r, r: Infinity });
+        }
+        let bestX = null, bestDist = Infinity;
+        candidates.forEach(g => {
+          const idealX = pCX - needW / 2;
+          const clampedX = g.r === Infinity
+            ? Math.max(g.l, idealX)
+            : Math.max(g.l, Math.min(idealX, g.r - needW));
+          const centerX = clampedX + needW / 2;
+          const dist = Math.abs(centerX - pCX);
+          if (dist < bestDist) { bestDist = dist; bestX = clampedX; }
+        });
+        if (bestX === null) continue;
+        // Plaats slots op tryY
+        let curX = bestX;
+        slots.forEach(sid => {
+          pos[sid].x = curX;
+          pos[sid].y = tryY;
+          curX += NODE_W + H_GAP;
+        });
+        return; // klaar voor deze groep
+      }
     });
   }
 
