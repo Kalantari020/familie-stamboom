@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v529';
+const APP_VERSION = 'v530';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9905,6 +9905,61 @@ function computeLayout(overrideIds, headId) {
         }
       }
     }
+  }
+
+  // ===== ABSOLUTE LAATSTE: T-LINE MIN LENGTH =====
+  // Voor elke leaf-children groep: als T-lijn (parent → kid) korter is dan
+  // 1.5 * Y_STEP (= 285px), push de kids een halve Y_STEP omlaag (95px) zodat
+  // er meer ruimte is tussen ouders en kinderen. Voorkomt dat Azghar-stijl
+  // groepen TE strak onder hun ouders staan terwijl andere groepen ver weg zijn.
+  // Skip head's eigen kinderen (gen=1).
+  {
+    const Y_STEP = NODE_H + V_GAP; // 190
+    const MIN_T_LENGTH = Math.round(Y_STEP * 1.5); // 285
+    const isLeaf = id => !(childrenOf[id] || []).some(cid => pos[cid]);
+    const minTreeY = Math.min(...Object.values(pos).map(p => p.y));
+
+    const grpsByParent = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child' || !pos[r.childId]) return;
+      const parents = state.relationships
+        .filter(rel => rel.type === 'parent-child' && rel.childId === r.childId && pos[rel.parentId])
+        .map(rel => rel.parentId).sort();
+      if (!parents.length) return;
+      const key = parents.join(',');
+      if (!grpsByParent[key]) grpsByParent[key] = { parents, children: new Set() };
+      grpsByParent[key].children.add(r.childId);
+    });
+
+    Object.values(grpsByParent).forEach(({ parents, children }) => {
+      const cids = [...children].filter(id => pos[id] && isLeaf(id));
+      if (!cids.length) return;
+      const parentY = Math.max(...parents.map(pid => pos[pid].y));
+      // Skip head's kids (parents op head row)
+      if (parentY <= minTreeY + 50) return;
+      const currentY = pos[cids[0]].y;
+      const tLength = currentY - parentY;
+      if (tLength >= MIN_T_LENGTH - 5) return; // al lang genoeg
+
+      const targetY = parentY + MIN_T_LENGTH;
+      // Verzamel cluster (kids + inlaws op zelfde Y)
+      const cluster = new Set(cids);
+      cids.forEach(cid => {
+        (partnersOf[cid] || []).forEach(pid => {
+          if (pos[pid] && Math.abs(pos[pid].y - currentY) < 5 &&
+              !(parentsOf[pid] || []).some(p => pos[p])) cluster.add(pid);
+        });
+      });
+      // Check overlap met cards op targetY (excl. cluster zelf)
+      const ranges = [...cluster].map(id => ({l: pos[id].x, r: pos[id].x + NODE_W}));
+      const blocked = Object.entries(pos).some(([id, p]) => {
+        if (cluster.has(id)) return false;
+        if (Math.abs(p.y - targetY) >= NODE_H) return false;
+        return ranges.some(r => !(p.x + NODE_W <= r.l - H_GAP || p.x >= r.r + H_GAP));
+      });
+      if (blocked) return;
+      cluster.forEach(id => { pos[id].y = targetY; });
+    });
   }
 
   return { pos, crossFamilyGhosts, cousinChildReferences };
