@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v589';
+const APP_VERSION = 'v590';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -265,7 +265,7 @@ const DATA_VERSION_KEY = 'fb_data_version';
 //   ✅ relaties verwijdert die niet meer in START_DATA staan
 //   ✅ door gebruiker toegevoegde personen/relaties behoudt
 const DATA_VERSION = 101;
-const FORCE_RESET_VERSION = 15; // Bij deze versie: volledige reset van localStorage
+const FORCE_RESET_VERSION = 100; // Bij deze versie: volledige reset van localStorage
 
 function saveState() {
   try {
@@ -9081,9 +9081,10 @@ function computeLayout(overrideIds, headId) {
   // die head-child's eigen tree, OVERSCHRIJF zijn descendant posities met die uit
   // de snapshot (met X/Y offset zodat hij past in Mahmadgul context).
   // Resultaat: visueel identiek aan elke individueel goedgekeurde sub-stamboom.
-  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') && typeof window !== 'undefined' && window._loadedSnapshots) {
+  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7' || headId === 'pmni0mtna5vxw') && typeof window !== 'undefined' && window._loadedSnapshots) {
     const snapshots = window._loadedSnapshots;
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
+
     headChildren.forEach(hcid => {
       const snap = snapshots[hcid];
       if (!snap || !snap.cards) return;
@@ -9392,7 +9393,7 @@ function computeLayout(overrideIds, headId) {
   // ===== ABSOLUTE FINALE SUB-TREE OVERLAY (Mahmadgul) =====
   // STACK sub-trees verticaal per BO. Alleen BIO-descendants van head-child
   // worden geshift (geen cousin-pair ghosts van andere bomen).
-  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') && typeof window !== 'undefined' && window._loadedSnapshots) {
+  if ((headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7' || headId === 'pmni0mtna5vxw') && typeof window !== 'undefined' && window._loadedSnapshots) {
     const snapshots = window._loadedSnapshots;
     const Y_STEP = NODE_H + V_GAP;
     // Helper: is descendant bio van head-child (via parent-child relations)?
@@ -9513,16 +9514,48 @@ function computeLayout(overrideIds, headId) {
         // Geen snapshot beschikbaar: fallback met bio-descendants
         const bioD = getBioDescendants(hcid);
         bioD.delete(hcid);
+        // Neem ook partners van bio-descendants mee (inlaw spouses zoals Zahir bij Gulbushrah)
+        [...bioD].forEach(did => {
+          state.relationships
+            .filter(r => r.type === 'partner' && (r.person1Id === did || r.person2Id === did))
+            .forEach(r => {
+              const pid = r.person1Id === did ? r.person2Id : r.person1Id;
+              if (pos[pid]) bioD.add(pid);
+            });
+        });
         const toShift = [...bioD].filter(id => pos[id] && !visitedAcrossOverlay.has(id));
         if (toShift.length === 0) return;
         const curMinY = Math.min(...toShift.map(id => pos[id].y));
         const curMaxY = Math.max(...toShift.map(id => pos[id].y));
-        const yOffset = nextSubTreeStartY - curMinY;
+        // Voor KLEINE families (≤5 descendants): plaats direct onder head-child
+        // i.p.v. te stacken naar nextSubTreeStartY (=diepe positie)
+        let targetStartY = nextSubTreeStartY;
+        if (toShift.length <= 5) {
+          const headY = pos[hcid] ? pos[hcid].y : 0;
+          const naturalY = headY + Y_STEP; // direct onder head-child
+          // Check of er ruimte is op naturalY (geen andere cards in X-range)
+          // Schuif kids X naar onder hcid om naturalY te checken
+          const headX = pos[hcid] ? pos[hcid].x : 0;
+          const naturalMinX = headX - 100;
+          const naturalMaxX = headX + NODE_W + 100;
+          const blocked = Object.entries(pos).some(([id, p]) => {
+            if (toShift.includes(id) || id === hcid) return false;
+            if (Math.abs(p.y - naturalY) >= NODE_H) return false;
+            return p.x + NODE_W >= naturalMinX - H_GAP && p.x <= naturalMaxX + H_GAP;
+          });
+          if (!blocked) {
+            targetStartY = naturalY;
+          }
+        }
+        const yOffset = targetStartY - curMinY;
         toShift.forEach(id => {
           pos[id].y += yOffset;
           visitedAcrossOverlay.add(id);
         });
-        nextSubTreeStartY = nextSubTreeStartY + (curMaxY - curMinY) + BLOCK_GAP;
+        // Update nextSubTreeStartY alleen als we de stacked positie gebruikten
+        if (targetStartY === nextSubTreeStartY) {
+          nextSubTreeStartY = nextSubTreeStartY + (curMaxY - curMinY) + BLOCK_GAP;
+        }
         return;
       }
       // Snap-head positie: het eigen hcid (gebruik in snapshot van hcid OF partner)
@@ -9666,51 +9699,9 @@ function computeLayout(overrideIds, headId) {
       nextSubTreeStartY = nextSubTreeStartY + (snapMaxY - snapMinY) + BLOCK_GAP;
     });
 
-    // ── POST-OVERLAY SIBLING-Y ALIGNMENT (alleen Sayedahmed) ──
-    // Snapshots kunnen Mina (stepkind) op andere Y plaatsen dan Matiullah/Nasrat
-    // (bio-siblings). Regel 5 stamboom-architect: broers/zussen altijd op zelfde Y.
-    // Groepeer per gemerged ouder-set (incl. stepparents) en align alle Y's
-    // naar laagste Y in de groep. Scoped naar Sayedahmed om Mahmadgul-snapshot
-    // niet te verstoren.
-    if (headId === 'pmndyrysy3eq7') {
-      const sibGroups = {};
-      Object.keys(pos).forEach(cid => {
-        if (!pos[cid] || cid.startsWith(CROSS_GHOST_PREFIX)) return;
-        const bioParents = state.relationships
-          .filter(r => r.type === 'parent-child' && r.childId === cid && pos[r.parentId])
-          .map(r => r.parentId);
-        if (bioParents.length === 0) return;
-        // Voeg stepparents toe (partners van bio parents die ook social parent van cid zijn)
-        const allP = new Set(bioParents);
-        const socialParents = state.relationships
-          .filter(r => r.type === 'social-parent' && r.childId === cid && pos[r.parentId])
-          .map(r => r.parentId);
-        socialParents.forEach(spId => {
-          // Alleen als spId partner is van een bio parent
-          const isStep = bioParents.some(bp => state.relationships.some(rr =>
-            rr.type === 'partner' &&
-            ((rr.person1Id === bp && rr.person2Id === spId) ||
-             (rr.person2Id === bp && rr.person1Id === spId))
-          ));
-          if (isStep) allP.add(spId);
-        });
-        const key = [...allP].sort().join(',');
-        if (!sibGroups[key]) sibGroups[key] = [];
-        sibGroups[key].push(cid);
-      });
-      Object.values(sibGroups).forEach(cids => {
-        if (cids.length < 2) return;
-        // Alleen aligneren als verschillende Y's binnen Y_STEP * 1.5 — voorkomt
-        // dat we cross-block siblings misalign'en
-        const ys = cids.map(id => pos[id].y);
-        const minY = Math.min(...ys);
-        const maxY = Math.max(...ys);
-        if (maxY - minY < 1) return; // al gealigneerd
-        if (maxY - minY > Y_STEP * 1.5) return; // te ver uit elkaar
-        // Align alle siblings naar minY
-        cids.forEach(id => { pos[id].y = minY; });
-      });
-    }
+    // (POST-OVERLAY SIBLING-Y ALIGNMENT verplaatst naar einde van computeLayout
+    // zodat hij ook draait wanneer snapshots niet geladen zijn — zie ABSOLUTE
+    // SIBLING-Y ALIGNMENT verderop)
 
     // Y-NORM na overlay: zorg dat min Y == PADDING
     const allYf = [
@@ -9771,23 +9762,43 @@ function computeLayout(overrideIds, headId) {
       if (Math.abs(pos[cids[0]].y - pys[0]) > 5 * (NODE_H + V_GAP)) return;
       const dx = pCenter - cCenter;
       if (Math.abs(dx) < 3) return;
-      // Clamp tegen andere kaarten op kids-rij
+      // Vind partners van kids op zelfde Y - die moeten meeschuiven
+      // (anders blokkeren ze de centering, bijv. Meraj naast Mona)
+      const partnersOfCids = new Set();
+      sameRow.forEach(cid => {
+        state.relationships.forEach(r => {
+          if (r.type !== 'partner') return;
+          let partnerId = null;
+          if (r.person1Id === cid) partnerId = r.person2Id;
+          if (r.person2Id === cid) partnerId = r.person1Id;
+          if (partnerId && pos[partnerId] && Math.abs(pos[partnerId].y - cRow) < 20) {
+            partnersOfCids.add(partnerId);
+          }
+        });
+      });
+      const allCardsToShift = new Set([...sameRow, ...partnersOfCids]);
+      // Bereken extended cluster bounds (incl. partners) voor clamp
+      const allCardsArr = [...allCardsToShift];
+      const allMinX = Math.min(...allCardsArr.map(id => pos[id].x));
+      const allMaxR = Math.max(...allCardsArr.map(id => pos[id].x)) + NODE_W;
+      // Clamp tegen andere kaarten op kids-rij (excl. kids EN hun partners)
       let minDx = -Infinity, maxDx = Infinity;
-      const cSet = new Set(sameRow);
+      const cSet = allCardsToShift;
       Object.keys(pos).forEach(nid => {
         const p = pos[nid];
         if (!p || cSet.has(nid) || Math.abs(p.y - cRow) >= NODE_H) return;
-        if (p.x + NODE_W <= cMinX) {
-          minDx = Math.max(minDx, p.x + NODE_W + H_GAP - cMinX);
+        if (p.x + NODE_W <= allMinX) {
+          minDx = Math.max(minDx, p.x + NODE_W + H_GAP - allMinX);
         }
-        if (p.x >= cMaxR) {
-          maxDx = Math.min(maxDx, p.x - H_GAP - cMaxR);
+        if (p.x >= allMaxR) {
+          maxDx = Math.min(maxDx, p.x - H_GAP - allMaxR);
         }
       });
       if (minDx > maxDx) return;
       const clamped = Math.max(minDx, Math.min(maxDx, dx));
       if (Math.abs(clamped) < 3) return;
-      sameRow.forEach(id => { pos[id].x += clamped; });
+      // Shift kids + hun partners samen
+      allCardsToShift.forEach(id => { pos[id].x += clamped; });
     });
   }
 
@@ -10006,7 +10017,13 @@ function computeLayout(overrideIds, headId) {
     Object.values(grpsByParent).forEach(({ parents, children }) => {
       const cids = [...children].filter(id => pos[id] && isLeaf(id));
       if (!cids.length) return;
-      const parentY = Math.max(...parents.map(pid => pos[pid].y));
+      // SKIP cousin-pair: als parents in HEEL verschillende Y-blocks staan
+      // (verschil > 2 * Y_STEP), dan is dit een cross-block cousin-pair situatie.
+      // Niet pushen — kids horen bij ÉÉN ouder's block, niet beide.
+      const parentYs = parents.map(pid => pos[pid].y);
+      const parentYRange = Math.max(...parentYs) - Math.min(...parentYs);
+      if (parentYRange > 2 * Y_STEP) return;
+      const parentY = Math.max(...parentYs);
       // Skip head's kids (parents op head row)
       if (parentY <= minTreeY + 50) return;
       const currentY = pos[cids[0]].y;
@@ -10032,6 +10049,187 @@ function computeLayout(overrideIds, headId) {
       if (blocked) return;
       cluster.forEach(id => { pos[id].y = targetY; });
     });
+  }
+
+  // ===== ABSOLUTE SIBLING-Y ALIGNMENT (Mahmadgul + Sayedahmed) =====
+  // Bio-siblings (kids met dezelfde ouder-set) moeten op DEZELFDE Y staan.
+  // Voorbeeld: in Mahmadgul kreeg Meraj Faizi door Sediqa+Omid sub-overlay een
+  // andere Y dan zijn bio-zusters Hemat/Nilab/Alia. Align naar minY.
+  if (headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
+    const Y_STEP_SIB = NODE_H + V_GAP;
+    const sibGroups = {};
+    Object.keys(pos).forEach(cid => {
+      if (!pos[cid] || cid.startsWith(CROSS_GHOST_PREFIX)) return;
+      const bioParents = state.relationships
+        .filter(r => r.type === 'parent-child' && r.childId === cid && pos[r.parentId])
+        .map(r => r.parentId);
+      if (bioParents.length === 0) return;
+      const key = [...bioParents].sort().join(',');
+      if (!sibGroups[key]) sibGroups[key] = [];
+      sibGroups[key].push(cid);
+    });
+    Object.values(sibGroups).forEach(cids => {
+      if (cids.length < 2) return;
+      const ys = cids.map(id => pos[id].y);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      if (maxY - minY < 1) return; // al gealigneerd
+      if (maxY - minY > Y_STEP_SIB * 1.5) return; // te ver uit elkaar = cross-block
+      // Align siblings + hun partners op zelfde rij naar minY
+      cids.forEach(id => {
+        const oldY = pos[id].y;
+        pos[id].y = minY;
+        // Partner op (bijna) zelfde rij als oude Y mee laten gaan
+        (partnersOf[id] || []).forEach(pid => {
+          if (!pos[pid]) return;
+          if (Math.abs(pos[pid].y - oldY) < 30) pos[pid].y = minY;
+        });
+      });
+    });
+  }
+
+  // ===== ULTIMATE Y-SPACING (ABSOLUTE LAATSTE PASS) =====
+  // Garandeert minimum Y_STEP gap (190px) tussen alle Y-rijen die X-overlappen.
+  // Loopt 3x om cascade-shifts op te lossen waarbij eerdere shifts nieuwe
+  // gap-violaties creeeren bij rijen verder naar beneden.
+  // Dit lost o.a. Habib Gull op (Mergalela kids @ Y=535 vs Malalai kids @ Y=652).
+  // SKIP voor Mahmadgul/Sayedahmed/Fazelahmad: die gebruiken SUB-TREE OVERLAY met
+  // snapshot posities die EXACT goedgekeurd zijn — niet aanpassen.
+  if (headId !== 'pmndyxhre0zi1' && headId !== 'pmndyrysy3eq7' && headId !== 'pmni0mtna5vxw') {
+    const Y_STEP = NODE_H + V_GAP; // 190
+    for (let pass = 0; pass < 3; pass++) {
+      // Verzamel alle Y-rijen
+      const yToCards = new Map();
+      Object.entries(pos).forEach(([id, p]) => {
+        if (!p || typeof p.y !== 'number' || isNaN(p.y)) return;
+        const yKey = Math.round(p.y);
+        if (!yToCards.has(yKey)) yToCards.set(yKey, []);
+        yToCards.get(yKey).push({ id, x: p.x });
+      });
+      Object.entries(crossFamilyGhosts).forEach(([key, g]) => {
+        if (!g || typeof g.y !== 'number' || isNaN(g.y)) return;
+        const yKey = Math.round(g.y);
+        if (!yToCards.has(yKey)) yToCards.set(yKey, []);
+        yToCards.get(yKey).push({ id: '__ghost_' + key, x: g.x, isGhost: true, key });
+      });
+
+      const sortedYs = [...yToCards.keys()].sort((a, b) => a - b);
+      let cumulativeShift = 0;
+      const yShifts = new Map();
+      yShifts.set(sortedYs[0], 0);
+
+      for (let i = 1; i < sortedYs.length; i++) {
+        const prevY = sortedYs[i - 1];
+        const curY = sortedYs[i];
+        const effPrevY = prevY + (yShifts.get(prevY) || 0);
+        const effCurY = curY + cumulativeShift;
+        const actualGap = effCurY - effPrevY;
+        // Check X overlap tussen rijen
+        const prevCards = yToCards.get(prevY);
+        const curCards = yToCards.get(curY);
+        const prevMinX = Math.min(...prevCards.map(c => c.x));
+        const prevMaxX = Math.max(...prevCards.map(c => c.x)) + NODE_W;
+        const curMinX = Math.min(...curCards.map(c => c.x));
+        const curMaxX = Math.max(...curCards.map(c => c.x)) + NODE_W;
+        const xOverlap = prevMaxX > curMinX && prevMinX < curMaxX;
+        if (xOverlap && actualGap < Y_STEP) {
+          cumulativeShift += (Y_STEP - actualGap);
+        }
+        yShifts.set(curY, cumulativeShift);
+      }
+
+      if (cumulativeShift === 0) break; // stable, geen verdere shifts nodig
+
+      // Pas shifts toe
+      Object.values(pos).forEach(p => {
+        if (!p || typeof p.y !== 'number' || isNaN(p.y)) return;
+        const yKey = Math.round(p.y);
+        const shift = yShifts.get(yKey) || 0;
+        if (shift > 0) p.y += shift;
+      });
+      Object.values(crossFamilyGhosts).forEach(g => {
+        if (!g || typeof g.y !== 'number' || isNaN(g.y)) return;
+        const yKey = Math.round(g.y);
+        const shift = yShifts.get(yKey) || 0;
+        if (shift > 0) g.y += shift;
+      });
+    }
+  }
+
+  // ===== SNAPSHOT-DIRECT OVERRIDE (alle bomen met goedgekeurde snapshot) =====
+  // Voor bomen die een eigen snapshot hebben (Habib Gull, Hagig Gull, Mahmadgul,
+  // Sayedahmed, etc): overschrijf alle posities direct met snapshot waarden zodat
+  // de goedgekeurde layout 1:1 wordt getoond. Pas ook snapshot-ghosts toe (incl.
+  // cousin-pair ghosts zoals Bader's kids in Mahmadgul). Cards die NIET in snapshot
+  // zitten (later toegevoegd) behouden hun computed positie.
+  // SKIP voor Fazelahmad: die gebruikt SUB-TREE OVERLAY (head-children snapshots)
+  // — direct override zou conflicteren.
+  if (headId && headId !== 'pmni0mtna5vxw' && typeof window !== 'undefined' && window._loadedSnapshots && window._loadedSnapshots[headId]) {
+    const snap = window._loadedSnapshots[headId];
+    if (snap && snap.cards) {
+      // Tel hoeveel cards in pos vs in snapshot zitten
+      const posIds = Object.keys(pos).filter(id => !id.startsWith(CROSS_GHOST_PREFIX));
+      const inBoth = posIds.filter(id => snap.cards[id]);
+      // Alleen toepassen als minstens 30% van pos cards in snapshot zit.
+      // Lager dan 80% omdat bomen als Fazelahmad 75 nieuwe personen kunnen hebben
+      // gekregen sinds snapshot — de snapshot dekt dan de basis maar nieuwe personen
+      // krijgen pipeline-positie. Beter dan helemaal geen snapshot toepassen.
+      if (posIds.length > 0 && inBoth.length / posIds.length >= 0.3) {
+        // Pas snapshot card posities toe
+        Object.entries(snap.cards).forEach(([id, snapPos]) => {
+          if (pos[id]) {
+            pos[id].x = snapPos.x;
+            pos[id].y = snapPos.y;
+          }
+        });
+        // Pas snapshot ghosts toe — vervang ALLE pipeline-ghosts voor personen
+        // die snapshot ghosts hebben, zodat we geen dubbele krijgen
+        if (snap.ghosts && snap.ghosts.length > 0) {
+          // Verzamel alle personIds die snapshot ghosts hebben
+          const snapGhostPersonIds = new Set(snap.ghosts.map(g => g.id));
+          // Verwijder ALLE bestaande ghosts (pipeline + overlay + snapshot) voor
+          // deze personIds, zodat alleen de snapshot ghost overblijft
+          Object.keys(crossFamilyGhosts).forEach(key => {
+            const g = crossFamilyGhosts[key];
+            if (key.includes(':cg:overlay_') || key.includes(':cg:snapshot_')) {
+              delete crossFamilyGhosts[key];
+              return;
+            }
+            // Verwijder pipeline-ghosts voor personen die in snapshot.ghosts staan
+            if (g && snapGhostPersonIds.has(g.personId)) {
+              delete crossFamilyGhosts[key];
+            }
+          });
+          snap.ghosts.forEach((g, i) => {
+            const newKey = g.id + ':cg:snapshot_' + i;
+            crossFamilyGhosts[newKey] = {
+              x: g.x,
+              y: g.y,
+              personId: g.id,
+              adjacentTo: g.adjacentTo
+            };
+          });
+        }
+      }
+    }
+  }
+
+  // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
+  // SUB-TREE OVERLAY en SNAPSHOT-DIRECT OVERRIDE kunnen negatieve X creeeren.
+  // Force minX = PADDING zodat geen kaarten links van canvas-rand vallen.
+  {
+    const allX = [
+      ...Object.values(pos).map(p => p?.x).filter(x => typeof x === 'number' && !isNaN(x)),
+      ...Object.values(crossFamilyGhosts).map(g => g?.x).filter(x => typeof x === 'number' && !isNaN(x))
+    ];
+    if (allX.length > 0) {
+      const finalMinX = Math.min(...allX);
+      const normShift = PADDING - finalMinX;
+      if (Math.abs(normShift) > 0.5) {
+        Object.values(pos).forEach(p => { if (p && typeof p.x === 'number') p.x += normShift; });
+        Object.values(crossFamilyGhosts).forEach(g => { if (g && typeof g.x === 'number') g.x += normShift; });
+      }
+    }
   }
 
   return { pos, crossFamilyGhosts, cousinChildReferences };
@@ -10577,12 +10775,27 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
       const visited = new Set();
 
       // Helper: check of twee T-bars een gedeelde ouder hebben (bv. multi-partner
-      // persoon zoals Store met 2 partners → 2 child-families). In dat geval
-      // moeten beide T-bars op DEZELFDE Y blijven.
+      // persoon zoals Store met 2 partners → 2 child-families). Als de bars NIET
+      // overlappen in hun kid-X-range mogen ze op dezelfde Y; als ze WEL overlappen
+      // (door extension lines of dropX in elkaars kids range) moeten ze toch
+      // verticaal gescheiden worden voor visueel duidelijke gap.
       const sharesParent = (i, j) => {
         const pi = hBars[i].data.validParents || [];
         const pj = hBars[j].data.validParents || [];
         return pi.some(p => pj.includes(p));
+      };
+      const kidsXOverlap = (i, j) => {
+        // Echte X-overlap tussen kid-clusters (niet via extension)
+        return hBars[i].left <= hBars[j].right && hBars[i].right >= hBars[j].left;
+      };
+      const extensionsOverlap = (i, j) => {
+        // Check of dropX van een bar in de kids X-range van de andere valt
+        // (zou tot visueel overlapping van extension line met T-bar leiden)
+        const aL = Math.min(hBars[i].left, hBars[i].dropX);
+        const aR = Math.max(hBars[i].right, hBars[i].dropX);
+        const bL = Math.min(hBars[j].left, hBars[j].dropX);
+        const bR = Math.max(hBars[j].right, hBars[j].dropX);
+        return aL <= bR + H_GAP / 2 && aR >= bL - H_GAP / 2;
       };
 
       for (let i = 0; i < hBars.length; i++) {
@@ -10597,8 +10810,9 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
             for (let j = 0; j < hBars.length; j++) {
               if (visited.has(j)) continue;
               if (Math.abs(hBars[qi].childTopY - hBars[j].childTopY) > Y_TOL) continue;
-              // Skip Y-distribute als deze twee bars een ouder delen (multi-partner)
-              if (sharesParent(qi, j)) continue;
+              // Multi-partner met gedeelde ouder: alleen Y-distribute als
+              // hun extensions/dropX in elkaars zone vallen (anders mag samen blijven)
+              if (sharesParent(qi, j) && !extensionsOverlap(qi, j)) continue;
               const aL = Math.min(hBars[qi].left, hBars[qi].dropX);
               const aR = Math.max(hBars[qi].right, hBars[qi].dropX);
               const bL = Math.min(hBars[j].left, hBars[j].dropX);
@@ -10619,7 +10833,10 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
         // Sorteer: breedste T-bar → dichtst bij kinderen (bot)
         group.sort((a, b) => (hBars[b].right - hBars[b].left) - (hBars[a].right - hBars[a].left));
-        const step = group.length > 1 ? (bot - top) / (group.length - 1) : 0;
+        // Limiteer step: max 50px tussen T-bars zodat ze visueel close bij kinderen blijven
+        // (anders staat een T-bar te ver van zijn eigen kinderen)
+        const naturalStep = group.length > 1 ? (bot - top) / (group.length - 1) : 0;
+        const step = Math.min(naturalStep, 50);
         group.forEach((gi, idx) => {
           hBars[gi].data.midDropY = Math.round(bot - idx * step);
           hBars[gi].midY = hBars[gi].data.midDropY;
@@ -11723,6 +11940,9 @@ function renderCollapseToggles(pos, dups) {
 
     // Check of kinderen zichtbaar zijn in layout
     const hasVisibleChildren = [...gezin.childIds].some(cid => pos[cid]);
+    // Skip toggle als kinderen niet zichtbaar zijn in deze boom (bv. Store-Didar
+    // gezin in Zavar-only boom: kids Mujda/Osman zijn niet in tree)
+    if (!hasVisibleChildren && !isCollapsed) return;
 
     // Positie: midden-onder het ouderpaar
     // Cross-family aware: als ouders ver uit elkaar staan, gebruik ghost-positie
@@ -11957,32 +12177,14 @@ function zoomFit() {
   wrapper.scrollTo(0, 0);
 }
 
-// Scroll viewport naar stamhoofd (of leftmost top card voor 'all' modus)
+// Scroll viewport naar leftmost top card (boom begint helemaal links)
 function scrollToStamhoofd(headId) {
   // Robuust: 5x retry met toenemende delay om browser sticky-scroll restore te overrulen
   const attempt = (delay) => setTimeout(() => {
     const wrapper = document.getElementById('canvas-wrapper');
     if (!wrapper) return;
-    let targetCard;
-    if (headId && headId !== 'all') {
-      targetCard = document.querySelector(`div.card[data-id="${headId}"]:not(.duplicate-card)`);
-    } else {
-      // 'all' modus: scroll naar leftmost top card
-      const cards = document.querySelectorAll('div.card[data-id]:not(.duplicate-card)');
-      let topMost = null, minY = Infinity;
-      cards.forEach(c => {
-        const y = parseFloat(c.style.top);
-        if (y < minY) { minY = y; topMost = c; }
-      });
-      targetCard = topMost;
-    }
-    if (!targetCard) return;
-    const cardX = parseFloat(targetCard.style.left) * zoom;
-    const cardW = NODE_W * zoom;
-    const wrapW = wrapper.clientWidth;
-    const targetScrollX = Math.max(0, cardX + cardW / 2 - wrapW / 2);
-    // Altijd naar absolute top zodat boven-rij gegarandeerd zichtbaar is
-    wrapper.scrollLeft = targetScrollX;
+    // Altijd helemaal naar links scrollen — gebruiker wil niet naar links hoeven scrollen
+    wrapper.scrollLeft = 0;
     wrapper.scrollTop = 0;
   }, delay);
   attempt(0);
@@ -13391,25 +13593,55 @@ async function downloadPDF() {
   const treeW = parseFloat(canvas.style.width) || 800;
   const treeH = parseFloat(canvas.style.height) || 600;
 
+  // Extra capture-buffer voorkomt dat de onderkant/rechterkant afgesneden wordt:
+  // kaart-shadows, duplicate-badges en SVG-lijnen kunnen enkele px buiten
+  // de berekende treeW/treeH uitsteken, en html2canvas rondt naar beneden af.
+  // We meten de werkelijke content-bounds van de clone + nemen een marge mee.
+  const SAFE_BUFFER = 40;
+
   // ── Eén-pagina PDF op maat ──
   // Maak één PDF-pagina met afmetingen die exact de hele boom bevatten,
   // zodat PDF-viewers (Adobe, Chrome, Preview) er gewoon in kunnen scrollen
   // i.p.v. de boom opgesplitst over meerdere pagina's.
   const MARGIN_MM = 12;
   const MM_TO_PX = 96 / 25.4;
+
+  // Maak offscreen clone op 1:1 schaal (geen krimp — boom blijft scherp)
+  const clone = prepareClone(canvas, 1);
+  document.body.appendChild(clone);
+
+  // Meet werkelijke content-afmetingen (incl. shadow/badges) en neem het
+  // maximum met de berekende treeW/treeH + buffer, zodat niks wordt afgesneden.
+  let captureW = treeW + SAFE_BUFFER;
+  let captureH = treeH + SAFE_BUFFER;
+  try {
+    const rect = clone.getBoundingClientRect();
+    // scrollWidth/Height vangt ook content die buiten de box uitsteekt (shadows)
+    const measuredW = Math.max(clone.scrollWidth || 0, Math.ceil(rect.width) || 0);
+    const measuredH = Math.max(clone.scrollHeight || 0, Math.ceil(rect.height) || 0);
+    if (measuredW > 0) captureW = Math.max(captureW, measuredW + SAFE_BUFFER);
+    if (measuredH > 0) captureH = Math.max(captureH, measuredH + SAFE_BUFFER);
+    // Forceer ook de clone-box groot genoeg zodat html2canvas binnen dit canvas
+    // de volledige inhoud rendert (en geen bottom-crop toepast).
+    clone.style.width  = captureW + 'px';
+    clone.style.height = captureH + 'px';
+  } catch (e) {
+    // Bij meetfout: val terug op conservatieve buffer
+  }
+
   // Render-scale voor html2canvas (1 = 96 DPI, 1.5 = 144 DPI). Hoger = scherper PDF
   // maar grotere file. Bij grote bomen krimpen we de scale om te voorkomen dat de
   // canvas te groot wordt (browsers cappen rond 16384 px en ~268 megapixels).
   const MAX_CANVAS_DIM = 14000; // veilige bovengrens per dimensie
   const MAX_CANVAS_AREA = 200_000_000; // ~200 megapixels veilig
   let RENDER_SCALE = 1.5;
-  const dimScale = Math.min(MAX_CANVAS_DIM / treeW, MAX_CANVAS_DIM / treeH);
-  const areaScale = Math.sqrt(MAX_CANVAS_AREA / (treeW * treeH));
+  const dimScale = Math.min(MAX_CANVAS_DIM / captureW, MAX_CANVAS_DIM / captureH);
+  const areaScale = Math.sqrt(MAX_CANVAS_AREA / (captureW * captureH));
   RENDER_SCALE = Math.max(0.5, Math.min(RENDER_SCALE, dimScale, areaScale));
 
-  // Boom-afmetingen omrekenen naar mm + paginamarges erbij
-  const treeWmm = treeW / MM_TO_PX;
-  const treeHmm = treeH / MM_TO_PX;
+  // Boom-afmetingen (incl. buffer) omrekenen naar mm + paginamarges erbij
+  const treeWmm = captureW / MM_TO_PX;
+  const treeHmm = captureH / MM_TO_PX;
   const pageWmm = treeWmm + 2 * MARGIN_MM;
   // Extra ruimte onderaan voor footer (titel/datum)
   const FOOTER_MM = 10;
@@ -13420,26 +13652,24 @@ async function downloadPDF() {
   // terug op multi-page tegelmodus.
   const MAX_PAGE_DIM_MM = 5000;
   if (pageWmm > MAX_PAGE_DIM_MM || pageHmm > MAX_PAGE_DIM_MM) {
+    document.body.removeChild(clone);
     return downloadPDFMultiPage(treeW, treeH);
   }
 
-  // Maak offscreen clone op 1:1 schaal (geen krimp — boom blijft scherp)
-  const clone = prepareClone(canvas, 1);
-  document.body.appendChild(clone);
-
   try {
-    // Capture met html2canvas
+    // Capture met html2canvas — gebruik volledige captureW/captureH zodat
+    // shadows en laatste rij kaarten volledig in beeld blijven.
     const cardsCanvas = await html2canvas(clone, {
       scale: RENDER_SCALE,
       backgroundColor: '#f1f5f9',
       useCORS: true,
       logging: false,
-      width: treeW,
-      height: treeH,
+      width: captureW,
+      height: captureH,
     });
 
     // SVG-lijnen eroverheen tekenen
-    await compositeSVGOnCanvas(cardsCanvas, clone, treeW, treeH, RENDER_SCALE);
+    await compositeSVGOnCanvas(cardsCanvas, clone, captureW, captureH, RENDER_SCALE);
 
     // Bepaal landscape vs portrait op basis van afmetingen
     const orientation = pageWmm >= pageHmm ? 'landscape' : 'portrait';
@@ -13456,17 +13686,29 @@ async function downloadPDF() {
     // Footer
     pdf.setFontSize(9);
     pdf.setTextColor(100);
-    const title = document.querySelector('.tree-item.active .tree-label');
-    const titleText = title ? title.textContent : 'Familie Stamboom';
+    const title = document.querySelector('.tree-item.active .tree-name');
+    const titleText = title ? title.textContent.trim() : 'Familie Stamboom';
     const footerY = pageHmm - 4;
     pdf.text(titleText, MARGIN_MM, footerY);
     pdf.text(new Date().toLocaleDateString('nl-NL'), pageWmm - MARGIN_MM, footerY, { align: 'right' });
     pdf.text(`${Math.round(pageWmm)}×${Math.round(pageHmm)} mm`, pageWmm / 2, footerY, { align: 'center' });
 
-    pdf.save(`stamboom_${new Date().toISOString().slice(0, 10)}.pdf`);
+    pdf.save(buildPdfFilename(titleText));
   } finally {
     document.body.removeChild(clone);
   }
+}
+
+// Bouw een veilige PDF-bestandsnaam o.b.v. stamboom-hoofd (bijv. "Stamboom Wali.pdf")
+function buildPdfFilename(headName) {
+  const safe = (headName || 'Familie')
+    .replace(/[\\/:*?"<>|]/g, '')  // verwijder Windows-onveilige tekens
+    .trim();
+  // Als het al "Stamboom" of "Alle" bevat, gebruik direct, anders prefixen
+  if (/^(stamboom|alle|familie)/i.test(safe)) {
+    return `${safe}.pdf`;
+  }
+  return `Stamboom ${safe}.pdf`;
 }
 
 async function downloadPDFMultiPage(treeW, treeH) {
@@ -13527,7 +13769,9 @@ async function downloadPDFMultiPage(treeW, treeH) {
       }
     }
 
-    pdf.save(`stamboom_${new Date().toISOString().slice(0, 10)}.pdf`);
+    const titleEl = document.querySelector('.tree-item.active .tree-name');
+    const titleText = titleEl ? titleEl.textContent.trim() : 'Familie Stamboom';
+    pdf.save(buildPdfFilename(titleText));
   } finally {
     document.body.removeChild(clone);
   }
