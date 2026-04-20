@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v591';
+const APP_VERSION = 'v592';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10214,12 +10214,14 @@ function computeLayout(overrideIds, headId) {
     }
   }
 
-  // ===== FINALE PURE-INLAW INLINE ALIGNMENT =====
+  // ===== FINALE PURE-INLAW INLINE ALIGNMENT (alleen Ahmad Saidi) =====
   // Fix: pure inlaws (partners zonder ouders in tree) worden soms op een aparte
   // Y-laag geplaatst (diff < NODE_H) met verkeerde X. Resultaat: overlap met
   // echte kinderen op dezelfde X. Plaats inlaw NAAST partner op dezelfde Y en
   // schuif opvolgende kaarten + hun afstammelingen rechts.
-  (function alignPureInlaws() {
+  // Scope: alleen Ahmad Saidi — andere bomen werden geraakt (Mahmoed 4 diffs,
+  // Allahmahmad 9 diffs). Zie stamboom-architect skill Gevaar 21.
+  if (headId === 'pmndya3eilyn1') (function alignPureInlaws() {
     const descCache = {};
     function descendantsOf(id, visited) {
       visited = visited || new Set();
