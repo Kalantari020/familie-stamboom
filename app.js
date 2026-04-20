@@ -47,14 +47,15 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
 // ============================================================
 (function pinGuard() {
   const IS_VIEW     = new URLSearchParams(window.location.search).get('view') === '1';
-  const SESSION_KEY = IS_VIEW ? 'fb_sess_view'    : 'fb_sess';
-  const STORE_KEY   = IS_VIEW ? 'fb_pin_view_v3'  : 'fb_pin_v3';
-  const DEFAULT_PIN = IS_VIEW ? '1993'            : '5768';
+  const SESSION_KEY = IS_VIEW ? 'fb_sess_view' : 'fb_sess';
+  const STORE_KEY   = IS_VIEW ? 'fb_pin_view'  : 'fb_pin_v2';
+  const DEFAULT_PIN = IS_VIEW ? '1993'          : '5768';
 
+  // Versleutel PIN via PBKDF2-SHA256 (100k iteraties)
   async function deriveKey(pin, salt) {
     const enc     = new TextEncoder();
     const keyMat  = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
-    const bits    = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 10000 }, keyMat, 256);
+    const bits    = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: 100000 }, keyMat, 256);
     return Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2,'0')).join('');
   }
 
@@ -143,39 +144,28 @@ const USER_ID = 's11'; // Hakim Khan Sayedi
     }
   }
 
-  const keypad = document.getElementById('pin-keypad');
-  let lastPointerAt = 0;
-  function handleKey(val) {
+  document.getElementById('pin-keypad').addEventListener('click', e => {
+    const btn = e.target.closest('.pin-key');
+    if (!btn) return;
+    const val = btn.dataset.val;
     if (val === 'clear') {
       current = current.slice(0, -1);
     } else if (val === 'ok') {
-      if (current.length === 4) { updateDots(); trySubmit(); return; }
+      if (current.length === 4) trySubmit();
     } else if (current.length < 4) {
       current += val;
-      if (current.length === 4) { updateDots(); trySubmit(); return; }
+      if (current.length === 4) setTimeout(trySubmit, 120);
     }
     updateDots();
-  }
-  keypad.addEventListener('pointerdown', e => {
-    const btn = e.target.closest('.pin-key');
-    if (!btn) return;
-    e.preventDefault();
-    lastPointerAt = Date.now();
-    handleKey(btn.dataset.val);
-  });
-  keypad.addEventListener('click', e => {
-    if (Date.now() - lastPointerAt < 500) return;
-    const btn = e.target.closest('.pin-key');
-    if (!btn) return;
-    handleKey(btn.dataset.val);
   });
 
+  // Ook toetsenbord-invoer
   document.addEventListener('keydown', e => {
     if (document.getElementById('pin-screen').style.display === 'none') return;
     if (/^[0-9]$/.test(e.key) && current.length < 4) {
       current += e.key;
       updateDots();
-      if (current.length === 4) trySubmit();
+      if (current.length === 4) setTimeout(trySubmit, 120);
     } else if (e.key === 'Backspace') {
       current = current.slice(0, -1);
       updateDots();
