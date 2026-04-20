@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v590';
+const APP_VERSION = 'v591';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10213,6 +10213,64 @@ function computeLayout(overrideIds, headId) {
       }
     }
   }
+
+  // ===== FINALE PURE-INLAW INLINE ALIGNMENT =====
+  // Fix: pure inlaws (partners zonder ouders in tree) worden soms op een aparte
+  // Y-laag geplaatst (diff < NODE_H) met verkeerde X. Resultaat: overlap met
+  // echte kinderen op dezelfde X. Plaats inlaw NAAST partner op dezelfde Y en
+  // schuif opvolgende kaarten + hun afstammelingen rechts.
+  (function alignPureInlaws() {
+    const descCache = {};
+    function descendantsOf(id, visited) {
+      visited = visited || new Set();
+      if (visited.has(id)) return [];
+      visited.add(id);
+      if (descCache[id]) return descCache[id];
+      const kids = Object.keys(pos).filter(cid => (parentsOf[cid] || []).includes(id));
+      const result = [];
+      kids.forEach(cid => {
+        result.push(cid);
+        result.push(...descendantsOf(cid, visited));
+      });
+      descCache[id] = result;
+      return result;
+    }
+
+    state.relationships.forEach(r => {
+      if (r.type !== 'partner') return;
+      const a = r.person1Id, b = r.person2Id;
+      if (!pos[a] || !pos[b]) return;
+      if (Math.abs(pos[a].y - pos[b].y) < 0.5) return; // al gelijk
+      const dy = Math.abs(pos[a].y - pos[b].y);
+      if (dy >= NODE_H) return; // verschillende generaties — laat staan
+
+      const aParentsInTree = (parentsOf[a] || []).filter(pid => pos[pid]).length;
+      const bParentsInTree = (parentsOf[b] || []).filter(pid => pos[pid]).length;
+      let inlaw, partner;
+      if (aParentsInTree === 0 && bParentsInTree > 0) { inlaw = a; partner = b; }
+      else if (bParentsInTree === 0 && aParentsInTree > 0) { inlaw = b; partner = a; }
+      else return; // beiden hebben ouders of beiden pure inlaws — ambigu
+
+      const targetY = pos[partner].y;
+      const targetX = pos[partner].x + NODE_W + H_GAP;
+      const SHIFT = NODE_W + H_GAP;
+
+      // Verzamel cards die moeten verschuiven: alles op targetY met x >= targetX, + afstammelingen
+      const toShift = new Set();
+      Object.keys(pos).forEach(pid => {
+        if (pid === inlaw || pid === partner) return;
+        if (!pos[pid]) return;
+        if (Math.abs(pos[pid].y - targetY) < 5 && pos[pid].x >= targetX - 0.5) {
+          toShift.add(pid);
+          descendantsOf(pid).forEach(did => toShift.add(did));
+        }
+      });
+      toShift.forEach(pid => { if (pos[pid]) pos[pid].x += SHIFT; });
+
+      pos[inlaw].x = targetX;
+      pos[inlaw].y = targetY;
+    });
+  })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
   // SUB-TREE OVERLAY en SNAPSHOT-DIRECT OVERRIDE kunnen negatieve X creeeren.
