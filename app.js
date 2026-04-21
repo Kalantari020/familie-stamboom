@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v601';
+const APP_VERSION = 'v602';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10548,23 +10548,80 @@ function computeLayout(overrideIds, headId) {
           }
         });
 
-        // Stap 4: centreer hele gen2-cluster onder paar-midpoint (X-shift alles)
-        const clusterMembers = new Set();
+        // Stap 4: centreer gen2-rij (kids + partners) onder paar-midpoint
+        // BASIS: alleen gen2-kaarten zelf (niet hele subtree) bepaalt midpoint
+        const gen2WithPartners = new Set();
         gen2Kids.forEach(cid => {
-          gatherSubtree(cid).forEach(id => clusterMembers.add(id));
+          gen2WithPartners.add(cid);
+          state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid)).forEach(r => {
+            const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
+            if (pos[pid]) gen2WithPartners.add(pid);
+          });
         });
-        const clusterArr = [...clusterMembers];
-        const clusterXs = clusterArr.map(id => pos[id].x);
-        const firstX = Math.min(...clusterXs);
-        const lastX = Math.max(...clusterXs);
-        const currentMidX = (firstX + lastX + NODE_W) / 2;
+        const gen2Arr = [...gen2WithPartners];
+        const gen2Xs = gen2Arr.map(id => pos[id].x);
+        const g2First = Math.min(...gen2Xs);
+        const g2Last = Math.max(...gen2Xs);
+        const currentMidX = (g2First + g2Last + NODE_W) / 2;
         const parentMidX = p2 && pos[p2]
           ? (Math.min(pos[p1].x, pos[p2].x) + Math.max(pos[p1].x, pos[p2].x) + NODE_W) / 2
           : pos[p1].x + NODE_W / 2;
         const deltaX = parentMidX - currentMidX;
+        // Shift hele cluster (gen2 + descendants) mee met deltaX
         if (Math.abs(deltaX) >= 0.5) {
-          clusterArr.forEach(id => { pos[id].x += deltaX; });
+          const clusterMembers = new Set();
+          gen2Kids.forEach(cid => {
+            gatherSubtree(cid).forEach(id => clusterMembers.add(id));
+          });
+          clusterMembers.forEach(id => { pos[id].x += deltaX; });
         }
+
+        // Stap 5: recursief centreer gen3 (en verder) onder elke gen2 ouderpaar
+        function centerChildrenUnder(parId, partId) {
+          if (!pos[parId]) return;
+          const ck1 = (childrenOfMap[parId] || []).filter(cid => pos[cid]);
+          const ck2 = partId ? (childrenOfMap[partId] || []).filter(cid => pos[cid]) : [];
+          const kids = [...new Set([...ck1, ...ck2])];
+          if (!kids.length) return;
+          // Kids+partners cluster
+          const kidsWithP = new Set();
+          kids.forEach(kid => {
+            kidsWithP.add(kid);
+            state.relationships.filter(r => r.type === 'partner' && (r.person1Id === kid || r.person2Id === kid)).forEach(r => {
+              const pid = r.person1Id === kid ? r.person2Id : r.person1Id;
+              if (pos[pid]) kidsWithP.add(pid);
+            });
+          });
+          const arr = [...kidsWithP];
+          const xs = arr.map(id => pos[id].x);
+          const fx = Math.min(...xs);
+          const lx = Math.max(...xs);
+          const midX = (fx + lx + NODE_W) / 2;
+          const pairMidX = partId && pos[partId]
+            ? (Math.min(pos[parId].x, pos[partId].x) + Math.max(pos[parId].x, pos[partId].x) + NODE_W) / 2
+            : pos[parId].x + NODE_W / 2;
+          const dX = pairMidX - midX;
+          if (Math.abs(dX) >= 0.5) {
+            // Shift alle afstammelingen van deze groep mee
+            const subs = new Set();
+            kids.forEach(kid => {
+              const sub = gatherSubtree(kid);
+              sub.forEach(id => subs.add(id));
+            });
+            subs.forEach(id => { pos[id].x += dX; });
+          }
+          // Recurse: voor elke kid, centreer diens kinderen
+          kids.forEach(kid => {
+            const partnerRel = state.relationships.find(r => r.type === 'partner' && (r.person1Id === kid || r.person2Id === kid));
+            const pid = partnerRel ? (partnerRel.person1Id === kid ? partnerRel.person2Id : partnerRel.person1Id) : null;
+            centerChildrenUnder(kid, pid && pos[pid] ? pid : null);
+          });
+        }
+        gen2Kids.forEach(cid => {
+          const partnerRel = state.relationships.find(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid));
+          const pid = partnerRel ? (partnerRel.person1Id === cid ? partnerRel.person2Id : partnerRel.person1Id) : null;
+          centerChildrenUnder(cid, pid && pos[pid] ? pid : null);
+        });
       });
     }
 
