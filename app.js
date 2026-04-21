@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v593';
+const APP_VERSION = 'v594';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10304,6 +10304,62 @@ function computeLayout(overrideIds, headId) {
 
       pos[inlaw].x = targetX;
       pos[inlaw].y = targetY;
+    });
+  })();
+
+  // ===== FINALE AHMAD SAIDI LEAF-KIDS CENTERING (na pure-inlaw fix) =====
+  // Leaf-kinderen (geen eigen kinderen) van gen1-paren staan ver rechts
+  // uitgerekt i.p.v. direct onder hun ouders. Centreer ze onder paar-midpoint.
+  // MOET na pure-inlaw fix draaien, anders zijn partners nog op andere Y.
+  // Scope: alleen Ahmad Saidi (pmndya3eilyn1).
+  if (headId === 'pmndya3eilyn1') (function centerAhmadLeafKids() {
+    const childrenByParent = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!childrenByParent[r.parentId]) childrenByParent[r.parentId] = [];
+      childrenByParent[r.parentId].push(r.childId);
+    });
+    const isLeaf = id => !(childrenByParent[id] || []).some(cid => pos[cid]);
+
+    const parentPairs = [
+      ['pmnfwl6r21xvr', 'pmo4tqukpwhe3'], // Rafi + Salma
+      ['pmnfwl6r2niud', 'pmo4txoa8ol14'], // Waheed + Silsila
+      ['pmnfwpozxyoww', 'pmo4u0rpbm1wn'], // Fereshta + NAVRAGEN
+      ['pmnfwpozxxrih', 'pmo4u21q3m2zy'], // Mariam + NAVRAGEN?
+    ];
+
+    parentPairs.forEach(([p1, p2]) => {
+      if (!pos[p1] || !pos[p2]) return;
+      if (Math.abs(pos[p1].y - pos[p2].y) > 5) return;
+      const kids1 = (childrenByParent[p1] || []).filter(cid => pos[cid]);
+      const kids2 = (childrenByParent[p2] || []).filter(cid => pos[cid]);
+      // Union — inclusief half-siblings (kid van alleen p1 of alleen p2)
+      const allKids = [...new Set([...kids1, ...kids2])];
+      const leafKids = allKids.filter(isLeaf);
+      if (!leafKids.length) return;
+      const kidsY = pos[leafKids[0]].y;
+      if (!leafKids.every(cid => Math.abs(pos[cid].y - kidsY) < 5)) return;
+
+      const parentMidX = (Math.min(pos[p1].x, pos[p2].x) + Math.max(pos[p1].x, pos[p2].x) + NODE_W) / 2;
+      const sortedKids = leafKids.slice().sort((a, b) => pos[a].x - pos[b].x);
+      const kidsWidth = sortedKids.length * NODE_W + (sortedKids.length - 1) * H_GAP;
+      const targetStartX = parentMidX - kidsWidth / 2;
+      const shift = targetStartX - pos[sortedKids[0]].x;
+      if (Math.abs(shift) < 5) return;
+
+      const targetMin = targetStartX;
+      const targetMax = targetStartX + kidsWidth;
+      const blocked = Object.keys(pos).some(id => {
+        if (sortedKids.includes(id)) return false;
+        const p = pos[id];
+        if (!p || Math.abs(p.y - kidsY) > 5) return false;
+        return p.x + NODE_W > targetMin && p.x < targetMax;
+      });
+      if (blocked) return;
+
+      sortedKids.forEach((cid, i) => {
+        pos[cid].x = targetStartX + i * (NODE_W + H_GAP);
+      });
     });
   })();
 
