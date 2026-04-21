@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v597';
+const APP_VERSION = 'v598';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10247,17 +10247,38 @@ function computeLayout(overrideIds, headId) {
     aqsa.x = targetAqsaX;
   })();
 
-  // ===== AHMAD SAIDI CLUSTER-PER-MOEDER HERPOSITIONERING =====
-  // Herbouw Shafiqa's en Laila's clusters op gen1 Y-rij:
-  //   - Elk kind + optionele partner (inlaw) als "unit"
-  //   - Units in birthOrder-volgorde binnen hun moeder-cluster
-  //   - Shafiqa's cluster links, Laila's rechts
-  //   - Ahmad/Shafiqa/Laila gecentreerd boven de gap tussen clusters
-  //   - Descendants shiften met hun eigen kind's delta
-  if (headId === 'pmndya3eilyn1') (function rebuildAhmadClusters() {
-    const ahmadId = 'pmndya3eilyn1';
-    const shafiqaId = 'pmnfwiq4xex8n';
-    const lailaId = 'pmnfwiq4xoz2k';
+  // ===== GENERIEKE MULTI-PARTNER CLUSTER HERPOSITIONERING =====
+  // Herbouwt gen1-rij bij stamhoofd met 2 partners: elk kind + evt partner
+  // (inlaw) als "unit" in birthOrder, partner1's cluster links, partner2's
+  // cluster rechts, head-row gecentreerd in gap. Descendants + leaf-centering
+  // + Y-gap (regel 13) meegenomen.
+  const multiPartnerConfigs = [
+    {
+      headId: 'pmndya3eilyn1', // Ahmad Saidi
+      p1Id: 'pmnfwiq4xex8n',   // Shafiqa
+      p2Id: 'pmnfwiq4xoz2k',   // Laila
+      leafPairs: [
+        ['pmnfwl6r21xvr', 'pmo4tqukpwhe3'], // Rafi + Salma
+        ['pmnfwl6r2niud', 'pmo4txoa8ol14'], // Waheed + Silsila
+        ['pmnfwpozxyoww', 'pmo4u0rpbm1wn'], // Fereshta + NAVRAGEN
+        ['pmnfwpozxxrih', 'pmo4u21q3m2zy'], // Mariam + NAVRAGEN?
+      ]
+    },
+    {
+      headId: 'pmndya3ei5vp4', // Ali Ahmad Salehi
+      p1Id: 'pmndyckredqon',   // Fawziya
+      p2Id: 'pmndyhcgqdpb9',   // Zakira
+      leafPairs: [
+        ['pmndyjcripek7', 'pmo0h2kl0159h'], // Muqadas + Fahim
+      ]
+    }
+  ];
+
+  const activeCfg = multiPartnerConfigs.find(c => c.headId === headId);
+  if (activeCfg) (function rebuildMultiPartnerClusters() {
+    const ahmadId = activeCfg.headId;
+    const shafiqaId = activeCfg.p1Id;
+    const lailaId = activeCfg.p2Id;
     if (!pos[shafiqaId] || !pos[lailaId] || !pos[ahmadId]) return;
 
     const persons = Object.fromEntries(state.persons.map(p => [p.id, p]));
@@ -10389,12 +10410,7 @@ function computeLayout(overrideIds, headId) {
     pos[lailaId].x = newX[lailaId];
 
     // ── LEAF-KIDS CENTERING: single leaf child van paar → onder paar-midpoint ──
-    const leafPairs = [
-      ['pmnfwl6r21xvr', 'pmo4tqukpwhe3'], // Rafi + Salma (2 kids)
-      ['pmnfwl6r2niud', 'pmo4txoa8ol14'], // Waheed + Silsila (1 kid: Khadija)
-      ['pmnfwpozxyoww', 'pmo4u0rpbm1wn'], // Fereshta + NAVRAGEN (1 kid: Hasanaat)
-      ['pmnfwpozxxrih', 'pmo4u21q3m2zy'], // Mariam + NAVRAGEN? (1 kid: Abu Bakr)
-    ];
+    const leafPairs = activeCfg.leafPairs || [];
     const isLeaf = id => !(childrenOfMap[id] || []).some(cid => pos[cid]);
     leafPairs.forEach(([p1, p2]) => {
       if (!pos[p1] || !pos[p2]) return;
