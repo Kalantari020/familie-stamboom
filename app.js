@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v594';
+const APP_VERSION = 'v595';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10361,6 +10361,29 @@ function computeLayout(overrideIds, headId) {
         pos[cid].x = targetStartX + i * (NODE_W + H_GAP);
       });
     });
+  })();
+
+  // ===== FINALE AHMAD SAIDI Y-GAP COMPRESSION FIX =====
+  // Architect-regel 13: min Y-gap tussen consecutive kids-rijen = NODE_H + V_GAP = 190.
+  // In Ahmad Saidi: Y=464, 555, 654, 745 hebben gaps van 91-99, met kaarten op
+  // zelfde X die elkaar visueel raken. Expand Y-gaps naar 190 door opvolgende
+  // rijen omlaag te shiften. Scope: alleen Ahmad Saidi.
+  if (headId === 'pmndya3eilyn1') (function expandAhmadYGaps() {
+    const MIN_GAP = NODE_H + V_GAP; // 190
+    const yValues = [...new Set(Object.values(pos).map(p => p && Math.round(p.y)).filter(y => y != null))].sort((a, b) => a - b);
+    const topY = yValues.find(y => y > 257);
+    if (topY == null) return;
+    const startIdx = yValues.indexOf(topY);
+    for (let i = startIdx + 1; i < yValues.length; i++) {
+      const prev = yValues[i - 1];
+      const cur = yValues[i];
+      const gap = cur - prev;
+      if (gap >= MIN_GAP) continue;
+      const shift = MIN_GAP - gap;
+      Object.values(pos).forEach(p => { if (p && Math.round(p.y) >= cur) p.y += shift; });
+      Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= cur) g.y += shift; });
+      for (let j = i; j < yValues.length; j++) yValues[j] += shift;
+    }
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
