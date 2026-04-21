@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v600';
+const APP_VERSION = 'v601';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10277,7 +10277,7 @@ function computeLayout(overrideIds, headId) {
       p1Id: 'pmndya3eixb8j',   // Bibigul (9 kinderen)
       p2Id: 'pmo4uiz4fgqk4',   // Shah Sultana (5 kinderen)
       leafPairs: [],
-      centerAllGen1Pairs: true
+      reassignYByBO: true
     }
   ];
 
@@ -10447,64 +10447,124 @@ function computeLayout(overrideIds, headId) {
       sortedKids.forEach((cid, i) => { pos[cid].x = targetStartX + i * (NODE_W + H_GAP); });
     });
 
-    // ── CENTER ALLE GEN1-PAREN's KINDEREN (met descendants) onder paar-midpoint ──
-    // Voor bomen waar kleinkinderen niet direct onder hun ouders staan.
-    // Opt-in via activeCfg.centerAllGen1Pairs = true.
-    if (activeCfg.centerAllGen1Pairs) {
+    // ── REASSIGN Y-LAGEN PER BO + center kids onder hun eigen ouderpaar ──
+    // Per gen1-kind met kinderen: eigen Y-laag op basis van BO-volgorde.
+    // Mulla (BO 1) kids op laag 1, Babo (BO 2) kids op laag 2, Rahima (BO 3)
+    // kids op laag 3, etc. Voor elke gen1-kind met kinderen wordt hun cluster
+    // verplaatst naar target Y en gecentreerd onder het paar-midpoint.
+    // Partners van gen2-kids (pure inlaws op andere Y) worden meegetrokken.
+    // Descendants verschuiven met dezelfde deltaX+deltaY.
+    if (activeCfg.reassignYByBO) {
+      const persons = Object.fromEntries(state.persons.map(p => [p.id, p]));
+      const ROW_H = NODE_H + V_GAP; // 190
+
       const allGen1Units = [...shafiqaUnits, ...lailaUnits];
-      // Sort by X om cascade correctly (linksnaar rechts)
-      allGen1Units.sort((a, b) => pos[a.child].x - pos[b.child].x);
-      const centered = new Set();
-      allGen1Units.forEach(u => {
+      const unitsWithKids = allGen1Units.filter(u => {
+        const k1 = (childrenOfMap[u.child] || []).filter(cid => pos[cid]);
+        const k2 = u.partner ? (childrenOfMap[u.partner] || []).filter(cid => pos[cid]) : [];
+        return k1.length + k2.length > 0;
+      });
+      // Sort op BO
+      unitsWithKids.sort((a, b) => (persons[a.child]?.birthOrder ?? 999) - (persons[b.child]?.birthOrder ?? 999));
+
+      // Unique BO volgorde → Y-row index
+      const boOrder = [];
+      unitsWithKids.forEach(u => {
+        const bo = persons[u.child]?.birthOrder;
+        if (bo != null && !boOrder.includes(bo)) boOrder.push(bo);
+      });
+      const boToYIdx = {};
+      boOrder.forEach((bo, i) => { boToYIdx[bo] = i + 1; });
+
+      // Voor elke unit: plaats ELK gen2-kind op targetY (onafhankelijk), met
+      // partner adjacent en descendants shiften. Daarna centreer de gen2-cluster
+      // als geheel onder het paar-midpoint.
+      unitsWithKids.forEach(u => {
         const p1 = u.child;
         const p2 = u.partner;
         if (!pos[p1]) return;
-        const kids1 = (childrenOfMap[p1] || []).filter(cid => pos[cid]);
-        const kids2 = p2 ? (childrenOfMap[p2] || []).filter(cid => pos[cid]) : [];
-        const allKids = [...new Set([...kids1, ...kids2])].filter(cid => !centered.has(cid));
-        if (!allKids.length) return;
-        // Kids moeten op zelfde Y staan voor simple centering
-        const sortedKids = allKids.slice().sort((a, b) => pos[a].x - pos[b].x);
-        const kidsY = pos[sortedKids[0]].y;
-        if (!sortedKids.every(cid => Math.abs(pos[cid].y - kidsY) < 5)) return;
-        // Bereken paar-midpoint
+        const bo = persons[p1]?.birthOrder ?? 999;
+        const targetY = gen1Y + ROW_H * (boToYIdx[bo] || 1);
+
+        const k1 = (childrenOfMap[p1] || []).filter(cid => pos[cid]);
+        const k2 = p2 ? (childrenOfMap[p2] || []).filter(cid => pos[cid]) : [];
+        const gen2Kids = [...new Set([...k1, ...k2])];
+        if (!gen2Kids.length) return;
+
+        // Sorteer gen2-kids op birthOrder
+        gen2Kids.sort((a, b) => (persons[a]?.birthOrder ?? 999) - (persons[b]?.birthOrder ?? 999));
+
+        // Stap 1: verzamel subtree per gen2-kid (kid + partner + descendants)
+        function gatherSubtree(rootId) {
+          const out = new Set();
+          const q = [rootId];
+          while (q.length) {
+            const id = q.shift();
+            if (out.has(id)) continue;
+            out.add(id);
+            state.relationships.filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id)).forEach(r => {
+              const pid = r.person1Id === id ? r.person2Id : r.person1Id;
+              if (pos[pid] && !out.has(pid)) q.push(pid);
+            });
+            (childrenOfMap[id] || []).forEach(cid => {
+              if (pos[cid] && !out.has(cid)) q.push(cid);
+            });
+          }
+          return out;
+        }
+
+        // Stap 2: voor elke gen2-kid, shift Y naar targetY (subtree volgt)
+        gen2Kids.forEach(cid => {
+          const oldY = pos[cid].y;
+          const deltaY = targetY - oldY;
+          if (Math.abs(deltaY) < 0.5) return;
+          const subtree = gatherSubtree(cid);
+          subtree.forEach(sid => { pos[sid].y += deltaY; });
+        });
+
+        // Stap 3: sync partners van gen2-kids (pure inlaws) op dezelfde Y indien mismatch
+        gen2Kids.forEach(cid => {
+          const pRels = state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid));
+          for (const r of pRels) {
+            const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
+            if (!pos[pid]) continue;
+            if (Math.abs(pos[pid].y - pos[cid].y) < 5) continue;
+            const oldY = pos[pid].y;
+            const oldX = pos[pid].x;
+            pos[pid].y = pos[cid].y;
+            pos[pid].x = pos[cid].x + NODE_W + H_GAP;
+            const pDeltaX = pos[pid].x - oldX;
+            const pDeltaY = pos[pid].y - oldY;
+            // Partner's descendants shiften met deze delta
+            const pSubtree = gatherSubtree(pid);
+            pSubtree.delete(pid);
+            // Skip cid + cid's subtree (al verplaatst)
+            const cidSubtree = gatherSubtree(cid);
+            pSubtree.forEach(did => {
+              if (cidSubtree.has(did)) return;
+              pos[did].x += pDeltaX;
+              pos[did].y += pDeltaY;
+            });
+          }
+        });
+
+        // Stap 4: centreer hele gen2-cluster onder paar-midpoint (X-shift alles)
+        const clusterMembers = new Set();
+        gen2Kids.forEach(cid => {
+          gatherSubtree(cid).forEach(id => clusterMembers.add(id));
+        });
+        const clusterArr = [...clusterMembers];
+        const clusterXs = clusterArr.map(id => pos[id].x);
+        const firstX = Math.min(...clusterXs);
+        const lastX = Math.max(...clusterXs);
+        const currentMidX = (firstX + lastX + NODE_W) / 2;
         const parentMidX = p2 && pos[p2]
           ? (Math.min(pos[p1].x, pos[p2].x) + Math.max(pos[p1].x, pos[p2].x) + NODE_W) / 2
           : pos[p1].x + NODE_W / 2;
-        // Bereken current kids-cluster midpoint
-        const firstX = pos[sortedKids[0]].x;
-        const lastX = pos[sortedKids[sortedKids.length - 1]].x;
-        const currentMidX = (firstX + lastX + NODE_W) / 2;
-        const shift = parentMidX - currentMidX;
-        if (Math.abs(shift) < 5) {
-          sortedKids.forEach(cid => centered.add(cid));
-          return;
+        const deltaX = parentMidX - currentMidX;
+        if (Math.abs(deltaX) >= 0.5) {
+          clusterArr.forEach(id => { pos[id].x += deltaX; });
         }
-        // Shift kids + descendants (niet partners op andere Y)
-        const targetMin = firstX + shift;
-        const targetMax = lastX + NODE_W + shift;
-        // Check blockage: andere cards op kidsY die niet van deze groep zijn
-        const groupSet = new Set(sortedKids);
-        const blocked = Object.keys(pos).some(id => {
-          if (groupSet.has(id)) return false;
-          const p = pos[id];
-          if (!p || Math.abs(p.y - kidsY) > 5) return false;
-          return p.x + NODE_W > targetMin && p.x < targetMax;
-        });
-        if (blocked) return;
-        // Apply shift to kids + their descendants
-        const shifted = new Set();
-        sortedKids.forEach(cid => {
-          if (shifted.has(cid)) return;
-          pos[cid].x += shift;
-          shifted.add(cid);
-          descendantsOf(cid).forEach(did => {
-            if (shifted.has(did)) return;
-            pos[did].x += shift;
-            shifted.add(did);
-          });
-          centered.add(cid);
-        });
       });
     }
 
