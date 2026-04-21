@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v603';
+const APP_VERSION = 'v604';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11614,12 +11614,33 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
     // Identificeer ghost-kinderen: entries waarvan personId als kind voorkomt in parent-child relaties
     // en adjacentTo een ouder is (= de ghost staat naast een ouder)
+    // ÉN: snapshot-overlay ghosts (Mahmadgul) waarbij adjacentTo niet per se parent is,
+    // maar de ghost wel gekoppeld is aan parents in pos/ghost buurt.
     const ghostChildren = dupArr.filter(dup => {
-      if (!dup.adjacentTo) return false;
-      // Check of adjacentTo een ouder is van personId
-      return state.relationships.some(r =>
+      // Originele check: adjacentTo is parent
+      if (dup.adjacentTo && state.relationships.some(r =>
         r.type === 'parent-child' && r.childId === dup.personId && r.parentId === dup.adjacentTo
-      );
+      )) return true;
+      // Uitbreiding: ghost is kind van iemand, en er zijn parents (real of ghost) dichtbij
+      const parentIds = state.relationships.filter(r => r.type === 'parent-child' && r.childId === dup.personId).map(r => r.parentId);
+      if (!parentIds.length) return false;
+      // Check of er parents zijn (real of ghost) in X/Y-buurt van deze ghost (binnen ~2 gens)
+      for (const pid of parentIds) {
+        // Real parent dichtbij?
+        if (pos[pid]) {
+          const dy = dup.y - pos[pid].y;
+          const dx = Math.abs(dup.x - pos[pid].x);
+          if (dy > 0 && dy < 3 * (NODE_H + V_GAP) && dx < 5 * (NODE_W + H_GAP)) return true;
+        }
+        // Ghost parent dichtbij?
+        for (const d of dupArr) {
+          if (d.personId !== pid) continue;
+          const dy = dup.y - d.y;
+          const dx = Math.abs(dup.x - d.x);
+          if (dy > 0 && dy < 3 * (NODE_H + V_GAP) && dx < 5 * (NODE_W + H_GAP)) return true;
+        }
+      }
+      return false;
     });
 
     // Groepeer ghost-kinderen per ouder-set + Y-bucket
@@ -12493,6 +12514,20 @@ function renderCollapseToggles(pos, dups) {
           for (const d of Object.values(dups)) {
             if (d.personId === farParentId && d.adjacentTo === closeParentId) {
               ghostPos = d; break;
+            }
+          }
+          // Fallback: ghost met adjacentTo mismatch (bv. snapshot-overlay in Mahmadgul)
+          // Zoek ghost van farParent op zelfde Y als closeParent + X binnen 1 slot adjacent
+          if (!ghostPos) {
+            const closeY = parentPositions[closeIdx].y;
+            const closeX = parentPositions[closeIdx].x;
+            for (const d of Object.values(dups)) {
+              if (d.personId !== farParentId) continue;
+              if (Math.abs(d.y - closeY) > 5) continue;
+              const dx = Math.abs(d.x - closeX);
+              if (dx > NODE_W + H_GAP + 20) continue; // moet adjacent zijn
+              ghostPos = d;
+              break;
             }
           }
           if (ghostPos) {
