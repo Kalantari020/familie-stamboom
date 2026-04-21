@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v596';
+const APP_VERSION = 'v597';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10245,6 +10245,201 @@ function computeLayout(overrideIds, headId) {
     if (blocked) return;
     khalil.x = targetKhalilX;
     aqsa.x = targetAqsaX;
+  })();
+
+  // ===== AHMAD SAIDI CLUSTER-PER-MOEDER HERPOSITIONERING =====
+  // Herbouw Shafiqa's en Laila's clusters op gen1 Y-rij:
+  //   - Elk kind + optionele partner (inlaw) als "unit"
+  //   - Units in birthOrder-volgorde binnen hun moeder-cluster
+  //   - Shafiqa's cluster links, Laila's rechts
+  //   - Ahmad/Shafiqa/Laila gecentreerd boven de gap tussen clusters
+  //   - Descendants shiften met hun eigen kind's delta
+  if (headId === 'pmndya3eilyn1') (function rebuildAhmadClusters() {
+    const ahmadId = 'pmndya3eilyn1';
+    const shafiqaId = 'pmnfwiq4xex8n';
+    const lailaId = 'pmnfwiq4xoz2k';
+    if (!pos[shafiqaId] || !pos[lailaId] || !pos[ahmadId]) return;
+
+    const persons = Object.fromEntries(state.persons.map(p => [p.id, p]));
+
+    // Kids van Ahmad+Shafiqa vs Ahmad+Laila
+    const ahmadKids = state.relationships.filter(r => r.type === 'parent-child' && r.parentId === ahmadId).map(r => r.childId);
+    const shafiqaKids = new Set(state.relationships.filter(r => r.type === 'parent-child' && r.parentId === shafiqaId).map(r => r.childId));
+    const lailaKids = new Set(state.relationships.filter(r => r.type === 'parent-child' && r.parentId === lailaId).map(r => r.childId));
+
+    const shafiqaKidIds = ahmadKids.filter(k => shafiqaKids.has(k) && pos[k]);
+    const lailaKidIds = ahmadKids.filter(k => lailaKids.has(k) && pos[k]);
+
+    // Sort by birthOrder (fallback 999)
+    const byBO = (a, b) => (persons[a]?.birthOrder ?? 999) - (persons[b]?.birthOrder ?? 999);
+    shafiqaKidIds.sort(byBO);
+    lailaKidIds.sort(byBO);
+
+    // Build units [child, optional_partner_id]
+    function findPartner(cid) {
+      const partnerRels = state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid));
+      for (const r of partnerRels) {
+        const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
+        if (pid === ahmadId || pid === shafiqaId || pid === lailaId) continue;
+        if (!pos[pid]) continue;
+        return pid;
+      }
+      return null;
+    }
+
+    const shafiqaUnits = shafiqaKidIds.map(cid => ({ child: cid, partner: findPartner(cid) }));
+    const lailaUnits = lailaKidIds.map(cid => ({ child: cid, partner: findPartner(cid) }));
+
+    const slotW = NODE_W + H_GAP; // 230
+
+    // Bouw nieuwe posities per kind + partner
+    const gen1Y = pos[shafiqaKidIds[0]]?.y ?? 257;
+    const newX = {};
+
+    // Shafiqa's cluster: start op PADDING
+    let x = PADDING; // 50
+    shafiqaUnits.forEach(u => {
+      newX[u.child] = x;
+      x += slotW;
+      if (u.partner) { newX[u.partner] = x; x += slotW; }
+    });
+    const shafiqaEndX = x - H_GAP; // laatste slot einde
+    const shafiqaLastCardX = x - slotW; // laatste card X
+
+    // Gap voor head row (Shafiqa-Ahmad-Laila = 3 cards + padding)
+    const HEAD_ROW_WIDTH = 3 * NODE_W + 2 * H_GAP;
+    const CLUSTER_GAP = Math.max(HEAD_ROW_WIDTH + 2 * H_GAP, slotW);
+
+    // Laila's cluster start
+    x = shafiqaLastCardX + NODE_W + CLUSTER_GAP;
+    const lailaStartX = x;
+    lailaUnits.forEach(u => {
+      newX[u.child] = x;
+      x += slotW;
+      if (u.partner) { newX[u.partner] = x; x += slotW; }
+    });
+    const lailaLastCardX = x - slotW;
+
+    // Head row: gecentreerd in gap tussen clusters
+    const gapCenter = (shafiqaLastCardX + NODE_W + lailaStartX) / 2;
+    newX[ahmadId] = gapCenter - NODE_W / 2;
+    newX[shafiqaId] = newX[ahmadId] - slotW;
+    newX[lailaId] = newX[ahmadId] + slotW;
+
+    // Apply gen1 shifts + cascade descendants
+    const childrenOfMap = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!childrenOfMap[r.parentId]) childrenOfMap[r.parentId] = [];
+      childrenOfMap[r.parentId].push(r.childId);
+    });
+    const descCache = {};
+    function descendantsOf(id, visited) {
+      visited = visited || new Set();
+      if (visited.has(id)) return [];
+      visited.add(id);
+      if (descCache[id]) return descCache[id];
+      const kids = (childrenOfMap[id] || []).filter(cid => pos[cid]);
+      const res = [];
+      kids.forEach(cid => { res.push(cid); res.push(...descendantsOf(cid, visited)); });
+      descCache[id] = res;
+      return res;
+    }
+
+    // Compute delta per shifted card, then apply
+    const shiftedAlready = new Set();
+    function applyShift(id, newXval) {
+      if (shiftedAlready.has(id)) return;
+      const oldX = pos[id].x;
+      const delta = newXval - oldX;
+      if (Math.abs(delta) < 0.5) { shiftedAlready.add(id); return; }
+      pos[id].x = newXval;
+      pos[id].y = gen1Y;
+      shiftedAlready.add(id);
+      // Shift descendants with same delta
+      descendantsOf(id).forEach(did => {
+        if (shiftedAlready.has(did)) return;
+        pos[did].x += delta;
+        shiftedAlready.add(did);
+      });
+    }
+
+    // Apply in order: children + partners
+    [...shafiqaUnits, ...lailaUnits].forEach(u => {
+      applyShift(u.child, newX[u.child]);
+      if (u.partner && pos[u.partner]) {
+        const oldX = pos[u.partner].x;
+        const targetX = newX[u.partner];
+        const delta = targetX - oldX;
+        pos[u.partner].x = targetX;
+        pos[u.partner].y = gen1Y;
+        shiftedAlready.add(u.partner);
+        // Partner's descendants (if any) ook shiften
+        descendantsOf(u.partner).forEach(did => {
+          if (shiftedAlready.has(did)) return;
+          pos[did].x += delta;
+          shiftedAlready.add(did);
+        });
+      }
+    });
+
+    // Ahmad/Shafiqa/Laila (head row)
+    pos[ahmadId].x = newX[ahmadId];
+    pos[shafiqaId].x = newX[shafiqaId];
+    pos[lailaId].x = newX[lailaId];
+
+    // ── LEAF-KIDS CENTERING: single leaf child van paar → onder paar-midpoint ──
+    const leafPairs = [
+      ['pmnfwl6r21xvr', 'pmo4tqukpwhe3'], // Rafi + Salma (2 kids)
+      ['pmnfwl6r2niud', 'pmo4txoa8ol14'], // Waheed + Silsila (1 kid: Khadija)
+      ['pmnfwpozxyoww', 'pmo4u0rpbm1wn'], // Fereshta + NAVRAGEN (1 kid: Hasanaat)
+      ['pmnfwpozxxrih', 'pmo4u21q3m2zy'], // Mariam + NAVRAGEN? (1 kid: Abu Bakr)
+    ];
+    const isLeaf = id => !(childrenOfMap[id] || []).some(cid => pos[cid]);
+    leafPairs.forEach(([p1, p2]) => {
+      if (!pos[p1] || !pos[p2]) return;
+      if (Math.abs(pos[p1].y - pos[p2].y) > 5) return;
+      const kids1 = (childrenOfMap[p1] || []).filter(cid => pos[cid]);
+      const kids2 = (childrenOfMap[p2] || []).filter(cid => pos[cid]);
+      const allKids = [...new Set([...kids1, ...kids2])];
+      const leafKids = allKids.filter(isLeaf);
+      if (!leafKids.length) return;
+      const kidsY = pos[leafKids[0]].y;
+      if (!leafKids.every(cid => Math.abs(pos[cid].y - kidsY) < 5)) return;
+      const parentMidX = (Math.min(pos[p1].x, pos[p2].x) + Math.max(pos[p1].x, pos[p2].x) + NODE_W) / 2;
+      const sortedKids = leafKids.slice().sort((a, b) => pos[a].x - pos[b].x);
+      const kidsWidth = sortedKids.length * NODE_W + (sortedKids.length - 1) * H_GAP;
+      const targetStartX = parentMidX - kidsWidth / 2;
+      const shift = targetStartX - pos[sortedKids[0]].x;
+      if (Math.abs(shift) < 5) return;
+      const targetMin = targetStartX;
+      const targetMax = targetStartX + kidsWidth;
+      const blocked = Object.keys(pos).some(id => {
+        if (sortedKids.includes(id)) return false;
+        const p = pos[id];
+        if (!p || Math.abs(p.y - kidsY) > 5) return false;
+        return p.x + NODE_W > targetMin && p.x < targetMax;
+      });
+      if (blocked) return;
+      sortedKids.forEach((cid, i) => { pos[cid].x = targetStartX + i * (NODE_W + H_GAP); });
+    });
+
+    // ── Y-GAP FIX: min 190px tussen consecutive kids-rijen ──
+    const MIN_GAP = NODE_H + V_GAP;
+    const yValues = [...new Set(Object.values(pos).map(p => p && Math.round(p.y)).filter(y => y != null))].sort((a, b) => a - b);
+    const startIdx = yValues.findIndex(y => y > gen1Y);
+    if (startIdx >= 0) {
+      for (let i = startIdx + 1; i < yValues.length; i++) {
+        const prev = yValues[i - 1];
+        const cur = yValues[i];
+        const gap = cur - prev;
+        if (gap >= MIN_GAP) continue;
+        const shift = MIN_GAP - gap;
+        Object.values(pos).forEach(p => { if (p && Math.round(p.y) >= cur) p.y += shift; });
+        Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= cur) g.y += shift; });
+        for (let j = i; j < yValues.length; j++) yValues[j] += shift;
+      }
+    }
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
