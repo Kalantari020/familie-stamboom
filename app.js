@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v592';
+const APP_VERSION = 'v593';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10213,6 +10213,39 @@ function computeLayout(overrideIds, headId) {
       }
     }
   }
+
+  // ===== FINALE HEKMAT LEAF-KIDS CENTERING (alleen Agha Gol) =====
+  // Hekmat+Shamila's kinderen (Khalil, Aqsa) staan 65px te links van
+  // het ouderpaar-midpoint. Centreer ze expliciet.
+  // Scope: alleen Agha Gol (pmni0s7etyv3g).
+  if (headId === 'pmni0s7etyv3g') (function centerHekmatKids() {
+    const hekmat = pos['pmndydlr61are'];
+    const shamila = pos['pmni0xjxqy5q5'];
+    const khalil = pos['pmndyf12hx96x'];
+    const aqsa = pos['pmo007gyaqm2k'];
+    if (!hekmat || !shamila || !khalil || !aqsa) return;
+    if (Math.abs(hekmat.y - shamila.y) > 5) return;
+    if (Math.abs(khalil.y - aqsa.y) > 5) return;
+    const parentMidX = (Math.min(hekmat.x, shamila.x) + Math.max(hekmat.x, shamila.x) + NODE_W) / 2;
+    const kidsWidth = 2 * NODE_W + H_GAP;
+    const targetKhalilX = parentMidX - kidsWidth / 2;
+    const targetAqsaX = targetKhalilX + NODE_W + H_GAP;
+    const shift = targetKhalilX - khalil.x;
+    if (Math.abs(shift) < 5) return;
+    // Check collision: no other cards on same Y within target range
+    const y = khalil.y;
+    const targetMin = targetKhalilX;
+    const targetMax = targetAqsaX + NODE_W;
+    const blocked = Object.keys(pos).some(id => {
+      if (id === 'pmndyf12hx96x' || id === 'pmo007gyaqm2k') return false;
+      const p = pos[id];
+      if (!p || Math.abs(p.y - y) > 5) return false;
+      return p.x + NODE_W > targetMin && p.x < targetMax;
+    });
+    if (blocked) return;
+    khalil.x = targetKhalilX;
+    aqsa.x = targetAqsaX;
+  })();
 
   // ===== FINALE PURE-INLAW INLINE ALIGNMENT (alleen Ahmad Saidi) =====
   // Fix: pure inlaws (partners zonder ouders in tree) worden soms op een aparte
