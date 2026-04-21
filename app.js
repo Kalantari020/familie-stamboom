@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v598';
+const APP_VERSION = 'v599';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10271,6 +10271,12 @@ function computeLayout(overrideIds, headId) {
       leafPairs: [
         ['pmndyjcripek7', 'pmo0h2kl0159h'], // Muqadas + Fahim
       ]
+    },
+    {
+      headId: 'pmo4t07f8o0lo', // Allahmahmad
+      p1Id: 'pmndya3eixb8j',   // Bibigul (9 kinderen)
+      p2Id: 'pmo4uiz4fgqk4',   // Shah Sultana (5 kinderen)
+      leafPairs: []
     }
   ];
 
