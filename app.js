@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v599';
+const APP_VERSION = 'v600';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10276,7 +10276,8 @@ function computeLayout(overrideIds, headId) {
       headId: 'pmo4t07f8o0lo', // Allahmahmad
       p1Id: 'pmndya3eixb8j',   // Bibigul (9 kinderen)
       p2Id: 'pmo4uiz4fgqk4',   // Shah Sultana (5 kinderen)
-      leafPairs: []
+      leafPairs: [],
+      centerAllGen1Pairs: true
     }
   ];
 
@@ -10445,6 +10446,67 @@ function computeLayout(overrideIds, headId) {
       if (blocked) return;
       sortedKids.forEach((cid, i) => { pos[cid].x = targetStartX + i * (NODE_W + H_GAP); });
     });
+
+    // ── CENTER ALLE GEN1-PAREN's KINDEREN (met descendants) onder paar-midpoint ──
+    // Voor bomen waar kleinkinderen niet direct onder hun ouders staan.
+    // Opt-in via activeCfg.centerAllGen1Pairs = true.
+    if (activeCfg.centerAllGen1Pairs) {
+      const allGen1Units = [...shafiqaUnits, ...lailaUnits];
+      // Sort by X om cascade correctly (linksnaar rechts)
+      allGen1Units.sort((a, b) => pos[a.child].x - pos[b.child].x);
+      const centered = new Set();
+      allGen1Units.forEach(u => {
+        const p1 = u.child;
+        const p2 = u.partner;
+        if (!pos[p1]) return;
+        const kids1 = (childrenOfMap[p1] || []).filter(cid => pos[cid]);
+        const kids2 = p2 ? (childrenOfMap[p2] || []).filter(cid => pos[cid]) : [];
+        const allKids = [...new Set([...kids1, ...kids2])].filter(cid => !centered.has(cid));
+        if (!allKids.length) return;
+        // Kids moeten op zelfde Y staan voor simple centering
+        const sortedKids = allKids.slice().sort((a, b) => pos[a].x - pos[b].x);
+        const kidsY = pos[sortedKids[0]].y;
+        if (!sortedKids.every(cid => Math.abs(pos[cid].y - kidsY) < 5)) return;
+        // Bereken paar-midpoint
+        const parentMidX = p2 && pos[p2]
+          ? (Math.min(pos[p1].x, pos[p2].x) + Math.max(pos[p1].x, pos[p2].x) + NODE_W) / 2
+          : pos[p1].x + NODE_W / 2;
+        // Bereken current kids-cluster midpoint
+        const firstX = pos[sortedKids[0]].x;
+        const lastX = pos[sortedKids[sortedKids.length - 1]].x;
+        const currentMidX = (firstX + lastX + NODE_W) / 2;
+        const shift = parentMidX - currentMidX;
+        if (Math.abs(shift) < 5) {
+          sortedKids.forEach(cid => centered.add(cid));
+          return;
+        }
+        // Shift kids + descendants (niet partners op andere Y)
+        const targetMin = firstX + shift;
+        const targetMax = lastX + NODE_W + shift;
+        // Check blockage: andere cards op kidsY die niet van deze groep zijn
+        const groupSet = new Set(sortedKids);
+        const blocked = Object.keys(pos).some(id => {
+          if (groupSet.has(id)) return false;
+          const p = pos[id];
+          if (!p || Math.abs(p.y - kidsY) > 5) return false;
+          return p.x + NODE_W > targetMin && p.x < targetMax;
+        });
+        if (blocked) return;
+        // Apply shift to kids + their descendants
+        const shifted = new Set();
+        sortedKids.forEach(cid => {
+          if (shifted.has(cid)) return;
+          pos[cid].x += shift;
+          shifted.add(cid);
+          descendantsOf(cid).forEach(did => {
+            if (shifted.has(did)) return;
+            pos[did].x += shift;
+            shifted.add(did);
+          });
+          centered.add(cid);
+        });
+      });
+    }
 
     // ── Y-GAP FIX: min 190px tussen consecutive kids-rijen ──
     const MIN_GAP = NODE_H + V_GAP;
