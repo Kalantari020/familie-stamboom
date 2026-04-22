@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v621';
+const APP_VERSION = 'v622';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11152,6 +11152,45 @@ function computeLayout(overrideIds, headId) {
     // Cumulatieve shift maakt Y onnodig groot. Vereist SUB-TREE OVERLAY met
     // snapshot-identieke placement (zoals Mahmadgul). Apart werk.
 
+    // ===== INDIVIDUELE LEAF Y-COMPACTIE (per Hakim verzoek) =====
+    // Specifieke cards die hoger mogen zonder andere profielen in de weg.
+    // Alleen als Hakim expliciet aangeeft — géén automatische compactie.
+    const compactLeafsToY = [
+      { leafIds: ['pmo4tkhyjlb4b', 'f14'], targetY: 744 }, // Sediqa's kids: Ibrahim + Mona
+    ];
+    compactLeafsToY.forEach(({ leafIds, targetY }) => {
+      leafIds.forEach(cid => {
+        if (!pos[cid]) return;
+        // Check dat dit een leaf is (geen zichtbare kinderen)
+        const hasKids = state.relationships.some(r =>
+          r.type === 'parent-child' && r.parentId === cid && pos[r.childId]
+        );
+        if (hasKids) return;
+        // Check overlap op targetY
+        const cardX = pos[cid].x;
+        const overlap = Object.entries(pos).some(([oid, p]) => {
+          if (oid === cid) return false;
+          if (Math.abs(p.y - targetY) > NODE_H - 5) return false;
+          if (Math.abs(p.x - cardX) > NODE_W + H_GAP - 5) return false;
+          return true;
+        });
+        if (overlap) return;
+        const oldY = pos[cid].y;
+        pos[cid].y = targetY;
+        // Ook inlaw partner mee laten bewegen
+        state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid))
+          .forEach(r => {
+            const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
+            if (!pos[pid]) return;
+            const hasBio = state.relationships.some(rr =>
+              rr.type === 'parent-child' && rr.childId === pid && pos[rr.parentId]
+            );
+            if (!hasBio && Math.abs(pos[pid].y - oldY) < 5) {
+              pos[pid].y = targetY;
+            }
+          });
+      });
+    });
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
