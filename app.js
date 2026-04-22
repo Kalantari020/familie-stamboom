@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v613';
+const APP_VERSION = 'v614';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12917,7 +12917,12 @@ function renderCollapseToggles(pos, dups) {
       const dist = Math.abs(
         (parentPositions[0].x + NODE_W / 2) - (parentPositions[1].x + NODE_W / 2)
       );
-      if (dist > CROSS_THRESHOLD && dups) {
+      // Y-diff ook detecteren: cousin-pair ouders zitten in verschillende Y-blocks
+      // (bv. Helai in Wali block, Gaffar in Babogal block). Dan is ghost-lookup ook
+      // gewenst, anders valt toggle tussen ouders op verkeerde X-plek.
+      const yDist = Math.abs(parentPositions[0].y - parentPositions[1].y);
+      const isCrossFamily = dist > CROSS_THRESHOLD || yDist > NODE_H;
+      if (isCrossFamily && dups) {
         // Vind welke ouder dichterbij de kinderen staat
         const childXs = [...gezin.childIds].filter(cid => pos[cid]).map(cid => pos[cid].x + NODE_W / 2);
         if (childXs.length > 0) {
@@ -13027,10 +13032,12 @@ function renderCollapseToggles(pos, dups) {
       }
     }
 
-    // Ghost-area toggle: als ouders ver uit elkaar staan, plaats ook toggles bij de ghost-kopie
+    // Ghost-area toggle: als ouders ver uit elkaar staan (X- OF Y-diff),
+    // plaats ook toggles bij de ghost-kopie in het andere block.
     if (parentPositions.length === 2 && dups) {
       const dist = Math.abs((parentPositions[0].x + NODE_W/2) - (parentPositions[1].x + NODE_W/2));
-      if (dist > 2 * (NODE_W + H_GAP)) {
+      const yDist = Math.abs(parentPositions[0].y - parentPositions[1].y);
+      if (dist > 2 * (NODE_W + H_GAP) || yDist > NODE_H) {
         // Vind ghost-kopieën van elk ouder bij de ander
         gezin.parentIds.forEach((pid, idx) => {
           const otherIdx = 1 - idx;
