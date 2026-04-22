@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v611';
+const APP_VERSION = 'v612';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9501,6 +9501,9 @@ function computeLayout(overrideIds, headId) {
     const useHeadAnchor = (headId === 'pmndyrysy3eq7');
     let nextSubTreeStartY = useHeadAnchor ? headChildY : (headChildY + BLOCK_GAP);
     const visitedAcrossOverlay = new Set();
+    // Voor Sayedahmed: track geplaatste block rechthoeken zodat kleine blocks
+    // direct onder gen1 kunnen komen i.p.v. onderaan gestackt.
+    const placedBlocks = []; // [{yMin, yMax, xMin, xMax}]
 
     // ── BIO-OWNERSHIP MAP ──
     // Voor elke (kleinkind/...) descendant: welke head-child claimt 'm als bio?
@@ -9658,11 +9661,36 @@ function computeLayout(overrideIds, headId) {
 
       const snapMinY = Math.min(...realSnapDescendants.map(([_, p]) => p.y));
       const snapMaxY = Math.max(...realSnapDescendants.map(([_, p]) => p.y));
+      const snapMinX = Math.min(...realSnapDescendants.map(([_, p]) => p.x));
+      const snapMaxX = Math.max(...realSnapDescendants.map(([_, p]) => p.x)) + NODE_W;
       const xOffset = pos[hcid].x - snapHeadPos.x;
+
+      // Sayedahmed: probeer block direct onder gen1 te plaatsen als er geen
+      // X-overlap is met eerder geplaatste blocks op dat Y-bereik.
+      // Fallback naar gestackte positie (nextSubTreeStartY) als er wel overlap is.
+      let blockStartY = nextSubTreeStartY;
+      if (useHeadAnchor && placedBlocks.length > 0) {
+        const candidateStartY = headChildY; // gen1 Y + Y_STEP
+        const candidateBlockYMin = candidateStartY;
+        const candidateBlockYMax = candidateStartY + (snapMaxY - snapHeadPos.y);
+        const candidateXMin = snapMinX + xOffset;
+        const candidateXMax = snapMaxX + xOffset;
+        // Check overlap met eerder geplaatste blocks
+        const hasOverlap = placedBlocks.some(b =>
+          b.yMin < candidateBlockYMax + BLOCK_GAP &&
+          b.yMax + BLOCK_GAP > candidateBlockYMin &&
+          b.xMin < candidateXMax + H_GAP &&
+          b.xMax + H_GAP > candidateXMin
+        );
+        if (!hasOverlap) {
+          blockStartY = candidateStartY;
+        }
+      }
+
       // Sayedahmed: 1-op-1 copy — yOffset shift descendants relatief t.o.v. snap HEAD
       // (zo staat hcid's kids op hcid.y + (snap.kids.y - snap.head.y) → echte 1-op-1)
       const yOffset = useHeadAnchor
-        ? (nextSubTreeStartY - snapHeadPos.y)
+        ? (blockStartY - snapHeadPos.y)
         : (nextSubTreeStartY - snapMinY);
       if (typeof window !== 'undefined') window._debugOverlay.perChild.push({
         head: state.persons.find(p => p.id === hcid)?.name,
@@ -9761,7 +9789,21 @@ function computeLayout(overrideIds, headId) {
       const blockSpan = useHeadAnchor
         ? (snapMaxY - snapHeadPos.y)
         : (snapMaxY - snapMinY);
-      nextSubTreeStartY = nextSubTreeStartY + blockSpan + BLOCK_GAP;
+      // Registreer block rechthoek (voor fit-check bij volgende small blocks)
+      if (useHeadAnchor) {
+        placedBlocks.push({
+          yMin: blockStartY,
+          yMax: blockStartY + blockSpan,
+          xMin: snapMinX + xOffset,
+          xMax: snapMaxX + xOffset
+        });
+        // Alleen nextSubTreeStartY bumpen als dit block gestackt is geplaatst
+        if (blockStartY === nextSubTreeStartY) {
+          nextSubTreeStartY = nextSubTreeStartY + blockSpan + BLOCK_GAP;
+        }
+      } else {
+        nextSubTreeStartY = nextSubTreeStartY + blockSpan + BLOCK_GAP;
+      }
     });
 
     // (POST-OVERLAY SIBLING-Y ALIGNMENT verplaatst naar einde van computeLayout
