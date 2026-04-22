@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v614';
+const APP_VERSION = 'v615';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9670,25 +9670,32 @@ function computeLayout(overrideIds, headId) {
       const snapMaxX = Math.max(...realSnapDescendants.map(([_, p]) => p.x)) + NODE_W;
       const xOffset = pos[hcid].x - snapHeadPos.x;
 
-      // Sayedahmed: probeer block direct onder gen1 te plaatsen als er geen
-      // X-overlap is met eerder geplaatste blocks op dat Y-bereik.
-      // Fallback naar gestackte positie (nextSubTreeStartY) als er wel overlap is.
+      // Sayedahmed: probeer block op meerdere Y-posities te plaatsen.
+      // Prioriteit: laagste Y waar geen X-overlap is met eerder geplaatste blocks.
+      // Kandidaten: (1) direct onder gen1, (2) yMin van elk geplaatst block,
+      // (3) fallback naar nextSubTreeStartY.
       let blockStartY = nextSubTreeStartY;
-      if (useHeadAnchor && placedBlocks.length > 0) {
-        const candidateStartY = headChildY + SAYEDAHMED_GEN1_MARGIN; // gen1 Y + Y_STEP + margin
-        const candidateBlockYMin = candidateStartY;
-        const candidateBlockYMax = candidateStartY + (snapMaxY - snapHeadPos.y);
+      if (useHeadAnchor) {
         const candidateXMin = snapMinX + xOffset;
         const candidateXMax = snapMaxX + xOffset;
-        // Check overlap met eerder geplaatste blocks
-        const hasOverlap = placedBlocks.some(b =>
-          b.yMin < candidateBlockYMax + BLOCK_GAP &&
-          b.yMax + BLOCK_GAP > candidateBlockYMin &&
-          b.xMin < candidateXMax + H_GAP &&
-          b.xMax + H_GAP > candidateXMin
-        );
-        if (!hasOverlap) {
-          blockStartY = candidateStartY;
+        const blockHeight = snapMaxY - snapHeadPos.y;
+        // Verzamel kandidaat-Y-waarden (oplopend gesorteerd)
+        const candidates = new Set();
+        candidates.add(headChildY + SAYEDAHMED_GEN1_MARGIN); // direct onder gen1
+        placedBlocks.forEach(b => candidates.add(b.yMin)); // zelfde Y als andere blocks
+        placedBlocks.forEach(b => candidates.add(b.yMax + BLOCK_GAP)); // onder een ander block
+        candidates.add(nextSubTreeStartY); // fallback
+        const sortedCands = [...candidates].sort((a, b) => a - b);
+        for (const candidateStartY of sortedCands) {
+          const candYMin = candidateStartY;
+          const candYMax = candidateStartY + blockHeight;
+          const hasOverlap = placedBlocks.some(b =>
+            b.yMin < candYMax + BLOCK_GAP &&
+            b.yMax + BLOCK_GAP > candYMin &&
+            b.xMin < candidateXMax + H_GAP &&
+            b.xMax + H_GAP > candidateXMin
+          );
+          if (!hasOverlap) { blockStartY = candidateStartY; break; }
         }
       }
 
