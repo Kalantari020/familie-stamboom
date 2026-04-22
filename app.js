@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v620';
+const APP_VERSION = 'v621';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11152,61 +11152,6 @@ function computeLayout(overrideIds, headId) {
     // Cumulatieve shift maakt Y onnodig groot. Vereist SUB-TREE OVERLAY met
     // snapshot-identieke placement (zoals Mahmadgul). Apart werk.
 
-    // ===== COMPACT LEAF Y-LINES (Sayedahmed only) =====
-    // Verkort Y-lijn van ouder naar LEAF kind (geen descendants) door kind
-    // omhoog te schuiven naar hoogste beschikbare Y-rij zonder overlap.
-    // Alleen leaf cards — voorkomt cascade-effecten op descendants.
-    (function compactLeafYLines() {
-      const parentsCache2 = new Map();
-      const childrenCache2 = new Map();
-      state.relationships.forEach(r => {
-        if (r.type !== 'parent-child') return;
-        if (!parentsCache2.has(r.childId)) parentsCache2.set(r.childId, []);
-        parentsCache2.get(r.childId).push(r.parentId);
-        if (!childrenCache2.has(r.parentId)) childrenCache2.set(r.parentId, []);
-        childrenCache2.get(r.parentId).push(r.childId);
-      });
-
-      const Y_STEP_L = NODE_H + V_GAP;
-      const Y_IDEAL_GAP = 207;
-
-      Object.keys(pos).forEach(cid => {
-        const kids = (childrenCache2.get(cid) || []).filter(k => pos[k]);
-        if (kids.length > 0) return;
-        const parents = (parentsCache2.get(cid) || []).filter(pid => pos[pid]);
-        if (parents.length === 0) return;
-        const maxParentY = Math.max(...parents.map(pid => pos[pid].y));
-        const curY = pos[cid].y;
-        const gap = curY - maxParentY;
-        if (gap <= Y_IDEAL_GAP + 20) return;
-        const cardX = pos[cid].x;
-        let bestY = curY;
-        for (let targetY = maxParentY + Y_IDEAL_GAP; targetY < curY; targetY += Y_STEP_L) {
-          const hasOverlap = Object.entries(pos).some(([oid, p]) => {
-            if (oid === cid) return false;
-            if (Math.abs(p.y - targetY) > NODE_H - 5) return false;
-            if (Math.abs(p.x - cardX) > NODE_W + H_GAP - 5) return false;
-            return true;
-          });
-          if (!hasOverlap) { bestY = targetY; break; }
-        }
-        if (bestY < curY) {
-          pos[cid].y = bestY;
-          // Inlaw partner mee verplaatsen
-          state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid))
-            .forEach(r => {
-              const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
-              if (!pos[pid]) return;
-              const hasBio = state.relationships.some(rr =>
-                rr.type === 'parent-child' && rr.childId === pid && pos[rr.parentId]
-              );
-              if (!hasBio && Math.abs(pos[pid].y - curY) < 5) {
-                pos[pid].y = bestY;
-              }
-            });
-        }
-      });
-    })();
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
