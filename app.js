@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v605';
+const APP_VERSION = 'v606';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12510,6 +12510,16 @@ function renderCollapseToggles(pos, dups) {
 
   Object.entries(gezinMap).forEach(([key, gezin]) => {
     if (gezin.childIds.size === 0) return;
+    // Skip toggle als slechts 1 ouder zichtbaar is én die ouder ook in een ander
+    // gezin met 2 ouders zit (= de andere ouder is onbekend/niet in data).
+    // Voorkomt dubbele toggles bij bv. half-siblings waarvan 1 co-parent onbekend is.
+    if (gezin.parentIds.length === 1) {
+      const soloParent = gezin.parentIds[0];
+      const hasOtherGezinWithTwoParents = Object.values(gezinMap).some(g =>
+        g !== gezin && g.parentIds.includes(soloParent) && g.parentIds.length >= 2
+      );
+      if (hasOtherGezinWithTwoParents) return;
+    }
     const isCollapsed = collapsedGezinnen.has(key);
 
     // Bereken aantal verborgen personen als ingeklapt
