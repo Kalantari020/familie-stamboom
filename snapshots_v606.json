@@ -1,0 +1,6666 @@
+{
+  "_meta": {
+    "version": "v606",
+    "date": "2026-04-22",
+    "description": "Alle goedgekeurde stambomen met nieuwe layout fixes (multi-partner, leaf-centering, Mahmadgul ghosts, inlaw-adjacent, Mahmoed specific)",
+    "totalTrees": 90,
+    "allOverlaps": 0,
+    "excludedTrees": [
+      "all",
+      "Sayedahmed"
+    ],
+    "includesGhosts": true,
+    "updated": "2026-04-22"
+  },
+  "pmndmqi8yk35j": {
+    "label": "Abdelqadir Ahmadzai",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7janquizq": {
+        "x": 165,
+        "y": 50,
+        "name": "Golalai Ghorbandi"
+      },
+      "pmndmqi8yk35j": {
+        "x": 395,
+        "y": 50,
+        "name": "Abdelqadir Ahmadzai"
+      },
+      "pmndmre7xwo3z": {
+        "x": 50,
+        "y": 243,
+        "name": "Madina Noor Ahmadzai"
+      },
+      "pmndmscnasvm5": {
+        "x": 280,
+        "y": 243,
+        "name": "Idris Omar Ahmadzai"
+      },
+      "pmndmt69g664c": {
+        "x": 510,
+        "y": 243,
+        "name": "Hawa Umrah Ahmadzai"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73rsl9": {
+    "label": "Abderrahiem",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73rsl9": {
+        "x": 50,
+        "y": 50,
+        "name": "Abderrahiem"
+      },
+      "pmo4uhy1e7hvn": {
+        "x": 255,
+        "y": 50,
+        "name": "Uitzoeken??"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0dr4npt6r": {
+    "label": "Abdullah",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmni0aw63vtas": {
+        "x": 62,
+        "y": 50,
+        "name": "Malalai Durrani"
+      },
+      "pmni0dr4npt6r": {
+        "x": 267,
+        "y": 50,
+        "name": "Abdullah"
+      },
+      "pmo49w9tiqty7": {
+        "x": 50,
+        "y": 242,
+        "name": "Mohammad"
+      },
+      "pmni0e8yfpn37": {
+        "x": 280,
+        "y": 242,
+        "name": "Zaiynab"
+      }
+    },
+    "ghosts": []
+  },
+  "r01": {
+    "label": "Abed Rahmani",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "r01": {
+        "x": 62,
+        "y": 50,
+        "name": "Abed Rahmani"
+      },
+      "r02": {
+        "x": 267,
+        "y": 50,
+        "name": "Shaesta Faizi"
+      },
+      "r03": {
+        "x": 50,
+        "y": 242,
+        "name": "Yaqub Rahmani"
+      },
+      "r04": {
+        "x": 280,
+        "y": 242,
+        "name": "Muzammil Rahmani"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etyv3g": {
+    "label": "Agha Gol",
+    "cardCount": 35,
+    "overlaps": 0,
+    "cards": {
+      "pmo4wyoiqmfi7": {
+        "x": 2440,
+        "y": 50,
+        "name": "Fatema"
+      },
+      "pmni0s7etyv3g": {
+        "x": 2670,
+        "y": 50,
+        "name": "Agha Gol"
+      },
+      "pmo4xeqmrsud9": {
+        "x": 2900,
+        "y": 50,
+        "name": "Gulsherien"
+      },
+      "pmni0xjxqp5fh": {
+        "x": 50,
+        "y": 249,
+        "name": "Nasrina"
+      },
+      "pmo4x48qp13uy": {
+        "x": 280,
+        "y": 249,
+        "name": "Mahmad Sherien"
+      },
+      "pmni0xjxqgts8": {
+        "x": 510,
+        "y": 249,
+        "name": "Marjam"
+      },
+      "f07": {
+        "x": 740,
+        "y": 249,
+        "name": "Emamuddin Salehi"
+      },
+      "f06": {
+        "x": 970,
+        "y": 249,
+        "name": "Nilab Faizi"
+      },
+      "f11": {
+        "x": 1200,
+        "y": 249,
+        "name": "Rahimgul Salehi"
+      },
+      "f10": {
+        "x": 1430,
+        "y": 249,
+        "name": "Alia Faizi"
+      },
+      "pmni0xjxq3aqh": {
+        "x": 1660,
+        "y": 249,
+        "name": "Fazzerrahman"
+      },
+      "pmo4x9ugigsr6": {
+        "x": 1890,
+        "y": 249,
+        "name": "Mariam"
+      },
+      "pmni0xjxqh0e7": {
+        "x": 2120,
+        "y": 249,
+        "name": "Ubaidah"
+      },
+      "pmni0xjxq42rt": {
+        "x": 3220,
+        "y": 249,
+        "name": "Samirah"
+      },
+      "pmo4x78d6od26": {
+        "x": 3450,
+        "y": 249,
+        "name": "Shahmahmoed"
+      },
+      "pmni0xjxqy5q5": {
+        "x": 3680,
+        "y": 249,
+        "name": "Shamila"
+      },
+      "pmndydlr61are": {
+        "x": 3910,
+        "y": 249,
+        "name": "Hekmatullah Salehi"
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 736,
+        "name": "Nasibah"
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 736,
+        "name": "Abdul Wares"
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 736,
+        "name": "Abdul Shakur"
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 736,
+        "name": "Abdul Saboor"
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 736,
+        "name": "Hadiya"
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 736,
+        "name": "Aisha"
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 736,
+        "name": "Hoera"
+      },
+      "f08": {
+        "x": 395,
+        "y": 449,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 625,
+        "y": 449,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 449,
+        "name": "Fatima Zahra Salehi"
+      },
+      "f12": {
+        "x": 1200,
+        "y": 449,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 1430,
+        "y": 449,
+        "name": "Zahra Salehi"
+      },
+      "pmo4x88upl6ua": {
+        "x": 2925,
+        "y": 546,
+        "name": "Zahrah"
+      },
+      "pmo4x88up7i7r": {
+        "x": 3155,
+        "y": 546,
+        "name": "Zohrah"
+      },
+      "pmo4x88upxoul": {
+        "x": 3385,
+        "y": 546,
+        "name": "Sumayyah"
+      },
+      "pmo4x88up5ikb": {
+        "x": 3615,
+        "y": 546,
+        "name": "Khadija"
+      },
+      "pmndyf12hx96x": {
+        "x": 3680,
+        "y": 736,
+        "name": "Khalil Reduaon Salehi"
+      },
+      "pmo007gyaqm2k": {
+        "x": 3910,
+        "y": 736,
+        "name": "Aqsa Hanifa"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ukqv901b9": {
+    "label": "Ahdulhadi",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmo4ukqv901b9": {
+        "x": 293,
+        "y": 50,
+        "name": "Ahdulhadi"
+      },
+      "pmo4uyms1yfxm": {
+        "x": 498,
+        "y": 50,
+        "name": "Aziza"
+      },
+      "pmo4uzq511aub": {
+        "x": 50,
+        "y": 244,
+        "name": "Anas"
+      },
+      "pmo4uzq51bp93": {
+        "x": 280,
+        "y": 244,
+        "name": "Basit"
+      },
+      "pmo4uzq513h5w": {
+        "x": 510,
+        "y": 244,
+        "name": "Mariam"
+      },
+      "pmo4uzq51eqjf": {
+        "x": 740,
+        "y": 244,
+        "name": "Hamzah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3eilyn1": {
+    "label": "Ahmad Saidi",
+    "cardCount": 50,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwiq4xex8n": {
+        "x": 3040,
+        "y": 50,
+        "name": "Shafiqa"
+      },
+      "pmndya3eilyn1": {
+        "x": 3270,
+        "y": 50,
+        "name": "Ahmad Saidi"
+      },
+      "pmnfwiq4xoz2k": {
+        "x": 3500,
+        "y": 50,
+        "name": "Laila"
+      },
+      "pmnfwl6r2lpes": {
+        "x": 50,
+        "y": 257,
+        "name": "Nabi Saidi"
+      },
+      "pmnfwl6r2k67v": {
+        "x": 280,
+        "y": 257,
+        "name": "Sediqa Saidi"
+      },
+      "pmo4tjfzukw6f": {
+        "x": 510,
+        "y": 257,
+        "name": "Omid"
+      },
+      "pmnfwl6r2bl6p": {
+        "x": 740,
+        "y": 257,
+        "name": "Zergai Said Saidi"
+      },
+      "pmo4tlndgesy8": {
+        "x": 970,
+        "y": 257,
+        "name": "Maria"
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 1200,
+        "y": 257,
+        "name": "Farid Saidi"
+      },
+      "pmndwllk96xxz": {
+        "x": 1430,
+        "y": 257,
+        "name": "Nabila"
+      },
+      "pmnfwl6r21xvr": {
+        "x": 1660,
+        "y": 257,
+        "name": "Rafi Saidi"
+      },
+      "pmo4tqukpwhe3": {
+        "x": 1890,
+        "y": 257,
+        "name": "Salma"
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2120,
+        "y": 257,
+        "name": "Latifa Saidi"
+      },
+      "pmndwllk8hld1": {
+        "x": 2350,
+        "y": 257,
+        "name": "Azghar Khan Rashid"
+      },
+      "pmnfwl6r2niud": {
+        "x": 2580,
+        "y": 257,
+        "name": "Waheed Saidi"
+      },
+      "pmo4txoa8ol14": {
+        "x": 2810,
+        "y": 257,
+        "name": "Silsila"
+      },
+      "pmnfwpozxh323": {
+        "x": 3730,
+        "y": 257,
+        "name": "Amina Saidi"
+      },
+      "pmnfwpozxyoww": {
+        "x": 3960,
+        "y": 257,
+        "name": "Fereshta Saidi"
+      },
+      "pmo4u0rpbm1wn": {
+        "x": 4190,
+        "y": 257,
+        "name": "NAVRAGEN"
+      },
+      "pmnfwpozxor6n": {
+        "x": 4420,
+        "y": 257,
+        "name": "Saidwali Saidi"
+      },
+      "pmnfwpozx8uem": {
+        "x": 4650,
+        "y": 257,
+        "name": "Sardarwali Saidi"
+      },
+      "pmnfwpozxxrih": {
+        "x": 4880,
+        "y": 257,
+        "name": "Mariam Saidi"
+      },
+      "pmo4u21q3m2zy": {
+        "x": 5110,
+        "y": 257,
+        "name": "NAVRAGEN?"
+      },
+      "pmnfwpozxxvot": {
+        "x": 5340,
+        "y": 257,
+        "name": "Zainab Saidi"
+      },
+      "pmnfwpozx2yhq": {
+        "x": 5570,
+        "y": 257,
+        "name": "Fatima Saidi"
+      },
+      "pmo4tkhyjlb4b": {
+        "x": 280,
+        "y": 1034,
+        "name": "Ibrahim Saidi"
+      },
+      "f14": {
+        "x": 510,
+        "y": 1034,
+        "name": "Mona Saidi"
+      },
+      "f13": {
+        "x": 740,
+        "y": 1034,
+        "name": "Meraj Faizi"
+      },
+      "pmo4tnohqn8eh": {
+        "x": 395,
+        "y": 1224,
+        "name": "Abdullah Saidi"
+      },
+      "pmo4tnohtq4o0": {
+        "x": 625,
+        "y": 1224,
+        "name": "Yusuf Saidi"
+      },
+      "pmo4tnohv1bc0": {
+        "x": 855,
+        "y": 1224,
+        "name": "Sannah Saidi"
+      },
+      "pmo4tnohyzf86": {
+        "x": 1085,
+        "y": 1224,
+        "name": "Madina Saidi"
+      },
+      "pmo4tnoi01vyn": {
+        "x": 1315,
+        "y": 1224,
+        "name": "Saleh Saidi"
+      },
+      "pmo4tnoi2nco0": {
+        "x": 1545,
+        "y": 1224,
+        "name": "Isa Saidi"
+      },
+      "pmo4tnoi53dc8": {
+        "x": 1775,
+        "y": 1224,
+        "name": "Idris Saidi"
+      },
+      "pmni053i84su6": {
+        "x": 740,
+        "y": 844,
+        "name": "Sarah Saidi"
+      },
+      "pmni053iamxzp": {
+        "x": 970,
+        "y": 844,
+        "name": "Sama Saidi"
+      },
+      "pmni053icew6m": {
+        "x": 1200,
+        "y": 844,
+        "name": "Hafsa Saidi"
+      },
+      "pmni053ie8pn9": {
+        "x": 1430,
+        "y": 844,
+        "name": "Yaqub Saidi"
+      },
+      "pmni053ifs7ju": {
+        "x": 1660,
+        "y": 844,
+        "name": "Ishaq Saidi"
+      },
+      "pmni053ih3c7e": {
+        "x": 1890,
+        "y": 844,
+        "name": "Safia Saidi"
+      },
+      "pmo4tv65lojwy": {
+        "x": 1660,
+        "y": 654,
+        "name": "Mumin Aisha Saidi"
+      },
+      "pmo4tu4zyqlgu": {
+        "x": 1890,
+        "y": 654,
+        "name": "Milad Saidi"
+      },
+      "pmni01k22obxh": {
+        "x": 1890,
+        "y": 464,
+        "name": "Haajar Rashid"
+      },
+      "pmni01k23erra": {
+        "x": 2120,
+        "y": 464,
+        "name": "Yahya Rashid"
+      },
+      "pmni01k24zyhf": {
+        "x": 2350,
+        "y": 464,
+        "name": "Omar Rashid"
+      },
+      "pmni01k25pnza": {
+        "x": 2580,
+        "y": 464,
+        "name": "Iqra Rashid"
+      },
+      "pmo4ty3cwvfaj": {
+        "x": 2695,
+        "y": 1034,
+        "name": "Khadija Saidi"
+      },
+      "pmo4u1b0rwt71": {
+        "x": 4075,
+        "y": 1034,
+        "name": "Hasanaat"
+      },
+      "pmo4u2pw7zjnf": {
+        "x": 4995,
+        "y": 1034,
+        "name": "Abu Bakr"
+      }
+    },
+    "ghosts": []
+  },
+  "s03": {
+    "label": "Ajab Khan Sayedi",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "s03": {
+        "x": 50,
+        "y": 50,
+        "name": "Ajab Khan Sayedi"
+      },
+      "s04": {
+        "x": 280,
+        "y": 50,
+        "name": "Sanga Hassanzai"
+      },
+      "pmncyghyo65ha": {
+        "x": 165,
+        "y": 241,
+        "name": "Mirwais Khan Wazir Sayedi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7ety1t7": {
+    "label": "Akhamier",
+    "cardCount": 26,
+    "overlaps": 0,
+    "cards": {
+      "pmni0s7ety1t7": {
+        "x": 1545,
+        "y": 50,
+        "name": "Akhamier"
+      },
+      "pmo4wfjlerx9r": {
+        "x": 1775,
+        "y": 50,
+        "name": "Nazriya"
+      },
+      "pmni10qwrkobm": {
+        "x": 510,
+        "y": 255,
+        "name": "Nazifa"
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 740,
+        "y": 255,
+        "name": "Khoja"
+      },
+      "pmni10qws5lcv": {
+        "x": 970,
+        "y": 255,
+        "name": "Nader"
+      },
+      "pmo4wo9v600oy": {
+        "x": 1200,
+        "y": 255,
+        "name": "Benafsha"
+      },
+      "pmni10qwsq7q9": {
+        "x": 1430,
+        "y": 255,
+        "name": "Shaista"
+      },
+      "pmo4wmwkisp4b": {
+        "x": 1660,
+        "y": 255,
+        "name": "Subhanallah"
+      },
+      "pmni10qws94io": {
+        "x": 1890,
+        "y": 255,
+        "name": "Hasinah"
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 2120,
+        "y": 255,
+        "name": "Qais"
+      },
+      "pmni10qwsu0z7": {
+        "x": 2350,
+        "y": 255,
+        "name": "Naser"
+      },
+      "pmo4wpxi0f3um": {
+        "x": 2580,
+        "y": 255,
+        "name": "Nazifa"
+      },
+      "pmni10qwsgyfr": {
+        "x": 2810,
+        "y": 255,
+        "name": "Mansoor"
+      },
+      "pmo4wveblf5x5": {
+        "x": 50,
+        "y": 540,
+        "name": "Hedayatullah"
+      },
+      "pmo4wveblcjbe": {
+        "x": 280,
+        "y": 540,
+        "name": "Inaytullah"
+      },
+      "pmo4wvebloqky": {
+        "x": 510,
+        "y": 540,
+        "name": "Abu Bakr"
+      },
+      "pmo4wvebltb8q": {
+        "x": 740,
+        "y": 540,
+        "name": "Kauthar"
+      },
+      "pmo4wveblrmqi": {
+        "x": 970,
+        "y": 540,
+        "name": "nog een meisje?"
+      },
+      "pmo4wvebl2zvm": {
+        "x": 1200,
+        "y": 540,
+        "name": "Nog een meisje??"
+      },
+      "pmo4wor2wvrjj": {
+        "x": 970,
+        "y": 730,
+        "name": "Firdaus"
+      },
+      "pmo4wor2wihti": {
+        "x": 1200,
+        "y": 730,
+        "name": "Iman"
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 1315,
+        "y": 1024,
+        "name": "Moqadas"
+      },
+      "pmo4wrv2hslwp": {
+        "x": 1545,
+        "y": 1024,
+        "name": "Mustafa"
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 1775,
+        "y": 1024,
+        "name": "Nog eentje?"
+      },
+      "pmo4wqumxm2vm": {
+        "x": 2350,
+        "y": 540,
+        "name": "Basit"
+      },
+      "pmo4wqumxcirr": {
+        "x": 2580,
+        "y": 540,
+        "name": "Nieuwe kind?"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3ei5vp4": {
+    "label": "Ali Ahmad Salehi",
+    "cardCount": 15,
+    "overlaps": 0,
+    "cards": {
+      "pmndyckredqon": {
+        "x": 510,
+        "y": 50,
+        "name": "Fawziya"
+      },
+      "pmndya3ei5vp4": {
+        "x": 740,
+        "y": 50,
+        "name": "Ali Ahmad Salehi"
+      },
+      "pmndyhcgqdpb9": {
+        "x": 970,
+        "y": 50,
+        "name": "Zakira"
+      },
+      "pmndydlr61are": {
+        "x": 50,
+        "y": 249,
+        "name": "Hekmatullah Salehi"
+      },
+      "pmni0xjxqy5q5": {
+        "x": 280,
+        "y": 249,
+        "name": "Shamila"
+      },
+      "pmndyjcrfva0k": {
+        "x": 1200,
+        "y": 249,
+        "name": "Ehsanullah"
+      },
+      "pmndyjcrg5spz": {
+        "x": 1430,
+        "y": 249,
+        "name": "Safiullah"
+      },
+      "pmndyjcrhx2b4": {
+        "x": 1660,
+        "y": 249,
+        "name": "Saifullah"
+      },
+      "pmndyjcripek7": {
+        "x": 1890,
+        "y": 249,
+        "name": "Muqadas"
+      },
+      "pmo0h2kl0159h": {
+        "x": 2120,
+        "y": 249,
+        "name": "Fahim"
+      },
+      "pmndyjcrjsvwo": {
+        "x": 2350,
+        "y": 249,
+        "name": "Marwa"
+      },
+      "pmndyjcrkl9zf": {
+        "x": 2580,
+        "y": 249,
+        "name": "Safya"
+      },
+      "pmndyjcrl3njh": {
+        "x": 2810,
+        "y": 249,
+        "name": "Humairah"
+      },
+      "pmndyf12hx96x": {
+        "x": 50,
+        "y": 448,
+        "name": "Khalil Reduaon Salehi"
+      },
+      "pmo007gyaqm2k": {
+        "x": 280,
+        "y": 448,
+        "name": "Aqsa Hanifa"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t07f8o0lo": {
+    "label": "Allahmahmad",
+    "cardCount": 68,
+    "overlaps": 0,
+    "cards": {
+      "pmndya3eixb8j": {
+        "x": 4650,
+        "y": 50,
+        "name": "Bibigul"
+      },
+      "pmo4t07f8o0lo": {
+        "x": 4880,
+        "y": 50,
+        "name": "Allahmahmad"
+      },
+      "pmo4uiz4fgqk4": {
+        "x": 5110,
+        "y": 50,
+        "name": "Shah Sultana"
+      },
+      "pmo4u647klb92": {
+        "x": 740,
+        "y": 285,
+        "name": "Mulla"
+      },
+      "pmo4ucl28pqjj": {
+        "x": 970,
+        "y": 285,
+        "name": "Zarifa"
+      },
+      "pmo4t2s73wzcp": {
+        "x": 1200,
+        "y": 285,
+        "name": "Babo"
+      },
+      "pmo4uctew3mow": {
+        "x": 1430,
+        "y": 285,
+        "name": "Sardar"
+      },
+      "pmo4t2s73iom6": {
+        "x": 1660,
+        "y": 285,
+        "name": "Rahima"
+      },
+      "pmo4ud9jg0tmt": {
+        "x": 1890,
+        "y": 285,
+        "name": "Amirdeen"
+      },
+      "pmo4t2s73omvz": {
+        "x": 2120,
+        "y": 285,
+        "name": "Rahiema"
+      },
+      "pmo4ufn9y0ahn": {
+        "x": 2350,
+        "y": 285,
+        "name": "Noorullah"
+      },
+      "pmo4u96zph9n5": {
+        "x": 2580,
+        "y": 285,
+        "name": "Fatima"
+      },
+      "pmo4ufxpzbouu": {
+        "x": 2810,
+        "y": 285,
+        "name": "Qudrat"
+      },
+      "pmo4t2s73j77q": {
+        "x": 3040,
+        "y": 285,
+        "name": "Sharief"
+      },
+      "pmo4uhm5mmib3": {
+        "x": 3270,
+        "y": 285,
+        "name": "Zus van Nasriena??"
+      },
+      "pmo4t2s73sf3c": {
+        "x": 3500,
+        "y": 285,
+        "name": "Fatima"
+      },
+      "pmo4t2s73rsl9": {
+        "x": 3730,
+        "y": 285,
+        "name": "Abderrahiem"
+      },
+      "pmo4uhy1e7hvn": {
+        "x": 3960,
+        "y": 285,
+        "name": "Uitzoeken??"
+      },
+      "pmo4t2s73uerq": {
+        "x": 4190,
+        "y": 285,
+        "name": "Hamed"
+      },
+      "pmo4ui8vvr8db": {
+        "x": 4420,
+        "y": 285,
+        "name": "Uitzoeken???"
+      },
+      "pmo4ukqv90teo": {
+        "x": 5340,
+        "y": 285,
+        "name": "Abdullah"
+      },
+      "pmo4ukqv97tr8": {
+        "x": 5570,
+        "y": 285,
+        "name": "Hamied"
+      },
+      "pmo4ukqv901b9": {
+        "x": 5800,
+        "y": 285,
+        "name": "Ahdulhadi"
+      },
+      "pmo4uyms1yfxm": {
+        "x": 6030,
+        "y": 285,
+        "name": "Aziza"
+      },
+      "pmo4ukqv9yug2": {
+        "x": 6260,
+        "y": 285,
+        "name": "Karima"
+      },
+      "pmo4ukqv99usn": {
+        "x": 6490,
+        "y": 285,
+        "name": "Fazela"
+      },
+      "pmo4uo5dgmtlx": {
+        "x": 50,
+        "y": 475,
+        "name": "Talha"
+      },
+      "pmo4uo5dgha11": {
+        "x": 280,
+        "y": 475,
+        "name": "Sanna"
+      },
+      "pmo4uo5dgc3b8": {
+        "x": 510,
+        "y": 475,
+        "name": "Habiba"
+      },
+      "pmo4uo5dglrux": {
+        "x": 740,
+        "y": 475,
+        "name": "Mohammad"
+      },
+      "pmo4uo5dgy46j": {
+        "x": 970,
+        "y": 475,
+        "name": "Afiya"
+      },
+      "pmo4uo5dg4vji": {
+        "x": 1200,
+        "y": 475,
+        "name": "Sarah"
+      },
+      "pmo4uo5dgl0fe": {
+        "x": 1430,
+        "y": 475,
+        "name": "Hafisa"
+      },
+      "pmo4uo5dgp42t": {
+        "x": 1660,
+        "y": 475,
+        "name": "Aisha"
+      },
+      "pmndn30vhfz8r": {
+        "x": 280,
+        "y": 665,
+        "name": "Rafi"
+      },
+      "pmndn2984pmss": {
+        "x": 510,
+        "y": 665,
+        "name": "Asma Amiri"
+      },
+      "pmo0h2kl0159h": {
+        "x": 740,
+        "y": 665,
+        "name": "Fahim"
+      },
+      "pmndyjcripek7": {
+        "x": 970,
+        "y": 665,
+        "name": "Muqadas"
+      },
+      "pmo4uu2cqnft3": {
+        "x": 1200,
+        "y": 665,
+        "name": "Shafi"
+      },
+      "pmo4uu2cq2lpc": {
+        "x": 1430,
+        "y": 665,
+        "name": "Farzana"
+      },
+      "pmo4uu2cqsbf5": {
+        "x": 1660,
+        "y": 665,
+        "name": "Frunaaz"
+      },
+      "pmo4uu2cqoyhk": {
+        "x": 1890,
+        "y": 665,
+        "name": "Shuiab"
+      },
+      "pmo4uu2cqp1pf": {
+        "x": 2120,
+        "y": 665,
+        "name": "Noeriya"
+      },
+      "pmo4uu2cq5qe2": {
+        "x": 2350,
+        "y": 665,
+        "name": "Shukriya"
+      },
+      "pmo4yhshfrk8r": {
+        "x": 740,
+        "y": 855,
+        "name": "Idries"
+      },
+      "pmo4yhshfg8bw": {
+        "x": 970,
+        "y": 855,
+        "name": "Ziyuldeen"
+      },
+      "pmo4yhshfiqj9": {
+        "x": 1200,
+        "y": 855,
+        "name": "Noman"
+      },
+      "pmo4yhshfnakz": {
+        "x": 1430,
+        "y": 855,
+        "name": "Hanzalah"
+      },
+      "pmo4yhshfchtu": {
+        "x": 1660,
+        "y": 855,
+        "name": "Hajaj"
+      },
+      "pmo4yhshfqlrh": {
+        "x": 1890,
+        "y": 855,
+        "name": "A'ridh"
+      },
+      "pmo4yhshfcij8": {
+        "x": 2120,
+        "y": 855,
+        "name": "Khadija"
+      },
+      "pmo8w5cf28zz1": {
+        "x": 2350,
+        "y": 855,
+        "name": "Zaki Mirzei"
+      },
+      "pmo4yhshf4aid": {
+        "x": 2580,
+        "y": 855,
+        "name": "Sajidah"
+      },
+      "pmo4uou2dx2vf": {
+        "x": 2810,
+        "y": 855,
+        "name": "Qais"
+      },
+      "pmo4uvvnnu1ci": {
+        "x": 2465,
+        "y": 1235,
+        "name": "Abu Zhar"
+      },
+      "pmo4uvvnn3c4e": {
+        "x": 2695,
+        "y": 1235,
+        "name": "Sumayah"
+      },
+      "pmo4uvvnn5wxq": {
+        "x": 2925,
+        "y": 1235,
+        "name": "Sama"
+      },
+      "pmo4v10zvm6sl": {
+        "x": 2695,
+        "y": 1425,
+        "name": "Hafiz"
+      },
+      "pmo4v10zwor2y": {
+        "x": 2925,
+        "y": 1425,
+        "name": "Hanief"
+      },
+      "pmo4v10zwmzpy": {
+        "x": 3155,
+        "y": 1425,
+        "name": "Muhammad"
+      },
+      "pmo4v10zwgs3c": {
+        "x": 3385,
+        "y": 1425,
+        "name": "Saleh Zahid"
+      },
+      "pmo4v10zwtuom": {
+        "x": 3615,
+        "y": 1425,
+        "name": "Rahiel"
+      },
+      "pmo4uzq511aub": {
+        "x": 5570,
+        "y": 855,
+        "name": "Anas"
+      },
+      "pmo4uzq51bp93": {
+        "x": 5800,
+        "y": 855,
+        "name": "Basit"
+      },
+      "pmo4uzq513h5w": {
+        "x": 6030,
+        "y": 855,
+        "name": "Mariam"
+      },
+      "pmo4uzq51eqjf": {
+        "x": 6260,
+        "y": 855,
+        "name": "Hamzah"
+      },
+      "pmndn3i30g9js": {
+        "x": 280,
+        "y": 1045,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 510,
+        "y": 1045,
+        "name": "Zaynab"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etwzn0": {
+    "label": "Amien",
+    "cardCount": 21,
+    "overlaps": 0,
+    "cards": {
+      "pmni0s7etwzn0": {
+        "x": 1200,
+        "y": 50,
+        "name": "Amien"
+      },
+      "pmo4w98msm30i": {
+        "x": 1430,
+        "y": 50,
+        "name": "Katoray"
+      },
+      "pmni14pya5f9h": {
+        "x": 280,
+        "y": 252,
+        "name": "Mirwais"
+      },
+      "pmo4wbnzfjghc": {
+        "x": 510,
+        "y": 252,
+        "name": "Breshna"
+      },
+      "pmni14pyarspx": {
+        "x": 740,
+        "y": 252,
+        "name": "Moniqa"
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 970,
+        "y": 252,
+        "name": "Muhammad Ali"
+      },
+      "pmni14pyav3jq": {
+        "x": 1200,
+        "y": 252,
+        "name": "Emal"
+      },
+      "pmo4wchtwvh9c": {
+        "x": 1430,
+        "y": 252,
+        "name": "Suhaila"
+      },
+      "pmni14pyaujp1": {
+        "x": 1660,
+        "y": 252,
+        "name": "Faisal"
+      },
+      "pmo70zlol6io2": {
+        "x": 1890,
+        "y": 252,
+        "name": "Vrouw Faisal?"
+      },
+      "pmni14pyai87w": {
+        "x": 2120,
+        "y": 252,
+        "name": "Heejrat"
+      },
+      "pmo71019rdde4": {
+        "x": 2350,
+        "y": 252,
+        "name": "Vrouw Heejrat?"
+      },
+      "pmo4wdt6k43c8": {
+        "x": 50,
+        "y": 537,
+        "name": "Mirhan"
+      },
+      "pmo4wdt6kdksz": {
+        "x": 280,
+        "y": 537,
+        "name": "Sirat"
+      },
+      "pmo4wdt6krvxa": {
+        "x": 510,
+        "y": 537,
+        "name": "Sufrah"
+      },
+      "pmo4wdt6kzel5": {
+        "x": 740,
+        "y": 537,
+        "name": "Aisha"
+      },
+      "pmo70z4rspi7d": {
+        "x": 625,
+        "y": 727,
+        "name": "KInd 1"
+      },
+      "pmo70z4rsajz3": {
+        "x": 855,
+        "y": 727,
+        "name": "kind 2"
+      },
+      "pmo70z4rs3c8z": {
+        "x": 1085,
+        "y": 727,
+        "name": "kind 3"
+      },
+      "pmo4weihvuabj": {
+        "x": 1200,
+        "y": 537,
+        "name": "Taha Khaliel"
+      },
+      "pmo4weihvk4lp": {
+        "x": 1430,
+        "y": 537,
+        "name": "Hafsa Fatimah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ud9jg0tmt": {
+    "label": "Amirdeen",
+    "cardCount": 12,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73iom6": {
+        "x": 983,
+        "y": 50,
+        "name": "Rahima"
+      },
+      "pmo4ud9jg0tmt": {
+        "x": 1188,
+        "y": 50,
+        "name": "Amirdeen"
+      },
+      "pmo4yhshfrk8r": {
+        "x": 50,
+        "y": 247,
+        "name": "Idries"
+      },
+      "pmo4yhshfg8bw": {
+        "x": 280,
+        "y": 247,
+        "name": "Ziyuldeen"
+      },
+      "pmo4yhshfiqj9": {
+        "x": 510,
+        "y": 247,
+        "name": "Noman"
+      },
+      "pmo4yhshfnakz": {
+        "x": 740,
+        "y": 247,
+        "name": "Hanzalah"
+      },
+      "pmo4yhshfchtu": {
+        "x": 970,
+        "y": 247,
+        "name": "Hajaj"
+      },
+      "pmo4yhshfqlrh": {
+        "x": 1200,
+        "y": 247,
+        "name": "A'ridh"
+      },
+      "pmo4yhshfcij8": {
+        "x": 1430,
+        "y": 247,
+        "name": "Khadija"
+      },
+      "pmo8w5cf28zz1": {
+        "x": 1660,
+        "y": 247,
+        "name": "Zaki Mirzei"
+      },
+      "pmo4yhshf4aid": {
+        "x": 1890,
+        "y": 247,
+        "name": "Sajidah"
+      },
+      "pmo4uou2dx2vf": {
+        "x": 2120,
+        "y": 247,
+        "name": "Qais"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4w6fakq8md": {
+    "label": "Asif",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmni0v8uiepz0": {
+        "x": 63,
+        "y": 50,
+        "name": "Najiba"
+      },
+      "pmo4w6fakq8md": {
+        "x": 268,
+        "y": 50,
+        "name": "Asif"
+      },
+      "pmo4w72fa5g45": {
+        "x": 50,
+        "y": 242,
+        "name": "Mahmad Naiem"
+      },
+      "pmo4w72fa19ws": {
+        "x": 280,
+        "y": 242,
+        "name": "Shikiba"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7bkdrm6yz": {
+    "label": "Asif Khan Ghorbandi",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7bkdrm6yz": {
+        "x": 50,
+        "y": 50,
+        "name": "Asif Khan Ghorbandi"
+      },
+      "pmnepe8ob5cod": {
+        "x": 255,
+        "y": 50,
+        "name": "Soraya"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycr3rguf": {
+    "label": "Ayoub Rashid",
+    "cardCount": 8,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycr3rguf": {
+        "x": 522,
+        "y": 50,
+        "name": "Ayoub Rashid"
+      },
+      "pmo34z25i1fky": {
+        "x": 727,
+        "y": 50,
+        "name": "Nazifa"
+      },
+      "pmo350x9zbuxz": {
+        "x": 50,
+        "y": 244,
+        "name": "Mashal Rashid"
+      },
+      "pmo350xa4any3": {
+        "x": 280,
+        "y": 244,
+        "name": "Maiwand Rashid"
+      },
+      "pmo350xa8twge": {
+        "x": 510,
+        "y": 244,
+        "name": "Morsal Rashid"
+      },
+      "pmo350xacwuzv": {
+        "x": 740,
+        "y": 244,
+        "name": "Yousuf Rashid"
+      },
+      "pmo350xag72uv": {
+        "x": 970,
+        "y": 244,
+        "name": "Ashraf Rashid"
+      },
+      "pmo350xaj9g7p": {
+        "x": 1200,
+        "y": 244,
+        "name": "Momina Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4v4r3i85jz": {
+    "label": "Daad Mahmad",
+    "cardCount": 8,
+    "overlaps": 0,
+    "cards": {
+      "pmo4szd62qiup": {
+        "x": 523,
+        "y": 50,
+        "name": "Bibirawza"
+      },
+      "pmo4v4r3i85jz": {
+        "x": 728,
+        "y": 50,
+        "name": "Daad Mahmad"
+      },
+      "pmo4v6ag4btzt": {
+        "x": 50,
+        "y": 245,
+        "name": "Shuaib"
+      },
+      "pmo4v6ag5tbeg": {
+        "x": 280,
+        "y": 245,
+        "name": "Tayba"
+      },
+      "pmo4v6ag5yshe": {
+        "x": 510,
+        "y": 245,
+        "name": "Yaser"
+      },
+      "pmo4v6ag5y6kb": {
+        "x": 740,
+        "y": 245,
+        "name": "Beheshta"
+      },
+      "pmo4v6ag5kd8o": {
+        "x": 970,
+        "y": 245,
+        "name": "Madina"
+      },
+      "pmo4v6ag5b5bp": {
+        "x": 1200,
+        "y": 245,
+        "name": "Omar"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndwllk9fukl": {
+    "label": "Davud Khan Durrani",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmndwllk9fukl": {
+        "x": 292,
+        "y": 50,
+        "name": "Davud Khan Durrani"
+      },
+      "pmneptum4xnzi": {
+        "x": 497,
+        "y": 50,
+        "name": "Diwa Alia Miakhel"
+      },
+      "pmnepytxdqi9y": {
+        "x": 50,
+        "y": 243,
+        "name": "Mustafa Durrani"
+      },
+      "pmnepytxga1sz": {
+        "x": 280,
+        "y": 243,
+        "name": "Mujtaba Durrani"
+      },
+      "pmnepytxh5z3q": {
+        "x": 510,
+        "y": 243,
+        "name": "Muskaan Durrani"
+      },
+      "pmnepytxiuzsg": {
+        "x": 740,
+        "y": 243,
+        "name": "Abud Musawwir Durrani"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfx8zrswvz9": {
+    "label": "Davud Sediqi",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmnfx3knl6en8": {
+        "x": 165,
+        "y": 50,
+        "name": "Mina Salehi"
+      },
+      "pmnfx8zrswvz9": {
+        "x": 395,
+        "y": 50,
+        "name": "Davud Sediqi"
+      },
+      "pmnfxa0in4tc9": {
+        "x": 50,
+        "y": 243,
+        "name": "Ibrahim Sediqi"
+      },
+      "pmnfxa0io0z5u": {
+        "x": 280,
+        "y": 243,
+        "name": "Maryam Sediqi"
+      },
+      "pmnfxa0iou6j0": {
+        "x": 510,
+        "y": 243,
+        "name": "Sarah Sediqi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo358vl3n6yf": {
+    "label": "Didar",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycrl4b8j": {
+        "x": 62,
+        "y": 50,
+        "name": "Store"
+      },
+      "pmo358vl3n6yf": {
+        "x": 267,
+        "y": 50,
+        "name": "Didar"
+      },
+      "pmo359q5jrkg1": {
+        "x": 50,
+        "y": 242,
+        "name": "Mujda"
+      },
+      "pmo359q5q3jz9": {
+        "x": 280,
+        "y": 242,
+        "name": "Osman"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyav3jq": {
+    "label": "Emal",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmni14pyav3jq": {
+        "x": 63,
+        "y": 50,
+        "name": "Emal"
+      },
+      "pmo4wchtwvh9c": {
+        "x": 268,
+        "y": 50,
+        "name": "Suhaila"
+      },
+      "pmo4weihvuabj": {
+        "x": 50,
+        "y": 242,
+        "name": "Taha Khaliel"
+      },
+      "pmo4weihvk4lp": {
+        "x": 280,
+        "y": 242,
+        "name": "Hafsa Fatimah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnepnt0eu2k2": {
+    "label": "Ezatullah Achmadzai",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7n0jbe5kc": {
+        "x": 50,
+        "y": 50,
+        "name": "Atifa Ghorbandi"
+      },
+      "pmnepnt0eu2k2": {
+        "x": 280,
+        "y": 50,
+        "name": "Ezatullah Achmadzai"
+      },
+      "pmnepp0idbklv": {
+        "x": 165,
+        "y": 241,
+        "name": "Zunaira Dua Achmadzai"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyaujp1": {
+    "label": "Faisal",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmni14pyaujp1": {
+        "x": 50,
+        "y": 50,
+        "name": "Faisal"
+      },
+      "pmo70zlol6io2": {
+        "x": 255,
+        "y": 50,
+        "name": "Vrouw Faisal?"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0v8uierpw": {
+    "label": "Farhad",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmni0v8uierpw": {
+        "x": 293,
+        "y": 50,
+        "name": "Farhad"
+      },
+      "pmo4vr6r2vi98": {
+        "x": 498,
+        "y": 50,
+        "name": "Fereshta"
+      },
+      "pmo4w5y12nsjo": {
+        "x": 50,
+        "y": 244,
+        "name": "Yunus"
+      },
+      "pmo4w5y12cae6": {
+        "x": 280,
+        "y": 244,
+        "name": "Shahied"
+      },
+      "pmo4w5y12507h": {
+        "x": 510,
+        "y": 244,
+        "name": "Basit"
+      },
+      "pmo4w5y12b1h5": {
+        "x": 740,
+        "y": 244,
+        "name": "Yusrah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0mtna5vxw": {
+    "label": "Fazelahmad",
+    "cardCount": 136,
+    "overlaps": 0,
+    "cards": {
+      "pmni0mtna5vxw": {
+        "x": 3948,
+        "y": 50,
+        "name": "Fazelahmad"
+      },
+      "pmni0nrmgl4he": {
+        "x": 4153,
+        "y": 50,
+        "name": "Bibi Shazada"
+      },
+      "pmni0s7et7v3g": {
+        "x": 2095,
+        "y": 285,
+        "name": "Sanama"
+      },
+      "pmo4xkx7hr4du": {
+        "x": 2325,
+        "y": 285,
+        "name": "Ma'lim"
+      },
+      "pmni0s7etaht7": {
+        "x": 2555,
+        "y": 285,
+        "name": "Ilas"
+      },
+      "pmo4vafk9ne7l": {
+        "x": 2785,
+        "y": 285,
+        "name": "Mur'awey"
+      },
+      "pmo4wyoiqmfi7": {
+        "x": 3015,
+        "y": 285,
+        "name": "Fatema"
+      },
+      "pmni0s7etyv3g": {
+        "x": 3245,
+        "y": 285,
+        "name": "Agha Gol"
+      },
+      "pmo4xeqmrsud9": {
+        "x": 3475,
+        "y": 285,
+        "name": "Gulsherien"
+      },
+      "pmni0s7ety1t7": {
+        "x": 3849,
+        "y": 285,
+        "name": "Akhamier"
+      },
+      "pmo4wfjlerx9r": {
+        "x": 4079,
+        "y": 285,
+        "name": "Nazriya"
+      },
+      "pmni0s7etwzn0": {
+        "x": 4309,
+        "y": 285,
+        "name": "Amien"
+      },
+      "pmo4w98msm30i": {
+        "x": 4539,
+        "y": 285,
+        "name": "Katoray"
+      },
+      "f01": {
+        "x": 4769,
+        "y": 285,
+        "name": "Khanaga Faizi"
+      },
+      "f02": {
+        "x": 4999,
+        "y": 285,
+        "name": "Benazier Rashid"
+      },
+      "pmni0s7etpgpa": {
+        "x": 5229,
+        "y": 285,
+        "name": "Candagah"
+      },
+      "pmo4xvsspw66y": {
+        "x": 5459,
+        "y": 285,
+        "name": "Gulsuma"
+      },
+      "pmo4xwldcsefq": {
+        "x": 5689,
+        "y": 285,
+        "name": "Rahiemgul"
+      },
+      "pmo4xvsspty1z": {
+        "x": 5919,
+        "y": 285,
+        "name": "Malala"
+      },
+      "pmo4xwwkoq57t": {
+        "x": 6149,
+        "y": 285,
+        "name": "Musafir"
+      },
+      "pmni0tu13oc3d": {
+        "x": 1520,
+        "y": 610,
+        "name": "Shoroh"
+      },
+      "pmni0tu14jfoi": {
+        "x": 1750,
+        "y": 610,
+        "name": "Kazem"
+      },
+      "pmni0tu14y8tb": {
+        "x": 1980,
+        "y": 610,
+        "name": "Nazem"
+      },
+      "pmni0tu14n6g5": {
+        "x": 2210,
+        "y": 610,
+        "name": "Golalai of Toryolay?"
+      },
+      "pmni0tu14seye": {
+        "x": 2440,
+        "y": 610,
+        "name": "Hamida"
+      },
+      "pmni0tu141lkn": {
+        "x": 2670,
+        "y": 610,
+        "name": "Farzana"
+      },
+      "pmni0tu14q8j4": {
+        "x": 2900,
+        "y": 610,
+        "name": "Shazia"
+      },
+      "pmni0v8ui9mjd": {
+        "x": 1405,
+        "y": 980,
+        "name": "Zakira"
+      },
+      "pmni0v8uiepz0": {
+        "x": 1635,
+        "y": 980,
+        "name": "Najiba"
+      },
+      "pmo4w6fakq8md": {
+        "x": 1865,
+        "y": 980,
+        "name": "Asif"
+      },
+      "pmni0v8uiu40k": {
+        "x": 2095,
+        "y": 980,
+        "name": "Firoz Khan"
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 2325,
+        "y": 980,
+        "name": "Shakargul"
+      },
+      "pmni0v8uiimus": {
+        "x": 2555,
+        "y": 980,
+        "name": "Ghiyal"
+      },
+      "pmni0v8uierpw": {
+        "x": 2785,
+        "y": 980,
+        "name": "Farhad"
+      },
+      "pmo4vr6r2vi98": {
+        "x": 3015,
+        "y": 980,
+        "name": "Fereshta"
+      },
+      "pmni0v8ui7vpw": {
+        "x": 3245,
+        "y": 980,
+        "name": "Fawad"
+      },
+      "pmni0v8uihcrv": {
+        "x": 3475,
+        "y": 980,
+        "name": "Khaybar"
+      },
+      "pmo4vq95k7dyj": {
+        "x": 3705,
+        "y": 980,
+        "name": "Naqib"
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 3935,
+        "y": 980,
+        "name": "Kubrah"
+      },
+      "pmni0xjxqp5fh": {
+        "x": 625,
+        "y": 1866,
+        "name": "Nasrina"
+      },
+      "pmo4x48qp13uy": {
+        "x": 855,
+        "y": 1866,
+        "name": "Mahmad Sherien"
+      },
+      "pmni0xjxqgts8": {
+        "x": 1085,
+        "y": 1866,
+        "name": "Marjam"
+      },
+      "pmni0xjxq3aqh": {
+        "x": 2235,
+        "y": 1866,
+        "name": "Fazzerrahman"
+      },
+      "pmo4x9ugigsr6": {
+        "x": 2465,
+        "y": 1866,
+        "name": "Mariam"
+      },
+      "pmni0xjxqh0e7": {
+        "x": 2695,
+        "y": 1866,
+        "name": "Ubaidah"
+      },
+      "pmni0xjxq42rt": {
+        "x": 3795,
+        "y": 1866,
+        "name": "Samirah"
+      },
+      "pmo4x78d6od26": {
+        "x": 4025,
+        "y": 1866,
+        "name": "Shahmahmoed"
+      },
+      "pmni0xjxqy5q5": {
+        "x": 4255,
+        "y": 1866,
+        "name": "Shamila"
+      },
+      "pmndydlr61are": {
+        "x": 4485,
+        "y": 1866,
+        "name": "Hekmatullah Salehi"
+      },
+      "pmni10qwrkobm": {
+        "x": 2814,
+        "y": 2723,
+        "name": "Nazifa"
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 3044,
+        "y": 2723,
+        "name": "Khoja"
+      },
+      "pmni10qws5lcv": {
+        "x": 3274,
+        "y": 2723,
+        "name": "Nader"
+      },
+      "pmo4wo9v600oy": {
+        "x": 3504,
+        "y": 2723,
+        "name": "Benafsha"
+      },
+      "pmni10qwsq7q9": {
+        "x": 3734,
+        "y": 2723,
+        "name": "Shaista"
+      },
+      "pmo4wmwkisp4b": {
+        "x": 3964,
+        "y": 2723,
+        "name": "Subhanallah"
+      },
+      "pmni10qws94io": {
+        "x": 4194,
+        "y": 2723,
+        "name": "Hasinah"
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 4424,
+        "y": 2723,
+        "name": "Qais"
+      },
+      "pmni10qwsu0z7": {
+        "x": 4654,
+        "y": 2723,
+        "name": "Naser"
+      },
+      "pmo4wpxi0f3um": {
+        "x": 4884,
+        "y": 2723,
+        "name": "Nazifa"
+      },
+      "pmni10qwsgyfr": {
+        "x": 5114,
+        "y": 2723,
+        "name": "Mansoor"
+      },
+      "pmni14pya5f9h": {
+        "x": 3389,
+        "y": 3862,
+        "name": "Mirwais"
+      },
+      "pmo4wbnzfjghc": {
+        "x": 3619,
+        "y": 3862,
+        "name": "Breshna"
+      },
+      "pmni14pyarspx": {
+        "x": 3849,
+        "y": 3862,
+        "name": "Moniqa"
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 4079,
+        "y": 3862,
+        "name": "Muhammad Ali"
+      },
+      "pmni14pyav3jq": {
+        "x": 4309,
+        "y": 3862,
+        "name": "Emal"
+      },
+      "pmo4wchtwvh9c": {
+        "x": 4539,
+        "y": 3862,
+        "name": "Suhaila"
+      },
+      "pmni14pyaujp1": {
+        "x": 4769,
+        "y": 3862,
+        "name": "Faisal"
+      },
+      "pmo70zlol6io2": {
+        "x": 4999,
+        "y": 3862,
+        "name": "Vrouw Faisal?"
+      },
+      "pmni14pyai87w": {
+        "x": 5229,
+        "y": 3862,
+        "name": "Heejrat"
+      },
+      "pmo71019rdde4": {
+        "x": 5459,
+        "y": 3862,
+        "name": "Vrouw Heejrat?"
+      },
+      "f03": {
+        "x": 3619,
+        "y": 4707,
+        "name": "Hemat Faizi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 3849,
+        "y": 4707,
+        "name": "Husna Amiri"
+      },
+      "f06": {
+        "x": 4079,
+        "y": 4707,
+        "name": "Nilab Faizi"
+      },
+      "f07": {
+        "x": 1315,
+        "y": 1866,
+        "name": "Emamuddin Salehi"
+      },
+      "f10": {
+        "x": 4539,
+        "y": 4707,
+        "name": "Alia Faizi"
+      },
+      "f11": {
+        "x": 1775,
+        "y": 1866,
+        "name": "Rahimgul Salehi"
+      },
+      "f13": {
+        "x": 4999,
+        "y": 4707,
+        "name": "Meraj Faizi"
+      },
+      "f14": {
+        "x": 5229,
+        "y": 4707,
+        "name": "Mona Saidi"
+      },
+      "f15": {
+        "x": 5459,
+        "y": 4707,
+        "name": "Erfan Faizi"
+      },
+      "f16": {
+        "x": 5689,
+        "y": 4707,
+        "name": "Alina Faizi"
+      },
+      "pmndnrn9438x5": {
+        "x": 5919,
+        "y": 4707,
+        "name": "Noman Rashid"
+      },
+      "f17": {
+        "x": 6149,
+        "y": 4707,
+        "name": "Hamza Faizi"
+      },
+      "pmo4xxff5byvg": {
+        "x": 6034,
+        "y": 570,
+        "name": "Gulbushrah"
+      },
+      "pmo4xy7vm7yae": {
+        "x": 5804,
+        "y": 570,
+        "name": "Zahir"
+      },
+      "pmo4w72fa5g45": {
+        "x": 1635,
+        "y": 1306,
+        "name": "Mahmad Naiem"
+      },
+      "pmo4w72fa19ws": {
+        "x": 1865,
+        "y": 1306,
+        "name": "Shikiba"
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 1865,
+        "y": 1496,
+        "name": "Emran"
+      },
+      "pmo4w4s6vkh69": {
+        "x": 2095,
+        "y": 1496,
+        "name": "Mujieb"
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 2325,
+        "y": 1496,
+        "name": "Ismai'iel"
+      },
+      "pmo4w4s6vss7k": {
+        "x": 2555,
+        "y": 1496,
+        "name": "Hajatullah"
+      },
+      "pmo4w5y12nsjo": {
+        "x": 2555,
+        "y": 1306,
+        "name": "Yunus"
+      },
+      "pmo4w5y12cae6": {
+        "x": 2785,
+        "y": 1306,
+        "name": "Shahied"
+      },
+      "pmo4w5y12507h": {
+        "x": 3015,
+        "y": 1306,
+        "name": "Basit"
+      },
+      "pmo4w5y12b1h5": {
+        "x": 3245,
+        "y": 1306,
+        "name": "Yusrah"
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 2353,
+        "name": "Nasibah"
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 2353,
+        "name": "Abdul Wares"
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 2353,
+        "name": "Abdul Shakur"
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 2353,
+        "name": "Abdul Saboor"
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 2353,
+        "name": "Hadiya"
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 2353,
+        "name": "Aisha"
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 2353,
+        "name": "Hoera"
+      },
+      "pmo4x88upl6ua": {
+        "x": 3565,
+        "y": 2163,
+        "name": "Zahrah"
+      },
+      "pmo4x88up7i7r": {
+        "x": 3795,
+        "y": 2163,
+        "name": "Zohrah"
+      },
+      "pmo4x88upxoul": {
+        "x": 4025,
+        "y": 2163,
+        "name": "Sumayyah"
+      },
+      "pmo4x88up5ikb": {
+        "x": 4255,
+        "y": 2163,
+        "name": "Khadija"
+      },
+      "pmndyf12hx96x": {
+        "x": 4255,
+        "y": 2353,
+        "name": "Khalil Reduaon Salehi"
+      },
+      "pmo007gyaqm2k": {
+        "x": 4485,
+        "y": 2353,
+        "name": "Aqsa Hanifa"
+      },
+      "pmo4wveblf5x5": {
+        "x": 2354,
+        "y": 3008,
+        "name": "Hedayatullah"
+      },
+      "pmo4wveblcjbe": {
+        "x": 2584,
+        "y": 3008,
+        "name": "Inaytullah"
+      },
+      "pmo4wvebloqky": {
+        "x": 2814,
+        "y": 3008,
+        "name": "Abu Bakr"
+      },
+      "pmo4wvebltb8q": {
+        "x": 3044,
+        "y": 3008,
+        "name": "Kauthar"
+      },
+      "pmo4wveblrmqi": {
+        "x": 3274,
+        "y": 3008,
+        "name": "nog een meisje?"
+      },
+      "pmo4wvebl2zvm": {
+        "x": 3504,
+        "y": 3008,
+        "name": "Nog een meisje??"
+      },
+      "pmo4wor2wvrjj": {
+        "x": 3274,
+        "y": 3198,
+        "name": "Firdaus"
+      },
+      "pmo4wor2wihti": {
+        "x": 3504,
+        "y": 3198,
+        "name": "Iman"
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 3619,
+        "y": 3492,
+        "name": "Moqadas"
+      },
+      "pmo4wrv2hslwp": {
+        "x": 3849,
+        "y": 3492,
+        "name": "Mustafa"
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 4079,
+        "y": 3492,
+        "name": "Nog eentje?"
+      },
+      "pmo4wqumxm2vm": {
+        "x": 4654,
+        "y": 3008,
+        "name": "Basit"
+      },
+      "pmo4wqumxcirr": {
+        "x": 4884,
+        "y": 3008,
+        "name": "Nieuwe kind?"
+      },
+      "pmo4wdt6k43c8": {
+        "x": 3159,
+        "y": 4147,
+        "name": "Mirhan"
+      },
+      "pmo4wdt6kdksz": {
+        "x": 3389,
+        "y": 4147,
+        "name": "Sirat"
+      },
+      "pmo4wdt6krvxa": {
+        "x": 3619,
+        "y": 4147,
+        "name": "Sufrah"
+      },
+      "pmo4wdt6kzel5": {
+        "x": 3849,
+        "y": 4147,
+        "name": "Aisha"
+      },
+      "pmo70z4rspi7d": {
+        "x": 3734,
+        "y": 4337,
+        "name": "KInd 1"
+      },
+      "pmo70z4rsajz3": {
+        "x": 3964,
+        "y": 4337,
+        "name": "kind 2"
+      },
+      "pmo70z4rs3c8z": {
+        "x": 4194,
+        "y": 4337,
+        "name": "kind 3"
+      },
+      "pmo4weihvuabj": {
+        "x": 4309,
+        "y": 4147,
+        "name": "Taha Khaliel"
+      },
+      "pmo4weihvk4lp": {
+        "x": 4539,
+        "y": 4147,
+        "name": "Hafsa Fatimah"
+      },
+      "f05": {
+        "x": 3619,
+        "y": 4992,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 3849,
+        "y": 4992,
+        "name": "Aisya Faizi"
+      },
+      "f08": {
+        "x": 970,
+        "y": 2066,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 1200,
+        "y": 2066,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 1430,
+        "y": 2066,
+        "name": "Fatima Zahra Salehi"
+      },
+      "f12": {
+        "x": 1775,
+        "y": 2066,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 2005,
+        "y": 2066,
+        "name": "Zahra Salehi"
+      }
+    },
+    "ghosts": [
+      {
+        "key": "f06:cg:overlay_owner_pmni0s7etyv3g_0",
+        "id": "f06",
+        "x": 1545,
+        "y": 1866,
+        "adjacentTo": "f07",
+        "name": "Nilab Faizi"
+      },
+      {
+        "key": "f10:cg:overlay_owner_pmni0s7etyv3g_1",
+        "id": "f10",
+        "x": 2005,
+        "y": 1866,
+        "adjacentTo": "f11",
+        "name": "Alia Faizi"
+      },
+      {
+        "key": "f07:cg:overlay_owner_f01_0",
+        "id": "f07",
+        "x": 4309,
+        "y": 4707,
+        "adjacentTo": "f06",
+        "name": "Emamuddin Salehi"
+      },
+      {
+        "key": "f08:cg:overlay_owner_f01_1",
+        "id": "f08",
+        "x": 3964,
+        "y": 5112,
+        "adjacentTo": "f06",
+        "name": "Muhammad Salehi"
+      },
+      {
+        "key": "f09:cg:overlay_owner_f01_2",
+        "id": "f09",
+        "x": 4194,
+        "y": 5112,
+        "adjacentTo": "f06",
+        "name": "Ahmad Salehi"
+      },
+      {
+        "key": "f11:cg:overlay_owner_f01_3",
+        "id": "f11",
+        "x": 4769,
+        "y": 4707,
+        "adjacentTo": "f10",
+        "name": "Rahimgul Salehi"
+      },
+      {
+        "key": "f12:cg:overlay_owner_f01_4",
+        "id": "f12",
+        "x": 4539,
+        "y": 4910,
+        "adjacentTo": "f10",
+        "name": "Zainab Salehi"
+      },
+      {
+        "key": "pmnd6s4yespmb:cg:overlay_owner_f01_5",
+        "id": "pmnd6s4yespmb",
+        "x": 4769,
+        "y": 4910,
+        "adjacentTo": "f11",
+        "name": "Zahra Salehi"
+      },
+      {
+        "key": "pmnfv2r03xoij:cg:overlay_owner_f01_6",
+        "id": "pmnfv2r03xoij",
+        "x": 4424,
+        "y": 5112,
+        "adjacentTo": "f07",
+        "name": "Fatima Zahra Salehi"
+      }
+    ]
+  },
+  "pmni0xjxq3aqh": {
+    "label": "Fazzerrahman",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmni0xjxq3aqh": {
+        "x": 50,
+        "y": 50,
+        "name": "Fazzerrahman"
+      },
+      "pmo4x9ugigsr6": {
+        "x": 255,
+        "y": 50,
+        "name": "Mariam"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0v8uiu40k": {
+    "label": "Firoz Khan",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmni0v8uiu40k": {
+        "x": 293,
+        "y": 50,
+        "name": "Firoz Khan"
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 498,
+        "y": 50,
+        "name": "Shakargul"
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 50,
+        "y": 244,
+        "name": "Emran"
+      },
+      "pmo4w4s6vkh69": {
+        "x": 280,
+        "y": 244,
+        "name": "Mujieb"
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 510,
+        "y": 244,
+        "name": "Ismai'iel"
+      },
+      "pmo4w4s6vss7k": {
+        "x": 740,
+        "y": 244,
+        "name": "Hajatullah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmneq7p4nynu3": {
+    "label": "Habib Gull Durrani",
+    "cardCount": 18,
+    "overlaps": 0,
+    "cards": {
+      "pmneq7p4nynu3": {
+        "x": 1200,
+        "y": 50,
+        "name": "Habib Gull Durrani"
+      },
+      "pmni06p0ji4hg": {
+        "x": 1430,
+        "y": 50,
+        "name": "Laila Babo"
+      },
+      "pmni0aw5mfovo": {
+        "x": 395,
+        "y": 250,
+        "name": "Mergalela Durrani"
+      },
+      "pmni0byqqbuqw": {
+        "x": 625,
+        "y": 250,
+        "name": "Shirnagha"
+      },
+      "pmni0aw63vtas": {
+        "x": 855,
+        "y": 250,
+        "name": "Malalai Durrani"
+      },
+      "pmni0dr4npt6r": {
+        "x": 1085,
+        "y": 250,
+        "name": "Abdullah"
+      },
+      "pmni0aw5rt7j6": {
+        "x": 1315,
+        "y": 250,
+        "name": "Habibrahman Durrani"
+      },
+      "pmni0aw5t19yo": {
+        "x": 1545,
+        "y": 250,
+        "name": "Saifrahman Durrani"
+      },
+      "pmni0aw5wzj12": {
+        "x": 1775,
+        "y": 250,
+        "name": "Parwana Durrani"
+      },
+      "pmni0aw5zil6x": {
+        "x": 2005,
+        "y": 250,
+        "name": "Asina Durrani"
+      },
+      "pmni0aw61wfnn": {
+        "x": 2235,
+        "y": 250,
+        "name": "Samia Durrani"
+      },
+      "pmni0d7t09vcm": {
+        "x": 50,
+        "y": 451,
+        "name": "Baryalai"
+      },
+      "pmni0fiiiy1qs": {
+        "x": 280,
+        "y": 451,
+        "name": "Ferdaws"
+      },
+      "pmni0d7t6qrt0": {
+        "x": 510,
+        "y": 451,
+        "name": "Khalid"
+      },
+      "pmni0d7t9876w": {
+        "x": 740,
+        "y": 451,
+        "name": "Abubakr"
+      },
+      "pmni0d7tck3oc": {
+        "x": 970,
+        "y": 451,
+        "name": "Marwa"
+      },
+      "pmo49w9tiqty7": {
+        "x": 855,
+        "y": 842,
+        "name": "Mohammad"
+      },
+      "pmni0e8yfpn37": {
+        "x": 1085,
+        "y": 842,
+        "name": "Zaiynab"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73uerq": {
+    "label": "Hamed",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73uerq": {
+        "x": 50,
+        "y": 50,
+        "name": "Hamed"
+      },
+      "pmo4ui8vvr8db": {
+        "x": 255,
+        "y": 50,
+        "name": "Uitzoeken???"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyai87w": {
+    "label": "Heejrat",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmni14pyai87w": {
+        "x": 50,
+        "y": 50,
+        "name": "Heejrat"
+      },
+      "pmo71019rdde4": {
+        "x": 255,
+        "y": 50,
+        "name": "Vrouw Heejrat?"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycrwm0ax": {
+    "label": "Hejrat",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycrwm0ax": {
+        "x": 50,
+        "y": 50,
+        "name": "Hejrat"
+      },
+      "pmo35a6zz26rc": {
+        "x": 255,
+        "y": 50,
+        "name": "Lina"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd79y13i65o": {
+    "label": "Huzurgol Ghorbandi",
+    "cardCount": 29,
+    "overlaps": 0,
+    "cards": {
+      "pmnd79y13i65o": {
+        "x": 2005,
+        "y": 50,
+        "name": "Huzurgol Ghorbandi"
+      },
+      "pmnd7akkugpv5": {
+        "x": 2235,
+        "y": 50,
+        "name": "Bibi Hura Qasim"
+      },
+      "pmnd7ej1rf33c": {
+        "x": 395,
+        "y": 257,
+        "name": "Golgotai Ghorbandi"
+      },
+      "pmnd7qhxj4baj": {
+        "x": 625,
+        "y": 257,
+        "name": "Bader Khan Rashid"
+      },
+      "pmnd7bkdrm6yz": {
+        "x": 855,
+        "y": 257,
+        "name": "Asif Khan Ghorbandi"
+      },
+      "pmnepe8ob5cod": {
+        "x": 1085,
+        "y": 257,
+        "name": "Soraya"
+      },
+      "pmnd7cfmvqiff": {
+        "x": 1315,
+        "y": 257,
+        "name": "Mussa Khan Emran Ghorbandi"
+      },
+      "pmnepfhttgn51": {
+        "x": 1545,
+        "y": 257,
+        "name": "Amanda Jennah Hulsbergen"
+      },
+      "pmnd7cuzr39r9": {
+        "x": 1775,
+        "y": 257,
+        "name": "Issa Khan Qader Ghorbandi"
+      },
+      "pmnepl5nzikm3": {
+        "x": 2005,
+        "y": 257,
+        "name": "Muchda Kakar"
+      },
+      "pmnd7janquizq": {
+        "x": 2235,
+        "y": 257,
+        "name": "Golalai Ghorbandi"
+      },
+      "pmndmqi8yk35j": {
+        "x": 2465,
+        "y": 257,
+        "name": "Abdelqadir Ahmadzai"
+      },
+      "pmnd7hzc067x0": {
+        "x": 2695,
+        "y": 257,
+        "name": "Lema Ghorbandi"
+      },
+      "pmnepmjsmeuk6": {
+        "x": 2925,
+        "y": 257,
+        "name": "Sohail Durani"
+      },
+      "pmnd7n0jbe5kc": {
+        "x": 3155,
+        "y": 257,
+        "name": "Atifa Ghorbandi"
+      },
+      "pmnepnt0eu2k2": {
+        "x": 3385,
+        "y": 257,
+        "name": "Ezatullah Achmadzai"
+      },
+      "pmnd7o54wo1ew": {
+        "x": 3615,
+        "y": 257,
+        "name": "Shaista Ghorbandi"
+      },
+      "pmnd7oyi85tgd": {
+        "x": 3845,
+        "y": 257,
+        "name": "Amena Ghorbandi"
+      },
+      "pmnd7shvzi3c4": {
+        "x": 50,
+        "y": 464,
+        "name": "Beheshta Rashid"
+      },
+      "pmnd7t84wv60c": {
+        "x": 280,
+        "y": 464,
+        "name": "Moqahdas Rashid"
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 510,
+        "y": 464,
+        "name": "Malaika Rashid"
+      },
+      "pmnd7v4fly7vb": {
+        "x": 740,
+        "y": 464,
+        "name": "Bilal Rashid"
+      },
+      "pmnfvopdootvl": {
+        "x": 970,
+        "y": 464,
+        "name": "Haya Rashid"
+      },
+      "pmnepimbckf8a": {
+        "x": 1315,
+        "y": 464,
+        "name": "Jamil Ghorbandi"
+      },
+      "pmnepimbeuxuf": {
+        "x": 1545,
+        "y": 464,
+        "name": "Zidan Ghorbandi"
+      },
+      "pmndmre7xwo3z": {
+        "x": 2120,
+        "y": 464,
+        "name": "Madina Noor Ahmadzai"
+      },
+      "pmndmscnasvm5": {
+        "x": 2350,
+        "y": 464,
+        "name": "Idris Omar Ahmadzai"
+      },
+      "pmndmt69g664c": {
+        "x": 2580,
+        "y": 464,
+        "name": "Hawa Umrah Ahmadzai"
+      },
+      "pmnepp0idbklv": {
+        "x": 3270,
+        "y": 464,
+        "name": "Zunaira Dua Achmadzai"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etaht7": {
+    "label": "Ilas",
+    "cardCount": 24,
+    "overlaps": 0,
+    "cards": {
+      "pmni0s7etaht7": {
+        "x": 1200,
+        "y": 50,
+        "name": "Ilas"
+      },
+      "pmo4vafk9ne7l": {
+        "x": 1430,
+        "y": 50,
+        "name": "Mur'awey"
+      },
+      "pmni0v8ui9mjd": {
+        "x": 50,
+        "y": 244,
+        "name": "Zakira"
+      },
+      "pmni0v8uiepz0": {
+        "x": 280,
+        "y": 244,
+        "name": "Najiba"
+      },
+      "pmo4w6fakq8md": {
+        "x": 510,
+        "y": 244,
+        "name": "Asif"
+      },
+      "pmni0v8uiu40k": {
+        "x": 740,
+        "y": 244,
+        "name": "Firoz Khan"
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 970,
+        "y": 244,
+        "name": "Shakargul"
+      },
+      "pmni0v8uiimus": {
+        "x": 1200,
+        "y": 244,
+        "name": "Ghiyal"
+      },
+      "pmni0v8uierpw": {
+        "x": 1430,
+        "y": 244,
+        "name": "Farhad"
+      },
+      "pmo4vr6r2vi98": {
+        "x": 1660,
+        "y": 244,
+        "name": "Fereshta"
+      },
+      "pmni0v8ui7vpw": {
+        "x": 1890,
+        "y": 244,
+        "name": "Fawad"
+      },
+      "pmni0v8uihcrv": {
+        "x": 2120,
+        "y": 244,
+        "name": "Khaybar"
+      },
+      "pmo4vq95k7dyj": {
+        "x": 2350,
+        "y": 244,
+        "name": "Naqib"
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 2580,
+        "y": 244,
+        "name": "Kubrah"
+      },
+      "pmo4w72fa5g45": {
+        "x": 280,
+        "y": 570,
+        "name": "Mahmad Naiem"
+      },
+      "pmo4w72fa19ws": {
+        "x": 510,
+        "y": 570,
+        "name": "Shikiba"
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 510,
+        "y": 760,
+        "name": "Emran"
+      },
+      "pmo4w4s6vkh69": {
+        "x": 740,
+        "y": 760,
+        "name": "Mujieb"
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 970,
+        "y": 760,
+        "name": "Ismai'iel"
+      },
+      "pmo4w4s6vss7k": {
+        "x": 1200,
+        "y": 760,
+        "name": "Hajatullah"
+      },
+      "pmo4w5y12nsjo": {
+        "x": 1200,
+        "y": 570,
+        "name": "Yunus"
+      },
+      "pmo4w5y12cae6": {
+        "x": 1430,
+        "y": 570,
+        "name": "Shahied"
+      },
+      "pmo4w5y12507h": {
+        "x": 1660,
+        "y": 570,
+        "name": "Basit"
+      },
+      "pmo4w5y12b1h5": {
+        "x": 1890,
+        "y": 570,
+        "name": "Yusrah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7cuzr39r9": {
+    "label": "Issa Khan Qader Ghorbandi",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7cuzr39r9": {
+        "x": 50,
+        "y": 50,
+        "name": "Issa Khan Qader Ghorbandi"
+      },
+      "pmnepl5nzikm3": {
+        "x": 255,
+        "y": 50,
+        "name": "Muchda Kakar"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndnoxx6ndgz": {
+    "label": "Jamal Nader Rashid",
+    "cardCount": 9,
+    "overlaps": 0,
+    "cards": {
+      "pmndnoxx6ndgz": {
+        "x": 625,
+        "y": 50,
+        "name": "Jamal Nader Rashid"
+      },
+      "pmndnpzkp3vwu": {
+        "x": 855,
+        "y": 50,
+        "name": "Zarlakhta Rashid"
+      },
+      "pmndnrdrc68lf": {
+        "x": 50,
+        "y": 245,
+        "name": "Sejad Rashid"
+      },
+      "pmndnticv1qox": {
+        "x": 280,
+        "y": 245,
+        "name": "Homaira Hakimi"
+      },
+      "pmndnrn9438x5": {
+        "x": 510,
+        "y": 245,
+        "name": "Noman Rashid"
+      },
+      "f16": {
+        "x": 740,
+        "y": 245,
+        "name": "Alina Faizi"
+      },
+      "pmndnryswhsem": {
+        "x": 970,
+        "y": 245,
+        "name": "Adel Rashid"
+      },
+      "pmndns7ewdxvw": {
+        "x": 1200,
+        "y": 245,
+        "name": "Amer Rashid"
+      },
+      "pmndnsji2txom": {
+        "x": 1430,
+        "y": 245,
+        "name": "Adam Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "s10": {
+    "label": "Jawed Sabur",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "s09": {
+        "x": 50,
+        "y": 50,
+        "name": "Fereshta Sayedi"
+      },
+      "s10": {
+        "x": 280,
+        "y": 50,
+        "name": "Jawed Sabur"
+      },
+      "pmnczpeoyc4hd": {
+        "x": 165,
+        "y": 241,
+        "name": "Arman Haydar Khan Sabur"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo3552jz6uwr": {
+    "label": "Khaybar",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycrhfbhs": {
+        "x": 62,
+        "y": 50,
+        "name": "Spogme Rashid"
+      },
+      "pmo3552jz6uwr": {
+        "x": 267,
+        "y": 50,
+        "name": "Khaybar"
+      },
+      "pmo3561dkcpxd": {
+        "x": 50,
+        "y": 242,
+        "name": "Zikria"
+      },
+      "pmo3561dq8ahj": {
+        "x": 280,
+        "y": 242,
+        "name": "Mariam"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wnqt5sjf7": {
+    "label": "Khoja",
+    "cardCount": 8,
+    "overlaps": 0,
+    "cards": {
+      "pmni10qwrkobm": {
+        "x": 523,
+        "y": 50,
+        "name": "Nazifa"
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 728,
+        "y": 50,
+        "name": "Khoja"
+      },
+      "pmo4wveblf5x5": {
+        "x": 50,
+        "y": 245,
+        "name": "Hedayatullah"
+      },
+      "pmo4wveblcjbe": {
+        "x": 280,
+        "y": 245,
+        "name": "Inaytullah"
+      },
+      "pmo4wvebloqky": {
+        "x": 510,
+        "y": 245,
+        "name": "Abu Bakr"
+      },
+      "pmo4wvebltb8q": {
+        "x": 740,
+        "y": 245,
+        "name": "Kauthar"
+      },
+      "pmo4wveblrmqi": {
+        "x": 970,
+        "y": 245,
+        "name": "nog een meisje?"
+      },
+      "pmo4wvebl2zvm": {
+        "x": 1200,
+        "y": 245,
+        "name": "Nog een meisje??"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xkx7hr4du": {
+    "label": "Ma'lim",
+    "cardCount": 9,
+    "overlaps": 0,
+    "cards": {
+      "pmni0s7et7v3g": {
+        "x": 625,
+        "y": 50,
+        "name": "Sanama"
+      },
+      "pmo4xkx7hr4du": {
+        "x": 855,
+        "y": 50,
+        "name": "Ma'lim"
+      },
+      "pmni0tu13oc3d": {
+        "x": 50,
+        "y": 245,
+        "name": "Shoroh"
+      },
+      "pmni0tu14jfoi": {
+        "x": 280,
+        "y": 245,
+        "name": "Kazem"
+      },
+      "pmni0tu14y8tb": {
+        "x": 510,
+        "y": 245,
+        "name": "Nazem"
+      },
+      "pmni0tu14n6g5": {
+        "x": 740,
+        "y": 245,
+        "name": "Golalai of Toryolay?"
+      },
+      "pmni0tu14seye": {
+        "x": 970,
+        "y": 245,
+        "name": "Hamida"
+      },
+      "pmni0tu141lkn": {
+        "x": 1200,
+        "y": 245,
+        "name": "Farzana"
+      },
+      "pmni0tu14q8j4": {
+        "x": 1430,
+        "y": 245,
+        "name": "Shazia"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3ei0k93": {
+    "label": "Mahmad Salehi",
+    "cardCount": 16,
+    "overlaps": 0,
+    "cards": {
+      "pmndya3ei0k93": {
+        "x": 740,
+        "y": 50,
+        "name": "Mahmad Salehi"
+      },
+      "pmnfx2dl6dya9": {
+        "x": 970,
+        "y": 50,
+        "name": "Mastora Faizi"
+      },
+      "pmnfx3knl6en8": {
+        "x": 165,
+        "y": 285,
+        "name": "Mina Salehi"
+      },
+      "pmnfx8zrswvz9": {
+        "x": 395,
+        "y": 285,
+        "name": "Davud Sediqi"
+      },
+      "pmnfx5u9dct4w": {
+        "x": 625,
+        "y": 285,
+        "name": "Matiullah Salehi"
+      },
+      "pmnfxaot46h83": {
+        "x": 855,
+        "y": 285,
+        "name": "Tahmina Salehi"
+      },
+      "pmnfx5u9dbm8a": {
+        "x": 1085,
+        "y": 285,
+        "name": "Nasratullah Salehi"
+      },
+      "pmndydlr61are": {
+        "x": 1315,
+        "y": 285,
+        "name": "Hekmatullah Salehi"
+      },
+      "pmni0xjxqy5q5": {
+        "x": 1545,
+        "y": 285,
+        "name": "Shamila"
+      },
+      "pmnfxa0in4tc9": {
+        "x": 50,
+        "y": 484,
+        "name": "Ibrahim Sediqi"
+      },
+      "pmnfxa0io0z5u": {
+        "x": 280,
+        "y": 484,
+        "name": "Maryam Sediqi"
+      },
+      "pmnfxa0iou6j0": {
+        "x": 510,
+        "y": 484,
+        "name": "Sarah Sediqi"
+      },
+      "pmnfxbasnb3sh": {
+        "x": 625,
+        "y": 683,
+        "name": "Abdurrahman Salehi"
+      },
+      "pmnfxbasnbq7c": {
+        "x": 855,
+        "y": 683,
+        "name": "Abdullah Saledhi"
+      },
+      "pmndyf12hx96x": {
+        "x": 1315,
+        "y": 484,
+        "name": "Khalil Reduaon Salehi"
+      },
+      "pmo007gyaqm2k": {
+        "x": 1545,
+        "y": 484,
+        "name": "Aqsa Hanifa"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4x48qp13uy": {
+    "label": "Mahmad Sherien",
+    "cardCount": 9,
+    "overlaps": 0,
+    "cards": {
+      "pmni0xjxqp5fh": {
+        "x": 625,
+        "y": 50,
+        "name": "Nasrina"
+      },
+      "pmo4x48qp13uy": {
+        "x": 855,
+        "y": 50,
+        "name": "Mahmad Sherien"
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 245,
+        "name": "Nasibah"
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 245,
+        "name": "Abdul Wares"
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 245,
+        "name": "Abdul Shakur"
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 245,
+        "name": "Abdul Saboor"
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 245,
+        "name": "Hadiya"
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 245,
+        "name": "Aisha"
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 245,
+        "name": "Hoera"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndyxhre0zi1": {
+    "label": "Mahmadgul Durrani",
+    "cardCount": 173,
+    "overlaps": 0,
+    "cards": {
+      "pmndyxhre0zi1": {
+        "x": 3040,
+        "y": 50,
+        "name": "Mahmadgul Durrani"
+      },
+      "pmndyy6j6wndl": {
+        "x": 3270,
+        "y": 50,
+        "name": "Bibi Hajiro"
+      },
+      "pmo4abxn5ihq5": {
+        "x": 1775,
+        "y": 240,
+        "name": "Rahimgul Durrani"
+      },
+      "pmo4acfl57fx5": {
+        "x": 2005,
+        "y": 240,
+        "name": "Hamidgul"
+      },
+      "pmo4ahx86c7rh": {
+        "x": 2235,
+        "y": 240,
+        "name": "??"
+      },
+      "pmneq7p4nynu3": {
+        "x": 2465,
+        "y": 240,
+        "name": "Habib Gull Durrani"
+      },
+      "pmni06p0ji4hg": {
+        "x": 2695,
+        "y": 240,
+        "name": "Laila Babo"
+      },
+      "pmndo2vxafahz": {
+        "x": 2925,
+        "y": 240,
+        "name": "Hagig Gull Durrani"
+      },
+      "pmndo3i84yw8g": {
+        "x": 3155,
+        "y": 240,
+        "name": "Babogal Sayedi"
+      },
+      "pmneq7p4ss5hl": {
+        "x": 3385,
+        "y": 240,
+        "name": "Sakhi Gull Rashid"
+      },
+      "pmo34v17r5l0j": {
+        "x": 3590,
+        "y": 240,
+        "name": "Rabia Rashid"
+      },
+      "pmnd79y13i65o": {
+        "x": 3820,
+        "y": 240,
+        "name": "Huzurgol Ghorbandi"
+      },
+      "pmnd7akkugpv5": {
+        "x": 4050,
+        "y": 240,
+        "name": "Bibi Hura Qasim"
+      },
+      "pmneq7p4udtvl": {
+        "x": 4280,
+        "y": 240,
+        "name": "Malika Durrani"
+      },
+      "s01": {
+        "x": 4510,
+        "y": 240,
+        "name": "Wali Mohammad Sayedi"
+      },
+      "pmni0aw5mfovo": {
+        "x": 1660,
+        "y": 610,
+        "name": "Mergalela Durrani"
+      },
+      "pmni0byqqbuqw": {
+        "x": 1890,
+        "y": 610,
+        "name": "Shirnagha"
+      },
+      "pmni0aw63vtas": {
+        "x": 2120,
+        "y": 610,
+        "name": "Malalai Durrani"
+      },
+      "pmni0dr4npt6r": {
+        "x": 2350,
+        "y": 610,
+        "name": "Abdullah"
+      },
+      "pmni0aw5rt7j6": {
+        "x": 2580,
+        "y": 610,
+        "name": "Habibrahman Durrani"
+      },
+      "pmni0aw5t19yo": {
+        "x": 2810,
+        "y": 610,
+        "name": "Saifrahman Durrani"
+      },
+      "pmni0aw5wzj12": {
+        "x": 3040,
+        "y": 610,
+        "name": "Parwana Durrani"
+      },
+      "pmni0aw5zil6x": {
+        "x": 3270,
+        "y": 610,
+        "name": "Asina Durrani"
+      },
+      "pmni0aw61wfnn": {
+        "x": 3500,
+        "y": 610,
+        "name": "Samia Durrani"
+      },
+      "pmo4adrr9bkk1": {
+        "x": 970,
+        "y": 1382,
+        "name": "Sarah Durrani"
+      },
+      "f02": {
+        "x": 1200,
+        "y": 1382,
+        "name": "Benazier Rashid"
+      },
+      "f01": {
+        "x": 1430,
+        "y": 1382,
+        "name": "Khanaga Faizi"
+      },
+      "pmndnpzkp3vwu": {
+        "x": 1660,
+        "y": 1382,
+        "name": "Zarlakhta Rashid"
+      },
+      "pmndnoxx6ndgz": {
+        "x": 1890,
+        "y": 1382,
+        "name": "Jamal Nader Rashid"
+      },
+      "pmnd7qhxj4baj": {
+        "x": 2120,
+        "y": 1382,
+        "name": "Bader Khan Rashid"
+      },
+      "pmndwllk8hld1": {
+        "x": 2580,
+        "y": 1382,
+        "name": "Azghar Khan Rashid"
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2810,
+        "y": 1382,
+        "name": "Latifa Saidi"
+      },
+      "s07": {
+        "x": 3040,
+        "y": 1382,
+        "name": "Gaffar Khan Rashid"
+      },
+      "pmndmvgb61us6": {
+        "x": 3500,
+        "y": 1382,
+        "name": "Shughla Rashid"
+      },
+      "pmndmv0pe6bnt": {
+        "x": 3730,
+        "y": 1382,
+        "name": "Mohammaddel Amiri"
+      },
+      "pmndwllk9fukl": {
+        "x": 3960,
+        "y": 1382,
+        "name": "Davud Khan Durrani"
+      },
+      "pmneptum4xnzi": {
+        "x": 4190,
+        "y": 1382,
+        "name": "Diwa Alia Miakhel"
+      },
+      "pmndwllk96xxz": {
+        "x": 4420,
+        "y": 1382,
+        "name": "Nabila"
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 4650,
+        "y": 1382,
+        "name": "Farid Saidi"
+      },
+      "r02": {
+        "x": 4880,
+        "y": 1382,
+        "name": "Shaesta Faizi"
+      },
+      "r01": {
+        "x": 5110,
+        "y": 1382,
+        "name": "Abed Rahmani"
+      },
+      "pmo34ycr3rguf": {
+        "x": 1993,
+        "y": 3207,
+        "name": "Ayoub Rashid"
+      },
+      "pmo34z25i1fky": {
+        "x": 2223,
+        "y": 3207,
+        "name": "Nazifa"
+      },
+      "pmo34ycr7lser": {
+        "x": 2453,
+        "y": 3207,
+        "name": "Nawaab Rashid"
+      },
+      "pmo351h5beg9f": {
+        "x": 2683,
+        "y": 3207,
+        "name": "Samira Rashid"
+      },
+      "pmo34ycrdz5uf": {
+        "x": 2913,
+        "y": 3207,
+        "name": "Zavar Rashid"
+      },
+      "pmo353ouw5u1k": {
+        "x": 3143,
+        "y": 3207,
+        "name": "Azima"
+      },
+      "pmo34ycrhfbhs": {
+        "x": 3373,
+        "y": 3207,
+        "name": "Spogme Rashid"
+      },
+      "pmo3552jz6uwr": {
+        "x": 3603,
+        "y": 3207,
+        "name": "Khaybar"
+      },
+      "pmo357kjbhmd5": {
+        "x": 3833,
+        "y": 3207,
+        "name": "Zavar"
+      },
+      "pmo34ycrl4b8j": {
+        "x": 4063,
+        "y": 3207,
+        "name": "Store"
+      },
+      "pmo358vl3n6yf": {
+        "x": 4293,
+        "y": 3207,
+        "name": "Didar"
+      },
+      "pmo34ycrplrzh": {
+        "x": 4523,
+        "y": 3207,
+        "name": "Mohabbat"
+      },
+      "pmo34ycrwm0ax": {
+        "x": 4753,
+        "y": 3207,
+        "name": "Hejrat"
+      },
+      "pmo35a6zz26rc": {
+        "x": 4983,
+        "y": 3207,
+        "name": "Lina"
+      },
+      "pmnd7ej1rf33c": {
+        "x": 2235,
+        "y": 4360,
+        "name": "Golgotai Ghorbandi"
+      },
+      "pmnd7bkdrm6yz": {
+        "x": 2695,
+        "y": 4360,
+        "name": "Asif Khan Ghorbandi"
+      },
+      "pmnepe8ob5cod": {
+        "x": 2925,
+        "y": 4360,
+        "name": "Soraya"
+      },
+      "pmnd7cfmvqiff": {
+        "x": 3155,
+        "y": 4360,
+        "name": "Mussa Khan Emran Ghorbandi"
+      },
+      "pmnepfhttgn51": {
+        "x": 3385,
+        "y": 4360,
+        "name": "Amanda Jennah Hulsbergen"
+      },
+      "pmnd7cuzr39r9": {
+        "x": 3615,
+        "y": 4360,
+        "name": "Issa Khan Qader Ghorbandi"
+      },
+      "pmnepl5nzikm3": {
+        "x": 3845,
+        "y": 4360,
+        "name": "Muchda Kakar"
+      },
+      "pmnd7janquizq": {
+        "x": 4075,
+        "y": 4360,
+        "name": "Golalai Ghorbandi"
+      },
+      "pmndmqi8yk35j": {
+        "x": 4305,
+        "y": 4360,
+        "name": "Abdelqadir Ahmadzai"
+      },
+      "pmnd7hzc067x0": {
+        "x": 4535,
+        "y": 4360,
+        "name": "Lema Ghorbandi"
+      },
+      "pmnepmjsmeuk6": {
+        "x": 4765,
+        "y": 4360,
+        "name": "Sohail Durani"
+      },
+      "pmnd7n0jbe5kc": {
+        "x": 4995,
+        "y": 4360,
+        "name": "Atifa Ghorbandi"
+      },
+      "pmnepnt0eu2k2": {
+        "x": 5225,
+        "y": 4360,
+        "name": "Ezatullah Achmadzai"
+      },
+      "pmnd7o54wo1ew": {
+        "x": 5455,
+        "y": 4360,
+        "name": "Shaista Ghorbandi"
+      },
+      "pmnd7oyi85tgd": {
+        "x": 5685,
+        "y": 4360,
+        "name": "Amena Ghorbandi"
+      },
+      "s03": {
+        "x": 3155,
+        "y": 4937,
+        "name": "Ajab Khan Sayedi"
+      },
+      "s04": {
+        "x": 3385,
+        "y": 4937,
+        "name": "Sanga Hassanzai"
+      },
+      "s05": {
+        "x": 3615,
+        "y": 4937,
+        "name": "Ajmal Khan Sayedi"
+      },
+      "s06": {
+        "x": 3845,
+        "y": 4937,
+        "name": "Helai Sayedi"
+      },
+      "s09": {
+        "x": 4305,
+        "y": 4937,
+        "name": "Fereshta Sayedi"
+      },
+      "s10": {
+        "x": 4535,
+        "y": 4937,
+        "name": "Jawed Sabur"
+      },
+      "s11": {
+        "x": 4765,
+        "y": 4937,
+        "name": "Hakim Khan Sayedi"
+      },
+      "s12": {
+        "x": 4995,
+        "y": 4937,
+        "name": "Halima Sayedi"
+      },
+      "s13": {
+        "x": 5225,
+        "y": 4937,
+        "name": "Saleh Mohammad Raoefi"
+      },
+      "pmni0d7t09vcm": {
+        "x": 1315,
+        "y": 811,
+        "name": "Baryalai"
+      },
+      "pmni0fiiiy1qs": {
+        "x": 1545,
+        "y": 811,
+        "name": "Ferdaws"
+      },
+      "pmni0d7t6qrt0": {
+        "x": 1775,
+        "y": 811,
+        "name": "Khalid"
+      },
+      "pmni0d7t9876w": {
+        "x": 2005,
+        "y": 811,
+        "name": "Abubakr"
+      },
+      "pmni0d7tck3oc": {
+        "x": 2235,
+        "y": 811,
+        "name": "Marwa"
+      },
+      "pmo49w9tiqty7": {
+        "x": 2120,
+        "y": 1012,
+        "name": "Mohammad"
+      },
+      "pmni0e8yfpn37": {
+        "x": 2350,
+        "y": 1012,
+        "name": "Zaiynab"
+      },
+      "f03": {
+        "x": 50,
+        "y": 1618,
+        "name": "Hemat Faizi"
+      },
+      "f06": {
+        "x": 510,
+        "y": 1618,
+        "name": "Nilab Faizi"
+      },
+      "f07": {
+        "x": 740,
+        "y": 1618,
+        "name": "Emamuddin Salehi"
+      },
+      "f10": {
+        "x": 970,
+        "y": 1618,
+        "name": "Alia Faizi"
+      },
+      "f11": {
+        "x": 1200,
+        "y": 1618,
+        "name": "Rahimgul Salehi"
+      },
+      "f13": {
+        "x": 1430,
+        "y": 1618,
+        "name": "Meraj Faizi"
+      },
+      "f14": {
+        "x": 1660,
+        "y": 1618,
+        "name": "Mona Saidi"
+      },
+      "f15": {
+        "x": 1890,
+        "y": 1618,
+        "name": "Erfan Faizi"
+      },
+      "f16": {
+        "x": 2120,
+        "y": 1618,
+        "name": "Alina Faizi"
+      },
+      "f17": {
+        "x": 2580,
+        "y": 1618,
+        "name": "Hamza Faizi"
+      },
+      "pmndnrdrc68lf": {
+        "x": 1085,
+        "y": 2087,
+        "name": "Sejad Rashid"
+      },
+      "pmndnticv1qox": {
+        "x": 1315,
+        "y": 2087,
+        "name": "Homaira Hakimi"
+      },
+      "pmndnrn9438x5": {
+        "x": 1545,
+        "y": 2087,
+        "name": "Noman Rashid"
+      },
+      "pmndnryswhsem": {
+        "x": 2005,
+        "y": 2087,
+        "name": "Adel Rashid"
+      },
+      "pmndns7ewdxvw": {
+        "x": 2235,
+        "y": 2087,
+        "name": "Amer Rashid"
+      },
+      "pmndnsji2txom": {
+        "x": 2465,
+        "y": 2087,
+        "name": "Adam Rashid"
+      },
+      "pmni01k22obxh": {
+        "x": 2350,
+        "y": 2278,
+        "name": "Haajar Rashid"
+      },
+      "pmni01k23erra": {
+        "x": 2580,
+        "y": 2278,
+        "name": "Yahya Rashid"
+      },
+      "pmni01k24zyhf": {
+        "x": 2810,
+        "y": 2278,
+        "name": "Omar Rashid"
+      },
+      "pmni01k25pnza": {
+        "x": 3040,
+        "y": 2278,
+        "name": "Iqra Rashid"
+      },
+      "pmndn2984pmss": {
+        "x": 2695,
+        "y": 2601,
+        "name": "Asma Amiri"
+      },
+      "pmndn30vhfz8r": {
+        "x": 2925,
+        "y": 2601,
+        "name": "Rafi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 3155,
+        "y": 2601,
+        "name": "Husna Amiri"
+      },
+      "pmndmw6tmszgx": {
+        "x": 3615,
+        "y": 2601,
+        "name": "Aisha Amiri"
+      },
+      "pmndmwy22inp5": {
+        "x": 3845,
+        "y": 2601,
+        "name": "Alwina Amiri"
+      },
+      "pmndmxo0wy25u": {
+        "x": 4075,
+        "y": 2601,
+        "name": "Khadija Amiri"
+      },
+      "pmndn04a6kp3h": {
+        "x": 4305,
+        "y": 2601,
+        "name": "Kawsar Amiri"
+      },
+      "pmndn0xa5x3gg": {
+        "x": 4535,
+        "y": 2601,
+        "name": "Asra Amiri"
+      },
+      "pmnepytxdqi9y": {
+        "x": 3730,
+        "y": 2042,
+        "name": "Mustafa Durrani"
+      },
+      "pmnepytxga1sz": {
+        "x": 3960,
+        "y": 2042,
+        "name": "Mujtaba Durrani"
+      },
+      "pmnepytxh5z3q": {
+        "x": 4190,
+        "y": 2042,
+        "name": "Muskaan Durrani"
+      },
+      "pmnepytxiuzsg": {
+        "x": 4420,
+        "y": 2042,
+        "name": "Abud Musawwir Durrani"
+      },
+      "pmni053i84su6": {
+        "x": 3960,
+        "y": 1617,
+        "name": "Sarah Saidi"
+      },
+      "pmni053iamxzp": {
+        "x": 4190,
+        "y": 1617,
+        "name": "Sama Saidi"
+      },
+      "pmni053icew6m": {
+        "x": 4420,
+        "y": 1617,
+        "name": "Hafsa Saidi"
+      },
+      "pmni053ie8pn9": {
+        "x": 4650,
+        "y": 1617,
+        "name": "Yaqub Saidi"
+      },
+      "pmni053ifs7ju": {
+        "x": 4880,
+        "y": 1617,
+        "name": "Ishaq Saidi"
+      },
+      "pmni053ih3c7e": {
+        "x": 5110,
+        "y": 1617,
+        "name": "Safia Saidi"
+      },
+      "r03": {
+        "x": 4880,
+        "y": 1807,
+        "name": "Yaqub Rahmani"
+      },
+      "r04": {
+        "x": 5110,
+        "y": 1807,
+        "name": "Muzammil Rahmani"
+      },
+      "pmnd7shvzi3c4": {
+        "x": 1775,
+        "y": 1808,
+        "name": "Beheshta Rashid"
+      },
+      "pmnd7t84wv60c": {
+        "x": 2005,
+        "y": 1808,
+        "name": "Moqahdas Rashid"
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 2235,
+        "y": 1808,
+        "name": "Malaika Rashid"
+      },
+      "pmnd7v4fly7vb": {
+        "x": 2465,
+        "y": 1808,
+        "name": "Bilal Rashid"
+      },
+      "pmnfvopdootvl": {
+        "x": 2695,
+        "y": 1808,
+        "name": "Haya Rashid"
+      },
+      "pmo350x9zbuxz": {
+        "x": 1533,
+        "y": 3420,
+        "name": "Mashal Rashid"
+      },
+      "pmo350xa4any3": {
+        "x": 1763,
+        "y": 3420,
+        "name": "Maiwand Rashid"
+      },
+      "pmo350xa8twge": {
+        "x": 1993,
+        "y": 3420,
+        "name": "Morsal Rashid"
+      },
+      "pmo350xacwuzv": {
+        "x": 2223,
+        "y": 3420,
+        "name": "Yousuf Rashid"
+      },
+      "pmo350xag72uv": {
+        "x": 2453,
+        "y": 3420,
+        "name": "Ashraf Rashid"
+      },
+      "pmo350xaj9g7p": {
+        "x": 2683,
+        "y": 3420,
+        "name": "Momina Rashid"
+      },
+      "pmo352v2f85e1": {
+        "x": 2108,
+        "y": 3801,
+        "name": "Hadya Rashid"
+      },
+      "pmo352v2m7cyp": {
+        "x": 2338,
+        "y": 3801,
+        "name": "Madinah Rashid"
+      },
+      "pmo352v2qd6mg": {
+        "x": 2568,
+        "y": 3801,
+        "name": "Sanna Rashid"
+      },
+      "pmo352v2v4165": {
+        "x": 2798,
+        "y": 3801,
+        "name": "Ismail Rashid"
+      },
+      "pmo352v30t7ge": {
+        "x": 3028,
+        "y": 3801,
+        "name": "Yousra Rashid"
+      },
+      "pmo354mcnbz26": {
+        "x": 2683,
+        "y": 3990,
+        "name": "Sulaiman Rashid"
+      },
+      "pmo354mcujmgy": {
+        "x": 2913,
+        "y": 3990,
+        "name": "Zainab Rashid"
+      },
+      "pmo354mczv982": {
+        "x": 3143,
+        "y": 3990,
+        "name": "Marwa Rashid"
+      },
+      "pmo4a26jk7k5x": {
+        "x": 3373,
+        "y": 3990,
+        "name": "Raana Rashid"
+      },
+      "pmo3561dkcpxd": {
+        "x": 3373,
+        "y": 3397,
+        "name": "Zikria"
+      },
+      "pmo3561dq8ahj": {
+        "x": 3603,
+        "y": 3397,
+        "name": "Mariam"
+      },
+      "pmo358jhjmb83": {
+        "x": 3488,
+        "y": 3587,
+        "name": "Burhan Rashid"
+      },
+      "pmo358jhpzptz": {
+        "x": 3718,
+        "y": 3587,
+        "name": "Kawsar Rashid"
+      },
+      "pmo4a1a67tuyw": {
+        "x": 3948,
+        "y": 3587,
+        "name": "Yunus"
+      },
+      "pmo359q5jrkg1": {
+        "x": 4293,
+        "y": 3587,
+        "name": "Mujda"
+      },
+      "pmo359q5q3jz9": {
+        "x": 4523,
+        "y": 3587,
+        "name": "Osman"
+      },
+      "s08": {
+        "x": 3155,
+        "y": 1617,
+        "name": "Benjamin Rahman Khan Rashid"
+      },
+      "pmnepimbckf8a": {
+        "x": 3155,
+        "y": 4567,
+        "name": "Jamil Ghorbandi"
+      },
+      "pmnepimbeuxuf": {
+        "x": 3385,
+        "y": 4567,
+        "name": "Zidan Ghorbandi"
+      },
+      "pmndmre7xwo3z": {
+        "x": 3960,
+        "y": 4567,
+        "name": "Madina Noor Ahmadzai"
+      },
+      "pmndmscnasvm5": {
+        "x": 4190,
+        "y": 4567,
+        "name": "Idris Omar Ahmadzai"
+      },
+      "pmndmt69g664c": {
+        "x": 4420,
+        "y": 4567,
+        "name": "Hawa Umrah Ahmadzai"
+      },
+      "pmnepp0idbklv": {
+        "x": 5110,
+        "y": 4567,
+        "name": "Zunaira Dua Achmadzai"
+      },
+      "pmncyghyo65ha": {
+        "x": 3270,
+        "y": 5137,
+        "name": "Mirwais Khan Wazir Sayedi"
+      },
+      "pmnczpeoyc4hd": {
+        "x": 4420,
+        "y": 5137,
+        "name": "Arman Haydar Khan Sabur"
+      },
+      "s14": {
+        "x": 4995,
+        "y": 5137,
+        "name": "Amira Nora Raoefi"
+      },
+      "s15": {
+        "x": 5225,
+        "y": 5137,
+        "name": "Lina Maryam Raoefi"
+      },
+      "f08": {
+        "x": 395,
+        "y": 2278,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 625,
+        "y": 2278,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 2278,
+        "name": "Fatima Zahra Salehi"
+      },
+      "f12": {
+        "x": 970,
+        "y": 1853,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 1853,
+        "name": "Zahra Salehi"
+      },
+      "f05": {
+        "x": 3155,
+        "y": 2837,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 3385,
+        "y": 2837,
+        "name": "Aisya Faizi"
+      },
+      "pmndn3i30g9js": {
+        "x": 2695,
+        "y": 2837,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 2925,
+        "y": 2837,
+        "name": "Zaynab"
+      }
+    },
+    "ghosts": [
+      {
+        "key": "s06:cg:snapshot_0",
+        "id": "s06",
+        "x": 3270,
+        "y": 1382,
+        "adjacentTo": "s07",
+        "name": "Helai Sayedi"
+      },
+      {
+        "key": "pmnd7ej1rf33c:cg:snapshot_1",
+        "id": "pmnd7ej1rf33c",
+        "x": 2350,
+        "y": 1382,
+        "adjacentTo": "pmnd7qhxj4baj",
+        "name": "Golgotai Ghorbandi"
+      },
+      {
+        "key": "pmndn4sw3j1fb:cg:snapshot_2",
+        "id": "pmndn4sw3j1fb",
+        "x": 280,
+        "y": 1618,
+        "adjacentTo": "f03",
+        "name": "Husna Amiri"
+      },
+      {
+        "key": "pmndnrn9438x5:cg:snapshot_3",
+        "id": "pmndnrn9438x5",
+        "x": 2350,
+        "y": 1618,
+        "adjacentTo": "f16",
+        "name": "Noman Rashid"
+      },
+      {
+        "key": "f16:cg:snapshot_4",
+        "id": "f16",
+        "x": 1775,
+        "y": 2087,
+        "adjacentTo": "pmndnrn9438x5",
+        "name": "Alina Faizi"
+      },
+      {
+        "key": "f03:cg:snapshot_5",
+        "id": "f03",
+        "x": 3385,
+        "y": 2601,
+        "adjacentTo": "pmndmw6tmszgx",
+        "name": "Hemat Faizi"
+      },
+      {
+        "key": "f05:cg:snapshot_6",
+        "id": "f05",
+        "x": 50,
+        "y": 1808,
+        "adjacentTo": "f12",
+        "name": "Amina Faizi"
+      },
+      {
+        "key": "pmndn7m9expkq:cg:snapshot_7",
+        "id": "pmndn7m9expkq",
+        "x": 280,
+        "y": 1808,
+        "adjacentTo": "f12",
+        "name": "Aisya Faizi"
+      },
+      {
+        "key": "pmnd7qhxj4baj:cg:snapshot_8",
+        "id": "pmnd7qhxj4baj",
+        "x": 2465,
+        "y": 4360,
+        "adjacentTo": "pmnd7bkdrm6yz",
+        "name": "Bader Khan Rashid"
+      },
+      {
+        "key": "pmnd7shvzi3c4:cg:snapshot_9",
+        "id": "pmnd7shvzi3c4",
+        "x": 1890,
+        "y": 4567,
+        "adjacentTo": "pmnd7ej1rf33c",
+        "name": "Beheshta Rashid"
+      },
+      {
+        "key": "pmnd7t84wv60c:cg:snapshot_10",
+        "id": "pmnd7t84wv60c",
+        "x": 2120,
+        "y": 4567,
+        "adjacentTo": "pmnd7ej1rf33c",
+        "name": "Moqahdas Rashid"
+      },
+      {
+        "key": "pmnd7u7dc1sv8:cg:snapshot_11",
+        "id": "pmnd7u7dc1sv8",
+        "x": 2350,
+        "y": 4567,
+        "adjacentTo": "pmnd7ej1rf33c",
+        "name": "Malaika Rashid"
+      },
+      {
+        "key": "pmnd7v4fly7vb:cg:snapshot_12",
+        "id": "pmnd7v4fly7vb",
+        "x": 2580,
+        "y": 4567,
+        "adjacentTo": "pmnd7ej1rf33c",
+        "name": "Bilal Rashid"
+      },
+      {
+        "key": "pmnfvopdootvl:cg:snapshot_13",
+        "id": "pmnfvopdootvl",
+        "x": 2810,
+        "y": 4567,
+        "adjacentTo": "pmnd7ej1rf33c",
+        "name": "Haya Rashid"
+      },
+      {
+        "key": "s07:cg:snapshot_14",
+        "id": "s07",
+        "x": 4075,
+        "y": 4937,
+        "adjacentTo": "s06",
+        "name": "Gaffar Khan Rashid"
+      },
+      {
+        "key": "s08:cg:snapshot_15",
+        "id": "s08",
+        "x": 3960,
+        "y": 5137,
+        "adjacentTo": "pmnczpeoyc4hd",
+        "name": "Benjamin Rahman Khan Rashid"
+      }
+    ]
+  },
+  "pmndya3eiti9k": {
+    "label": "Mahmoed",
+    "cardCount": 14,
+    "overlaps": 0,
+    "cards": {
+      "pmndya3eiti9k": {
+        "x": 855,
+        "y": 50,
+        "name": "Mahmoed"
+      },
+      "pmo4sw6rkvo1k": {
+        "x": 1085,
+        "y": 50,
+        "name": "Sardara"
+      },
+      "pmo4szd62qiup": {
+        "x": 510,
+        "y": 244,
+        "name": "Bibirawza"
+      },
+      "pmo4v4r3i85jz": {
+        "x": 740,
+        "y": 244,
+        "name": "Daad Mahmad"
+      },
+      "pmo4szd632k5i": {
+        "x": 970,
+        "y": 244,
+        "name": "Deenmahmad"
+      },
+      "pmo4szd63w9un": {
+        "x": 1200,
+        "y": 244,
+        "name": "Neekmahmad"
+      },
+      "pmo4szd63jn8i": {
+        "x": 1430,
+        "y": 244,
+        "name": "Noormahmad"
+      },
+      "pmo4szd63ws4w": {
+        "x": 1660,
+        "y": 244,
+        "name": "Lutfullah"
+      },
+      "pmo4v6ag4btzt": {
+        "x": 50,
+        "y": 533,
+        "name": "Shuaib"
+      },
+      "pmo4v6ag5tbeg": {
+        "x": 280,
+        "y": 533,
+        "name": "Tayba"
+      },
+      "pmo4v6ag5yshe": {
+        "x": 510,
+        "y": 533,
+        "name": "Yaser"
+      },
+      "pmo4v6ag5y6kb": {
+        "x": 740,
+        "y": 533,
+        "name": "Beheshta"
+      },
+      "pmo4v6ag5kd8o": {
+        "x": 970,
+        "y": 533,
+        "name": "Madina"
+      },
+      "pmo4v6ag5b5bp": {
+        "x": 1200,
+        "y": 533,
+        "name": "Omar"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfx5u9dct4w": {
+    "label": "Matiullah Salehi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmnfx5u9dct4w": {
+        "x": 62,
+        "y": 50,
+        "name": "Matiullah Salehi"
+      },
+      "pmnfxaot46h83": {
+        "x": 267,
+        "y": 50,
+        "name": "Tahmina Salehi"
+      },
+      "pmnfxbasnb3sh": {
+        "x": 50,
+        "y": 242,
+        "name": "Abdurrahman Salehi"
+      },
+      "pmnfxbasnbq7c": {
+        "x": 280,
+        "y": 242,
+        "name": "Abdullah Saledhi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pya5f9h": {
+    "label": "Mirwais",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmni14pya5f9h": {
+        "x": 293,
+        "y": 50,
+        "name": "Mirwais"
+      },
+      "pmo4wbnzfjghc": {
+        "x": 498,
+        "y": 50,
+        "name": "Breshna"
+      },
+      "pmo4wdt6k43c8": {
+        "x": 50,
+        "y": 244,
+        "name": "Mirhan"
+      },
+      "pmo4wdt6kdksz": {
+        "x": 280,
+        "y": 244,
+        "name": "Sirat"
+      },
+      "pmo4wdt6krvxa": {
+        "x": 510,
+        "y": 244,
+        "name": "Sufrah"
+      },
+      "pmo4wdt6kzel5": {
+        "x": 740,
+        "y": 244,
+        "name": "Aisha"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndmv0pe6bnt": {
+    "label": "Mohammaddel Amiri",
+    "cardCount": 15,
+    "overlaps": 0,
+    "cards": {
+      "pmndmv0pe6bnt": {
+        "x": 855,
+        "y": 50,
+        "name": "Mohammaddel Amiri"
+      },
+      "pmndmvgb61us6": {
+        "x": 1085,
+        "y": 50,
+        "name": "Shughla Rashid"
+      },
+      "pmndn2984pmss": {
+        "x": 50,
+        "y": 249,
+        "name": "Asma Amiri"
+      },
+      "pmndn30vhfz8r": {
+        "x": 280,
+        "y": 249,
+        "name": "Rafi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 510,
+        "y": 249,
+        "name": "Husna Amiri"
+      },
+      "f03": {
+        "x": 740,
+        "y": 249,
+        "name": "Hemat Faizi"
+      },
+      "pmndmw6tmszgx": {
+        "x": 970,
+        "y": 249,
+        "name": "Aisha Amiri"
+      },
+      "pmndmwy22inp5": {
+        "x": 1200,
+        "y": 249,
+        "name": "Alwina Amiri"
+      },
+      "pmndmxo0wy25u": {
+        "x": 1430,
+        "y": 249,
+        "name": "Khadija Amiri"
+      },
+      "pmndn04a6kp3h": {
+        "x": 1660,
+        "y": 249,
+        "name": "Kawsar Amiri"
+      },
+      "pmndn0xa5x3gg": {
+        "x": 1890,
+        "y": 249,
+        "name": "Asra Amiri"
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 448,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 448,
+        "name": "Zaynab"
+      },
+      "f05": {
+        "x": 510,
+        "y": 448,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 740,
+        "y": 448,
+        "name": "Aisya Faizi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wc2jwpi7w": {
+    "label": "Muhammad Ali",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmni14pyarspx": {
+        "x": 165,
+        "y": 50,
+        "name": "Moniqa"
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 395,
+        "y": 50,
+        "name": "Muhammad Ali"
+      },
+      "pmo70z4rspi7d": {
+        "x": 50,
+        "y": 243,
+        "name": "KInd 1"
+      },
+      "pmo70z4rsajz3": {
+        "x": 280,
+        "y": 243,
+        "name": "kind 2"
+      },
+      "pmo70z4rs3c8z": {
+        "x": 510,
+        "y": 243,
+        "name": "kind 3"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u647klb92": {
+    "label": "Mulla",
+    "cardCount": 10,
+    "overlaps": 0,
+    "cards": {
+      "pmo4u647klb92": {
+        "x": 753,
+        "y": 50,
+        "name": "Mulla"
+      },
+      "pmo4ucl28pqjj": {
+        "x": 958,
+        "y": 50,
+        "name": "Zarifa"
+      },
+      "pmo4uo5dgmtlx": {
+        "x": 50,
+        "y": 246,
+        "name": "Talha"
+      },
+      "pmo4uo5dgha11": {
+        "x": 280,
+        "y": 246,
+        "name": "Sanna"
+      },
+      "pmo4uo5dgc3b8": {
+        "x": 510,
+        "y": 246,
+        "name": "Habiba"
+      },
+      "pmo4uo5dglrux": {
+        "x": 740,
+        "y": 246,
+        "name": "Mohammad"
+      },
+      "pmo4uo5dgy46j": {
+        "x": 970,
+        "y": 246,
+        "name": "Afiya"
+      },
+      "pmo4uo5dg4vji": {
+        "x": 1200,
+        "y": 246,
+        "name": "Sarah"
+      },
+      "pmo4uo5dgl0fe": {
+        "x": 1430,
+        "y": 246,
+        "name": "Hafisa"
+      },
+      "pmo4uo5dgp42t": {
+        "x": 1660,
+        "y": 246,
+        "name": "Aisha"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xwwkoq57t": {
+    "label": "Musafir",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmo4xvsspty1z": {
+        "x": 50,
+        "y": 50,
+        "name": "Malala"
+      },
+      "pmo4xwwkoq57t": {
+        "x": 280,
+        "y": 50,
+        "name": "Musafir"
+      },
+      "pmo4xxff5byvg": {
+        "x": 165,
+        "y": 242,
+        "name": "Gulbushrah"
+      },
+      "pmo4xy7vm7yae": {
+        "x": 395,
+        "y": 242,
+        "name": "Zahir"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7cfmvqiff": {
+    "label": "Mussa Khan Emran Ghorbandi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7cfmvqiff": {
+        "x": 62,
+        "y": 50,
+        "name": "Mussa Khan Emran Ghorbandi"
+      },
+      "pmnepfhttgn51": {
+        "x": 267,
+        "y": 50,
+        "name": "Amanda Jennah Hulsbergen"
+      },
+      "pmnepimbckf8a": {
+        "x": 50,
+        "y": 242,
+        "name": "Jamil Ghorbandi"
+      },
+      "pmnepimbeuxuf": {
+        "x": 280,
+        "y": 242,
+        "name": "Zidan Ghorbandi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni10qws5lcv": {
+    "label": "Nader",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmni10qws5lcv": {
+        "x": 63,
+        "y": 50,
+        "name": "Nader"
+      },
+      "pmo4wo9v600oy": {
+        "x": 268,
+        "y": 50,
+        "name": "Benafsha"
+      },
+      "pmo4wor2wvrjj": {
+        "x": 50,
+        "y": 242,
+        "name": "Firdaus"
+      },
+      "pmo4wor2wihti": {
+        "x": 280,
+        "y": 242,
+        "name": "Iman"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4vq95k7dyj": {
+    "label": "Naqib",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4vq95k7dyj": {
+        "x": 50,
+        "y": 50,
+        "name": "Naqib"
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 255,
+        "y": 50,
+        "name": "Kubrah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni10qwsu0z7": {
+    "label": "Naser",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmni10qwsu0z7": {
+        "x": 63,
+        "y": 50,
+        "name": "Naser"
+      },
+      "pmo4wpxi0f3um": {
+        "x": 268,
+        "y": 50,
+        "name": "Nazifa"
+      },
+      "pmo4wqumxm2vm": {
+        "x": 50,
+        "y": 242,
+        "name": "Basit"
+      },
+      "pmo4wqumxcirr": {
+        "x": 280,
+        "y": 242,
+        "name": "Nieuwe kind?"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u0rpbm1wn": {
+    "label": "NAVRAGEN",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwpozxyoww": {
+        "x": 50,
+        "y": 50,
+        "name": "Fereshta Saidi"
+      },
+      "pmo4u0rpbm1wn": {
+        "x": 280,
+        "y": 50,
+        "name": "NAVRAGEN"
+      },
+      "pmo4u1b0rwt71": {
+        "x": 165,
+        "y": 242,
+        "name": "Hasanaat"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u21q3m2zy": {
+    "label": "NAVRAGEN?",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwpozxxrih": {
+        "x": 50,
+        "y": 50,
+        "name": "Mariam Saidi"
+      },
+      "pmo4u21q3m2zy": {
+        "x": 280,
+        "y": 50,
+        "name": "NAVRAGEN?"
+      },
+      "pmo4u2pw7zjnf": {
+        "x": 165,
+        "y": 242,
+        "name": "Abu Bakr"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycr7lser": {
+    "label": "Nawaab Rashid",
+    "cardCount": 7,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycr7lser": {
+        "x": 395,
+        "y": 50,
+        "name": "Nawaab Rashid"
+      },
+      "pmo351h5beg9f": {
+        "x": 625,
+        "y": 50,
+        "name": "Samira Rashid"
+      },
+      "pmo352v2f85e1": {
+        "x": 50,
+        "y": 244,
+        "name": "Hadya Rashid"
+      },
+      "pmo352v2m7cyp": {
+        "x": 280,
+        "y": 244,
+        "name": "Madinah Rashid"
+      },
+      "pmo352v2qd6mg": {
+        "x": 510,
+        "y": 244,
+        "name": "Sanna Rashid"
+      },
+      "pmo352v2v4165": {
+        "x": 740,
+        "y": 244,
+        "name": "Ismail Rashid"
+      },
+      "pmo352v30t7ge": {
+        "x": 970,
+        "y": 244,
+        "name": "Yousra Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ufn9y0ahn": {
+    "label": "Noorullah",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73omvz": {
+        "x": 50,
+        "y": 50,
+        "name": "Rahiema"
+      },
+      "pmo4ufn9y0ahn": {
+        "x": 255,
+        "y": 50,
+        "name": "Noorullah"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4tjfzukw6f": {
+    "label": "Omid",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwl6r2k67v": {
+        "x": 63,
+        "y": 50,
+        "name": "Sediqa Saidi"
+      },
+      "pmo4tjfzukw6f": {
+        "x": 268,
+        "y": 50,
+        "name": "Omid"
+      },
+      "pmo4tkhyjlb4b": {
+        "x": 50,
+        "y": 285,
+        "name": "Ibrahim Saidi"
+      },
+      "f14": {
+        "x": 280,
+        "y": 285,
+        "name": "Mona Saidi"
+      },
+      "f13": {
+        "x": 510,
+        "y": 285,
+        "name": "Meraj Faizi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wwjpk1bd3": {
+    "label": "Qais",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmni10qws94io": {
+        "x": 50,
+        "y": 50,
+        "name": "Hasinah"
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 255,
+        "y": 50,
+        "name": "Qais"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ufxpzbouu": {
+    "label": "Qudrat",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmo4u96zph9n5": {
+        "x": 165,
+        "y": 50,
+        "name": "Fatima"
+      },
+      "pmo4ufxpzbouu": {
+        "x": 395,
+        "y": 50,
+        "name": "Qudrat"
+      },
+      "pmo4uvvnnu1ci": {
+        "x": 50,
+        "y": 243,
+        "name": "Abu Zhar"
+      },
+      "pmo4uvvnn3c4e": {
+        "x": 280,
+        "y": 243,
+        "name": "Sumayah"
+      },
+      "pmo4uvvnn5wxq": {
+        "x": 510,
+        "y": 243,
+        "name": "Sama"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r21xvr": {
+    "label": "Rafi Saidi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwl6r21xvr": {
+        "x": 63,
+        "y": 50,
+        "name": "Rafi Saidi"
+      },
+      "pmo4tqukpwhe3": {
+        "x": 268,
+        "y": 50,
+        "name": "Salma"
+      },
+      "pmo4tv65lojwy": {
+        "x": 50,
+        "y": 242,
+        "name": "Mumin Aisha Saidi"
+      },
+      "pmo4tu4zyqlgu": {
+        "x": 280,
+        "y": 242,
+        "name": "Milad Saidi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xwldcsefq": {
+    "label": "Rahiemgul",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4xvsspw66y": {
+        "x": 50,
+        "y": 50,
+        "name": "Gulsuma"
+      },
+      "pmo4xwldcsefq": {
+        "x": 255,
+        "y": 50,
+        "name": "Rahiemgul"
+      }
+    },
+    "ghosts": []
+  },
+  "pmneq7p4ss5hl": {
+    "label": "Sakhi Gull Rashid",
+    "cardCount": 38,
+    "overlaps": 0,
+    "cards": {
+      "pmneq7p4ss5hl": {
+        "x": 1902,
+        "y": 50,
+        "name": "Sakhi Gull Rashid"
+      },
+      "pmo34v17r5l0j": {
+        "x": 2107,
+        "y": 50,
+        "name": "Rabia Rashid"
+      },
+      "pmo34ycr3rguf": {
+        "x": 510,
+        "y": 262,
+        "name": "Ayoub Rashid"
+      },
+      "pmo34z25i1fky": {
+        "x": 740,
+        "y": 262,
+        "name": "Nazifa"
+      },
+      "pmo34ycr7lser": {
+        "x": 970,
+        "y": 262,
+        "name": "Nawaab Rashid"
+      },
+      "pmo351h5beg9f": {
+        "x": 1200,
+        "y": 262,
+        "name": "Samira Rashid"
+      },
+      "pmo34ycrdz5uf": {
+        "x": 1430,
+        "y": 262,
+        "name": "Zavar Rashid"
+      },
+      "pmo353ouw5u1k": {
+        "x": 1660,
+        "y": 262,
+        "name": "Azima"
+      },
+      "pmo34ycrhfbhs": {
+        "x": 1890,
+        "y": 262,
+        "name": "Spogme Rashid"
+      },
+      "pmo3552jz6uwr": {
+        "x": 2120,
+        "y": 262,
+        "name": "Khaybar"
+      },
+      "pmo357kjbhmd5": {
+        "x": 2350,
+        "y": 262,
+        "name": "Zavar"
+      },
+      "pmo34ycrl4b8j": {
+        "x": 2580,
+        "y": 262,
+        "name": "Store"
+      },
+      "pmo358vl3n6yf": {
+        "x": 2810,
+        "y": 262,
+        "name": "Didar"
+      },
+      "pmo34ycrplrzh": {
+        "x": 3040,
+        "y": 262,
+        "name": "Mohabbat"
+      },
+      "pmo34ycrwm0ax": {
+        "x": 3270,
+        "y": 262,
+        "name": "Hejrat"
+      },
+      "pmo35a6zz26rc": {
+        "x": 3500,
+        "y": 262,
+        "name": "Lina"
+      },
+      "pmo350x9zbuxz": {
+        "x": 50,
+        "y": 475,
+        "name": "Mashal Rashid"
+      },
+      "pmo350xa4any3": {
+        "x": 280,
+        "y": 475,
+        "name": "Maiwand Rashid"
+      },
+      "pmo350xa8twge": {
+        "x": 510,
+        "y": 475,
+        "name": "Morsal Rashid"
+      },
+      "pmo350xacwuzv": {
+        "x": 740,
+        "y": 475,
+        "name": "Yousuf Rashid"
+      },
+      "pmo350xag72uv": {
+        "x": 970,
+        "y": 475,
+        "name": "Ashraf Rashid"
+      },
+      "pmo350xaj9g7p": {
+        "x": 1200,
+        "y": 475,
+        "name": "Momina Rashid"
+      },
+      "pmo352v2f85e1": {
+        "x": 625,
+        "y": 856,
+        "name": "Hadya Rashid"
+      },
+      "pmo352v2m7cyp": {
+        "x": 855,
+        "y": 856,
+        "name": "Madinah Rashid"
+      },
+      "pmo352v2qd6mg": {
+        "x": 1085,
+        "y": 856,
+        "name": "Sanna Rashid"
+      },
+      "pmo352v2v4165": {
+        "x": 1315,
+        "y": 856,
+        "name": "Ismail Rashid"
+      },
+      "pmo352v30t7ge": {
+        "x": 1545,
+        "y": 856,
+        "name": "Yousra Rashid"
+      },
+      "pmo354mcnbz26": {
+        "x": 1200,
+        "y": 1045,
+        "name": "Sulaiman Rashid"
+      },
+      "pmo354mcujmgy": {
+        "x": 1430,
+        "y": 1045,
+        "name": "Zainab Rashid"
+      },
+      "pmo354mczv982": {
+        "x": 1660,
+        "y": 1045,
+        "name": "Marwa Rashid"
+      },
+      "pmo4a26jk7k5x": {
+        "x": 1890,
+        "y": 1045,
+        "name": "Raana Rashid"
+      },
+      "pmo3561dkcpxd": {
+        "x": 1890,
+        "y": 452,
+        "name": "Zikria"
+      },
+      "pmo3561dq8ahj": {
+        "x": 2120,
+        "y": 452,
+        "name": "Mariam"
+      },
+      "pmo358jhjmb83": {
+        "x": 2005,
+        "y": 642,
+        "name": "Burhan Rashid"
+      },
+      "pmo358jhpzptz": {
+        "x": 2235,
+        "y": 642,
+        "name": "Kawsar Rashid"
+      },
+      "pmo4a1a67tuyw": {
+        "x": 2465,
+        "y": 642,
+        "name": "Yunus"
+      },
+      "pmo359q5jrkg1": {
+        "x": 2810,
+        "y": 642,
+        "name": "Mujda"
+      },
+      "pmo359q5q3jz9": {
+        "x": 3040,
+        "y": 642,
+        "name": "Osman"
+      }
+    },
+    "ghosts": []
+  },
+  "s13": {
+    "label": "Saleh Mohammad Raoefi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "s12": {
+        "x": 62,
+        "y": 50,
+        "name": "Halima Sayedi"
+      },
+      "s13": {
+        "x": 267,
+        "y": 50,
+        "name": "Saleh Mohammad Raoefi"
+      },
+      "s14": {
+        "x": 50,
+        "y": 242,
+        "name": "Amira Nora Raoefi"
+      },
+      "s15": {
+        "x": 280,
+        "y": 242,
+        "name": "Lina Maryam Raoefi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4uctew3mow": {
+    "label": "Sardar",
+    "cardCount": 14,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73wzcp": {
+        "x": 983,
+        "y": 50,
+        "name": "Babo"
+      },
+      "pmo4uctew3mow": {
+        "x": 1188,
+        "y": 50,
+        "name": "Sardar"
+      },
+      "pmndn30vhfz8r": {
+        "x": 50,
+        "y": 248,
+        "name": "Rafi"
+      },
+      "pmndn2984pmss": {
+        "x": 280,
+        "y": 248,
+        "name": "Asma Amiri"
+      },
+      "pmo0h2kl0159h": {
+        "x": 510,
+        "y": 248,
+        "name": "Fahim"
+      },
+      "pmndyjcripek7": {
+        "x": 740,
+        "y": 248,
+        "name": "Muqadas"
+      },
+      "pmo4uu2cqnft3": {
+        "x": 970,
+        "y": 248,
+        "name": "Shafi"
+      },
+      "pmo4uu2cq2lpc": {
+        "x": 1200,
+        "y": 248,
+        "name": "Farzana"
+      },
+      "pmo4uu2cqsbf5": {
+        "x": 1430,
+        "y": 248,
+        "name": "Frunaaz"
+      },
+      "pmo4uu2cqoyhk": {
+        "x": 1660,
+        "y": 248,
+        "name": "Shuiab"
+      },
+      "pmo4uu2cqp1pf": {
+        "x": 1890,
+        "y": 248,
+        "name": "Noeriya"
+      },
+      "pmo4uu2cq5qe2": {
+        "x": 2120,
+        "y": 248,
+        "name": "Shukriya"
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 533,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 533,
+        "name": "Zaynab"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndnrdrc68lf": {
+    "label": "Sejad Rashid",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmndnrdrc68lf": {
+        "x": 50,
+        "y": 50,
+        "name": "Sejad Rashid"
+      },
+      "pmndnticv1qox": {
+        "x": 255,
+        "y": 50,
+        "name": "Homaira Hakimi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4x78d6od26": {
+    "label": "Shahmahmoed",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmni0xjxq42rt": {
+        "x": 293,
+        "y": 50,
+        "name": "Samirah"
+      },
+      "pmo4x78d6od26": {
+        "x": 498,
+        "y": 50,
+        "name": "Shahmahmoed"
+      },
+      "pmo4x88upl6ua": {
+        "x": 50,
+        "y": 244,
+        "name": "Zahrah"
+      },
+      "pmo4x88up7i7r": {
+        "x": 280,
+        "y": 244,
+        "name": "Zohrah"
+      },
+      "pmo4x88upxoul": {
+        "x": 510,
+        "y": 244,
+        "name": "Sumayyah"
+      },
+      "pmo4x88up5ikb": {
+        "x": 740,
+        "y": 244,
+        "name": "Khadija"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73j77q": {
+    "label": "Sharief",
+    "cardCount": 7,
+    "overlaps": 0,
+    "cards": {
+      "pmo4t2s73j77q": {
+        "x": 395,
+        "y": 50,
+        "name": "Sharief"
+      },
+      "pmo4uhm5mmib3": {
+        "x": 625,
+        "y": 50,
+        "name": "Zus van Nasriena??"
+      },
+      "pmo4v10zvm6sl": {
+        "x": 50,
+        "y": 244,
+        "name": "Hafiz"
+      },
+      "pmo4v10zwor2y": {
+        "x": 280,
+        "y": 244,
+        "name": "Hanief"
+      },
+      "pmo4v10zwmzpy": {
+        "x": 510,
+        "y": 244,
+        "name": "Muhammad"
+      },
+      "pmo4v10zwgs3c": {
+        "x": 740,
+        "y": 244,
+        "name": "Saleh Zahid"
+      },
+      "pmo4v10zwtuom": {
+        "x": 970,
+        "y": 244,
+        "name": "Rahiel"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3eip3zu": {
+    "label": "Sheerinagah",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "pmndya3eip3zu": {
+        "x": 50,
+        "y": 50,
+        "name": "Sheerinagah"
+      },
+      "pmo4su8c7xqg0": {
+        "x": 280,
+        "y": 50,
+        "name": "Ruqiyah"
+      },
+      "pmo4supk01lh5": {
+        "x": 165,
+        "y": 241,
+        "name": "Mohammad Amien"
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0byqqbuqw": {
+    "label": "Shirnagha",
+    "cardCount": 7,
+    "overlaps": 0,
+    "cards": {
+      "pmni0aw5mfovo": {
+        "x": 395,
+        "y": 50,
+        "name": "Mergalela Durrani"
+      },
+      "pmni0byqqbuqw": {
+        "x": 625,
+        "y": 50,
+        "name": "Shirnagha"
+      },
+      "pmni0d7t09vcm": {
+        "x": 50,
+        "y": 244,
+        "name": "Baryalai"
+      },
+      "pmni0fiiiy1qs": {
+        "x": 280,
+        "y": 244,
+        "name": "Ferdaws"
+      },
+      "pmni0d7t6qrt0": {
+        "x": 510,
+        "y": 244,
+        "name": "Khalid"
+      },
+      "pmni0d7t9876w": {
+        "x": 740,
+        "y": 244,
+        "name": "Abubakr"
+      },
+      "pmni0d7tck3oc": {
+        "x": 970,
+        "y": 244,
+        "name": "Marwa"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnepmjsmeuk6": {
+    "label": "Sohail Durani",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7hzc067x0": {
+        "x": 50,
+        "y": 50,
+        "name": "Lema Ghorbandi"
+      },
+      "pmnepmjsmeuk6": {
+        "x": 255,
+        "y": 50,
+        "name": "Sohail Durani"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wmwkisp4b": {
+    "label": "Subhanallah",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmni10qwsq7q9": {
+        "x": 165,
+        "y": 50,
+        "name": "Shaista"
+      },
+      "pmo4wmwkisp4b": {
+        "x": 395,
+        "y": 50,
+        "name": "Subhanallah"
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 50,
+        "y": 243,
+        "name": "Moqadas"
+      },
+      "pmo4wrv2hslwp": {
+        "x": 280,
+        "y": 243,
+        "name": "Mustafa"
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 510,
+        "y": 243,
+        "name": "Nog eentje?"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2niud": {
+    "label": "Waheed Saidi",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwl6r2niud": {
+        "x": 50,
+        "y": 50,
+        "name": "Waheed Saidi"
+      },
+      "pmo4txoa8ol14": {
+        "x": 280,
+        "y": 50,
+        "name": "Silsila"
+      },
+      "pmo4ty3cwvfaj": {
+        "x": 165,
+        "y": 242,
+        "name": "Khadija Saidi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xy7vm7yae": {
+    "label": "Zahir",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4xxff5byvg": {
+        "x": 50,
+        "y": 50,
+        "name": "Gulbushrah"
+      },
+      "pmo4xy7vm7yae": {
+        "x": 255,
+        "y": 50,
+        "name": "Zahir"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo8w5cf28zz1": {
+    "label": "Zaki Mirzei",
+    "cardCount": 2,
+    "overlaps": 0,
+    "cards": {
+      "pmo4yhshfcij8": {
+        "x": 50,
+        "y": 50,
+        "name": "Khadija"
+      },
+      "pmo8w5cf28zz1": {
+        "x": 255,
+        "y": 50,
+        "name": "Zaki Mirzei"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo357kjbhmd5": {
+    "label": "Zavar",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycrl4b8j": {
+        "x": 165,
+        "y": 50,
+        "name": "Store"
+      },
+      "pmo357kjbhmd5": {
+        "x": 395,
+        "y": 50,
+        "name": "Zavar"
+      },
+      "pmo358jhjmb83": {
+        "x": 50,
+        "y": 243,
+        "name": "Burhan Rashid"
+      },
+      "pmo358jhpzptz": {
+        "x": 280,
+        "y": 243,
+        "name": "Kawsar Rashid"
+      },
+      "pmo4a1a67tuyw": {
+        "x": 510,
+        "y": 243,
+        "name": "Yunus"
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycrdz5uf": {
+    "label": "Zavar Rashid",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmo34ycrdz5uf": {
+        "x": 292,
+        "y": 50,
+        "name": "Zavar Rashid"
+      },
+      "pmo353ouw5u1k": {
+        "x": 497,
+        "y": 50,
+        "name": "Azima"
+      },
+      "pmo354mcnbz26": {
+        "x": 50,
+        "y": 243,
+        "name": "Sulaiman Rashid"
+      },
+      "pmo354mcujmgy": {
+        "x": 280,
+        "y": 243,
+        "name": "Zainab Rashid"
+      },
+      "pmo354mczv982": {
+        "x": 510,
+        "y": 243,
+        "name": "Marwa Rashid"
+      },
+      "pmo4a26jk7k5x": {
+        "x": 740,
+        "y": 243,
+        "name": "Raana Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2bl6p": {
+    "label": "Zergai Said Saidi",
+    "cardCount": 9,
+    "overlaps": 0,
+    "cards": {
+      "pmnfwl6r2bl6p": {
+        "x": 625,
+        "y": 50,
+        "name": "Zergai Said Saidi"
+      },
+      "pmo4tlndgesy8": {
+        "x": 855,
+        "y": 50,
+        "name": "Maria"
+      },
+      "pmo4tnohqn8eh": {
+        "x": 50,
+        "y": 245,
+        "name": "Abdullah Saidi"
+      },
+      "pmo4tnohtq4o0": {
+        "x": 280,
+        "y": 245,
+        "name": "Yusuf Saidi"
+      },
+      "pmo4tnohv1bc0": {
+        "x": 510,
+        "y": 245,
+        "name": "Sannah Saidi"
+      },
+      "pmo4tnohyzf86": {
+        "x": 740,
+        "y": 245,
+        "name": "Madina Saidi"
+      },
+      "pmo4tnoi01vyn": {
+        "x": 970,
+        "y": 245,
+        "name": "Saleh Saidi"
+      },
+      "pmo4tnoi2nco0": {
+        "x": 1200,
+        "y": 245,
+        "name": "Isa Saidi"
+      },
+      "pmo4tnoi53dc8": {
+        "x": 1430,
+        "y": 245,
+        "name": "Idris Saidi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndwllk8hld1": {
+    "label": "Azghar Khan Rashid",
+    "cardCount": 6,
+    "overlaps": 0,
+    "cards": {
+      "pmndwllk8hld1": {
+        "x": 292,
+        "y": 50,
+        "name": "Azghar Khan Rashid"
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 497,
+        "y": 50,
+        "name": "Latifa Saidi"
+      },
+      "pmni01k22obxh": {
+        "x": 50,
+        "y": 243,
+        "name": "Haajar Rashid"
+      },
+      "pmni01k23erra": {
+        "x": 280,
+        "y": 243,
+        "name": "Yahya Rashid"
+      },
+      "pmni01k24zyhf": {
+        "x": 510,
+        "y": 243,
+        "name": "Omar Rashid"
+      },
+      "pmni01k25pnza": {
+        "x": 740,
+        "y": 243,
+        "name": "Iqra Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7qhxj4baj": {
+    "label": "Bader Khan Rashid",
+    "cardCount": 7,
+    "overlaps": 0,
+    "cards": {
+      "pmnd7ej1rf33c": {
+        "x": 395,
+        "y": 50,
+        "name": "Golgotai Ghorbandi"
+      },
+      "pmnd7qhxj4baj": {
+        "x": 625,
+        "y": 50,
+        "name": "Bader Khan Rashid"
+      },
+      "pmnd7shvzi3c4": {
+        "x": 50,
+        "y": 244,
+        "name": "Beheshta Rashid"
+      },
+      "pmnd7t84wv60c": {
+        "x": 280,
+        "y": 244,
+        "name": "Moqahdas Rashid"
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 510,
+        "y": 244,
+        "name": "Malaika Rashid"
+      },
+      "pmnd7v4fly7vb": {
+        "x": 740,
+        "y": 244,
+        "name": "Bilal Rashid"
+      },
+      "pmnfvopdootvl": {
+        "x": 970,
+        "y": 244,
+        "name": "Haya Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "f07": {
+    "label": "Emamuddin Salehi",
+    "cardCount": 5,
+    "overlaps": 0,
+    "cards": {
+      "f06": {
+        "x": 165,
+        "y": 50,
+        "name": "Nilab Faizi"
+      },
+      "f07": {
+        "x": 395,
+        "y": 50,
+        "name": "Emamuddin Salehi"
+      },
+      "f08": {
+        "x": 50,
+        "y": 243,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 280,
+        "y": 243,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 510,
+        "y": 243,
+        "name": "Fatima Zahra Salehi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2i0v6": {
+    "label": "Farid Saidi",
+    "cardCount": 8,
+    "overlaps": 0,
+    "cards": {
+      "pmndwllk96xxz": {
+        "x": 522,
+        "y": 50,
+        "name": "Nabila"
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 727,
+        "y": 50,
+        "name": "Farid Saidi"
+      },
+      "pmni053i84su6": {
+        "x": 50,
+        "y": 244,
+        "name": "Sarah Saidi"
+      },
+      "pmni053iamxzp": {
+        "x": 280,
+        "y": 244,
+        "name": "Sama Saidi"
+      },
+      "pmni053icew6m": {
+        "x": 510,
+        "y": 244,
+        "name": "Hafsa Saidi"
+      },
+      "pmni053ie8pn9": {
+        "x": 740,
+        "y": 244,
+        "name": "Yaqub Saidi"
+      },
+      "pmni053ifs7ju": {
+        "x": 970,
+        "y": 244,
+        "name": "Ishaq Saidi"
+      },
+      "pmni053ih3c7e": {
+        "x": 1200,
+        "y": 244,
+        "name": "Safia Saidi"
+      }
+    },
+    "ghosts": []
+  },
+  "s07": {
+    "label": "Gaffar Khan Rashid",
+    "cardCount": 3,
+    "overlaps": 0,
+    "cards": {
+      "s06": {
+        "x": 50,
+        "y": 50,
+        "name": "Helai Sayedi"
+      },
+      "s07": {
+        "x": 280,
+        "y": 50,
+        "name": "Gaffar Khan Rashid"
+      },
+      "s08": {
+        "x": 165,
+        "y": 241,
+        "name": "Benjamin Rahman Khan Rashid"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndo2vxafahz": {
+    "label": "Hagig Gull Durrani",
+    "cardCount": 76,
+    "overlaps": 0,
+    "cards": {
+      "pmndo2vxafahz": {
+        "x": 2925,
+        "y": 50,
+        "name": "Hagig Gull Durrani"
+      },
+      "pmndo3i84yw8g": {
+        "x": 3155,
+        "y": 50,
+        "name": "Babogal Sayedi"
+      },
+      "pmo4adrr9bkk1": {
+        "x": 970,
+        "y": 284,
+        "name": "Sarah Durrani"
+      },
+      "f02": {
+        "x": 1200,
+        "y": 284,
+        "name": "Benazier Rashid"
+      },
+      "f01": {
+        "x": 1430,
+        "y": 284,
+        "name": "Khanaga Faizi"
+      },
+      "pmndnpzkp3vwu": {
+        "x": 1660,
+        "y": 284,
+        "name": "Zarlakhta Rashid"
+      },
+      "pmndnoxx6ndgz": {
+        "x": 1890,
+        "y": 284,
+        "name": "Jamal Nader Rashid"
+      },
+      "pmnd7qhxj4baj": {
+        "x": 2120,
+        "y": 284,
+        "name": "Bader Khan Rashid"
+      },
+      "pmnd7ej1rf33c": {
+        "x": 2350,
+        "y": 284,
+        "name": "Golgotai Ghorbandi"
+      },
+      "pmndwllk8hld1": {
+        "x": 2580,
+        "y": 284,
+        "name": "Azghar Khan Rashid"
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2810,
+        "y": 284,
+        "name": "Latifa Saidi"
+      },
+      "s07": {
+        "x": 3040,
+        "y": 284,
+        "name": "Gaffar Khan Rashid"
+      },
+      "s06": {
+        "x": 3270,
+        "y": 284,
+        "name": "Helai Sayedi"
+      },
+      "pmndmvgb61us6": {
+        "x": 3500,
+        "y": 284,
+        "name": "Shughla Rashid"
+      },
+      "pmndmv0pe6bnt": {
+        "x": 3730,
+        "y": 284,
+        "name": "Mohammaddel Amiri"
+      },
+      "pmndwllk9fukl": {
+        "x": 3960,
+        "y": 284,
+        "name": "Davud Khan Durrani"
+      },
+      "pmneptum4xnzi": {
+        "x": 4190,
+        "y": 284,
+        "name": "Diwa Alia Miakhel"
+      },
+      "pmndwllk96xxz": {
+        "x": 4420,
+        "y": 284,
+        "name": "Nabila"
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 4650,
+        "y": 284,
+        "name": "Farid Saidi"
+      },
+      "r02": {
+        "x": 4880,
+        "y": 284,
+        "name": "Shaesta Faizi"
+      },
+      "r01": {
+        "x": 5110,
+        "y": 284,
+        "name": "Abed Rahmani"
+      },
+      "f03": {
+        "x": 50,
+        "y": 520,
+        "name": "Hemat Faizi"
+      },
+      "f06": {
+        "x": 510,
+        "y": 520,
+        "name": "Nilab Faizi"
+      },
+      "f07": {
+        "x": 740,
+        "y": 520,
+        "name": "Emamuddin Salehi"
+      },
+      "f10": {
+        "x": 970,
+        "y": 520,
+        "name": "Alia Faizi"
+      },
+      "f11": {
+        "x": 1200,
+        "y": 520,
+        "name": "Rahimgul Salehi"
+      },
+      "f13": {
+        "x": 1430,
+        "y": 520,
+        "name": "Meraj Faizi"
+      },
+      "f14": {
+        "x": 1660,
+        "y": 520,
+        "name": "Mona Saidi"
+      },
+      "f15": {
+        "x": 1890,
+        "y": 520,
+        "name": "Erfan Faizi"
+      },
+      "f16": {
+        "x": 2120,
+        "y": 520,
+        "name": "Alina Faizi"
+      },
+      "f17": {
+        "x": 2580,
+        "y": 520,
+        "name": "Hamza Faizi"
+      },
+      "pmndnrdrc68lf": {
+        "x": 1085,
+        "y": 989,
+        "name": "Sejad Rashid"
+      },
+      "pmndnticv1qox": {
+        "x": 1315,
+        "y": 989,
+        "name": "Homaira Hakimi"
+      },
+      "pmndnrn9438x5": {
+        "x": 1545,
+        "y": 989,
+        "name": "Noman Rashid"
+      },
+      "pmndnryswhsem": {
+        "x": 2005,
+        "y": 989,
+        "name": "Adel Rashid"
+      },
+      "pmndns7ewdxvw": {
+        "x": 2235,
+        "y": 989,
+        "name": "Amer Rashid"
+      },
+      "pmndnsji2txom": {
+        "x": 2465,
+        "y": 989,
+        "name": "Adam Rashid"
+      },
+      "pmnd7shvzi3c4": {
+        "x": 1775,
+        "y": 710,
+        "name": "Beheshta Rashid"
+      },
+      "pmnd7t84wv60c": {
+        "x": 2005,
+        "y": 710,
+        "name": "Moqahdas Rashid"
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 2235,
+        "y": 710,
+        "name": "Malaika Rashid"
+      },
+      "pmnd7v4fly7vb": {
+        "x": 2465,
+        "y": 710,
+        "name": "Bilal Rashid"
+      },
+      "pmnfvopdootvl": {
+        "x": 2695,
+        "y": 710,
+        "name": "Haya Rashid"
+      },
+      "pmni01k22obxh": {
+        "x": 2350,
+        "y": 1180,
+        "name": "Haajar Rashid"
+      },
+      "pmni01k23erra": {
+        "x": 2580,
+        "y": 1180,
+        "name": "Yahya Rashid"
+      },
+      "pmni01k24zyhf": {
+        "x": 2810,
+        "y": 1180,
+        "name": "Omar Rashid"
+      },
+      "pmni01k25pnza": {
+        "x": 3040,
+        "y": 1180,
+        "name": "Iqra Rashid"
+      },
+      "s08": {
+        "x": 3155,
+        "y": 520,
+        "name": "Benjamin Rahman Khan Rashid"
+      },
+      "pmndn2984pmss": {
+        "x": 2695,
+        "y": 1503,
+        "name": "Asma Amiri"
+      },
+      "pmndn30vhfz8r": {
+        "x": 2925,
+        "y": 1503,
+        "name": "Rafi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 3155,
+        "y": 1503,
+        "name": "Husna Amiri"
+      },
+      "pmndmw6tmszgx": {
+        "x": 3615,
+        "y": 1503,
+        "name": "Aisha Amiri"
+      },
+      "pmndmwy22inp5": {
+        "x": 3845,
+        "y": 1503,
+        "name": "Alwina Amiri"
+      },
+      "pmndmxo0wy25u": {
+        "x": 4075,
+        "y": 1503,
+        "name": "Khadija Amiri"
+      },
+      "pmndn04a6kp3h": {
+        "x": 4305,
+        "y": 1503,
+        "name": "Kawsar Amiri"
+      },
+      "pmndn0xa5x3gg": {
+        "x": 4535,
+        "y": 1503,
+        "name": "Asra Amiri"
+      },
+      "pmnepytxdqi9y": {
+        "x": 3730,
+        "y": 989,
+        "name": "Mustafa Durrani"
+      },
+      "pmnepytxga1sz": {
+        "x": 3960,
+        "y": 989,
+        "name": "Mujtaba Durrani"
+      },
+      "pmnepytxh5z3q": {
+        "x": 4190,
+        "y": 989,
+        "name": "Muskaan Durrani"
+      },
+      "pmnepytxiuzsg": {
+        "x": 4420,
+        "y": 989,
+        "name": "Abud Musawwir Durrani"
+      },
+      "pmni053i84su6": {
+        "x": 3960,
+        "y": 520,
+        "name": "Sarah Saidi"
+      },
+      "pmni053iamxzp": {
+        "x": 4190,
+        "y": 520,
+        "name": "Sama Saidi"
+      },
+      "pmni053icew6m": {
+        "x": 4420,
+        "y": 520,
+        "name": "Hafsa Saidi"
+      },
+      "pmni053ie8pn9": {
+        "x": 4650,
+        "y": 520,
+        "name": "Yaqub Saidi"
+      },
+      "pmni053ifs7ju": {
+        "x": 4880,
+        "y": 520,
+        "name": "Ishaq Saidi"
+      },
+      "pmni053ih3c7e": {
+        "x": 5110,
+        "y": 520,
+        "name": "Safia Saidi"
+      },
+      "r03": {
+        "x": 4880,
+        "y": 899,
+        "name": "Yaqub Rahmani"
+      },
+      "r04": {
+        "x": 5110,
+        "y": 899,
+        "name": "Muzammil Rahmani"
+      },
+      "f08": {
+        "x": 395,
+        "y": 1180,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 625,
+        "y": 1180,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 1180,
+        "name": "Fatima Zahra Salehi"
+      },
+      "f12": {
+        "x": 970,
+        "y": 710,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 710,
+        "name": "Zahra Salehi"
+      },
+      "f05": {
+        "x": 3155,
+        "y": 1739,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 3385,
+        "y": 1739,
+        "name": "Aisya Faizi"
+      },
+      "pmndn3i30g9js": {
+        "x": 2695,
+        "y": 1739,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 2925,
+        "y": 1739,
+        "name": "Zaynab"
+      }
+    },
+    "ghosts": [
+      {
+        "key": "pmndn4sw3j1fb:cg:snapshot_0",
+        "id": "pmndn4sw3j1fb",
+        "x": 280,
+        "y": 520,
+        "adjacentTo": "f03",
+        "name": "Husna Amiri"
+      },
+      {
+        "key": "pmndnrn9438x5:cg:snapshot_1",
+        "id": "pmndnrn9438x5",
+        "x": 2350,
+        "y": 520,
+        "adjacentTo": "f16",
+        "name": "Noman Rashid"
+      },
+      {
+        "key": "f16:cg:snapshot_2",
+        "id": "f16",
+        "x": 1775,
+        "y": 990,
+        "adjacentTo": "pmndnrn9438x5",
+        "name": "Alina Faizi"
+      },
+      {
+        "key": "f03:cg:snapshot_3",
+        "id": "f03",
+        "x": 3385,
+        "y": 1504,
+        "adjacentTo": "pmndn4sw3j1fb",
+        "name": "Hemat Faizi"
+      },
+      {
+        "key": "f05:cg:snapshot_4",
+        "id": "f05",
+        "x": 50,
+        "y": 710,
+        "adjacentTo": "f03",
+        "name": "Amina Faizi"
+      },
+      {
+        "key": "pmndn7m9expkq:cg:snapshot_5",
+        "id": "pmndn7m9expkq",
+        "x": 280,
+        "y": 710,
+        "adjacentTo": "f03",
+        "name": "Aisya Faizi"
+      }
+    ]
+  },
+  "pmndydlr61are": {
+    "label": "Hekmatullah Salehi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmndydlr61are": {
+        "x": 62,
+        "y": 50,
+        "name": "Hekmatullah Salehi"
+      },
+      "pmni0xjxqy5q5": {
+        "x": 268,
+        "y": 50,
+        "name": "Shamila"
+      },
+      "pmndyf12hx96x": {
+        "x": 50,
+        "y": 242,
+        "name": "Khalil Reduaon Salehi"
+      },
+      "pmo007gyaqm2k": {
+        "x": 280,
+        "y": 242,
+        "name": "Aqsa Hanifa"
+      }
+    },
+    "ghosts": []
+  },
+  "f03": {
+    "label": "Hemat Faizi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "f03": {
+        "x": 62,
+        "y": 50,
+        "name": "Hemat Faizi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 267,
+        "y": 50,
+        "name": "Husna Amiri"
+      },
+      "f05": {
+        "x": 50,
+        "y": 242,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 280,
+        "y": 242,
+        "name": "Aisya Faizi"
+      }
+    },
+    "ghosts": []
+  },
+  "f01": {
+    "label": "Khanaga Faizi",
+    "cardCount": 21,
+    "overlaps": 0,
+    "cards": {
+      "f01": {
+        "x": 1200,
+        "y": 50,
+        "name": "Khanaga Faizi"
+      },
+      "f02": {
+        "x": 1430,
+        "y": 50,
+        "name": "Benazier Rashid"
+      },
+      "f03": {
+        "x": 50,
+        "y": 252,
+        "name": "Hemat Faizi"
+      },
+      "pmndn4sw3j1fb": {
+        "x": 280,
+        "y": 252,
+        "name": "Husna Amiri"
+      },
+      "f06": {
+        "x": 510,
+        "y": 252,
+        "name": "Nilab Faizi"
+      },
+      "f07": {
+        "x": 740,
+        "y": 252,
+        "name": "Emamuddin Salehi"
+      },
+      "f10": {
+        "x": 970,
+        "y": 252,
+        "name": "Alia Faizi"
+      },
+      "f11": {
+        "x": 1200,
+        "y": 252,
+        "name": "Rahimgul Salehi"
+      },
+      "f13": {
+        "x": 1430,
+        "y": 252,
+        "name": "Meraj Faizi"
+      },
+      "f14": {
+        "x": 1660,
+        "y": 252,
+        "name": "Mona Saidi"
+      },
+      "f15": {
+        "x": 1890,
+        "y": 252,
+        "name": "Erfan Faizi"
+      },
+      "f16": {
+        "x": 2120,
+        "y": 252,
+        "name": "Alina Faizi"
+      },
+      "pmndnrn9438x5": {
+        "x": 2350,
+        "y": 252,
+        "name": "Noman Rashid"
+      },
+      "f17": {
+        "x": 2580,
+        "y": 252,
+        "name": "Hamza Faizi"
+      },
+      "f05": {
+        "x": 50,
+        "y": 455,
+        "name": "Amina Faizi"
+      },
+      "pmndn7m9expkq": {
+        "x": 280,
+        "y": 455,
+        "name": "Aisya Faizi"
+      },
+      "f08": {
+        "x": 395,
+        "y": 657,
+        "name": "Muhammad Salehi"
+      },
+      "f09": {
+        "x": 625,
+        "y": 657,
+        "name": "Ahmad Salehi"
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 657,
+        "name": "Fatima Zahra Salehi"
+      },
+      "f12": {
+        "x": 970,
+        "y": 455,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 455,
+        "name": "Zahra Salehi"
+      }
+    },
+    "ghosts": []
+  },
+  "pmndn30vhfz8r": {
+    "label": "Rafi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "pmndn2984pmss": {
+        "x": 62,
+        "y": 50,
+        "name": "Asma Amiri"
+      },
+      "pmndn30vhfz8r": {
+        "x": 267,
+        "y": 50,
+        "name": "Rafi"
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 242,
+        "name": "Zoya"
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 242,
+        "name": "Zaynab"
+      }
+    },
+    "ghosts": []
+  },
+  "f11": {
+    "label": "Rahimgul Salehi",
+    "cardCount": 4,
+    "overlaps": 0,
+    "cards": {
+      "f10": {
+        "x": 62,
+        "y": 50,
+        "name": "Alia Faizi"
+      },
+      "f11": {
+        "x": 267,
+        "y": 50,
+        "name": "Rahimgul Salehi"
+      },
+      "f12": {
+        "x": 50,
+        "y": 242,
+        "name": "Zainab Salehi"
+      },
+      "pmnd6s4yespmb": {
+        "x": 280,
+        "y": 242,
+        "name": "Zahra Salehi"
+      }
+    },
+    "ghosts": []
+  },
+  "s01": {
+    "label": "Wali Mohammad Sayedi",
+    "cardCount": 17,
+    "overlaps": 0,
+    "cards": {
+      "s01": {
+        "x": 970,
+        "y": 50,
+        "name": "Wali Mohammad Sayedi"
+      },
+      "pmneq7p4udtvl": {
+        "x": 1200,
+        "y": 50,
+        "name": "Malika Durrani"
+      },
+      "s03": {
+        "x": 50,
+        "y": 250,
+        "name": "Ajab Khan Sayedi"
+      },
+      "s04": {
+        "x": 280,
+        "y": 250,
+        "name": "Sanga Hassanzai"
+      },
+      "s05": {
+        "x": 510,
+        "y": 250,
+        "name": "Ajmal Khan Sayedi"
+      },
+      "s06": {
+        "x": 740,
+        "y": 250,
+        "name": "Helai Sayedi"
+      },
+      "s07": {
+        "x": 970,
+        "y": 250,
+        "name": "Gaffar Khan Rashid"
+      },
+      "s09": {
+        "x": 1200,
+        "y": 250,
+        "name": "Fereshta Sayedi"
+      },
+      "s10": {
+        "x": 1430,
+        "y": 250,
+        "name": "Jawed Sabur"
+      },
+      "s11": {
+        "x": 1660,
+        "y": 250,
+        "name": "Hakim Khan Sayedi"
+      },
+      "s12": {
+        "x": 1890,
+        "y": 250,
+        "name": "Halima Sayedi"
+      },
+      "s13": {
+        "x": 2120,
+        "y": 250,
+        "name": "Saleh Mohammad Raoefi"
+      },
+      "pmncyghyo65ha": {
+        "x": 165,
+        "y": 450,
+        "name": "Mirwais Khan Wazir Sayedi"
+      },
+      "s08": {
+        "x": 855,
+        "y": 450,
+        "name": "Benjamin Rahman Khan Rashid"
+      },
+      "pmnczpeoyc4hd": {
+        "x": 1315,
+        "y": 450,
+        "name": "Arman Haydar Khan Sabur"
+      },
+      "s14": {
+        "x": 1890,
+        "y": 450,
+        "name": "Amira Nora Raoefi"
+      },
+      "s15": {
+        "x": 2120,
+        "y": 450,
+        "name": "Lina Maryam Raoefi"
+      }
+    },
+    "ghosts": []
+  }
+}
