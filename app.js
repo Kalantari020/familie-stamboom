@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v606';
+const APP_VERSION = 'v607';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10776,6 +10776,100 @@ function computeLayout(overrideIds, headId) {
         pos[cid].x = targetStartX + i * (NODE_W + H_GAP);
       });
     }
+  })();
+
+  // ===== SAYEDAHMED — gen1 rij herbouw =====
+  // Stap A: 8 gen1-kinderen + partners op Y=240 in BO-volgorde, inlaws adjacent.
+  // Voor multi-partner (Ahmad Saidi/Ali Ahmad Salehi): partner1 - kid - partner2.
+  // Head (Sayedahmed + Bibi Maluka) gecentreerd boven gen1-rij.
+  // Descendants shiften mee met hun gen1-kid's delta X.
+  if (headId === 'pmndyrysy3eq7') (function rebuildSayedahmedGen1() {
+    const sayedId = 'pmndyrysy3eq7';
+    const bibiMalukaId = 'pmndyryt0viez';
+    if (!pos[sayedId] || !pos[bibiMalukaId]) return;
+
+    const units = [
+      { child: 'pmndya3eilyn1', partners: ['pmnfwiq4xex8n', 'pmnfwiq4xoz2k'], surround: true },  // Ahmad Saidi
+      { child: 'pmndya3eiti9k', partners: ['pmo4sw6rkvo1k'] },                                     // Mahmoed
+      { child: 'pmndya3eixb8j', partners: ['pmo4t07f8o0lo'] },                                     // Bibigul
+      { child: 'pmndya3ei5vp4', partners: ['pmndyckredqon', 'pmndyhcgqdpb9'], surround: true },    // Ali Ahmad
+      { child: 'pmndo3i84yw8g', partners: ['pmndo2vxafahz'] },                                     // Babogal
+      { child: 's01', partners: ['pmneq7p4udtvl'] },                                                // Wali
+      { child: 'pmndya3ei0k93', partners: ['pmnfx2dl6dya9'] },                                     // Mahmad
+      { child: 'pmndya3eip3zu', partners: ['pmo4su8c7xqg0'] },                                     // Sheerinagah
+    ];
+
+    const slotW = NODE_W + H_GAP;
+    const gen1Y = 240;
+
+    // Bereken totaal aantal slots
+    let totalSlots = 0;
+    units.forEach(u => { totalSlots += 1 + u.partners.length; });
+    const totalWidth = totalSlots * NODE_W + (totalSlots - 1) * H_GAP;
+
+    // Plaats vanaf PADDING
+    let x = PADDING;
+    const newX = {};
+    units.forEach(u => {
+      if (u.surround && u.partners.length === 2) {
+        newX[u.partners[0]] = x; x += slotW;
+        newX[u.child] = x; x += slotW;
+        newX[u.partners[1]] = x; x += slotW;
+      } else {
+        newX[u.child] = x; x += slotW;
+        u.partners.forEach(pid => { newX[pid] = x; x += slotW; });
+      }
+    });
+
+    // Head gecentreerd boven gen1 rij midden (2 kaarten = 2*NODE_W + H_GAP breed)
+    const gen1CenterX = PADDING + totalWidth / 2;
+    const headPairWidth = 2 * NODE_W + H_GAP;
+    newX[sayedId] = gen1CenterX - headPairWidth / 2;
+    newX[bibiMalukaId] = newX[sayedId] + NODE_W + H_GAP;
+
+    // Descendants helper
+    const childrenOfMap = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'parent-child') return;
+      if (!childrenOfMap[r.parentId]) childrenOfMap[r.parentId] = [];
+      childrenOfMap[r.parentId].push(r.childId);
+    });
+    const descCache = {};
+    function descendantsOf(id, visited) {
+      visited = visited || new Set();
+      if (visited.has(id)) return [];
+      visited.add(id);
+      if (descCache[id]) return descCache[id];
+      const kids = (childrenOfMap[id] || []).filter(cid => pos[cid]);
+      const res = [];
+      kids.forEach(cid => { res.push(cid); res.push(...descendantsOf(cid, visited)); });
+      descCache[id] = res;
+      return res;
+    }
+
+    // Shift gen1 kids + partners + hun descendants met delta X (Y blijft behalve voor gen1 zelf)
+    const shifted = new Set();
+    units.forEach(u => {
+      [u.child, ...u.partners].forEach(id => {
+        if (!pos[id] || shifted.has(id) || newX[id] == null) return;
+        const oldX = pos[id].x;
+        const delta = newX[id] - oldX;
+        pos[id].x = newX[id];
+        pos[id].y = gen1Y;
+        shifted.add(id);
+        descendantsOf(id).forEach(did => {
+          if (shifted.has(did)) return;
+          pos[did].x += delta;
+          shifted.add(did);
+        });
+      });
+    });
+
+    // Head
+    pos[sayedId].x = newX[sayedId];
+    pos[sayedId].y = 50;
+    pos[bibiMalukaId].x = newX[bibiMalukaId];
+    pos[bibiMalukaId].y = 50;
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
