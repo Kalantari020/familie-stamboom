@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v626';
+const APP_VERSION = 'v627';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -14693,9 +14693,10 @@ async function downloadPDF() {
 
   // Render-scale voor html2canvas (1 = 96 DPI, 1.5 = 144 DPI). Hoger = scherper PDF
   // maar grotere file. Bij grote bomen krimpen we de scale om te voorkomen dat de
-  // canvas te groot wordt (browsers cappen rond 16384 px en ~268 megapixels).
-  const MAX_CANVAS_DIM = 14000; // veilige bovengrens per dimensie
-  const MAX_CANVAS_AREA = 200_000_000; // ~200 megapixels veilig
+  // canvas te groot wordt. Firefox caps bij 11180 px per dim en ~124 MP totaal;
+  // Chromium cap is hoger maar we nemen de veilige bovengrens voor compatibility.
+  const MAX_CANVAS_DIM = 11000; // Firefox-safe bovengrens per dimensie
+  const MAX_CANVAS_AREA = 120_000_000; // ~120 megapixels Firefox-safe
   let RENDER_SCALE = 1.5;
   const dimScale = Math.min(MAX_CANVAS_DIM / captureW, MAX_CANVAS_DIM / captureH);
   const areaScale = Math.sqrt(MAX_CANVAS_AREA / (captureW * captureH));
