@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v627';
+const APP_VERSION = 'v628';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -14710,10 +14710,10 @@ async function downloadPDF() {
   const FOOTER_MM = 10;
   const pageHmm = treeHmm + 2 * MARGIN_MM + FOOTER_MM;
 
-  // jsPDF heeft geen technische bovengrens voor pagina-afmetingen, maar erg grote
-  // pagina's kunnen sommige viewers traag maken. Bij gigantische bomen vallen we
-  // terug op multi-page tegelmodus.
-  const MAX_PAGE_DIM_MM = 5000;
+  // jsPDF heeft geen technische bovengrens, maar pagina's > ~1500mm worden door
+  // Adobe Acrobat en andere viewers als "zwart scherm" getoond (renderbudget).
+  // Bij grote bomen vallen we terug op multi-page tegelmodus (A3 landscape tiles).
+  const MAX_PAGE_DIM_MM = 1500;
   if (pageWmm > MAX_PAGE_DIM_MM || pageHmm > MAX_PAGE_DIM_MM) {
     document.body.removeChild(clone);
     return downloadPDFMultiPage(treeW, treeH);
