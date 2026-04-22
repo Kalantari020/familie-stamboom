@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v604';
+const APP_VERSION = 'v605';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10734,6 +10734,47 @@ function computeLayout(overrideIds, headId) {
         Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= cur) g.y += shift; });
         for (let j = i; j < yValues.length; j++) yValues[j] += shift;
       }
+    }
+  })();
+
+  // ===== MAHMOED — Bibirawza + Daad Mahmad adjacent + kids centreren =====
+  // Bibirawza heeft pure inlaw Daad Mahmad als partner. Hij stond op verkeerde X.
+  // Plaats Daad Mahmad naast Bibirawza + shift siblings rechts + centreer kinderen.
+  if (headId === 'pmndya3eiti9k') (function fixMahmoed() {
+    const bibi = pos['pmo4szd62qiup'];
+    const daad = pos['pmo4v4r3i85jz'];
+    if (!bibi || !daad) return;
+
+    // Zet Daad Mahmad direct naast Bibirawza op zelfde Y
+    const bibiX = bibi.x;
+    const bibiY = bibi.y;
+    const targetDaadX = bibiX + NODE_W + H_GAP;
+
+    // Siblings op zelfde gen1 Y die X >= targetDaadX hebben: shift rechts
+    const SHIFT = NODE_W + H_GAP;
+    const siblingIds = ['pmo4szd632k5i', 'pmo4szd63w9un', 'pmo4szd63jn8i', 'pmo4szd63ws4w']; // Deenmahmad, Neekmahmad, Noormahmad, Lutfullah
+    siblingIds.forEach(sid => {
+      if (!pos[sid]) return;
+      if (pos[sid].x >= targetDaadX - 0.5) {
+        pos[sid].x += SHIFT;
+      }
+    });
+
+    // Plaats Daad Mahmad
+    daad.x = targetDaadX;
+    daad.y = bibiY;
+
+    // Centreer kinderen onder Bibirawza+Daad Mahmad paar-midpoint
+    const kidIds = ['pmo4v6ag4btzt', 'pmo4v6ag5tbeg', 'pmo4v6ag5yshe', 'pmo4v6ag5y6kb', 'pmo4v6ag5kd8o', 'pmo4v6ag5b5bp'];
+    const kids = kidIds.map(id => pos[id]).filter(Boolean);
+    if (kids.length) {
+      const pairMidX = (bibiX + targetDaadX + NODE_W) / 2;
+      const sortedKidIds = kidIds.filter(id => pos[id]).sort((a, b) => pos[a].x - pos[b].x);
+      const kidsWidth = sortedKidIds.length * NODE_W + (sortedKidIds.length - 1) * H_GAP;
+      const targetStartX = pairMidX - kidsWidth / 2;
+      sortedKidIds.forEach((cid, i) => {
+        pos[cid].x = targetStartX + i * (NODE_W + H_GAP);
+      });
     }
   })();
 
