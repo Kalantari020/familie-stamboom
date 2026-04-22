@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v612';
+const APP_VERSION = 'v613';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9499,7 +9499,12 @@ function computeLayout(overrideIds, headId) {
     // Voor Sayedahmed: eerste block start DIRECT onder gen1 (1-op-1 copy).
     // Voor Mahmadgul/Fazelahmad: extra BLOCK_GAP onder gen1 (bestaand gedrag).
     const useHeadAnchor = (headId === 'pmndyrysy3eq7');
-    let nextSubTreeStartY = useHeadAnchor ? headChildY : (headChildY + BLOCK_GAP);
+    // Extra marge tussen gen1-rij en eerste descendants-rij (Sayedahmed-specifiek).
+    // Visueel duidelijker onderscheid gen1 ↔ sub-tree (Hakim request v613).
+    const SAYEDAHMED_GEN1_MARGIN = useHeadAnchor ? V_GAP : 0; // 90 px extra
+    let nextSubTreeStartY = useHeadAnchor
+      ? (headChildY + SAYEDAHMED_GEN1_MARGIN)
+      : (headChildY + BLOCK_GAP);
     const visitedAcrossOverlay = new Set();
     // Voor Sayedahmed: track geplaatste block rechthoeken zodat kleine blocks
     // direct onder gen1 kunnen komen i.p.v. onderaan gestackt.
@@ -9670,7 +9675,7 @@ function computeLayout(overrideIds, headId) {
       // Fallback naar gestackte positie (nextSubTreeStartY) als er wel overlap is.
       let blockStartY = nextSubTreeStartY;
       if (useHeadAnchor && placedBlocks.length > 0) {
-        const candidateStartY = headChildY; // gen1 Y + Y_STEP
+        const candidateStartY = headChildY + SAYEDAHMED_GEN1_MARGIN; // gen1 Y + Y_STEP + margin
         const candidateBlockYMin = candidateStartY;
         const candidateBlockYMax = candidateStartY + (snapMaxY - snapHeadPos.y);
         const candidateXMin = snapMinX + xOffset;
