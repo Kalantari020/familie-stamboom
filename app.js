@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v608';
+const APP_VERSION = 'v609';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9445,7 +9445,10 @@ function computeLayout(overrideIds, headId) {
     // duidelijk gescheiden zijn (i.p.v. dezelfde gap als binnen blok).
     const BLOCK_GAP = Y_STEP + 2 * V_GAP; // 190 + 180 = 370 px tussen blokken
     const headChildY = pos[headId] ? pos[headId].y + Y_STEP : PADDING + Y_STEP;
-    let nextSubTreeStartY = headChildY + BLOCK_GAP;
+    // Voor Sayedahmed: eerste block start DIRECT onder gen1 (1-op-1 copy).
+    // Voor Mahmadgul/Fazelahmad: extra BLOCK_GAP onder gen1 (bestaand gedrag).
+    const useHeadAnchor = (headId === 'pmndyrysy3eq7');
+    let nextSubTreeStartY = useHeadAnchor ? headChildY : (headChildY + BLOCK_GAP);
     const visitedAcrossOverlay = new Set();
 
     // ── BIO-OWNERSHIP MAP ──
@@ -9605,7 +9608,11 @@ function computeLayout(overrideIds, headId) {
       const snapMinY = Math.min(...realSnapDescendants.map(([_, p]) => p.y));
       const snapMaxY = Math.max(...realSnapDescendants.map(([_, p]) => p.y));
       const xOffset = pos[hcid].x - snapHeadPos.x;
-      const yOffset = nextSubTreeStartY - snapMinY;
+      // Sayedahmed: 1-op-1 copy — yOffset shift descendants relatief t.o.v. snap HEAD
+      // (zo staat hcid's kids op hcid.y + (snap.kids.y - snap.head.y) → echte 1-op-1)
+      const yOffset = useHeadAnchor
+        ? (nextSubTreeStartY - snapHeadPos.y)
+        : (nextSubTreeStartY - snapMinY);
       if (typeof window !== 'undefined') window._debugOverlay.perChild.push({
         head: state.persons.find(p => p.id === hcid)?.name,
         snapHeadX: snapHeadPos.x, snapHeadY: snapHeadPos.y,
@@ -9698,7 +9705,12 @@ function computeLayout(overrideIds, headId) {
           };
         });
       }
-      nextSubTreeStartY = nextSubTreeStartY + (snapMaxY - snapMinY) + BLOCK_GAP;
+      // Sayedahmed: block strekt zich uit van snapHeadY tot snapMaxY.
+      // Andere: block dekt alleen snapMinY tot snapMaxY (descendants only).
+      const blockSpan = useHeadAnchor
+        ? (snapMaxY - snapHeadPos.y)
+        : (snapMaxY - snapMinY);
+      nextSubTreeStartY = nextSubTreeStartY + blockSpan + BLOCK_GAP;
     });
 
     // (POST-OVERLAY SIBLING-Y ALIGNMENT verplaatst naar einde van computeLayout
@@ -10166,6 +10178,7 @@ function computeLayout(overrideIds, headId) {
   // zitten (later toegevoegd) behouden hun computed positie.
   // SKIP voor Fazelahmad: die gebruikt SUB-TREE OVERLAY (head-children snapshots)
   // — direct override zou conflicteren.
+  let _snapshotDirectApplied = false;
   if (headId && headId !== 'pmni0mtna5vxw' && typeof window !== 'undefined' && window._loadedSnapshots && window._loadedSnapshots[headId]) {
     const snap = window._loadedSnapshots[headId];
     if (snap && snap.cards) {
@@ -10177,6 +10190,7 @@ function computeLayout(overrideIds, headId) {
       // gekregen sinds snapshot — de snapshot dekt dan de basis maar nieuwe personen
       // krijgen pipeline-positie. Beter dan helemaal geen snapshot toepassen.
       if (posIds.length > 0 && inBoth.length / posIds.length >= 0.3) {
+        _snapshotDirectApplied = true;
         // Pas snapshot card posities toe
         Object.entries(snap.cards).forEach(([id, snapPos]) => {
           if (pos[id]) {
@@ -10284,7 +10298,8 @@ function computeLayout(overrideIds, headId) {
   ];
 
   const activeCfg = multiPartnerConfigs.find(c => c.headId === headId);
-  if (activeCfg) (function rebuildMultiPartnerClusters() {
+  // Skip als snapshot al toegepast — de snapshot reflecteert al het juiste eindresultaat
+  if (activeCfg && !_snapshotDirectApplied) (function rebuildMultiPartnerClusters() {
     const ahmadId = activeCfg.headId;
     const shafiqaId = activeCfg.p1Id;
     const lailaId = activeCfg.p2Id;
@@ -10751,6 +10766,12 @@ function computeLayout(overrideIds, headId) {
     const bibiX = bibi.x;
     const bibiY = bibi.y;
     const targetDaadX = bibiX + NODE_W + H_GAP;
+
+    // IDEMPOTENT: als Daad Mahmad al op zijn target-positie staat (bv. via
+    // SNAPSHOT-DIRECT OVERRIDE), skip sibling-shift en kids-centering.
+    if (Math.abs(daad.x - targetDaadX) < 1 && Math.abs(daad.y - bibiY) < 1) {
+      return;
+    }
 
     // Siblings op zelfde gen1 Y die X >= targetDaadX hebben: shift rechts
     const SHIFT = NODE_W + H_GAP;
@@ -14820,8 +14841,8 @@ function renderSmartView() {
   }
 
   // Pre-load snapshots voor sub-tree overlay (Mahmadgul/Sayedahmed gebruiken approved sub-trees)
-  // snapshots_v470.json bevat ALLE 51 goedgekeurde stambomen
-  fetch('snapshots_v470.json?v=' + APP_VERSION)
+  // snapshots_v606.json bevat ALLE 90 goedgekeurde stambomen (0 overlaps)
+  fetch('snapshots_v606.json?v=' + APP_VERSION)
     .then(r => r.json())
     .then(snaps => {
       window._loadedSnapshots = snaps;
@@ -14829,8 +14850,8 @@ function renderSmartView() {
       if (typeof render === 'function') render();
     })
     .catch(() => {
-      // Fallback naar oude snapshots als v470 niet bestaat
-      fetch('snapshots_v376.json')
+      // Fallback naar oude snapshots
+      fetch('snapshots_v470.json?v=' + APP_VERSION)
         .then(r => r.json())
         .then(snaps => { window._loadedSnapshots = snaps; if (typeof render === 'function') render(); })
         .catch(() => { window._loadedSnapshots = {}; });
