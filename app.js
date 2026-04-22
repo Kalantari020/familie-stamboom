@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v629';
+const APP_VERSION = 'v630';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12835,33 +12835,17 @@ function computeAllFamiliesLayout() {
 
   if (!treeLayouts.length) return { positions: {}, duplicates: {}, treePositions: {}, treeRanges: {} };
 
-  // ── Shelf-packing: sorteer op hoogte, pak in rijen ──
-  treeLayouts.sort((a, b) => b.bbox.h - a.bbox.h);
-  const targetWidth = Math.max(window.innerWidth - 260, 3000);
+  // ── Horizontaal naast elkaar: alle stambomen op 1 rij, heads op zelfde Y ──
+  // Sorteer deterministisch op aantal personen (grootste eerst) voor stabiele layout.
+  treeLayouts.sort((a, b) => b.count - a.count);
 
-  const shelves = [];
+  const INTER_TREE_GAP = 400; // ruimte tussen stambomen op X-as
+  const shelves = [{ y: PADDING, h: 0, items: [] }];
+  let cursorX = PADDING;
   treeLayouts.forEach(tree => {
-    const th = tree.bbox.h + TREE_GAP;
-
-    let placed = false;
-    for (const shelf of shelves) {
-      const shelfRight = shelf.items.length > 0
-        ? shelf.items[shelf.items.length - 1].x + shelf.items[shelf.items.length - 1].tree.bbox.w + TREE_GAP
-        : PADDING;
-      if (shelfRight + tree.bbox.w <= targetWidth) {
-        shelf.items.push({ tree, x: shelfRight });
-        shelf.h = Math.max(shelf.h, th);
-        placed = true;
-        break;
-      }
-    }
-
-    if (!placed) {
-      const shelfY = shelves.length > 0
-        ? shelves[shelves.length - 1].y + shelves[shelves.length - 1].h
-        : PADDING;
-      shelves.push({ y: shelfY, h: th, items: [{ tree, x: PADDING }] });
-    }
+    shelves[0].items.push({ tree, x: cursorX });
+    shelves[0].h = Math.max(shelves[0].h, tree.bbox.h + TREE_GAP);
+    cursorX += tree.bbox.w + INTER_TREE_GAP;
   });
 
   // ── Finale posities opbouwen per boom ──
