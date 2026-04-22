@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v630';
+const APP_VERSION = 'v631';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12864,8 +12864,16 @@ function computeAllFamiliesLayout() {
 
       Object.entries(tree.pos).forEach(([id, p]) => {
         const shifted = { x: p.x + dx, y: p.y + dy };
-        pos[id] = shifted;
         treePosMap[id] = shifted;
+        // Shared cards tussen meerdere trees: EERSTE tree wint als 'real',
+        // latere trees krijgen een duplicate (ghost) zodat elke tree 1-op-1
+        // met z'n individuele approved layout blijft.
+        if (pos[id]) {
+          const dupKey = id + ':cg:allfam_' + tree.headId;
+          duplicates[dupKey] = { x: shifted.x, y: shifted.y, personId: id, adjacentTo: id };
+        } else {
+          pos[id] = shifted;
+        }
       });
 
       // Ghost/cross-family posities per boom
