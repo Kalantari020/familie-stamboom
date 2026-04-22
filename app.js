@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v616';
+const APP_VERSION = 'v617';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11471,13 +11471,18 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     }
   }
   // Lijn-dikte op basis van diepte van de OUDER (parent depth N → line N→N+1):
-  // Gen1 T-lijnen (stamhoofd → gen1 → kids) extra dik voor duidelijke Y-block scheiding.
-  // depth 0 (stamhoofd → gen1): 7px, 1 (gen1 → kids): 6px, 2: 4px, 3: 3px, 4+: 2px
+  // Stamhoofd en Gen1 lijnen EXTRA DIK; grote sprong naar Gen2 voor duidelijke
+  // Y-block scheiding.
+  // depth 0 (stamhoofd → gen1): 10px (was 7)
+  // depth 1 (gen1 → kids):      8px (was 6) — de Y-block T-lijnen
+  // depth 2 (gen2 → kids):      3px (was 4) — grote sprong na gen1
+  // depth 3:                    2.5px
+  // depth 4+:                   2px
   const lineThicknessForDepth = (depth) => {
-    if (depth === 0) return 7;
-    if (depth === 1) return 6;
-    if (depth === 2) return 4;
-    if (depth === 3) return 3;
+    if (depth === 0) return 10;
+    if (depth === 1) return 8;
+    if (depth === 2) return 3;
+    if (depth === 3) return 2.5;
     return 2;
   };
   const getThickness = (parentIds) => {
