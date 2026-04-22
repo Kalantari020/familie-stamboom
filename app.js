@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v624';
+const APP_VERSION = 'v625';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11158,7 +11158,7 @@ function computeLayout(overrideIds, headId) {
     // adjacentToId = plaats rechts van card met gegeven id (standaard NODE_W+H_GAP)
     const compactLeafsToY = [
       { leafIds: ['pmo4tkhyjlb4b', 'f14'], targetY: 744 }, // Sediqa's kids: Ibrahim + Mona
-      { leafIds: ['pmo4ty3cwvfaj'], targetY: 744, adjacentRightOf: 'pmni01k25pnza' }, // Khadija adjacent van Iqra
+      { leafIds: ['pmo4ty3cwvfaj'], targetY: 934 }, // Waheed's kid: Khadija op zelfde Y als Rafi's kids (Mumin, Milad)
     ];
     compactLeafsToY.forEach(({ leafIds, targetY, targetX, adjacentRightOf }) => {
       leafIds.forEach(cid => {
