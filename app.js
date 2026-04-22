@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v609';
+const APP_VERSION = 'v610';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9392,6 +9392,57 @@ function computeLayout(overrideIds, headId) {
     }
   }
 
+  // ===== SAYEDAHMED GEN1 PRE-POSITION (voor SUB-TREE OVERLAY) =====
+  // Plaats gen1 kids + partners + head op hun finale X VOORDAT de overlay draait.
+  // Zo gebruikt overlay's xOffset = pos[hcid].x - snapHeadX de juiste eindwaarde,
+  // en worden descendants 1-op-1 met snap geplaatst (head-anchor).
+  if (headId === 'pmndyrysy3eq7' && pos['pmndyrysy3eq7']) (function preGenOne() {
+    const units = [
+      { child: 'pmndya3eilyn1', partners: ['pmnfwiq4xex8n', 'pmnfwiq4xoz2k'], surround: true },
+      { child: 'pmndya3eiti9k', partners: ['pmo4sw6rkvo1k'] },
+      { child: 'pmndya3eixb8j', partners: ['pmo4t07f8o0lo'] },
+      { child: 'pmndya3ei5vp4', partners: ['pmndyckredqon', 'pmndyhcgqdpb9'], surround: true },
+      { child: 'pmndo3i84yw8g', partners: ['pmndo2vxafahz'] },
+      { child: 's01', partners: ['pmneq7p4udtvl'] },
+      { child: 'pmndya3ei0k93', partners: ['pmnfx2dl6dya9'] },
+      { child: 'pmndya3eip3zu', partners: ['pmo4su8c7xqg0'] },
+    ];
+    const slotW = NODE_W + H_GAP;
+    let totalSlots = 0;
+    units.forEach(u => totalSlots += 1 + u.partners.length);
+    const totalWidth = totalSlots * NODE_W + (totalSlots - 1) * H_GAP;
+    let x = PADDING;
+    const newX = {};
+    units.forEach(u => {
+      if (u.surround && u.partners.length === 2) {
+        newX[u.partners[0]] = x; x += slotW;
+        newX[u.child] = x; x += slotW;
+        newX[u.partners[1]] = x; x += slotW;
+      } else {
+        newX[u.child] = x; x += slotW;
+        u.partners.forEach(pid => { newX[pid] = x; x += slotW; });
+      }
+    });
+    const sayedId = 'pmndyrysy3eq7';
+    const bibiMalukaId = 'pmndyryt0viez';
+    const gen1CenterX = PADDING + totalWidth / 2;
+    const headPairWidth = 2 * NODE_W + H_GAP;
+    newX[sayedId] = gen1CenterX - headPairWidth / 2;
+    newX[bibiMalukaId] = newX[sayedId] + NODE_W + H_GAP;
+
+    // Zet alleen X-posities. Y blijft zoals pipeline bedoeld.
+    Object.entries(newX).forEach(([id, tx]) => {
+      if (pos[id]) pos[id].x = tx;
+    });
+    // Zet head + gen1 kids naar juiste Y
+    if (pos[sayedId]) pos[sayedId].y = 50;
+    if (pos[bibiMalukaId]) pos[bibiMalukaId].y = 50;
+    units.forEach(u => {
+      if (pos[u.child]) pos[u.child].y = 240;
+      u.partners.forEach(pid => { if (pos[pid]) pos[pid].y = 240; });
+    });
+  })();
+
   // ===== ABSOLUTE FINALE SUB-TREE OVERLAY (Mahmadgul) =====
   // STACK sub-trees verticaal per BO. Alleen BIO-descendants van head-child
   // worden geshift (geen cousin-pair ghosts van andere bomen).
@@ -10870,7 +10921,18 @@ function computeLayout(overrideIds, headId) {
       return res;
     }
 
-    // Shift gen1 kids + partners + hun descendants met delta X (Y blijft behalve voor gen1 zelf)
+    // Helper: partners van een persoon (inclusief inlaws die adjacent willen staan)
+    const partnersOfPerson = {};
+    state.relationships.forEach(r => {
+      if (r.type !== 'partner') return;
+      if (!partnersOfPerson[r.person1Id]) partnersOfPerson[r.person1Id] = [];
+      if (!partnersOfPerson[r.person2Id]) partnersOfPerson[r.person2Id] = [];
+      partnersOfPerson[r.person1Id].push(r.person2Id);
+      partnersOfPerson[r.person2Id].push(r.person1Id);
+    });
+
+    // Shift gen1 kids + partners + hun descendants + descendants' inlaw partners
+    // + overlay ghosts (cross-cousin-pair members die in dit block zichtbaar zijn)
     const shifted = new Set();
     units.forEach(u => {
       [u.child, ...u.partners].forEach(id => {
@@ -10884,7 +10946,58 @@ function computeLayout(overrideIds, headId) {
           if (shifted.has(did)) return;
           pos[did].x += delta;
           shifted.add(did);
+          // Ook inlaw partners van descendant meebewegen (zodat Omid/Maria/etc.
+          // naast hun echtgenoot blijven staan, 1-op-1 met snap)
+          (partnersOfPerson[did] || []).forEach(pid => {
+            if (shifted.has(pid) || !pos[pid]) return;
+            // Alleen meebewegen als inlaw (geen eigen bio-ouders in boom)
+            // ANDERS: cousin-pair partner heeft zijn eigen gen1 branch en shift hem niet
+            const hasBioParent = state.relationships.some(r =>
+              r.type === 'parent-child' && r.childId === pid && pos[r.parentId]
+            );
+            if (!hasBioParent) {
+              pos[pid].x += delta;
+              shifted.add(pid);
+            }
+          });
         });
+      });
+      // Shift overlay ghosts die horen bij deze head-child (cross-cousin ghosts
+      // voor Azghar/Nabila/etc. die anders op snap-overlay X blijven staan)
+      const overlayPrefix = ':cg:overlay_owner_' + u.child + '_';
+      Object.keys(crossFamilyGhosts).forEach(key => {
+        if (!key.includes(overlayPrefix)) return;
+        const g = crossFamilyGhosts[key];
+        if (!g || typeof g.x !== 'number') return;
+        // Gebruik de delta van u.child (gen1 kid) — alle ghosts voor dit block shift mee
+        const unitChildOld = pos[u.child].x - (newX[u.child] - (newX[u.child] - (pos[u.child].x)));
+        // Simpler: re-bereken delta direct uit gen1 kid
+        // (u.child is al geshift naar newX[u.child]; originele oldX is in shifted logica)
+      });
+    });
+
+    // Na gen1-shift: synchroniseer overlay ghosts per gen1-kid met hun bijbehorende delta
+    units.forEach(u => {
+      if (!pos[u.child] || newX[u.child] == null) return;
+      // Delta = newX[child] - (oldX); oldX is al verloren maar we kunnen ghosts shiften
+      // door te zien waar gen1 kid was via overlay xOffset.
+      // Eenvoudigere benadering: shift ghosts zodat ze per-snap-relatief op juiste plek staan.
+      const snap = typeof window !== 'undefined' && window._loadedSnapshots ? window._loadedSnapshots[u.child] : null;
+      const partnerSnap = !snap && typeof window !== 'undefined' && window._loadedSnapshots
+        ? u.partners.map(pid => window._loadedSnapshots[pid]).find(s => s && s.cards && s.cards[u.child])
+        : null;
+      const effSnap = snap && snap.cards ? snap : partnerSnap;
+      if (!effSnap || !effSnap.cards || !effSnap.cards[u.child]) return;
+      const snapChildX = effSnap.cards[u.child].x;
+      const targetXOffset = pos[u.child].x - snapChildX;
+      const overlayPrefix = ':cg:overlay_owner_' + u.child + '_';
+      Object.keys(crossFamilyGhosts).forEach(key => {
+        if (!key.includes(overlayPrefix)) return;
+        const g = crossFamilyGhosts[key];
+        if (!g || !g.personId) return;
+        const snapCard = effSnap.cards[g.personId];
+        if (!snapCard) return;
+        g.x = snapCard.x + targetXOffset;
       });
     });
 
