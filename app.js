@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v607';
+const APP_VERSION = 'v608';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -7791,7 +7791,8 @@ function computeLayout(overrideIds, headId) {
   // Wijst Y-levels van kleinkind-families toe op basis van ouder-birthOrder.
   // Verzamelt huidige Y-levels, sorteert, en wijst toe aan ouders in BO-volgorde.
   // Beweegt hele family-groepen (ouder's kinderen + inlaws + kleinkinderen).
-  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7') {
+  // Sayedahmed NIET — die gebruikt SUB-TREE OVERLAY voor Y-stacking.
+  if (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1') {
     // Vind alle directe kinderen van de tree head (Fazelahmad)
     const headChildren = (childrenOf[headId] || []).filter(cid => pos[cid]);
 
@@ -7843,7 +7844,7 @@ function computeLayout(overrideIds, headId) {
       // Sorteer family groups op birthOrder
       const sortedByBO = [...familyGroups].sort((a, b) => a.bo - b.bo);
 
-      // Wijs Y-levels toe in BO-volgorde
+      // Wijs Y-levels toe in BO-volgorde (hergebruik bestaande minYs)
       const yMap = new Map(); // headChildId → newMinY
       sortedByBO.forEach((g, i) => {
         const targetY = uniqueYs[Math.min(i, uniqueYs.length - 1)];
@@ -7878,7 +7879,8 @@ function computeLayout(overrideIds, headId) {
         const delta = targetY - g.minY;
         if (Math.abs(delta) < 1) return;
         g.members.forEach(id => {
-          if (pos[id]) pos[id].y += delta;
+          if (!pos[id]) return;
+          pos[id].y += delta;
         });
       });
 
@@ -10870,6 +10872,12 @@ function computeLayout(overrideIds, headId) {
     pos[sayedId].y = 50;
     pos[bibiMalukaId].x = newX[bibiMalukaId];
     pos[bibiMalukaId].y = 50;
+
+    // Stap B (Y-blocks) — NIET naïef implementeren. Descendants zijn shared
+    // tussen gen1-kinderen via cousin-pair relaties (Hekmat is zowel kind van
+    // Ali Ahmad als partner van Shamila die kleindochter is van Babogal).
+    // Cumulatieve shift maakt Y onnodig groot. Vereist SUB-TREE OVERLAY met
+    // snapshot-identieke placement (zoals Mahmadgul). Apart werk.
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
