@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v610';
+const APP_VERSION = 'v611';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11006,6 +11006,91 @@ function computeLayout(overrideIds, headId) {
     pos[sayedId].y = 50;
     pos[bibiMalukaId].x = newX[bibiMalukaId];
     pos[bibiMalukaId].y = 50;
+
+    // ===== BIBIGUL block centering =====
+    // Allahmahmad heeft 2 vrouwen (Bibigul + Shah Sultana) in zijn eigen boom,
+    // wat zorgt dat zijn snap cluster-per-moeder heeft. In Sayedahmed is alleen
+    // Bibigul's tak zichtbaar — center haar kinderen onder Bibigul+Allahmahmad
+    // midpoint (niet onder Allahmahmad's eigen multi-vrouw center).
+    // UNIFORME shift van hele cluster (bio + inlaws in Allahmahmad's snap)
+    // zodat interne snap-structuur behouden blijft.
+    (function centerBibigulBlock() {
+      const bibigulId = 'pmndya3eixb8j';
+      const allahId = 'pmo4t07f8o0lo';
+      if (!pos[bibigulId] || !pos[allahId]) return;
+      const allahSnap = typeof window !== 'undefined' && window._loadedSnapshots
+        ? window._loadedSnapshots[allahId] : null;
+      if (!allahSnap || !allahSnap.cards) return;
+
+      // Verzamel Bibigul's bio-descendants (recursief via parent-child)
+      const bioDesc = new Set();
+      const collect = (id) => {
+        state.relationships.filter(r => r.type === 'parent-child' && r.parentId === id).forEach(r => {
+          if (!bioDesc.has(r.childId)) { bioDesc.add(r.childId); collect(r.childId); }
+        });
+      };
+      collect(bibigulId);
+
+      // Filter: alleen cards die IN Allahmahmad's snap staan + bio-descendant van
+      // Bibigul zijn (dus GEEN Shah Sultana's kinderen, GEEN cross-family).
+      // Plus inlaw partners van die cards (als ze in snap staan).
+      const allIds = new Set();
+      bioDesc.forEach(id => { if (allahSnap.cards[id]) allIds.add(id); });
+      // Inlaws: partners in snap die geen bio-ouders hebben in boom
+      [...allIds].forEach(bid => {
+        (partnersOfPerson[bid] || []).forEach(pid => {
+          if (allIds.has(pid) || pid === bibigulId || pid === allahId) return;
+          if (!allahSnap.cards[pid]) return; // alleen cards in Allahmahmad's snap
+          const hasBio = state.relationships.some(r =>
+            r.type === 'parent-child' && r.childId === pid && pos[r.parentId]
+          );
+          if (!hasBio) allIds.add(pid);
+        });
+      });
+
+      const withPos = [...allIds].filter(id => pos[id]);
+      if (withPos.length === 0) return;
+
+      // Bereken deltaX alleen op basis van DIRECTE KIDS ROW (bio-kids + hun inlaws).
+      // Niet hele block, want grandkids row kan breder zijn dan kids row.
+      const directKids = state.relationships
+        .filter(r => r.type === 'parent-child' && r.parentId === bibigulId && pos[r.childId])
+        .map(r => r.childId);
+      const kidsRowIds = new Set(directKids);
+      directKids.forEach(cid => {
+        (partnersOfPerson[cid] || []).forEach(pid => {
+          if (!allahSnap.cards[pid]) return;
+          const hasBio = state.relationships.some(r =>
+            r.type === 'parent-child' && r.childId === pid && pos[r.parentId]
+          );
+          if (!hasBio && pos[pid]) kidsRowIds.add(pid);
+        });
+      });
+      const kidsRowWithPos = [...kidsRowIds].filter(id => pos[id]);
+      if (kidsRowWithPos.length === 0) return;
+
+      const kxs = kidsRowWithPos.map(id => pos[id].x);
+      const kMinX = Math.min(...kxs);
+      const kMaxX = Math.max(...kxs) + NODE_W;
+      const curCenter = (kMinX + kMaxX) / 2;
+
+      // Parent midpoint
+      const pCenter = (pos[bibigulId].x + pos[allahId].x + NODE_W) / 2;
+
+      const deltaX = pCenter - curCenter;
+      if (Math.abs(deltaX) < 1) return;
+
+      // Uniform shift: interne structuur behouden (bio + inlaws + descendants)
+      withPos.forEach(id => { pos[id].x += deltaX; });
+
+      // Ook overlay ghosts voor Bibigul's block meebewegen
+      const overlayPrefix = ':cg:overlay_owner_' + bibigulId + '_';
+      Object.keys(crossFamilyGhosts).forEach(key => {
+        if (!key.includes(overlayPrefix)) return;
+        const g = crossFamilyGhosts[key];
+        if (g) g.x += deltaX;
+      });
+    })();
 
     // Stap B (Y-blocks) — NIET naïef implementeren. Descendants zijn shared
     // tussen gen1-kinderen via cousin-pair relaties (Hekmat is zowel kind van
