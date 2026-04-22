@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v623';
+const APP_VERSION = 'v624';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11155,10 +11155,12 @@ function computeLayout(overrideIds, headId) {
     // ===== INDIVIDUELE LEAF Y-COMPACTIE (per Hakim verzoek) =====
     // Specifieke cards die hoger mogen zonder andere profielen in de weg.
     // Alleen als Hakim expliciet aangeeft — géén automatische compactie.
+    // adjacentToId = plaats rechts van card met gegeven id (standaard NODE_W+H_GAP)
     const compactLeafsToY = [
       { leafIds: ['pmo4tkhyjlb4b', 'f14'], targetY: 744 }, // Sediqa's kids: Ibrahim + Mona
+      { leafIds: ['pmo4ty3cwvfaj'], targetY: 744, adjacentRightOf: 'pmni01k25pnza' }, // Khadija adjacent van Iqra
     ];
-    compactLeafsToY.forEach(({ leafIds, targetY }) => {
+    compactLeafsToY.forEach(({ leafIds, targetY, targetX, adjacentRightOf }) => {
       leafIds.forEach(cid => {
         if (!pos[cid]) return;
         // Check dat dit een leaf is (geen zichtbare kinderen)
@@ -11166,17 +11168,25 @@ function computeLayout(overrideIds, headId) {
           r.type === 'parent-child' && r.parentId === cid && pos[r.childId]
         );
         if (hasKids) return;
-        // Check overlap op targetY
-        const cardX = pos[cid].x;
+        // Bepaal finalX: expliciete targetX, anders adjacentRightOf+NODE_W+H_GAP, anders huidige X
+        let finalX = pos[cid].x;
+        if (adjacentRightOf && pos[adjacentRightOf]) {
+          finalX = pos[adjacentRightOf].x + NODE_W + H_GAP;
+        } else if (targetX != null) {
+          finalX = targetX;
+        }
+        // Check overlap op targetY met finalX
         const overlap = Object.entries(pos).some(([oid, p]) => {
           if (oid === cid) return false;
           if (Math.abs(p.y - targetY) > NODE_H - 5) return false;
-          if (Math.abs(p.x - cardX) > NODE_W + H_GAP - 5) return false;
+          if (Math.abs(p.x - finalX) > NODE_W + H_GAP - 5) return false;
           return true;
         });
         if (overlap) return;
         const oldY = pos[cid].y;
+        const oldX = pos[cid].x;
         pos[cid].y = targetY;
+        if (finalX !== oldX) pos[cid].x = finalX;
         // Partners mee verplaatsen: inlaw real cards + cross-family ghosts
         state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid))
           .forEach(r => {
@@ -11194,8 +11204,12 @@ function computeLayout(overrideIds, headId) {
             Object.values(crossFamilyGhosts).forEach(g => {
               if (!g || g.personId !== pid) return;
               // Alleen ghost die op oldY naast cid stond meenemen
-              if (Math.abs(g.y - oldY) < 5 && Math.abs(g.x - cardX) < 2 * (NODE_W + H_GAP)) {
+              if (Math.abs(g.y - oldY) < 5 && Math.abs(g.x - oldX) < 2 * (NODE_W + H_GAP)) {
                 g.y = targetY;
+                // Als X ook verplaatst is, schuif ghost mee met zelfde X-delta
+                if (finalX !== oldX) {
+                  g.x += (finalX - oldX);
+                }
               }
             });
           });
