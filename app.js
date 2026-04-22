@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v631';
+const APP_VERSION = 'v632';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12473,8 +12473,12 @@ function renderCards(pos, treeRanges, ghosts) {
       // Valideer coördinaten — voorkom lege dozen bij ongeldige posities
       if (typeof g.x !== 'number' || typeof g.y !== 'number' || isNaN(g.x) || isNaN(g.y)) return;
       const gClass = person.gender === 'm' ? 'male' : person.gender === 'f' ? 'female' : 'unknown';
+      const isUser = person.id === USER_ID;
       const dupDiv = document.createElement('div');
-      dupDiv.className = `card ${gClass} duplicate-card`;
+      // isAllFamReal: render als ECHTE card (geen ghost styling), bij alle-families
+      // view zodat elke tree 1-op-1 lijkt op z'n goedgekeurde individuele layout.
+      const isRealDup = g.isAllFamReal === true;
+      dupDiv.className = `card ${gClass}${isUser ? ' user' : ''}${isRealDup ? '' : ' duplicate-card'}`;
       if (goldenPath?.ghostNodes.has(key)) dupDiv.classList.add('golden-card');
       dupDiv.dataset.id = person.id;
       dupDiv.style.left = g.x + 'px';
@@ -12483,7 +12487,7 @@ function renderCards(pos, treeRanges, ghosts) {
         ? `<div class="card-avatar" style="background:none;padding:0;overflow:hidden"><img src="${escHtml(person.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`
         : `<div class="card-avatar">${initials(person.name)}</div>`;
       dupDiv.innerHTML = `
-        ${READ_ONLY ? '' : '<div class="duplicate-badge" title="Komt ook voor in andere stamboom">🔗</div>'}
+        ${(READ_ONLY || isRealDup) ? '' : '<div class="duplicate-badge" title="Komt ook voor in andere stamboom">🔗</div>'}
         <div class="card-top">
           ${avatarHtml}
           <div class="card-info">
@@ -12865,12 +12869,17 @@ function computeAllFamiliesLayout() {
       Object.entries(tree.pos).forEach(([id, p]) => {
         const shifted = { x: p.x + dx, y: p.y + dy };
         treePosMap[id] = shifted;
-        // Shared cards tussen meerdere trees: EERSTE tree wint als 'real',
-        // latere trees krijgen een duplicate (ghost) zodat elke tree 1-op-1
-        // met z'n individuele approved layout blijft.
+        // Shared cards tussen meerdere trees: EERSTE tree wint als 'real' in pos,
+        // latere trees krijgen een duplicate MET real-flag (geen ghost styling,
+        // geen connector lijnen). Elke tree-instance is 1-op-1 met z'n approved
+        // layout en staat er visueel uit als een echte card.
         if (pos[id]) {
           const dupKey = id + ':cg:allfam_' + tree.headId;
-          duplicates[dupKey] = { x: shifted.x, y: shifted.y, personId: id, adjacentTo: id };
+          duplicates[dupKey] = {
+            x: shifted.x, y: shifted.y,
+            personId: id,
+            isAllFamReal: true // render als real card (geen dashed border, geen badge)
+          };
         } else {
           pos[id] = shifted;
         }
