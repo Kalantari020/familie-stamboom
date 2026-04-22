@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v628';
+const APP_VERSION = 'v629';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -14712,11 +14712,14 @@ async function downloadPDF() {
 
   // jsPDF heeft geen technische bovengrens, maar pagina's > ~1500mm worden door
   // Adobe Acrobat en andere viewers als "zwart scherm" getoond (renderbudget).
-  // Bij grote bomen vallen we terug op multi-page tegelmodus (A3 landscape tiles).
+  // Bij grote bomen schalen we de afbeelding omlaag zodat hele boom op ÉÉN pagina
+  // past (A0-achtig formaat, ~1500mm max), ipv multi-page splits.
   const MAX_PAGE_DIM_MM = 1500;
+  let downscale = 1;
   if (pageWmm > MAX_PAGE_DIM_MM || pageHmm > MAX_PAGE_DIM_MM) {
-    document.body.removeChild(clone);
-    return downloadPDFMultiPage(treeW, treeH);
+    const sX = (MAX_PAGE_DIM_MM - 2 * MARGIN_MM) / treeWmm;
+    const sY = (MAX_PAGE_DIM_MM - 2 * MARGIN_MM - FOOTER_MM) / treeHmm;
+    downscale = Math.min(sX, sY);
   }
 
   try {
@@ -14734,27 +14737,32 @@ async function downloadPDF() {
     // SVG-lijnen eroverheen tekenen
     await compositeSVGOnCanvas(cardsCanvas, clone, captureW, captureH, RENDER_SCALE);
 
-    // Bepaal landscape vs portrait op basis van afmetingen
-    const orientation = pageWmm >= pageHmm ? 'landscape' : 'portrait';
+    // Pas downscale toe op afmetingen (grote bomen → ÉÉN pagina in A0-achtig formaat)
+    const finalTreeWmm = treeWmm * downscale;
+    const finalTreeHmm = treeHmm * downscale;
+    const finalPageWmm = finalTreeWmm + 2 * MARGIN_MM;
+    const finalPageHmm = finalTreeHmm + 2 * MARGIN_MM + FOOTER_MM;
+
+    const orientation = finalPageWmm >= finalPageHmm ? 'landscape' : 'portrait';
     const pdf = new jsPDF({
       orientation,
       unit: 'mm',
-      format: [pageWmm, pageHmm],
+      format: [finalPageWmm, finalPageHmm],
       compress: true,
     });
 
-    const imgData = cardsCanvas.toDataURL('image/jpeg', 0.92);
-    pdf.addImage(imgData, 'JPEG', MARGIN_MM, MARGIN_MM, treeWmm, treeHmm);
+    const imgData = cardsCanvas.toDataURL('image/jpeg', 0.88);
+    pdf.addImage(imgData, 'JPEG', MARGIN_MM, MARGIN_MM, finalTreeWmm, finalTreeHmm);
 
     // Footer
     pdf.setFontSize(9);
     pdf.setTextColor(100);
     const title = document.querySelector('.tree-item.active .tree-name');
     const titleText = title ? title.textContent.trim() : 'Familie Stamboom';
-    const footerY = pageHmm - 4;
+    const footerY = finalPageHmm - 4;
     pdf.text(titleText, MARGIN_MM, footerY);
-    pdf.text(new Date().toLocaleDateString('nl-NL'), pageWmm - MARGIN_MM, footerY, { align: 'right' });
-    pdf.text(`${Math.round(pageWmm)}×${Math.round(pageHmm)} mm`, pageWmm / 2, footerY, { align: 'center' });
+    pdf.text(new Date().toLocaleDateString('nl-NL'), finalPageWmm - MARGIN_MM, footerY, { align: 'right' });
+    pdf.text(`${Math.round(finalPageWmm)}×${Math.round(finalPageHmm)} mm${downscale < 0.99 ? ' (geschaald)' : ''}`, finalPageWmm / 2, footerY, { align: 'center' });
 
     pdf.save(buildPdfFilename(titleText));
   } finally {
@@ -14779,51 +14787,80 @@ async function downloadPDFMultiPage(treeW, treeH) {
   const PAPER_W = 420, PAPER_H = 297; // A3 landscape
   const MARGIN = 10;
   const MM_TO_PX = 96 / 25.4;
-  const tileScale = 0.45;
 
   const printW = (PAPER_W - 2 * MARGIN) * MM_TO_PX;
   const printH = (PAPER_H - 2 * MARGIN) * MM_TO_PX;
-  const tileTreeW = printW / tileScale;
-  const tileTreeH = printH / tileScale;
 
-  const cols = Math.ceil(treeW / tileTreeW);
-  const rows = Math.ceil(treeH / tileTreeH);
+  // ──────────────────────────────────────────────────────────
+  // Eén render voor alle tiles (veel sneller dan N aparte renders).
+  // Scale wordt aangepast aan browser canvas limits (~120 MP, 11000 px/dim).
+  // ──────────────────────────────────────────────────────────
+  const SAFE_BUFFER = 40;
+  const captureW = treeW + SAFE_BUFFER;
+  const captureH = treeH + SAFE_BUFFER;
+  const MAX_CANVAS_DIM = 11000;
+  const MAX_CANVAS_AREA = 120_000_000;
+  const dimScale = Math.min(MAX_CANVAS_DIM / captureW, MAX_CANVAS_DIM / captureH);
+  const areaScale = Math.sqrt(MAX_CANVAS_AREA / (captureW * captureH));
+  const renderScale = Math.max(0.5, Math.min(1.5, dimScale, areaScale));
 
   const canvas = document.getElementById('canvas');
-  const clone = prepareClone(canvas, tileScale);
+  const clone = prepareClone(canvas, 1);
+  clone.style.width = captureW + 'px';
+  clone.style.height = captureH + 'px';
   document.body.appendChild(clone);
 
   try {
+    // 1) Eén render van hele boom
+    const fullCanvas = await html2canvas(clone, {
+      scale: renderScale,
+      backgroundColor: '#f1f5f9',
+      useCORS: true, logging: false,
+      width: captureW, height: captureH,
+    });
+    await compositeSVGOnCanvas(fullCanvas, clone, captureW, captureH, renderScale);
+
+    // 2) Slice in A3 tegels via offscreen canvas (snel, geen re-render)
+    const tileTreeW = printW; // tile breedte in tree-px (= A3 printable px)
+    const tileTreeH = printH;
+    const cols = Math.ceil(treeW / tileTreeW);
+    const rows = Math.ceil(treeH / tileTreeH);
+
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: [PAPER_W, PAPER_H] });
     let firstPage = true;
+
+    const tileCanvas = document.createElement('canvas');
+    const tileCtx = tileCanvas.getContext('2d');
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         if (!firstPage) pdf.addPage();
         firstPage = false;
 
+        // Tree-px tile coords
         const sx = col * tileTreeW;
         const sy = row * tileTreeH;
         const tw = Math.min(tileTreeW, treeW - sx);
         const th = Math.min(tileTreeH, treeH - sy);
 
-        const tileCanvas = await html2canvas(clone, {
-          scale: 2,
-          backgroundColor: '#f1f5f9',
-          x: sx, y: sy,
-          width: tw, height: th,
-          useCORS: true, logging: false,
-        });
+        // Map naar fullCanvas pixels (renderScale)
+        const srcX = Math.floor(sx * renderScale);
+        const srcY = Math.floor(sy * renderScale);
+        const srcW = Math.floor(tw * renderScale);
+        const srcH = Math.floor(th * renderScale);
 
-        await compositeSVGOnCanvas(tileCanvas, clone, tw, th, 2, sx, sy);
+        tileCanvas.width = srcW;
+        tileCanvas.height = srcH;
+        tileCtx.fillStyle = '#f1f5f9';
+        tileCtx.fillRect(0, 0, srcW, srcH);
+        tileCtx.drawImage(fullCanvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
 
-        const imgData = tileCanvas.toDataURL('image/jpeg', 0.92);
+        const imgData = tileCanvas.toDataURL('image/jpeg', 0.88);
         const imgWmm = PAPER_W - 2 * MARGIN;
         const imgHmm = (th / tw) * imgWmm;
 
         pdf.addImage(imgData, 'JPEG', MARGIN, MARGIN, imgWmm, Math.min(imgHmm, PAPER_H - 2 * MARGIN));
 
-        // Paginanummer en continuatie-markers
         pdf.setFontSize(7);
         pdf.setTextColor(150);
         pdf.text(`Pagina ${row * cols + col + 1}/${rows * cols}`, MARGIN, PAPER_H - 4);
