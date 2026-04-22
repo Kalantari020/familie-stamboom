@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v622';
+const APP_VERSION = 'v623';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11177,17 +11177,27 @@ function computeLayout(overrideIds, headId) {
         if (overlap) return;
         const oldY = pos[cid].y;
         pos[cid].y = targetY;
-        // Ook inlaw partner mee laten bewegen
+        // Partners mee verplaatsen: inlaw real cards + cross-family ghosts
         state.relationships.filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid))
           .forEach(r => {
             const pid = r.person1Id === cid ? r.person2Id : r.person1Id;
-            if (!pos[pid]) return;
-            const hasBio = state.relationships.some(rr =>
-              rr.type === 'parent-child' && rr.childId === pid && pos[rr.parentId]
-            );
-            if (!hasBio && Math.abs(pos[pid].y - oldY) < 5) {
-              pos[pid].y = targetY;
+            // (a) Real inlaw partner (geen eigen bio-ouders)
+            if (pos[pid]) {
+              const hasBio = state.relationships.some(rr =>
+                rr.type === 'parent-child' && rr.childId === pid && pos[rr.parentId]
+              );
+              if (!hasBio && Math.abs(pos[pid].y - oldY) < 5) {
+                pos[pid].y = targetY;
+              }
             }
+            // (b) Cross-family ghost van partner (adjacent to cid in deze view)
+            Object.values(crossFamilyGhosts).forEach(g => {
+              if (!g || g.personId !== pid) return;
+              // Alleen ghost die op oldY naast cid stond meenemen
+              if (Math.abs(g.y - oldY) < 5 && Math.abs(g.x - cardX) < 2 * (NODE_W + H_GAP)) {
+                g.y = targetY;
+              }
+            });
           });
       });
     });
