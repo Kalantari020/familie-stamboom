@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v617';
+const APP_VERSION = 'v618';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11151,6 +11151,84 @@ function computeLayout(overrideIds, headId) {
     // Ali Ahmad als partner van Shamila die kleindochter is van Babogal).
     // Cumulatieve shift maakt Y onnodig groot. Vereist SUB-TREE OVERLAY met
     // snapshot-identieke placement (zoals Mahmadgul). Apart werk.
+
+    // ===== COMPACT LONG Y-LINES (Sayedahmed only) =====
+    // Voor cards met lange Y-gap naar hun ouder (snap had ze diep geplaatst door
+    // andere families' structuur, bv. Ahmad's Abu Bakr op Y=1034 terwijl zijn
+    // moeder Mariam op Y=257 staat). Verkort Y-lijn door card omhoog te schuiven
+    // naar eerstvolgende Y-rij met voldoende horizontale ruimte.
+    (function compactLongYLines() {
+      const parentsCache = new Map();
+      state.relationships.forEach(r => {
+        if (r.type !== 'parent-child') return;
+        if (!parentsCache.has(r.childId)) parentsCache.set(r.childId, []);
+        parentsCache.get(r.childId).push(r.parentId);
+      });
+      const childrenCache = new Map();
+      state.relationships.forEach(r => {
+        if (r.type !== 'parent-child') return;
+        if (!childrenCache.has(r.parentId)) childrenCache.set(r.parentId, []);
+        childrenCache.get(r.parentId).push(r.childId);
+      });
+      // Descendants helper
+      const descCacheCompact = {};
+      const descendantsCompact = (id, visited) => {
+        visited = visited || new Set();
+        if (visited.has(id)) return [];
+        visited.add(id);
+        if (descCacheCompact[id]) return descCacheCompact[id];
+        const kids = (childrenCache.get(id) || []).filter(cid => pos[cid]);
+        const res = [];
+        kids.forEach(cid => { res.push(cid); res.push(...descendantsCompact(cid, visited)); });
+        descCacheCompact[id] = res;
+        return res;
+      };
+
+      const Y_STEP = NODE_H + V_GAP; // 190
+      const Y_IDEAL_GAP = 207; // standaard snap head-to-kids gap (matched in snap data)
+      // Verwerk cards in Y-ASC volgorde (ondiepste eerst) om domino-effect op descendants
+      const sortedIds = Object.keys(pos).sort((a, b) => pos[a].y - pos[b].y);
+
+      sortedIds.forEach(cid => {
+        const parents = (parentsCache.get(cid) || []).filter(pid => pos[pid]);
+        if (parents.length === 0) return;
+        const maxParentY = Math.max(...parents.map(pid => pos[pid].y));
+        const curY = pos[cid].y;
+        const gap = curY - maxParentY;
+        if (gap <= Y_IDEAL_GAP + 20) return;
+        // Bouw set van te verplaatsen cards (self + descendants)
+        const moveSet = new Set([cid]);
+        descendantsCompact(cid).forEach(did => { if (pos[did]) moveSet.add(did); });
+        // Probeer progressief grotere deltas (kleinere verplaatsingen eerst)
+        // totdat geen overlap meer is. Check COMPLETE descendant tree.
+        const maxDelta = curY - (maxParentY + Y_IDEAL_GAP); // hoeveel we kunnen schuiven
+        let bestDelta = 0;
+        for (let delta = Y_STEP; delta <= maxDelta; delta += Y_STEP) {
+          // Simuleer verplaatsing: check overlap voor elk moveSet member op nieuwe Y
+          const testOverlap = [...moveSet].some(mid => {
+            const mPos = pos[mid];
+            if (!mPos) return false;
+            const newY = mPos.y - delta;
+            const mX = mPos.x;
+            return Object.entries(pos).some(([oid, oPos]) => {
+              if (moveSet.has(oid)) return false;
+              if (!oPos) return false;
+              if (Math.abs(oPos.y - newY) > NODE_H - 5) return false;
+              if (Math.abs(oPos.x - mX) > NODE_W + H_GAP - 5) return false;
+              return true;
+            });
+          });
+          if (!testOverlap) {
+            bestDelta = delta;
+          } else {
+            break; // zodra overlap, stop (grotere delta zal ook overlappen)
+          }
+        }
+        if (bestDelta > 0) {
+          moveSet.forEach(mid => { if (pos[mid]) pos[mid].y -= bestDelta; });
+        }
+      });
+    })();
   })();
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
