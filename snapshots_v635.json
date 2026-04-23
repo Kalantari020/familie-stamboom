@@ -1,0 +1,6472 @@
+{
+  "pmndmqi8yk35j": {
+    "label": "Abdelqadir Ahmadzai",
+    "cards": {
+      "pmnd7janquizq": {
+        "x": 165,
+        "y": 50
+      },
+      "pmndmqi8yk35j": {
+        "x": 395,
+        "y": 50
+      },
+      "pmndmre7xwo3z": {
+        "x": 50,
+        "y": 243
+      },
+      "pmndmscnasvm5": {
+        "x": 280,
+        "y": 243
+      },
+      "pmndmt69g664c": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73rsl9": {
+    "label": "Abderrahiem",
+    "cards": {
+      "pmo4t2s73rsl9": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4uhy1e7hvn": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0dr4npt6r": {
+    "label": "Abdullah",
+    "cards": {
+      "pmni0aw63vtas": {
+        "x": 62,
+        "y": 50
+      },
+      "pmni0dr4npt6r": {
+        "x": 267,
+        "y": 50
+      },
+      "pmni0e8yfpn37": {
+        "x": 280,
+        "y": 242
+      },
+      "pmo49w9tiqty7": {
+        "x": 50,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "r01": {
+    "label": "Abed Rahmani",
+    "cards": {
+      "r01": {
+        "x": 62,
+        "y": 50
+      },
+      "r02": {
+        "x": 267,
+        "y": 50
+      },
+      "r03": {
+        "x": 50,
+        "y": 242
+      },
+      "r04": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etyv3g": {
+    "label": "Agha Gol",
+    "cards": {
+      "f06": {
+        "x": 970,
+        "y": 249
+      },
+      "f07": {
+        "x": 740,
+        "y": 249
+      },
+      "f08": {
+        "x": 395,
+        "y": 449
+      },
+      "f09": {
+        "x": 625,
+        "y": 449
+      },
+      "f10": {
+        "x": 1430,
+        "y": 249
+      },
+      "f11": {
+        "x": 1200,
+        "y": 249
+      },
+      "f12": {
+        "x": 1200,
+        "y": 449
+      },
+      "pmnd6s4yespmb": {
+        "x": 1430,
+        "y": 449
+      },
+      "pmndydlr61are": {
+        "x": 3910,
+        "y": 249
+      },
+      "pmndyf12hx96x": {
+        "x": 3680,
+        "y": 736
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 449
+      },
+      "pmni0s7etyv3g": {
+        "x": 2670,
+        "y": 50
+      },
+      "pmni0xjxqp5fh": {
+        "x": 50,
+        "y": 249
+      },
+      "pmni0xjxqgts8": {
+        "x": 510,
+        "y": 249
+      },
+      "pmni0xjxq42rt": {
+        "x": 3220,
+        "y": 249
+      },
+      "pmni0xjxq3aqh": {
+        "x": 1660,
+        "y": 249
+      },
+      "pmni0xjxqy5q5": {
+        "x": 3680,
+        "y": 249
+      },
+      "pmni0xjxqh0e7": {
+        "x": 2120,
+        "y": 249
+      },
+      "pmo007gyaqm2k": {
+        "x": 3910,
+        "y": 736
+      },
+      "pmo4wyoiqmfi7": {
+        "x": 2440,
+        "y": 50
+      },
+      "pmo4x48qp13uy": {
+        "x": 280,
+        "y": 249
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 736
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 736
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 736
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 736
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 736
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 736
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 736
+      },
+      "pmo4x78d6od26": {
+        "x": 3450,
+        "y": 249
+      },
+      "pmo4x88upl6ua": {
+        "x": 2925,
+        "y": 546
+      },
+      "pmo4x88up7i7r": {
+        "x": 3155,
+        "y": 546
+      },
+      "pmo4x88upxoul": {
+        "x": 3385,
+        "y": 546
+      },
+      "pmo4x88up5ikb": {
+        "x": 3615,
+        "y": 546
+      },
+      "pmo4x9ugigsr6": {
+        "x": 1890,
+        "y": 249
+      },
+      "pmo4xeqmrsud9": {
+        "x": 2900,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ukqv901b9": {
+    "label": "Ahdulhadi",
+    "cards": {
+      "pmo4ukqv901b9": {
+        "x": 293,
+        "y": 50
+      },
+      "pmo4uyms1yfxm": {
+        "x": 498,
+        "y": 50
+      },
+      "pmo4uzq511aub": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4uzq51bp93": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4uzq513h5w": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4uzq51eqjf": {
+        "x": 740,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3eilyn1": {
+    "label": "Ahmad Saidi",
+    "cards": {
+      "f13": {
+        "x": 740,
+        "y": 1034
+      },
+      "f14": {
+        "x": 510,
+        "y": 1034
+      },
+      "pmndwllk8hld1": {
+        "x": 2350,
+        "y": 257
+      },
+      "pmndwllk96xxz": {
+        "x": 1430,
+        "y": 257
+      },
+      "pmndya3eilyn1": {
+        "x": 3270,
+        "y": 50
+      },
+      "pmnfwiq4xex8n": {
+        "x": 3040,
+        "y": 50
+      },
+      "pmnfwiq4xoz2k": {
+        "x": 3500,
+        "y": 50
+      },
+      "pmnfwl6r2lpes": {
+        "x": 50,
+        "y": 257
+      },
+      "pmnfwl6r2k67v": {
+        "x": 280,
+        "y": 257
+      },
+      "pmnfwl6r2bl6p": {
+        "x": 740,
+        "y": 257
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 1200,
+        "y": 257
+      },
+      "pmnfwl6r21xvr": {
+        "x": 1660,
+        "y": 257
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2120,
+        "y": 257
+      },
+      "pmnfwl6r2niud": {
+        "x": 2580,
+        "y": 257
+      },
+      "pmnfwpozxyoww": {
+        "x": 3960,
+        "y": 257
+      },
+      "pmnfwpozxor6n": {
+        "x": 4420,
+        "y": 257
+      },
+      "pmnfwpozx8uem": {
+        "x": 4650,
+        "y": 257
+      },
+      "pmnfwpozxxrih": {
+        "x": 4880,
+        "y": 257
+      },
+      "pmnfwpozxh323": {
+        "x": 3730,
+        "y": 257
+      },
+      "pmnfwpozxxvot": {
+        "x": 5340,
+        "y": 257
+      },
+      "pmnfwpozx2yhq": {
+        "x": 5570,
+        "y": 257
+      },
+      "pmni01k22obxh": {
+        "x": 1890,
+        "y": 464
+      },
+      "pmni01k23erra": {
+        "x": 2120,
+        "y": 464
+      },
+      "pmni01k24zyhf": {
+        "x": 2350,
+        "y": 464
+      },
+      "pmni01k25pnza": {
+        "x": 2580,
+        "y": 464
+      },
+      "pmni053i84su6": {
+        "x": 740,
+        "y": 844
+      },
+      "pmni053iamxzp": {
+        "x": 970,
+        "y": 844
+      },
+      "pmni053icew6m": {
+        "x": 1200,
+        "y": 844
+      },
+      "pmni053ie8pn9": {
+        "x": 1430,
+        "y": 844
+      },
+      "pmni053ifs7ju": {
+        "x": 1660,
+        "y": 844
+      },
+      "pmni053ih3c7e": {
+        "x": 1890,
+        "y": 844
+      },
+      "pmo4tjfzukw6f": {
+        "x": 510,
+        "y": 257
+      },
+      "pmo4tkhyjlb4b": {
+        "x": 280,
+        "y": 1034
+      },
+      "pmo4tlndgesy8": {
+        "x": 970,
+        "y": 257
+      },
+      "pmo4tnohqn8eh": {
+        "x": 395,
+        "y": 1224
+      },
+      "pmo4tnohtq4o0": {
+        "x": 625,
+        "y": 1224
+      },
+      "pmo4tnohv1bc0": {
+        "x": 855,
+        "y": 1224
+      },
+      "pmo4tnohyzf86": {
+        "x": 1085,
+        "y": 1224
+      },
+      "pmo4tnoi01vyn": {
+        "x": 1315,
+        "y": 1224
+      },
+      "pmo4tnoi2nco0": {
+        "x": 1545,
+        "y": 1224
+      },
+      "pmo4tnoi53dc8": {
+        "x": 1775,
+        "y": 1224
+      },
+      "pmo4tqukpwhe3": {
+        "x": 1890,
+        "y": 257
+      },
+      "pmo4tu4zyqlgu": {
+        "x": 1890,
+        "y": 654
+      },
+      "pmo4tv65lojwy": {
+        "x": 1660,
+        "y": 654
+      },
+      "pmo4txoa8ol14": {
+        "x": 2810,
+        "y": 257
+      },
+      "pmo4ty3cwvfaj": {
+        "x": 2695,
+        "y": 1034
+      },
+      "pmo4u0rpbm1wn": {
+        "x": 4190,
+        "y": 257
+      },
+      "pmo4u1b0rwt71": {
+        "x": 4075,
+        "y": 1034
+      },
+      "pmo4u21q3m2zy": {
+        "x": 5110,
+        "y": 257
+      },
+      "pmo4u2pw7zjnf": {
+        "x": 4995,
+        "y": 1034
+      },
+      "pmob60ldonecw": {
+        "x": 3960,
+        "y": 271
+      },
+      "pmob61bpw07ps": {
+        "x": 4420,
+        "y": 271
+      },
+      "pmob6288k8ywo": {
+        "x": 2810,
+        "y": 936
+      }
+    },
+    "ghosts": []
+  },
+  "s03": {
+    "label": "Ajab Khan Sayedi",
+    "cards": {
+      "s03": {
+        "x": 50,
+        "y": 50
+      },
+      "s04": {
+        "x": 280,
+        "y": 50
+      },
+      "pmncyghyo65ha": {
+        "x": 165,
+        "y": 241
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7ety1t7": {
+    "label": "Akhamier",
+    "cards": {
+      "pmni0s7ety1t7": {
+        "x": 1545,
+        "y": 50
+      },
+      "pmni10qwrkobm": {
+        "x": 510,
+        "y": 255
+      },
+      "pmni10qws5lcv": {
+        "x": 970,
+        "y": 255
+      },
+      "pmni10qwsq7q9": {
+        "x": 1430,
+        "y": 255
+      },
+      "pmni10qws94io": {
+        "x": 1890,
+        "y": 255
+      },
+      "pmni10qwsu0z7": {
+        "x": 2350,
+        "y": 255
+      },
+      "pmni10qwsgyfr": {
+        "x": 2810,
+        "y": 255
+      },
+      "pmo4wfjlerx9r": {
+        "x": 1775,
+        "y": 50
+      },
+      "pmo4wmwkisp4b": {
+        "x": 1660,
+        "y": 255
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 740,
+        "y": 255
+      },
+      "pmo4wo9v600oy": {
+        "x": 1200,
+        "y": 255
+      },
+      "pmo4wor2wvrjj": {
+        "x": 970,
+        "y": 730
+      },
+      "pmo4wor2wihti": {
+        "x": 1200,
+        "y": 730
+      },
+      "pmo4wpxi0f3um": {
+        "x": 2580,
+        "y": 255
+      },
+      "pmo4wqumxm2vm": {
+        "x": 2350,
+        "y": 540
+      },
+      "pmo4wqumxcirr": {
+        "x": 2580,
+        "y": 540
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 1315,
+        "y": 1024
+      },
+      "pmo4wrv2hslwp": {
+        "x": 1545,
+        "y": 1024
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 1775,
+        "y": 1024
+      },
+      "pmo4wveblf5x5": {
+        "x": 50,
+        "y": 540
+      },
+      "pmo4wveblcjbe": {
+        "x": 280,
+        "y": 540
+      },
+      "pmo4wvebloqky": {
+        "x": 510,
+        "y": 540
+      },
+      "pmo4wvebltb8q": {
+        "x": 740,
+        "y": 540
+      },
+      "pmo4wveblrmqi": {
+        "x": 970,
+        "y": 540
+      },
+      "pmo4wvebl2zvm": {
+        "x": 1200,
+        "y": 540
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 2120,
+        "y": 255
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3ei5vp4": {
+    "label": "Ali Ahmad Salehi",
+    "cards": {
+      "pmndya3ei5vp4": {
+        "x": 740,
+        "y": 50
+      },
+      "pmndyckredqon": {
+        "x": 510,
+        "y": 50
+      },
+      "pmndydlr61are": {
+        "x": 50,
+        "y": 249
+      },
+      "pmndyf12hx96x": {
+        "x": 50,
+        "y": 448
+      },
+      "pmndyhcgqdpb9": {
+        "x": 970,
+        "y": 50
+      },
+      "pmndyjcrfva0k": {
+        "x": 1200,
+        "y": 249
+      },
+      "pmndyjcrg5spz": {
+        "x": 1430,
+        "y": 249
+      },
+      "pmndyjcrhx2b4": {
+        "x": 1660,
+        "y": 249
+      },
+      "pmndyjcripek7": {
+        "x": 1890,
+        "y": 249
+      },
+      "pmndyjcrjsvwo": {
+        "x": 2350,
+        "y": 249
+      },
+      "pmndyjcrkl9zf": {
+        "x": 2580,
+        "y": 249
+      },
+      "pmndyjcrl3njh": {
+        "x": 2810,
+        "y": 249
+      },
+      "pmni0xjxqy5q5": {
+        "x": 280,
+        "y": 249
+      },
+      "pmo007gyaqm2k": {
+        "x": 280,
+        "y": 448
+      },
+      "pmo0h2kl0159h": {
+        "x": 2120,
+        "y": 249
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t07f8o0lo": {
+    "label": "Allahmahmad",
+    "cards": {
+      "pmndn2984pmss": {
+        "x": 510,
+        "y": 665
+      },
+      "pmndn30vhfz8r": {
+        "x": 280,
+        "y": 665
+      },
+      "pmndn3i30g9js": {
+        "x": 280,
+        "y": 1045
+      },
+      "pmndn3u2sqdff": {
+        "x": 510,
+        "y": 1045
+      },
+      "pmndya3eixb8j": {
+        "x": 4650,
+        "y": 50
+      },
+      "pmndyjcripek7": {
+        "x": 970,
+        "y": 665
+      },
+      "pmo0h2kl0159h": {
+        "x": 740,
+        "y": 665
+      },
+      "pmo4t07f8o0lo": {
+        "x": 4880,
+        "y": 50
+      },
+      "pmo4t2s73wzcp": {
+        "x": 1200,
+        "y": 285
+      },
+      "pmo4t2s73iom6": {
+        "x": 1660,
+        "y": 285
+      },
+      "pmo4t2s73omvz": {
+        "x": 2120,
+        "y": 285
+      },
+      "pmo4t2s73j77q": {
+        "x": 3040,
+        "y": 285
+      },
+      "pmo4t2s73rsl9": {
+        "x": 3730,
+        "y": 285
+      },
+      "pmo4t2s73uerq": {
+        "x": 4190,
+        "y": 285
+      },
+      "pmo4u647klb92": {
+        "x": 740,
+        "y": 285
+      },
+      "pmo4u96zph9n5": {
+        "x": 2580,
+        "y": 285
+      },
+      "pmo4ucl28pqjj": {
+        "x": 970,
+        "y": 285
+      },
+      "pmo4uctew3mow": {
+        "x": 1430,
+        "y": 285
+      },
+      "pmo4ud9jg0tmt": {
+        "x": 1890,
+        "y": 285
+      },
+      "pmo4ufn9y0ahn": {
+        "x": 2350,
+        "y": 285
+      },
+      "pmo4ufxpzbouu": {
+        "x": 2810,
+        "y": 285
+      },
+      "pmo4uhm5mmib3": {
+        "x": 3270,
+        "y": 285
+      },
+      "pmo4uhy1e7hvn": {
+        "x": 3960,
+        "y": 285
+      },
+      "pmo4ui8vvr8db": {
+        "x": 4420,
+        "y": 285
+      },
+      "pmo4uiz4fgqk4": {
+        "x": 5110,
+        "y": 50
+      },
+      "pmo4ukqv90teo": {
+        "x": 5340,
+        "y": 285
+      },
+      "pmo4ukqv97tr8": {
+        "x": 5570,
+        "y": 285
+      },
+      "pmo4ukqv901b9": {
+        "x": 5800,
+        "y": 285
+      },
+      "pmo4ukqv9yug2": {
+        "x": 6260,
+        "y": 285
+      },
+      "pmo4ukqv99usn": {
+        "x": 6490,
+        "y": 285
+      },
+      "pmo4uo5dgmtlx": {
+        "x": 50,
+        "y": 475
+      },
+      "pmo4uo5dgha11": {
+        "x": 280,
+        "y": 475
+      },
+      "pmo4uo5dgc3b8": {
+        "x": 510,
+        "y": 475
+      },
+      "pmo4uo5dglrux": {
+        "x": 740,
+        "y": 475
+      },
+      "pmo4uo5dgy46j": {
+        "x": 970,
+        "y": 475
+      },
+      "pmo4uo5dg4vji": {
+        "x": 1200,
+        "y": 475
+      },
+      "pmo4uo5dgl0fe": {
+        "x": 1430,
+        "y": 475
+      },
+      "pmo4uo5dgp42t": {
+        "x": 1660,
+        "y": 475
+      },
+      "pmo4uou2dx2vf": {
+        "x": 2810,
+        "y": 855
+      },
+      "pmo4uu2cqnft3": {
+        "x": 1200,
+        "y": 665
+      },
+      "pmo4uu2cq2lpc": {
+        "x": 1430,
+        "y": 665
+      },
+      "pmo4uu2cqsbf5": {
+        "x": 1660,
+        "y": 665
+      },
+      "pmo4uu2cqoyhk": {
+        "x": 1890,
+        "y": 665
+      },
+      "pmo4uu2cqp1pf": {
+        "x": 2120,
+        "y": 665
+      },
+      "pmo4uu2cq5qe2": {
+        "x": 2350,
+        "y": 665
+      },
+      "pmo4uvvnnu1ci": {
+        "x": 2465,
+        "y": 1235
+      },
+      "pmo4uvvnn3c4e": {
+        "x": 2695,
+        "y": 1235
+      },
+      "pmo4uvvnn5wxq": {
+        "x": 2925,
+        "y": 1235
+      },
+      "pmo4uyms1yfxm": {
+        "x": 6030,
+        "y": 285
+      },
+      "pmo4uzq511aub": {
+        "x": 5570,
+        "y": 855
+      },
+      "pmo4uzq51bp93": {
+        "x": 5800,
+        "y": 855
+      },
+      "pmo4uzq513h5w": {
+        "x": 6030,
+        "y": 855
+      },
+      "pmo4uzq51eqjf": {
+        "x": 6260,
+        "y": 855
+      },
+      "pmo4v10zvm6sl": {
+        "x": 2695,
+        "y": 1425
+      },
+      "pmo4v10zwor2y": {
+        "x": 2925,
+        "y": 1425
+      },
+      "pmo4v10zwmzpy": {
+        "x": 3155,
+        "y": 1425
+      },
+      "pmo4v10zwgs3c": {
+        "x": 3385,
+        "y": 1425
+      },
+      "pmo4v10zwtuom": {
+        "x": 3615,
+        "y": 1425
+      },
+      "pmo4yhshfrk8r": {
+        "x": 740,
+        "y": 855
+      },
+      "pmo4yhshfg8bw": {
+        "x": 970,
+        "y": 855
+      },
+      "pmo4yhshfiqj9": {
+        "x": 1200,
+        "y": 855
+      },
+      "pmo4yhshfnakz": {
+        "x": 1430,
+        "y": 855
+      },
+      "pmo4yhshfchtu": {
+        "x": 1660,
+        "y": 855
+      },
+      "pmo4yhshfqlrh": {
+        "x": 1890,
+        "y": 855
+      },
+      "pmo4yhshfcij8": {
+        "x": 2120,
+        "y": 855
+      },
+      "pmo4yhshf4aid": {
+        "x": 2580,
+        "y": 855
+      },
+      "pmo8w5cf28zz1": {
+        "x": 2350,
+        "y": 855
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etwzn0": {
+    "label": "Amien",
+    "cards": {
+      "pmni0s7etwzn0": {
+        "x": 1200,
+        "y": 50
+      },
+      "pmni14pya5f9h": {
+        "x": 280,
+        "y": 252
+      },
+      "pmni14pyarspx": {
+        "x": 740,
+        "y": 252
+      },
+      "pmni14pyav3jq": {
+        "x": 1200,
+        "y": 252
+      },
+      "pmni14pyaujp1": {
+        "x": 1660,
+        "y": 252
+      },
+      "pmni14pyai87w": {
+        "x": 2120,
+        "y": 252
+      },
+      "pmo4w98msm30i": {
+        "x": 1430,
+        "y": 50
+      },
+      "pmo4wbnzfjghc": {
+        "x": 510,
+        "y": 252
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 970,
+        "y": 252
+      },
+      "pmo4wchtwvh9c": {
+        "x": 1430,
+        "y": 252
+      },
+      "pmo4wdt6k43c8": {
+        "x": 50,
+        "y": 537
+      },
+      "pmo4wdt6kdksz": {
+        "x": 280,
+        "y": 537
+      },
+      "pmo4wdt6krvxa": {
+        "x": 510,
+        "y": 537
+      },
+      "pmo4wdt6kzel5": {
+        "x": 740,
+        "y": 537
+      },
+      "pmo4weihvuabj": {
+        "x": 1200,
+        "y": 537
+      },
+      "pmo4weihvk4lp": {
+        "x": 1430,
+        "y": 537
+      },
+      "pmo70z4rspi7d": {
+        "x": 625,
+        "y": 727
+      },
+      "pmo70z4rsajz3": {
+        "x": 855,
+        "y": 727
+      },
+      "pmo70z4rs3c8z": {
+        "x": 1085,
+        "y": 727
+      },
+      "pmo70zlol6io2": {
+        "x": 1890,
+        "y": 252
+      },
+      "pmo71019rdde4": {
+        "x": 2350,
+        "y": 252
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ud9jg0tmt": {
+    "label": "Amirdeen",
+    "cards": {
+      "pmo4t2s73iom6": {
+        "x": 983,
+        "y": 50
+      },
+      "pmo4ud9jg0tmt": {
+        "x": 1188,
+        "y": 50
+      },
+      "pmo4uou2dx2vf": {
+        "x": 2120,
+        "y": 247
+      },
+      "pmo4yhshfrk8r": {
+        "x": 50,
+        "y": 247
+      },
+      "pmo4yhshfg8bw": {
+        "x": 280,
+        "y": 247
+      },
+      "pmo4yhshfiqj9": {
+        "x": 510,
+        "y": 247
+      },
+      "pmo4yhshfnakz": {
+        "x": 740,
+        "y": 247
+      },
+      "pmo4yhshfchtu": {
+        "x": 970,
+        "y": 247
+      },
+      "pmo4yhshfqlrh": {
+        "x": 1200,
+        "y": 247
+      },
+      "pmo4yhshfcij8": {
+        "x": 1430,
+        "y": 247
+      },
+      "pmo4yhshf4aid": {
+        "x": 1890,
+        "y": 247
+      },
+      "pmo8w5cf28zz1": {
+        "x": 1660,
+        "y": 247
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4w6fakq8md": {
+    "label": "Asif",
+    "cards": {
+      "pmni0v8uiepz0": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4w6fakq8md": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4w72fa5g45": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo4w72fa19ws": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7bkdrm6yz": {
+    "label": "Asif Khan Ghorbandi",
+    "cards": {
+      "pmnd7bkdrm6yz": {
+        "x": 50,
+        "y": 50
+      },
+      "pmnepe8ob5cod": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycr3rguf": {
+    "label": "Ayoub Rashid",
+    "cards": {
+      "pmo34ycr3rguf": {
+        "x": 522,
+        "y": 50
+      },
+      "pmo34z25i1fky": {
+        "x": 727,
+        "y": 50
+      },
+      "pmo350x9zbuxz": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo350xa4any3": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo350xa8twge": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo350xacwuzv": {
+        "x": 740,
+        "y": 244
+      },
+      "pmo350xag72uv": {
+        "x": 970,
+        "y": 244
+      },
+      "pmo350xaj9g7p": {
+        "x": 1200,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4v4r3i85jz": {
+    "label": "Daad Mahmad",
+    "cards": {
+      "pmo4szd62qiup": {
+        "x": 523,
+        "y": 50
+      },
+      "pmo4v4r3i85jz": {
+        "x": 728,
+        "y": 50
+      },
+      "pmo4v6ag4btzt": {
+        "x": 50,
+        "y": 245
+      },
+      "pmo4v6ag5tbeg": {
+        "x": 280,
+        "y": 245
+      },
+      "pmo4v6ag5yshe": {
+        "x": 510,
+        "y": 245
+      },
+      "pmo4v6ag5y6kb": {
+        "x": 740,
+        "y": 245
+      },
+      "pmo4v6ag5kd8o": {
+        "x": 970,
+        "y": 245
+      },
+      "pmo4v6ag5b5bp": {
+        "x": 1200,
+        "y": 245
+      }
+    },
+    "ghosts": []
+  },
+  "pmndwllk9fukl": {
+    "label": "Davud Khan Durrani",
+    "cards": {
+      "pmndwllk9fukl": {
+        "x": 292,
+        "y": 50
+      },
+      "pmneptum4xnzi": {
+        "x": 497,
+        "y": 50
+      },
+      "pmnepytxdqi9y": {
+        "x": 50,
+        "y": 243
+      },
+      "pmnepytxga1sz": {
+        "x": 280,
+        "y": 243
+      },
+      "pmnepytxh5z3q": {
+        "x": 510,
+        "y": 243
+      },
+      "pmnepytxiuzsg": {
+        "x": 740,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfx8zrswvz9": {
+    "label": "Davud Sediqi",
+    "cards": {
+      "pmnfx3knl6en8": {
+        "x": 165,
+        "y": 50
+      },
+      "pmnfx8zrswvz9": {
+        "x": 395,
+        "y": 50
+      },
+      "pmnfxa0in4tc9": {
+        "x": 50,
+        "y": 243
+      },
+      "pmnfxa0io0z5u": {
+        "x": 280,
+        "y": 243
+      },
+      "pmnfxa0iou6j0": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmo358vl3n6yf": {
+    "label": "Didar",
+    "cards": {
+      "pmo34ycrl4b8j": {
+        "x": 62,
+        "y": 50
+      },
+      "pmo358vl3n6yf": {
+        "x": 267,
+        "y": 50
+      },
+      "pmo359q5jrkg1": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo359q5q3jz9": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyav3jq": {
+    "label": "Emal",
+    "cards": {
+      "pmni14pyav3jq": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4wchtwvh9c": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4weihvuabj": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo4weihvk4lp": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmnepnt0eu2k2": {
+    "label": "Ezatullah Achmadzai",
+    "cards": {
+      "pmnd7n0jbe5kc": {
+        "x": 50,
+        "y": 50
+      },
+      "pmnepnt0eu2k2": {
+        "x": 280,
+        "y": 50
+      },
+      "pmnepp0idbklv": {
+        "x": 165,
+        "y": 241
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyaujp1": {
+    "label": "Faisal",
+    "cards": {
+      "pmni14pyaujp1": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo70zlol6io2": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0v8uierpw": {
+    "label": "Farhad",
+    "cards": {
+      "pmni0v8uierpw": {
+        "x": 293,
+        "y": 50
+      },
+      "pmo4vr6r2vi98": {
+        "x": 498,
+        "y": 50
+      },
+      "pmo4w5y12nsjo": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4w5y12cae6": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4w5y12507h": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4w5y12b1h5": {
+        "x": 740,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0mtna5vxw": {
+    "label": "Fazelahmad",
+    "cards": {
+      "f01": {
+        "x": 6465,
+        "y": 285
+      },
+      "f02": {
+        "x": 6695,
+        "y": 285
+      },
+      "f03": {
+        "x": 5085,
+        "y": 4887
+      },
+      "f05": {
+        "x": 5085,
+        "y": 5172
+      },
+      "f06": {
+        "x": 5545,
+        "y": 4887
+      },
+      "f07": {
+        "x": 1315,
+        "y": 1866
+      },
+      "f08": {
+        "x": 970,
+        "y": 2246
+      },
+      "f09": {
+        "x": 1200,
+        "y": 2246
+      },
+      "f10": {
+        "x": 6005,
+        "y": 4887
+      },
+      "f11": {
+        "x": 1775,
+        "y": 1866
+      },
+      "f12": {
+        "x": 1775,
+        "y": 2246
+      },
+      "f13": {
+        "x": 6465,
+        "y": 4887
+      },
+      "f14": {
+        "x": 6695,
+        "y": 4887
+      },
+      "f15": {
+        "x": 6925,
+        "y": 4887
+      },
+      "f16": {
+        "x": 7155,
+        "y": 4887
+      },
+      "f17": {
+        "x": 7615,
+        "y": 4887
+      },
+      "pmnd6s4yespmb": {
+        "x": 2005,
+        "y": 2246
+      },
+      "pmndn4sw3j1fb": {
+        "x": 5315,
+        "y": 4887
+      },
+      "pmndn7m9expkq": {
+        "x": 5315,
+        "y": 5172
+      },
+      "pmndnrn9438x5": {
+        "x": 7385,
+        "y": 4887
+      },
+      "pmndya3ei5vp4": {
+        "x": 1462,
+        "y": 1084
+      },
+      "pmndydlr61are": {
+        "x": 4485,
+        "y": 1866
+      },
+      "pmndyf12hx96x": {
+        "x": 4255,
+        "y": 2533
+      },
+      "pmndyhcgqdpb9": {
+        "x": 1692,
+        "y": 1084
+      },
+      "pmndyjcrfva0k": {
+        "x": 772,
+        "y": 2056
+      },
+      "pmndyjcrg5spz": {
+        "x": 1002,
+        "y": 2056
+      },
+      "pmndyjcrhx2b4": {
+        "x": 1232,
+        "y": 2056
+      },
+      "pmndyjcripek7": {
+        "x": 1692,
+        "y": 2056
+      },
+      "pmndyjcrjsvwo": {
+        "x": 1922,
+        "y": 2056
+      },
+      "pmndyjcrkl9zf": {
+        "x": 2152,
+        "y": 2056
+      },
+      "pmndyjcrl3njh": {
+        "x": 2382,
+        "y": 2056
+      },
+      "pmnfv2r03xoij": {
+        "x": 1430,
+        "y": 2246
+      },
+      "pmni0mtna5vxw": {
+        "x": 5257,
+        "y": 50
+      },
+      "pmni0nrmgl4he": {
+        "x": 5487,
+        "y": 50
+      },
+      "pmni0s7et7v3g": {
+        "x": 3475,
+        "y": 285
+      },
+      "pmni0s7etaht7": {
+        "x": 4395,
+        "y": 285
+      },
+      "pmni0s7etyv3g": {
+        "x": 3245,
+        "y": 285
+      },
+      "pmni0s7ety1t7": {
+        "x": 5545,
+        "y": 285
+      },
+      "pmni0s7etwzn0": {
+        "x": 6005,
+        "y": 285
+      },
+      "pmni0s7etpgpa": {
+        "x": 6925,
+        "y": 285
+      },
+      "pmni0tu13oc3d": {
+        "x": 3015,
+        "y": 610
+      },
+      "pmni0tu14jfoi": {
+        "x": 3245,
+        "y": 610
+      },
+      "pmni0tu14y8tb": {
+        "x": 3475,
+        "y": 610
+      },
+      "pmni0tu14n6g5": {
+        "x": 3705,
+        "y": 610
+      },
+      "pmni0tu14seye": {
+        "x": 3935,
+        "y": 610
+      },
+      "pmni0tu141lkn": {
+        "x": 4165,
+        "y": 610
+      },
+      "pmni0tu14q8j4": {
+        "x": 4395,
+        "y": 610
+      },
+      "pmni0v8uiepz0": {
+        "x": 3245,
+        "y": 980
+      },
+      "pmni0v8uiu40k": {
+        "x": 3705,
+        "y": 980
+      },
+      "pmni0v8uiimus": {
+        "x": 4165,
+        "y": 980
+      },
+      "pmni0v8uierpw": {
+        "x": 4395,
+        "y": 980
+      },
+      "pmni0v8ui7vpw": {
+        "x": 4855,
+        "y": 980
+      },
+      "pmni0v8uihcrv": {
+        "x": 5085,
+        "y": 980
+      },
+      "pmni0xjxqp5fh": {
+        "x": 625,
+        "y": 1866
+      },
+      "pmni0xjxqgts8": {
+        "x": 1085,
+        "y": 1866
+      },
+      "pmni0xjxq42rt": {
+        "x": 3795,
+        "y": 1866
+      },
+      "pmni0xjxq3aqh": {
+        "x": 2235,
+        "y": 1866
+      },
+      "pmni0xjxqy5q5": {
+        "x": 4255,
+        "y": 1866
+      },
+      "pmni0xjxqh0e7": {
+        "x": 2695,
+        "y": 1866
+      },
+      "pmni10qwrkobm": {
+        "x": 4280,
+        "y": 2903
+      },
+      "pmni10qws5lcv": {
+        "x": 4740,
+        "y": 2903
+      },
+      "pmni10qwsq7q9": {
+        "x": 5200,
+        "y": 2903
+      },
+      "pmni10qws94io": {
+        "x": 5660,
+        "y": 2903
+      },
+      "pmni10qwsu0z7": {
+        "x": 6120,
+        "y": 2903
+      },
+      "pmni10qwsgyfr": {
+        "x": 6580,
+        "y": 2903
+      },
+      "pmni14pya5f9h": {
+        "x": 4855,
+        "y": 4042
+      },
+      "pmni14pyarspx": {
+        "x": 5315,
+        "y": 4042
+      },
+      "pmni14pyav3jq": {
+        "x": 5775,
+        "y": 4042
+      },
+      "pmni14pyaujp1": {
+        "x": 6235,
+        "y": 4042
+      },
+      "pmni14pyai87w": {
+        "x": 6695,
+        "y": 4042
+      },
+      "pmo007gyaqm2k": {
+        "x": 4485,
+        "y": 2533
+      },
+      "pmo0h2kl0159h": {
+        "x": 1462,
+        "y": 2056
+      },
+      "pmo4vafk9ne7l": {
+        "x": 4625,
+        "y": 285
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 3935,
+        "y": 980
+      },
+      "pmo4vq95k7dyj": {
+        "x": 5315,
+        "y": 980
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 5545,
+        "y": 980
+      },
+      "pmo4vr6r2vi98": {
+        "x": 4625,
+        "y": 980
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 3475,
+        "y": 1496
+      },
+      "pmo4w4s6vkh69": {
+        "x": 3705,
+        "y": 1496
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 3935,
+        "y": 1496
+      },
+      "pmo4w4s6vss7k": {
+        "x": 4165,
+        "y": 1496
+      },
+      "pmo4w5y12nsjo": {
+        "x": 4165,
+        "y": 1306
+      },
+      "pmo4w5y12cae6": {
+        "x": 4395,
+        "y": 1306
+      },
+      "pmo4w5y12507h": {
+        "x": 4625,
+        "y": 1306
+      },
+      "pmo4w5y12b1h5": {
+        "x": 4855,
+        "y": 1306
+      },
+      "pmo4w6fakq8md": {
+        "x": 3475,
+        "y": 980
+      },
+      "pmo4w72fa5g45": {
+        "x": 3245,
+        "y": 1306
+      },
+      "pmo4w72fa19ws": {
+        "x": 3475,
+        "y": 1306
+      },
+      "pmo4w98msm30i": {
+        "x": 6235,
+        "y": 285
+      },
+      "pmo4wbnzfjghc": {
+        "x": 5085,
+        "y": 4042
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 5545,
+        "y": 4042
+      },
+      "pmo4wchtwvh9c": {
+        "x": 6005,
+        "y": 4042
+      },
+      "pmo4wdt6k43c8": {
+        "x": 4625,
+        "y": 4327
+      },
+      "pmo4wdt6kdksz": {
+        "x": 4855,
+        "y": 4327
+      },
+      "pmo4wdt6krvxa": {
+        "x": 5085,
+        "y": 4327
+      },
+      "pmo4wdt6kzel5": {
+        "x": 5315,
+        "y": 4327
+      },
+      "pmo4weihvuabj": {
+        "x": 5775,
+        "y": 4327
+      },
+      "pmo4weihvk4lp": {
+        "x": 6005,
+        "y": 4327
+      },
+      "pmo4wfjlerx9r": {
+        "x": 5775,
+        "y": 285
+      },
+      "pmo4wmwkisp4b": {
+        "x": 5430,
+        "y": 2903
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 4510,
+        "y": 2903
+      },
+      "pmo4wo9v600oy": {
+        "x": 4970,
+        "y": 2903
+      },
+      "pmo4wor2wvrjj": {
+        "x": 4740,
+        "y": 3378
+      },
+      "pmo4wor2wihti": {
+        "x": 4970,
+        "y": 3378
+      },
+      "pmo4wpxi0f3um": {
+        "x": 6350,
+        "y": 2903
+      },
+      "pmo4wqumxm2vm": {
+        "x": 6120,
+        "y": 3188
+      },
+      "pmo4wqumxcirr": {
+        "x": 6350,
+        "y": 3188
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 5085,
+        "y": 3672
+      },
+      "pmo4wrv2hslwp": {
+        "x": 5315,
+        "y": 3672
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 5545,
+        "y": 3672
+      },
+      "pmo4wveblf5x5": {
+        "x": 3820,
+        "y": 3188
+      },
+      "pmo4wveblcjbe": {
+        "x": 4050,
+        "y": 3188
+      },
+      "pmo4wvebloqky": {
+        "x": 4280,
+        "y": 3188
+      },
+      "pmo4wvebltb8q": {
+        "x": 4510,
+        "y": 3188
+      },
+      "pmo4wveblrmqi": {
+        "x": 4740,
+        "y": 3188
+      },
+      "pmo4wvebl2zvm": {
+        "x": 4970,
+        "y": 3188
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 5890,
+        "y": 2903
+      },
+      "pmo4wyoiqmfi7": {
+        "x": 3015,
+        "y": 285
+      },
+      "pmo4x48qp13uy": {
+        "x": 855,
+        "y": 1866
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 2533
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 2533
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 2533
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 2533
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 2533
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 2533
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 2533
+      },
+      "pmo4x78d6od26": {
+        "x": 4025,
+        "y": 1866
+      },
+      "pmo4x88upl6ua": {
+        "x": 3565,
+        "y": 2343
+      },
+      "pmo4x88up7i7r": {
+        "x": 3795,
+        "y": 2343
+      },
+      "pmo4x88upxoul": {
+        "x": 4025,
+        "y": 2343
+      },
+      "pmo4x88up5ikb": {
+        "x": 4255,
+        "y": 2343
+      },
+      "pmo4x9ugigsr6": {
+        "x": 2465,
+        "y": 1866
+      },
+      "pmo4xeqmrsud9": {
+        "x": 3705,
+        "y": 285
+      },
+      "pmo4xkx7hr4du": {
+        "x": 4165,
+        "y": 285
+      },
+      "pmo4xvsspw66y": {
+        "x": 7155,
+        "y": 285
+      },
+      "pmo4xvsspty1z": {
+        "x": 7615,
+        "y": 285
+      },
+      "pmo4xwldcsefq": {
+        "x": 7385,
+        "y": 285
+      },
+      "pmo4xwwkoq57t": {
+        "x": 7845,
+        "y": 285
+      },
+      "pmo4xxff5byvg": {
+        "x": 7500,
+        "y": 5460
+      },
+      "pmo4xy7vm7yae": {
+        "x": 7730,
+        "y": 5460
+      },
+      "pmo70z4rspi7d": {
+        "x": 5200,
+        "y": 4517
+      },
+      "pmo70z4rsajz3": {
+        "x": 5430,
+        "y": 4517
+      },
+      "pmo70z4rs3c8z": {
+        "x": 5660,
+        "y": 4517
+      },
+      "pmo70zlol6io2": {
+        "x": 6465,
+        "y": 4042
+      },
+      "pmo71019rdde4": {
+        "x": 6925,
+        "y": 4042
+      }
+    },
+    "ghosts": [
+      {
+        "id": "f06",
+        "x": 1545,
+        "y": 1866,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f10",
+        "x": 2005,
+        "y": 1866,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f07",
+        "x": 5775,
+        "y": 4887,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f08",
+        "x": 5430,
+        "y": 5112,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f09",
+        "x": 5660,
+        "y": 5112,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f11",
+        "x": 6235,
+        "y": 4887,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f12",
+        "x": 6005,
+        "y": 5090,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd6s4yespmb",
+        "x": 6235,
+        "y": 5090,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnfv2r03xoij",
+        "x": 5890,
+        "y": 5112,
+        "adjacentTo": ""
+      }
+    ]
+  },
+  "pmni0xjxq3aqh": {
+    "label": "Fazzerrahman",
+    "cards": {
+      "pmni0xjxq3aqh": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4x9ugigsr6": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0v8uiu40k": {
+    "label": "Firoz Khan",
+    "cards": {
+      "pmni0v8uiu40k": {
+        "x": 293,
+        "y": 50
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 498,
+        "y": 50
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4w4s6vkh69": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4w4s6vss7k": {
+        "x": 740,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmneq7p4nynu3": {
+    "label": "Habib Gull Durrani",
+    "cards": {
+      "pmneq7p4nynu3": {
+        "x": 1200,
+        "y": 50
+      },
+      "pmni06p0ji4hg": {
+        "x": 1430,
+        "y": 50
+      },
+      "pmni0aw5mfovo": {
+        "x": 395,
+        "y": 250
+      },
+      "pmni0aw5rt7j6": {
+        "x": 1315,
+        "y": 250
+      },
+      "pmni0aw5t19yo": {
+        "x": 1545,
+        "y": 250
+      },
+      "pmni0aw5wzj12": {
+        "x": 1775,
+        "y": 250
+      },
+      "pmni0aw5zil6x": {
+        "x": 2005,
+        "y": 250
+      },
+      "pmni0aw61wfnn": {
+        "x": 2235,
+        "y": 250
+      },
+      "pmni0aw63vtas": {
+        "x": 855,
+        "y": 250
+      },
+      "pmni0byqqbuqw": {
+        "x": 625,
+        "y": 250
+      },
+      "pmni0d7t09vcm": {
+        "x": 50,
+        "y": 451
+      },
+      "pmni0d7t6qrt0": {
+        "x": 510,
+        "y": 451
+      },
+      "pmni0d7t9876w": {
+        "x": 740,
+        "y": 451
+      },
+      "pmni0d7tck3oc": {
+        "x": 970,
+        "y": 451
+      },
+      "pmni0dr4npt6r": {
+        "x": 1085,
+        "y": 250
+      },
+      "pmni0e8yfpn37": {
+        "x": 1085,
+        "y": 842
+      },
+      "pmni0fiiiy1qs": {
+        "x": 280,
+        "y": 451
+      },
+      "pmo49w9tiqty7": {
+        "x": 855,
+        "y": 842
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73uerq": {
+    "label": "Hamed",
+    "cards": {
+      "pmo4t2s73uerq": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4ui8vvr8db": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pyai87w": {
+    "label": "Heejrat",
+    "cards": {
+      "pmni14pyai87w": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo71019rdde4": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycrwm0ax": {
+    "label": "Hejrat",
+    "cards": {
+      "pmo34ycrwm0ax": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo35a6zz26rc": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd79y13i65o": {
+    "label": "Huzurgol Ghorbandi",
+    "cards": {
+      "pmnd79y13i65o": {
+        "x": 2005,
+        "y": 50
+      },
+      "pmnd7akkugpv5": {
+        "x": 2235,
+        "y": 50
+      },
+      "pmnd7bkdrm6yz": {
+        "x": 855,
+        "y": 257
+      },
+      "pmnd7cfmvqiff": {
+        "x": 1315,
+        "y": 257
+      },
+      "pmnd7cuzr39r9": {
+        "x": 1775,
+        "y": 257
+      },
+      "pmnd7ej1rf33c": {
+        "x": 395,
+        "y": 257
+      },
+      "pmnd7hzc067x0": {
+        "x": 2695,
+        "y": 257
+      },
+      "pmnd7janquizq": {
+        "x": 2235,
+        "y": 257
+      },
+      "pmnd7n0jbe5kc": {
+        "x": 3155,
+        "y": 257
+      },
+      "pmnd7o54wo1ew": {
+        "x": 3615,
+        "y": 257
+      },
+      "pmnd7oyi85tgd": {
+        "x": 3845,
+        "y": 257
+      },
+      "pmnd7qhxj4baj": {
+        "x": 625,
+        "y": 257
+      },
+      "pmnd7shvzi3c4": {
+        "x": 50,
+        "y": 464
+      },
+      "pmnd7t84wv60c": {
+        "x": 280,
+        "y": 464
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 510,
+        "y": 464
+      },
+      "pmnd7v4fly7vb": {
+        "x": 740,
+        "y": 464
+      },
+      "pmndmqi8yk35j": {
+        "x": 2465,
+        "y": 257
+      },
+      "pmndmre7xwo3z": {
+        "x": 2120,
+        "y": 464
+      },
+      "pmndmscnasvm5": {
+        "x": 2350,
+        "y": 464
+      },
+      "pmndmt69g664c": {
+        "x": 2580,
+        "y": 464
+      },
+      "pmnepe8ob5cod": {
+        "x": 1085,
+        "y": 257
+      },
+      "pmnepfhttgn51": {
+        "x": 1545,
+        "y": 257
+      },
+      "pmnepimbckf8a": {
+        "x": 1315,
+        "y": 464
+      },
+      "pmnepimbeuxuf": {
+        "x": 1545,
+        "y": 464
+      },
+      "pmnepl5nzikm3": {
+        "x": 2005,
+        "y": 257
+      },
+      "pmnepmjsmeuk6": {
+        "x": 2925,
+        "y": 257
+      },
+      "pmnepnt0eu2k2": {
+        "x": 3385,
+        "y": 257
+      },
+      "pmnepp0idbklv": {
+        "x": 3270,
+        "y": 464
+      },
+      "pmnfvopdootvl": {
+        "x": 970,
+        "y": 464
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0s7etaht7": {
+    "label": "Ilas",
+    "cards": {
+      "pmndya3ei5vp4": {
+        "x": 970,
+        "y": 259
+      },
+      "pmndyhcgqdpb9": {
+        "x": 740,
+        "y": 259
+      },
+      "pmndyjcrfva0k": {
+        "x": 50,
+        "y": 544
+      },
+      "pmndyjcrg5spz": {
+        "x": 280,
+        "y": 544
+      },
+      "pmndyjcrhx2b4": {
+        "x": 510,
+        "y": 544
+      },
+      "pmndyjcripek7": {
+        "x": 740,
+        "y": 544
+      },
+      "pmndyjcrjsvwo": {
+        "x": 1200,
+        "y": 544
+      },
+      "pmndyjcrkl9zf": {
+        "x": 1430,
+        "y": 544
+      },
+      "pmndyjcrl3njh": {
+        "x": 1660,
+        "y": 544
+      },
+      "pmni0s7etaht7": {
+        "x": 1200,
+        "y": 50
+      },
+      "pmni0v8uiepz0": {
+        "x": 280,
+        "y": 244
+      },
+      "pmni0v8uiu40k": {
+        "x": 740,
+        "y": 244
+      },
+      "pmni0v8uiimus": {
+        "x": 1200,
+        "y": 244
+      },
+      "pmni0v8uierpw": {
+        "x": 1430,
+        "y": 244
+      },
+      "pmni0v8ui7vpw": {
+        "x": 1890,
+        "y": 244
+      },
+      "pmni0v8uihcrv": {
+        "x": 2120,
+        "y": 244
+      },
+      "pmo0h2kl0159h": {
+        "x": 970,
+        "y": 544
+      },
+      "pmo4vafk9ne7l": {
+        "x": 1430,
+        "y": 50
+      },
+      "pmo4vpgqhm6yf": {
+        "x": 970,
+        "y": 244
+      },
+      "pmo4vq95k7dyj": {
+        "x": 2350,
+        "y": 244
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 2580,
+        "y": 244
+      },
+      "pmo4vr6r2vi98": {
+        "x": 1660,
+        "y": 244
+      },
+      "pmo4w4s6vuvgz": {
+        "x": 510,
+        "y": 760
+      },
+      "pmo4w4s6vkh69": {
+        "x": 740,
+        "y": 760
+      },
+      "pmo4w4s6vrg8q": {
+        "x": 970,
+        "y": 760
+      },
+      "pmo4w4s6vss7k": {
+        "x": 1200,
+        "y": 760
+      },
+      "pmo4w5y12nsjo": {
+        "x": 1200,
+        "y": 570
+      },
+      "pmo4w5y12cae6": {
+        "x": 1430,
+        "y": 570
+      },
+      "pmo4w5y12507h": {
+        "x": 1660,
+        "y": 570
+      },
+      "pmo4w5y12b1h5": {
+        "x": 1890,
+        "y": 570
+      },
+      "pmo4w6fakq8md": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4w72fa5g45": {
+        "x": 280,
+        "y": 570
+      },
+      "pmo4w72fa19ws": {
+        "x": 510,
+        "y": 570
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7cuzr39r9": {
+    "label": "Issa Khan Qader Ghorbandi",
+    "cards": {
+      "pmnd7cuzr39r9": {
+        "x": 50,
+        "y": 50
+      },
+      "pmnepl5nzikm3": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmndnoxx6ndgz": {
+    "label": "Jamal Nader Rashid",
+    "cards": {
+      "f16": {
+        "x": 740,
+        "y": 245
+      },
+      "pmndnoxx6ndgz": {
+        "x": 625,
+        "y": 50
+      },
+      "pmndnpzkp3vwu": {
+        "x": 855,
+        "y": 50
+      },
+      "pmndnrdrc68lf": {
+        "x": 50,
+        "y": 245
+      },
+      "pmndnrn9438x5": {
+        "x": 510,
+        "y": 245
+      },
+      "pmndnryswhsem": {
+        "x": 970,
+        "y": 245
+      },
+      "pmndns7ewdxvw": {
+        "x": 1200,
+        "y": 245
+      },
+      "pmndnsji2txom": {
+        "x": 1430,
+        "y": 245
+      },
+      "pmndnticv1qox": {
+        "x": 280,
+        "y": 245
+      }
+    },
+    "ghosts": []
+  },
+  "s10": {
+    "label": "Jawed Sabur",
+    "cards": {
+      "s09": {
+        "x": 50,
+        "y": 50
+      },
+      "s10": {
+        "x": 280,
+        "y": 50
+      },
+      "pmnczpeoyc4hd": {
+        "x": 165,
+        "y": 241
+      }
+    },
+    "ghosts": []
+  },
+  "pmo3552jz6uwr": {
+    "label": "Khaybar",
+    "cards": {
+      "pmo34ycrhfbhs": {
+        "x": 62,
+        "y": 50
+      },
+      "pmo3552jz6uwr": {
+        "x": 267,
+        "y": 50
+      },
+      "pmo3561dkcpxd": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo3561dq8ahj": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wnqt5sjf7": {
+    "label": "Khoja",
+    "cards": {
+      "pmni10qwrkobm": {
+        "x": 523,
+        "y": 50
+      },
+      "pmo4wnqt5sjf7": {
+        "x": 728,
+        "y": 50
+      },
+      "pmo4wveblf5x5": {
+        "x": 50,
+        "y": 245
+      },
+      "pmo4wveblcjbe": {
+        "x": 280,
+        "y": 245
+      },
+      "pmo4wvebloqky": {
+        "x": 510,
+        "y": 245
+      },
+      "pmo4wvebltb8q": {
+        "x": 740,
+        "y": 245
+      },
+      "pmo4wveblrmqi": {
+        "x": 970,
+        "y": 245
+      },
+      "pmo4wvebl2zvm": {
+        "x": 1200,
+        "y": 245
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xkx7hr4du": {
+    "label": "Ma'lim",
+    "cards": {
+      "pmni0s7et7v3g": {
+        "x": 625,
+        "y": 50
+      },
+      "pmni0tu13oc3d": {
+        "x": 50,
+        "y": 245
+      },
+      "pmni0tu14jfoi": {
+        "x": 280,
+        "y": 245
+      },
+      "pmni0tu14y8tb": {
+        "x": 510,
+        "y": 245
+      },
+      "pmni0tu14n6g5": {
+        "x": 740,
+        "y": 245
+      },
+      "pmni0tu14seye": {
+        "x": 970,
+        "y": 245
+      },
+      "pmni0tu141lkn": {
+        "x": 1200,
+        "y": 245
+      },
+      "pmni0tu14q8j4": {
+        "x": 1430,
+        "y": 245
+      },
+      "pmo4xkx7hr4du": {
+        "x": 855,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3ei0k93": {
+    "label": "Mahmad Salehi",
+    "cards": {
+      "pmndya3ei0k93": {
+        "x": 740,
+        "y": 50
+      },
+      "pmndydlr61are": {
+        "x": 1315,
+        "y": 285
+      },
+      "pmndyf12hx96x": {
+        "x": 1315,
+        "y": 484
+      },
+      "pmnfx2dl6dya9": {
+        "x": 970,
+        "y": 50
+      },
+      "pmnfx3knl6en8": {
+        "x": 165,
+        "y": 285
+      },
+      "pmnfx5u9dct4w": {
+        "x": 625,
+        "y": 285
+      },
+      "pmnfx5u9dbm8a": {
+        "x": 1085,
+        "y": 285
+      },
+      "pmnfx8zrswvz9": {
+        "x": 395,
+        "y": 285
+      },
+      "pmnfxa0in4tc9": {
+        "x": 50,
+        "y": 484
+      },
+      "pmnfxa0io0z5u": {
+        "x": 280,
+        "y": 484
+      },
+      "pmnfxa0iou6j0": {
+        "x": 510,
+        "y": 484
+      },
+      "pmnfxaot46h83": {
+        "x": 855,
+        "y": 285
+      },
+      "pmnfxbasnb3sh": {
+        "x": 625,
+        "y": 683
+      },
+      "pmnfxbasnbq7c": {
+        "x": 855,
+        "y": 683
+      },
+      "pmni0xjxqy5q5": {
+        "x": 1545,
+        "y": 285
+      },
+      "pmo007gyaqm2k": {
+        "x": 1545,
+        "y": 484
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4x48qp13uy": {
+    "label": "Mahmad Sherien",
+    "cards": {
+      "pmni0xjxqp5fh": {
+        "x": 625,
+        "y": 50
+      },
+      "pmo4x48qp13uy": {
+        "x": 855,
+        "y": 50
+      },
+      "pmo4x5y2qnpps": {
+        "x": 50,
+        "y": 245
+      },
+      "pmo4x5y2qdylg": {
+        "x": 280,
+        "y": 245
+      },
+      "pmo4x5y2qxoih": {
+        "x": 510,
+        "y": 245
+      },
+      "pmo4x5y2qytl3": {
+        "x": 740,
+        "y": 245
+      },
+      "pmo4x5y2qi17y": {
+        "x": 970,
+        "y": 245
+      },
+      "pmo4x5y2qeicw": {
+        "x": 1200,
+        "y": 245
+      },
+      "pmo4x5y2qvd6t": {
+        "x": 1430,
+        "y": 245
+      }
+    },
+    "ghosts": []
+  },
+  "pmndyxhre0zi1": {
+    "label": "Mahmadgul Durrani",
+    "cards": {
+      "s01": {
+        "x": 4510,
+        "y": 240
+      },
+      "s03": {
+        "x": 3155,
+        "y": 4937
+      },
+      "s04": {
+        "x": 3385,
+        "y": 4937
+      },
+      "s05": {
+        "x": 3615,
+        "y": 4937
+      },
+      "s06": {
+        "x": 3845,
+        "y": 4937
+      },
+      "s07": {
+        "x": 3040,
+        "y": 1382
+      },
+      "s08": {
+        "x": 3155,
+        "y": 1617
+      },
+      "s09": {
+        "x": 4305,
+        "y": 4937
+      },
+      "s10": {
+        "x": 4535,
+        "y": 4937
+      },
+      "s11": {
+        "x": 4765,
+        "y": 4937
+      },
+      "s12": {
+        "x": 4995,
+        "y": 4937
+      },
+      "s13": {
+        "x": 5225,
+        "y": 4937
+      },
+      "s14": {
+        "x": 4995,
+        "y": 5137
+      },
+      "s15": {
+        "x": 5225,
+        "y": 5137
+      },
+      "f01": {
+        "x": 1430,
+        "y": 1382
+      },
+      "f02": {
+        "x": 1200,
+        "y": 1382
+      },
+      "f03": {
+        "x": 50,
+        "y": 1618
+      },
+      "f05": {
+        "x": 3155,
+        "y": 2837
+      },
+      "f06": {
+        "x": 510,
+        "y": 1618
+      },
+      "f07": {
+        "x": 740,
+        "y": 1618
+      },
+      "f08": {
+        "x": 395,
+        "y": 2278
+      },
+      "f09": {
+        "x": 625,
+        "y": 2278
+      },
+      "f10": {
+        "x": 970,
+        "y": 1618
+      },
+      "f11": {
+        "x": 1200,
+        "y": 1618
+      },
+      "f12": {
+        "x": 970,
+        "y": 1853
+      },
+      "f13": {
+        "x": 1430,
+        "y": 1618
+      },
+      "f14": {
+        "x": 1660,
+        "y": 1618
+      },
+      "f15": {
+        "x": 1890,
+        "y": 1618
+      },
+      "f16": {
+        "x": 2120,
+        "y": 1618
+      },
+      "f17": {
+        "x": 2580,
+        "y": 1618
+      },
+      "pmncyghyo65ha": {
+        "x": 3270,
+        "y": 5137
+      },
+      "pmnczpeoyc4hd": {
+        "x": 4420,
+        "y": 5137
+      },
+      "r01": {
+        "x": 5110,
+        "y": 1382
+      },
+      "r02": {
+        "x": 4880,
+        "y": 1382
+      },
+      "r03": {
+        "x": 4880,
+        "y": 1807
+      },
+      "r04": {
+        "x": 5110,
+        "y": 1807
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 1853
+      },
+      "pmnd79y13i65o": {
+        "x": 3820,
+        "y": 240
+      },
+      "pmnd7akkugpv5": {
+        "x": 4050,
+        "y": 240
+      },
+      "pmnd7bkdrm6yz": {
+        "x": 2695,
+        "y": 4360
+      },
+      "pmnd7cfmvqiff": {
+        "x": 3155,
+        "y": 4360
+      },
+      "pmnd7cuzr39r9": {
+        "x": 3615,
+        "y": 4360
+      },
+      "pmnd7ej1rf33c": {
+        "x": 2235,
+        "y": 4360
+      },
+      "pmnd7hzc067x0": {
+        "x": 4535,
+        "y": 4360
+      },
+      "pmnd7janquizq": {
+        "x": 4075,
+        "y": 4360
+      },
+      "pmnd7n0jbe5kc": {
+        "x": 4995,
+        "y": 4360
+      },
+      "pmnd7o54wo1ew": {
+        "x": 5455,
+        "y": 4360
+      },
+      "pmnd7oyi85tgd": {
+        "x": 5685,
+        "y": 4360
+      },
+      "pmnd7qhxj4baj": {
+        "x": 2120,
+        "y": 1382
+      },
+      "pmnd7shvzi3c4": {
+        "x": 1775,
+        "y": 1808
+      },
+      "pmnd7t84wv60c": {
+        "x": 2005,
+        "y": 1808
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 2235,
+        "y": 1808
+      },
+      "pmnd7v4fly7vb": {
+        "x": 2465,
+        "y": 1808
+      },
+      "pmndmqi8yk35j": {
+        "x": 4305,
+        "y": 4360
+      },
+      "pmndmre7xwo3z": {
+        "x": 3960,
+        "y": 4567
+      },
+      "pmndmscnasvm5": {
+        "x": 4190,
+        "y": 4567
+      },
+      "pmndmt69g664c": {
+        "x": 4420,
+        "y": 4567
+      },
+      "pmndmv0pe6bnt": {
+        "x": 3730,
+        "y": 1382
+      },
+      "pmndmvgb61us6": {
+        "x": 3500,
+        "y": 1382
+      },
+      "pmndmw6tmszgx": {
+        "x": 3615,
+        "y": 2601
+      },
+      "pmndmwy22inp5": {
+        "x": 3845,
+        "y": 2601
+      },
+      "pmndmxo0wy25u": {
+        "x": 4075,
+        "y": 2601
+      },
+      "pmndn04a6kp3h": {
+        "x": 4305,
+        "y": 2601
+      },
+      "pmndn0xa5x3gg": {
+        "x": 4535,
+        "y": 2601
+      },
+      "pmndn2984pmss": {
+        "x": 2695,
+        "y": 2601
+      },
+      "pmndn30vhfz8r": {
+        "x": 2925,
+        "y": 2601
+      },
+      "pmndn3i30g9js": {
+        "x": 2695,
+        "y": 2837
+      },
+      "pmndn3u2sqdff": {
+        "x": 2925,
+        "y": 2837
+      },
+      "pmndn4sw3j1fb": {
+        "x": 3155,
+        "y": 2601
+      },
+      "pmndn7m9expkq": {
+        "x": 3385,
+        "y": 2837
+      },
+      "pmndnoxx6ndgz": {
+        "x": 1890,
+        "y": 1382
+      },
+      "pmndnpzkp3vwu": {
+        "x": 1660,
+        "y": 1382
+      },
+      "pmndnrdrc68lf": {
+        "x": 1085,
+        "y": 2087
+      },
+      "pmndnrn9438x5": {
+        "x": 1545,
+        "y": 2087
+      },
+      "pmndnryswhsem": {
+        "x": 2005,
+        "y": 2087
+      },
+      "pmndns7ewdxvw": {
+        "x": 2235,
+        "y": 2087
+      },
+      "pmndnsji2txom": {
+        "x": 2465,
+        "y": 2087
+      },
+      "pmndnticv1qox": {
+        "x": 1315,
+        "y": 2087
+      },
+      "pmndwllk8hld1": {
+        "x": 2580,
+        "y": 1382
+      },
+      "pmndwllk9fukl": {
+        "x": 3960,
+        "y": 1382
+      },
+      "pmndwllk96xxz": {
+        "x": 4420,
+        "y": 1382
+      },
+      "pmndyxhre0zi1": {
+        "x": 3040,
+        "y": 50
+      },
+      "pmndyy6j6wndl": {
+        "x": 3270,
+        "y": 50
+      },
+      "pmnepe8ob5cod": {
+        "x": 2925,
+        "y": 4360
+      },
+      "pmnepfhttgn51": {
+        "x": 3385,
+        "y": 4360
+      },
+      "pmnepimbckf8a": {
+        "x": 3155,
+        "y": 4567
+      },
+      "pmnepimbeuxuf": {
+        "x": 3385,
+        "y": 4567
+      },
+      "pmnepl5nzikm3": {
+        "x": 3845,
+        "y": 4360
+      },
+      "pmnepmjsmeuk6": {
+        "x": 4765,
+        "y": 4360
+      },
+      "pmnepnt0eu2k2": {
+        "x": 5225,
+        "y": 4360
+      },
+      "pmnepp0idbklv": {
+        "x": 5110,
+        "y": 4567
+      },
+      "pmneptum4xnzi": {
+        "x": 4190,
+        "y": 1382
+      },
+      "pmnepytxdqi9y": {
+        "x": 3730,
+        "y": 2042
+      },
+      "pmnepytxga1sz": {
+        "x": 3960,
+        "y": 2042
+      },
+      "pmnepytxh5z3q": {
+        "x": 4190,
+        "y": 2042
+      },
+      "pmnepytxiuzsg": {
+        "x": 4420,
+        "y": 2042
+      },
+      "pmneq7p4nynu3": {
+        "x": 2465,
+        "y": 240
+      },
+      "pmneq7p4ss5hl": {
+        "x": 3385,
+        "y": 240
+      },
+      "pmneq7p4udtvl": {
+        "x": 4280,
+        "y": 240
+      },
+      "pmndo2vxafahz": {
+        "x": 2925,
+        "y": 240
+      },
+      "pmndo3i84yw8g": {
+        "x": 3155,
+        "y": 240
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 2278
+      },
+      "pmnfvopdootvl": {
+        "x": 2695,
+        "y": 1808
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 4650,
+        "y": 1382
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2810,
+        "y": 1382
+      },
+      "pmni01k22obxh": {
+        "x": 2350,
+        "y": 2278
+      },
+      "pmni01k23erra": {
+        "x": 2580,
+        "y": 2278
+      },
+      "pmni01k24zyhf": {
+        "x": 2810,
+        "y": 2278
+      },
+      "pmni01k25pnza": {
+        "x": 3040,
+        "y": 2278
+      },
+      "pmni053i84su6": {
+        "x": 3960,
+        "y": 1617
+      },
+      "pmni053iamxzp": {
+        "x": 4190,
+        "y": 1617
+      },
+      "pmni053icew6m": {
+        "x": 4420,
+        "y": 1617
+      },
+      "pmni053ie8pn9": {
+        "x": 4650,
+        "y": 1617
+      },
+      "pmni053ifs7ju": {
+        "x": 4880,
+        "y": 1617
+      },
+      "pmni053ih3c7e": {
+        "x": 5110,
+        "y": 1617
+      },
+      "pmni06p0ji4hg": {
+        "x": 2695,
+        "y": 240
+      },
+      "pmni0aw5mfovo": {
+        "x": 1660,
+        "y": 610
+      },
+      "pmni0aw5rt7j6": {
+        "x": 2580,
+        "y": 610
+      },
+      "pmni0aw5t19yo": {
+        "x": 2810,
+        "y": 610
+      },
+      "pmni0aw5wzj12": {
+        "x": 3040,
+        "y": 610
+      },
+      "pmni0aw5zil6x": {
+        "x": 3270,
+        "y": 610
+      },
+      "pmni0aw61wfnn": {
+        "x": 3500,
+        "y": 610
+      },
+      "pmni0aw63vtas": {
+        "x": 2120,
+        "y": 610
+      },
+      "pmni0byqqbuqw": {
+        "x": 1890,
+        "y": 610
+      },
+      "pmni0d7t09vcm": {
+        "x": 1315,
+        "y": 811
+      },
+      "pmni0d7t6qrt0": {
+        "x": 1775,
+        "y": 811
+      },
+      "pmni0d7t9876w": {
+        "x": 2005,
+        "y": 811
+      },
+      "pmni0d7tck3oc": {
+        "x": 2235,
+        "y": 811
+      },
+      "pmni0dr4npt6r": {
+        "x": 2350,
+        "y": 610
+      },
+      "pmni0e8yfpn37": {
+        "x": 2350,
+        "y": 1012
+      },
+      "pmni0fiiiy1qs": {
+        "x": 1545,
+        "y": 811
+      },
+      "pmo34v17r5l0j": {
+        "x": 3590,
+        "y": 240
+      },
+      "pmo34ycr3rguf": {
+        "x": 1993,
+        "y": 3207
+      },
+      "pmo34ycr7lser": {
+        "x": 2453,
+        "y": 3207
+      },
+      "pmo34ycrdz5uf": {
+        "x": 2913,
+        "y": 3207
+      },
+      "pmo34ycrhfbhs": {
+        "x": 3373,
+        "y": 3207
+      },
+      "pmo34ycrl4b8j": {
+        "x": 4063,
+        "y": 3207
+      },
+      "pmo34ycrplrzh": {
+        "x": 4523,
+        "y": 3207
+      },
+      "pmo34ycrwm0ax": {
+        "x": 4753,
+        "y": 3207
+      },
+      "pmo34z25i1fky": {
+        "x": 2223,
+        "y": 3207
+      },
+      "pmo350x9zbuxz": {
+        "x": 1533,
+        "y": 3420
+      },
+      "pmo350xa4any3": {
+        "x": 1763,
+        "y": 3420
+      },
+      "pmo350xa8twge": {
+        "x": 1993,
+        "y": 3420
+      },
+      "pmo350xacwuzv": {
+        "x": 2223,
+        "y": 3420
+      },
+      "pmo350xag72uv": {
+        "x": 2453,
+        "y": 3420
+      },
+      "pmo350xaj9g7p": {
+        "x": 2683,
+        "y": 3420
+      },
+      "pmo351h5beg9f": {
+        "x": 2683,
+        "y": 3207
+      },
+      "pmo352v2f85e1": {
+        "x": 2108,
+        "y": 3801
+      },
+      "pmo352v2m7cyp": {
+        "x": 2338,
+        "y": 3801
+      },
+      "pmo352v2qd6mg": {
+        "x": 2568,
+        "y": 3801
+      },
+      "pmo352v2v4165": {
+        "x": 2798,
+        "y": 3801
+      },
+      "pmo352v30t7ge": {
+        "x": 3028,
+        "y": 3801
+      },
+      "pmo353ouw5u1k": {
+        "x": 3143,
+        "y": 3207
+      },
+      "pmo354mcnbz26": {
+        "x": 2683,
+        "y": 3990
+      },
+      "pmo354mcujmgy": {
+        "x": 2913,
+        "y": 3990
+      },
+      "pmo354mczv982": {
+        "x": 3143,
+        "y": 3990
+      },
+      "pmo3552jz6uwr": {
+        "x": 3603,
+        "y": 3207
+      },
+      "pmo3561dkcpxd": {
+        "x": 3373,
+        "y": 3397
+      },
+      "pmo3561dq8ahj": {
+        "x": 3603,
+        "y": 3397
+      },
+      "pmo357kjbhmd5": {
+        "x": 3833,
+        "y": 3207
+      },
+      "pmo358jhjmb83": {
+        "x": 3488,
+        "y": 3587
+      },
+      "pmo358jhpzptz": {
+        "x": 3718,
+        "y": 3587
+      },
+      "pmo358vl3n6yf": {
+        "x": 4293,
+        "y": 3207
+      },
+      "pmo359q5jrkg1": {
+        "x": 4293,
+        "y": 3587
+      },
+      "pmo359q5q3jz9": {
+        "x": 4523,
+        "y": 3587
+      },
+      "pmo35a6zz26rc": {
+        "x": 4983,
+        "y": 3207
+      },
+      "pmo49w9tiqty7": {
+        "x": 2120,
+        "y": 1012
+      },
+      "pmo4a1a67tuyw": {
+        "x": 3948,
+        "y": 3587
+      },
+      "pmo4a26jk7k5x": {
+        "x": 3373,
+        "y": 3990
+      },
+      "pmo4abxn5ihq5": {
+        "x": 1775,
+        "y": 240
+      },
+      "pmo4acfl57fx5": {
+        "x": 2005,
+        "y": 240
+      },
+      "pmo4adrr9bkk1": {
+        "x": 970,
+        "y": 1382
+      },
+      "pmo4ahx86c7rh": {
+        "x": 2235,
+        "y": 240
+      }
+    },
+    "ghosts": [
+      {
+        "id": "s06",
+        "x": 3270,
+        "y": 1382,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7ej1rf33c",
+        "x": 2350,
+        "y": 1382,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn4sw3j1fb",
+        "x": 280,
+        "y": 1618,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndnrn9438x5",
+        "x": 2350,
+        "y": 1618,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f16",
+        "x": 1775,
+        "y": 2087,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f03",
+        "x": 3385,
+        "y": 2601,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f05",
+        "x": 50,
+        "y": 1808,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn7m9expkq",
+        "x": 280,
+        "y": 1808,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7qhxj4baj",
+        "x": 2465,
+        "y": 4360,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7shvzi3c4",
+        "x": 1890,
+        "y": 4567,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7t84wv60c",
+        "x": 2120,
+        "y": 4567,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7u7dc1sv8",
+        "x": 2350,
+        "y": 4567,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnd7v4fly7vb",
+        "x": 2580,
+        "y": 4567,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnfvopdootvl",
+        "x": 2810,
+        "y": 4567,
+        "adjacentTo": ""
+      },
+      {
+        "id": "s07",
+        "x": 4075,
+        "y": 4937,
+        "adjacentTo": ""
+      },
+      {
+        "id": "s08",
+        "x": 3960,
+        "y": 5137,
+        "adjacentTo": ""
+      }
+    ]
+  },
+  "pmndya3eiti9k": {
+    "label": "Mahmoed",
+    "cards": {
+      "pmndya3eiti9k": {
+        "x": 855,
+        "y": 50
+      },
+      "pmo4sw6rkvo1k": {
+        "x": 1085,
+        "y": 50
+      },
+      "pmo4szd62qiup": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4szd632k5i": {
+        "x": 970,
+        "y": 244
+      },
+      "pmo4szd63w9un": {
+        "x": 1200,
+        "y": 244
+      },
+      "pmo4szd63jn8i": {
+        "x": 1430,
+        "y": 244
+      },
+      "pmo4szd63ws4w": {
+        "x": 1660,
+        "y": 244
+      },
+      "pmo4v4r3i85jz": {
+        "x": 740,
+        "y": 244
+      },
+      "pmo4v6ag4btzt": {
+        "x": 50,
+        "y": 533
+      },
+      "pmo4v6ag5tbeg": {
+        "x": 280,
+        "y": 533
+      },
+      "pmo4v6ag5yshe": {
+        "x": 510,
+        "y": 533
+      },
+      "pmo4v6ag5y6kb": {
+        "x": 740,
+        "y": 533
+      },
+      "pmo4v6ag5kd8o": {
+        "x": 970,
+        "y": 533
+      },
+      "pmo4v6ag5b5bp": {
+        "x": 1200,
+        "y": 533
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfx5u9dct4w": {
+    "label": "Matiullah Salehi",
+    "cards": {
+      "pmnfx5u9dct4w": {
+        "x": 62,
+        "y": 50
+      },
+      "pmnfxaot46h83": {
+        "x": 267,
+        "y": 50
+      },
+      "pmnfxbasnb3sh": {
+        "x": 50,
+        "y": 242
+      },
+      "pmnfxbasnbq7c": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmni14pya5f9h": {
+    "label": "Mirwais",
+    "cards": {
+      "pmni14pya5f9h": {
+        "x": 293,
+        "y": 50
+      },
+      "pmo4wbnzfjghc": {
+        "x": 498,
+        "y": 50
+      },
+      "pmo4wdt6k43c8": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4wdt6kdksz": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4wdt6krvxa": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4wdt6kzel5": {
+        "x": 740,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmndmv0pe6bnt": {
+    "label": "Mohammaddel Amiri",
+    "cards": {
+      "f03": {
+        "x": 740,
+        "y": 249
+      },
+      "f05": {
+        "x": 510,
+        "y": 448
+      },
+      "pmndmv0pe6bnt": {
+        "x": 855,
+        "y": 50
+      },
+      "pmndmvgb61us6": {
+        "x": 1085,
+        "y": 50
+      },
+      "pmndmw6tmszgx": {
+        "x": 970,
+        "y": 249
+      },
+      "pmndmwy22inp5": {
+        "x": 1200,
+        "y": 249
+      },
+      "pmndmxo0wy25u": {
+        "x": 1430,
+        "y": 249
+      },
+      "pmndn04a6kp3h": {
+        "x": 1660,
+        "y": 249
+      },
+      "pmndn0xa5x3gg": {
+        "x": 1890,
+        "y": 249
+      },
+      "pmndn2984pmss": {
+        "x": 50,
+        "y": 249
+      },
+      "pmndn30vhfz8r": {
+        "x": 280,
+        "y": 249
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 448
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 448
+      },
+      "pmndn4sw3j1fb": {
+        "x": 510,
+        "y": 249
+      },
+      "pmndn7m9expkq": {
+        "x": 740,
+        "y": 448
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wc2jwpi7w": {
+    "label": "Muhammad Ali",
+    "cards": {
+      "pmni14pyarspx": {
+        "x": 165,
+        "y": 50
+      },
+      "pmo4wc2jwpi7w": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo70z4rspi7d": {
+        "x": 50,
+        "y": 243
+      },
+      "pmo70z4rsajz3": {
+        "x": 280,
+        "y": 243
+      },
+      "pmo70z4rs3c8z": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u647klb92": {
+    "label": "Mulla",
+    "cards": {
+      "pmo4u647klb92": {
+        "x": 753,
+        "y": 50
+      },
+      "pmo4ucl28pqjj": {
+        "x": 958,
+        "y": 50
+      },
+      "pmo4uo5dgmtlx": {
+        "x": 50,
+        "y": 246
+      },
+      "pmo4uo5dgha11": {
+        "x": 280,
+        "y": 246
+      },
+      "pmo4uo5dgc3b8": {
+        "x": 510,
+        "y": 246
+      },
+      "pmo4uo5dglrux": {
+        "x": 740,
+        "y": 246
+      },
+      "pmo4uo5dgy46j": {
+        "x": 970,
+        "y": 246
+      },
+      "pmo4uo5dg4vji": {
+        "x": 1200,
+        "y": 246
+      },
+      "pmo4uo5dgl0fe": {
+        "x": 1430,
+        "y": 246
+      },
+      "pmo4uo5dgp42t": {
+        "x": 1660,
+        "y": 246
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xwwkoq57t": {
+    "label": "Musafir",
+    "cards": {
+      "pmo4xvsspty1z": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4xwwkoq57t": {
+        "x": 280,
+        "y": 50
+      },
+      "pmo4xxff5byvg": {
+        "x": 165,
+        "y": 242
+      },
+      "pmo4xy7vm7yae": {
+        "x": 395,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7cfmvqiff": {
+    "label": "Mussa Khan Emran Ghorbandi",
+    "cards": {
+      "pmnd7cfmvqiff": {
+        "x": 62,
+        "y": 50
+      },
+      "pmnepfhttgn51": {
+        "x": 267,
+        "y": 50
+      },
+      "pmnepimbckf8a": {
+        "x": 50,
+        "y": 242
+      },
+      "pmnepimbeuxuf": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u0rpbm1wn": {
+    "label": "Mustafa",
+    "cards": {
+      "pmnfwpozxyoww": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4u0rpbm1wn": {
+        "x": 280,
+        "y": 50
+      },
+      "pmo4u1b0rwt71": {
+        "x": 165,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmni10qws5lcv": {
+    "label": "Nader",
+    "cards": {
+      "pmni10qws5lcv": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4wo9v600oy": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4wor2wvrjj": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo4wor2wihti": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4vq95k7dyj": {
+    "label": "Naqib",
+    "cards": {
+      "pmo4vq95k7dyj": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4vqmi2wfp4": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmni10qwsu0z7": {
+    "label": "Naser",
+    "cards": {
+      "pmni10qwsu0z7": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4wpxi0f3um": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4wqumxm2vm": {
+        "x": 50,
+        "y": 242
+      },
+      "pmo4wqumxcirr": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycr7lser": {
+    "label": "Nawaab Rashid",
+    "cards": {
+      "pmo34ycr7lser": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo351h5beg9f": {
+        "x": 625,
+        "y": 50
+      },
+      "pmo352v2f85e1": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo352v2m7cyp": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo352v2qd6mg": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo352v2v4165": {
+        "x": 740,
+        "y": 244
+      },
+      "pmo352v30t7ge": {
+        "x": 970,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ufn9y0ahn": {
+    "label": "Noorullah",
+    "cards": {
+      "pmo4t2s73omvz": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4ufn9y0ahn": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4tjfzukw6f": {
+    "label": "Omid",
+    "cards": {
+      "f13": {
+        "x": 510,
+        "y": 285
+      },
+      "f14": {
+        "x": 280,
+        "y": 285
+      },
+      "pmnfwl6r2k67v": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4tjfzukw6f": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4tkhyjlb4b": {
+        "x": 50,
+        "y": 285
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wwjpk1bd3": {
+    "label": "Qais",
+    "cards": {
+      "pmni10qws94io": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4wwjpk1bd3": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4ufxpzbouu": {
+    "label": "Qudrat",
+    "cards": {
+      "pmo4u96zph9n5": {
+        "x": 165,
+        "y": 50
+      },
+      "pmo4ufxpzbouu": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo4uvvnnu1ci": {
+        "x": 50,
+        "y": 243
+      },
+      "pmo4uvvnn3c4e": {
+        "x": 280,
+        "y": 243
+      },
+      "pmo4uvvnn5wxq": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r21xvr": {
+    "label": "Rafi Saidi",
+    "cards": {
+      "pmnfwl6r21xvr": {
+        "x": 63,
+        "y": 50
+      },
+      "pmo4tqukpwhe3": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo4tu4zyqlgu": {
+        "x": 280,
+        "y": 242
+      },
+      "pmo4tv65lojwy": {
+        "x": 50,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xwldcsefq": {
+    "label": "Rahiemgul",
+    "cards": {
+      "pmo4xvsspw66y": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4xwldcsefq": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwpozxor6n": {
+    "label": "Saidwali Saidi",
+    "cards": {
+      "pmnfwpozxor6n": {
+        "x": 50,
+        "y": 50
+      },
+      "pmob60ldonecw": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmneq7p4ss5hl": {
+    "label": "Sakhi Gull Rashid",
+    "cards": {
+      "pmneq7p4ss5hl": {
+        "x": 1902,
+        "y": 50
+      },
+      "pmo34v17r5l0j": {
+        "x": 2107,
+        "y": 50
+      },
+      "pmo34ycr3rguf": {
+        "x": 510,
+        "y": 262
+      },
+      "pmo34ycr7lser": {
+        "x": 970,
+        "y": 262
+      },
+      "pmo34ycrdz5uf": {
+        "x": 1430,
+        "y": 262
+      },
+      "pmo34ycrhfbhs": {
+        "x": 1890,
+        "y": 262
+      },
+      "pmo34ycrl4b8j": {
+        "x": 2580,
+        "y": 262
+      },
+      "pmo34ycrplrzh": {
+        "x": 3040,
+        "y": 262
+      },
+      "pmo34ycrwm0ax": {
+        "x": 3270,
+        "y": 262
+      },
+      "pmo34z25i1fky": {
+        "x": 740,
+        "y": 262
+      },
+      "pmo350x9zbuxz": {
+        "x": 50,
+        "y": 475
+      },
+      "pmo350xa4any3": {
+        "x": 280,
+        "y": 475
+      },
+      "pmo350xa8twge": {
+        "x": 510,
+        "y": 475
+      },
+      "pmo350xacwuzv": {
+        "x": 740,
+        "y": 475
+      },
+      "pmo350xag72uv": {
+        "x": 970,
+        "y": 475
+      },
+      "pmo350xaj9g7p": {
+        "x": 1200,
+        "y": 475
+      },
+      "pmo351h5beg9f": {
+        "x": 1200,
+        "y": 262
+      },
+      "pmo352v2f85e1": {
+        "x": 625,
+        "y": 856
+      },
+      "pmo352v2m7cyp": {
+        "x": 855,
+        "y": 856
+      },
+      "pmo352v2qd6mg": {
+        "x": 1085,
+        "y": 856
+      },
+      "pmo352v2v4165": {
+        "x": 1315,
+        "y": 856
+      },
+      "pmo352v30t7ge": {
+        "x": 1545,
+        "y": 856
+      },
+      "pmo353ouw5u1k": {
+        "x": 1660,
+        "y": 262
+      },
+      "pmo354mcnbz26": {
+        "x": 1200,
+        "y": 1045
+      },
+      "pmo354mcujmgy": {
+        "x": 1430,
+        "y": 1045
+      },
+      "pmo354mczv982": {
+        "x": 1660,
+        "y": 1045
+      },
+      "pmo3552jz6uwr": {
+        "x": 2120,
+        "y": 262
+      },
+      "pmo3561dkcpxd": {
+        "x": 1890,
+        "y": 452
+      },
+      "pmo3561dq8ahj": {
+        "x": 2120,
+        "y": 452
+      },
+      "pmo357kjbhmd5": {
+        "x": 2350,
+        "y": 262
+      },
+      "pmo358jhjmb83": {
+        "x": 2005,
+        "y": 642
+      },
+      "pmo358jhpzptz": {
+        "x": 2235,
+        "y": 642
+      },
+      "pmo358vl3n6yf": {
+        "x": 2810,
+        "y": 262
+      },
+      "pmo359q5jrkg1": {
+        "x": 2810,
+        "y": 642
+      },
+      "pmo359q5q3jz9": {
+        "x": 3040,
+        "y": 642
+      },
+      "pmo35a6zz26rc": {
+        "x": 3500,
+        "y": 262
+      },
+      "pmo4a1a67tuyw": {
+        "x": 2465,
+        "y": 642
+      },
+      "pmo4a26jk7k5x": {
+        "x": 1890,
+        "y": 1045
+      }
+    },
+    "ghosts": []
+  },
+  "s13": {
+    "label": "Saleh Mohammad Raoefi",
+    "cards": {
+      "s12": {
+        "x": 62,
+        "y": 50
+      },
+      "s13": {
+        "x": 267,
+        "y": 50
+      },
+      "s14": {
+        "x": 50,
+        "y": 242
+      },
+      "s15": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4uctew3mow": {
+    "label": "Sardar",
+    "cards": {
+      "pmndn2984pmss": {
+        "x": 280,
+        "y": 248
+      },
+      "pmndn30vhfz8r": {
+        "x": 50,
+        "y": 248
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 533
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 533
+      },
+      "pmndyjcripek7": {
+        "x": 740,
+        "y": 248
+      },
+      "pmo0h2kl0159h": {
+        "x": 510,
+        "y": 248
+      },
+      "pmo4t2s73wzcp": {
+        "x": 983,
+        "y": 50
+      },
+      "pmo4uctew3mow": {
+        "x": 1188,
+        "y": 50
+      },
+      "pmo4uu2cqnft3": {
+        "x": 970,
+        "y": 248
+      },
+      "pmo4uu2cq2lpc": {
+        "x": 1200,
+        "y": 248
+      },
+      "pmo4uu2cqsbf5": {
+        "x": 1430,
+        "y": 248
+      },
+      "pmo4uu2cqoyhk": {
+        "x": 1660,
+        "y": 248
+      },
+      "pmo4uu2cqp1pf": {
+        "x": 1890,
+        "y": 248
+      },
+      "pmo4uu2cq5qe2": {
+        "x": 2120,
+        "y": 248
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwpozx8uem": {
+    "label": "Sardarwali Saidi",
+    "cards": {
+      "pmnfwpozx8uem": {
+        "x": 50,
+        "y": 50
+      },
+      "pmob61bpw07ps": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmndyrysy3eq7": {
+    "label": "Sayedahmed",
+    "cards": {
+      "s01": {
+        "x": 5800,
+        "y": 240
+      },
+      "s03": {
+        "x": 4880,
+        "y": 2074
+      },
+      "s04": {
+        "x": 5110,
+        "y": 2074
+      },
+      "s05": {
+        "x": 5340,
+        "y": 2074
+      },
+      "s06": {
+        "x": 5570,
+        "y": 2074
+      },
+      "s07": {
+        "x": 5225,
+        "y": 5474
+      },
+      "s08": {
+        "x": 5340,
+        "y": 5710
+      },
+      "s09": {
+        "x": 6030,
+        "y": 2074
+      },
+      "s10": {
+        "x": 6260,
+        "y": 2074
+      },
+      "s11": {
+        "x": 6490,
+        "y": 2074
+      },
+      "s12": {
+        "x": 6720,
+        "y": 2074
+      },
+      "s13": {
+        "x": 6950,
+        "y": 2074
+      },
+      "s14": {
+        "x": 6720,
+        "y": 2359
+      },
+      "s15": {
+        "x": 6950,
+        "y": 2359
+      },
+      "f01": {
+        "x": 3615,
+        "y": 5474
+      },
+      "f02": {
+        "x": 3385,
+        "y": 5474
+      },
+      "f03": {
+        "x": 2235,
+        "y": 5710
+      },
+      "f05": {
+        "x": 5340,
+        "y": 6929
+      },
+      "f06": {
+        "x": 2695,
+        "y": 5710
+      },
+      "f07": {
+        "x": 2925,
+        "y": 5710
+      },
+      "f08": {
+        "x": 2580,
+        "y": 6370
+      },
+      "f09": {
+        "x": 2810,
+        "y": 6370
+      },
+      "f10": {
+        "x": 3155,
+        "y": 5710
+      },
+      "f11": {
+        "x": 3385,
+        "y": 5710
+      },
+      "f12": {
+        "x": 3155,
+        "y": 5995
+      },
+      "f13": {
+        "x": 3615,
+        "y": 5710
+      },
+      "f14": {
+        "x": 510,
+        "y": 744
+      },
+      "f15": {
+        "x": 4075,
+        "y": 5710
+      },
+      "f16": {
+        "x": 4305,
+        "y": 5710
+      },
+      "f17": {
+        "x": 4765,
+        "y": 5710
+      },
+      "pmncyghyo65ha": {
+        "x": 4995,
+        "y": 2359
+      },
+      "pmnczpeoyc4hd": {
+        "x": 6145,
+        "y": 2359
+      },
+      "r01": {
+        "x": 7295,
+        "y": 5474
+      },
+      "r02": {
+        "x": 7065,
+        "y": 5474
+      },
+      "r03": {
+        "x": 7065,
+        "y": 6089
+      },
+      "r04": {
+        "x": 7295,
+        "y": 6089
+      },
+      "pmnd6s4yespmb": {
+        "x": 3385,
+        "y": 5995
+      },
+      "pmnd7ej1rf33c": {
+        "x": 4535,
+        "y": 5474
+      },
+      "pmnd7qhxj4baj": {
+        "x": 4305,
+        "y": 5474
+      },
+      "pmnd7shvzi3c4": {
+        "x": 3960,
+        "y": 5900
+      },
+      "pmnd7t84wv60c": {
+        "x": 4190,
+        "y": 5900
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 4420,
+        "y": 5900
+      },
+      "pmnd7v4fly7vb": {
+        "x": 4650,
+        "y": 5900
+      },
+      "pmndmv0pe6bnt": {
+        "x": 5915,
+        "y": 5474
+      },
+      "pmndmvgb61us6": {
+        "x": 5685,
+        "y": 5474
+      },
+      "pmndmw6tmszgx": {
+        "x": 5800,
+        "y": 6693
+      },
+      "pmndmwy22inp5": {
+        "x": 6030,
+        "y": 6693
+      },
+      "pmndmxo0wy25u": {
+        "x": 6260,
+        "y": 6693
+      },
+      "pmndn04a6kp3h": {
+        "x": 6490,
+        "y": 6693
+      },
+      "pmndn0xa5x3gg": {
+        "x": 6720,
+        "y": 6693
+      },
+      "pmndn2984pmss": {
+        "x": 4880,
+        "y": 6693
+      },
+      "pmndn30vhfz8r": {
+        "x": 2005,
+        "y": 3342
+      },
+      "pmndn3i30g9js": {
+        "x": 2005,
+        "y": 3722
+      },
+      "pmndn3u2sqdff": {
+        "x": 2235,
+        "y": 3722
+      },
+      "pmndn4sw3j1fb": {
+        "x": 5340,
+        "y": 6693
+      },
+      "pmndn7m9expkq": {
+        "x": 5570,
+        "y": 6929
+      },
+      "pmndnoxx6ndgz": {
+        "x": 4075,
+        "y": 5474
+      },
+      "pmndnpzkp3vwu": {
+        "x": 3845,
+        "y": 5474
+      },
+      "pmndnrdrc68lf": {
+        "x": 3270,
+        "y": 6179
+      },
+      "pmndnrn9438x5": {
+        "x": 3730,
+        "y": 6179
+      },
+      "pmndnryswhsem": {
+        "x": 4190,
+        "y": 6179
+      },
+      "pmndns7ewdxvw": {
+        "x": 4420,
+        "y": 6179
+      },
+      "pmndnsji2txom": {
+        "x": 4650,
+        "y": 6179
+      },
+      "pmndnticv1qox": {
+        "x": 3500,
+        "y": 6179
+      },
+      "pmndwllk8hld1": {
+        "x": 4765,
+        "y": 5474
+      },
+      "pmndwllk9fukl": {
+        "x": 6145,
+        "y": 5474
+      },
+      "pmndwllk96xxz": {
+        "x": 6605,
+        "y": 5474
+      },
+      "pmndya3eilyn1": {
+        "x": 3270,
+        "y": 240
+      },
+      "pmndya3eiti9k": {
+        "x": 3730,
+        "y": 240
+      },
+      "pmndya3eixb8j": {
+        "x": 4190,
+        "y": 240
+      },
+      "pmndya3ei5vp4": {
+        "x": 4880,
+        "y": 240
+      },
+      "pmndya3ei0k93": {
+        "x": 6260,
+        "y": 240
+      },
+      "pmndya3eip3zu": {
+        "x": 6720,
+        "y": 240
+      },
+      "pmndyckredqon": {
+        "x": 4650,
+        "y": 240
+      },
+      "pmndydlr61are": {
+        "x": 4190,
+        "y": 4671
+      },
+      "pmndyf12hx96x": {
+        "x": 4190,
+        "y": 4956
+      },
+      "pmndyhcgqdpb9": {
+        "x": 5110,
+        "y": 240
+      },
+      "pmndyjcrfva0k": {
+        "x": 5340,
+        "y": 4671
+      },
+      "pmndyjcrg5spz": {
+        "x": 5570,
+        "y": 4671
+      },
+      "pmndyjcrhx2b4": {
+        "x": 5800,
+        "y": 4671
+      },
+      "pmndyjcripek7": {
+        "x": 6030,
+        "y": 4671
+      },
+      "pmndyjcrjsvwo": {
+        "x": 6490,
+        "y": 4671
+      },
+      "pmndyjcrkl9zf": {
+        "x": 6720,
+        "y": 4671
+      },
+      "pmndyjcrl3njh": {
+        "x": 6950,
+        "y": 4671
+      },
+      "pmndyrysy3eq7": {
+        "x": 4880,
+        "y": 50
+      },
+      "pmndyryt0viez": {
+        "x": 5110,
+        "y": 50
+      },
+      "pmneptum4xnzi": {
+        "x": 6375,
+        "y": 5474
+      },
+      "pmnepytxdqi9y": {
+        "x": 5915,
+        "y": 6179
+      },
+      "pmnepytxga1sz": {
+        "x": 6145,
+        "y": 6179
+      },
+      "pmnepytxh5z3q": {
+        "x": 6375,
+        "y": 6179
+      },
+      "pmnepytxiuzsg": {
+        "x": 6605,
+        "y": 6179
+      },
+      "pmneq7p4udtvl": {
+        "x": 6030,
+        "y": 240
+      },
+      "pmndo2vxafahz": {
+        "x": 5570,
+        "y": 240
+      },
+      "pmndo3i84yw8g": {
+        "x": 5340,
+        "y": 240
+      },
+      "pmnfv2r03xoij": {
+        "x": 3040,
+        "y": 6370
+      },
+      "pmnfvopdootvl": {
+        "x": 4880,
+        "y": 5900
+      },
+      "pmnfwiq4xex8n": {
+        "x": 3040,
+        "y": 240
+      },
+      "pmnfwiq4xoz2k": {
+        "x": 3500,
+        "y": 240
+      },
+      "pmnfwl6r2lpes": {
+        "x": 50,
+        "y": 537
+      },
+      "pmnfwl6r2k67v": {
+        "x": 280,
+        "y": 537
+      },
+      "pmnfwl6r2bl6p": {
+        "x": 740,
+        "y": 537
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 1200,
+        "y": 537
+      },
+      "pmnfwl6r21xvr": {
+        "x": 1660,
+        "y": 537
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2120,
+        "y": 537
+      },
+      "pmnfwl6r2niud": {
+        "x": 2580,
+        "y": 537
+      },
+      "pmnfwpozxyoww": {
+        "x": 3960,
+        "y": 537
+      },
+      "pmnfwpozxor6n": {
+        "x": 4420,
+        "y": 537
+      },
+      "pmnfwpozx8uem": {
+        "x": 4650,
+        "y": 537
+      },
+      "pmnfwpozxxrih": {
+        "x": 4880,
+        "y": 537
+      },
+      "pmnfwpozxh323": {
+        "x": 3730,
+        "y": 537
+      },
+      "pmnfwpozxxvot": {
+        "x": 5340,
+        "y": 537
+      },
+      "pmnfwpozx2yhq": {
+        "x": 5570,
+        "y": 537
+      },
+      "pmnfx2dl6dya9": {
+        "x": 6490,
+        "y": 240
+      },
+      "pmnfx3knl6en8": {
+        "x": 5685,
+        "y": 7534
+      },
+      "pmnfx5u9dct4w": {
+        "x": 6145,
+        "y": 7534
+      },
+      "pmnfx5u9dbm8a": {
+        "x": 6605,
+        "y": 7534
+      },
+      "pmnfx8zrswvz9": {
+        "x": 5915,
+        "y": 7534
+      },
+      "pmnfxa0in4tc9": {
+        "x": 5570,
+        "y": 7819
+      },
+      "pmnfxa0io0z5u": {
+        "x": 5800,
+        "y": 7819
+      },
+      "pmnfxa0iou6j0": {
+        "x": 6030,
+        "y": 7819
+      },
+      "pmnfxaot46h83": {
+        "x": 6375,
+        "y": 7534
+      },
+      "pmnfxbasnb3sh": {
+        "x": 6145,
+        "y": 7932
+      },
+      "pmnfxbasnbq7c": {
+        "x": 6375,
+        "y": 7932
+      },
+      "pmni01k22obxh": {
+        "x": 1890,
+        "y": 744
+      },
+      "pmni01k23erra": {
+        "x": 2120,
+        "y": 744
+      },
+      "pmni01k24zyhf": {
+        "x": 2350,
+        "y": 744
+      },
+      "pmni01k25pnza": {
+        "x": 2580,
+        "y": 744
+      },
+      "pmni053i84su6": {
+        "x": 740,
+        "y": 1124
+      },
+      "pmni053iamxzp": {
+        "x": 970,
+        "y": 1124
+      },
+      "pmni053icew6m": {
+        "x": 1200,
+        "y": 1124
+      },
+      "pmni053ie8pn9": {
+        "x": 1430,
+        "y": 1124
+      },
+      "pmni053ifs7ju": {
+        "x": 1660,
+        "y": 1124
+      },
+      "pmni053ih3c7e": {
+        "x": 1890,
+        "y": 1124
+      },
+      "pmni0xjxqy5q5": {
+        "x": 4420,
+        "y": 4671
+      },
+      "pmo007gyaqm2k": {
+        "x": 4420,
+        "y": 4956
+      },
+      "pmo0h2kl0159h": {
+        "x": 2465,
+        "y": 3342
+      },
+      "pmo4adrr9bkk1": {
+        "x": 3155,
+        "y": 5474
+      },
+      "pmo4su8c7xqg0": {
+        "x": 6950,
+        "y": 240
+      },
+      "pmo4supk01lh5": {
+        "x": 6835,
+        "y": 521
+      },
+      "pmo4sw6rkvo1k": {
+        "x": 3960,
+        "y": 240
+      },
+      "pmo4szd62qiup": {
+        "x": 3385,
+        "y": 2068
+      },
+      "pmo4szd632k5i": {
+        "x": 3845,
+        "y": 2068
+      },
+      "pmo4szd63w9un": {
+        "x": 4075,
+        "y": 2068
+      },
+      "pmo4szd63jn8i": {
+        "x": 4305,
+        "y": 2068
+      },
+      "pmo4szd63ws4w": {
+        "x": 4535,
+        "y": 2068
+      },
+      "pmo4t07f8o0lo": {
+        "x": 4420,
+        "y": 240
+      },
+      "pmo4t2s73wzcp": {
+        "x": 2925,
+        "y": 2962
+      },
+      "pmo4t2s73iom6": {
+        "x": 3385,
+        "y": 2962
+      },
+      "pmo4t2s73omvz": {
+        "x": 3845,
+        "y": 2962
+      },
+      "pmo4t2s73j77q": {
+        "x": 4765,
+        "y": 2962
+      },
+      "pmo4t2s73rsl9": {
+        "x": 5455,
+        "y": 2962
+      },
+      "pmo4t2s73uerq": {
+        "x": 5915,
+        "y": 2962
+      },
+      "pmo4tjfzukw6f": {
+        "x": 510,
+        "y": 537
+      },
+      "pmo4tkhyjlb4b": {
+        "x": 280,
+        "y": 744
+      },
+      "pmo4tlndgesy8": {
+        "x": 970,
+        "y": 537
+      },
+      "pmo4tnohqn8eh": {
+        "x": 395,
+        "y": 1504
+      },
+      "pmo4tnohtq4o0": {
+        "x": 625,
+        "y": 1504
+      },
+      "pmo4tnohv1bc0": {
+        "x": 855,
+        "y": 1504
+      },
+      "pmo4tnohyzf86": {
+        "x": 1085,
+        "y": 1504
+      },
+      "pmo4tnoi01vyn": {
+        "x": 1315,
+        "y": 1504
+      },
+      "pmo4tnoi2nco0": {
+        "x": 1545,
+        "y": 1504
+      },
+      "pmo4tnoi53dc8": {
+        "x": 1775,
+        "y": 1504
+      },
+      "pmo4tqukpwhe3": {
+        "x": 1890,
+        "y": 537
+      },
+      "pmo4tu4zyqlgu": {
+        "x": 1890,
+        "y": 934
+      },
+      "pmo4tv65lojwy": {
+        "x": 1660,
+        "y": 934
+      },
+      "pmo4txoa8ol14": {
+        "x": 2810,
+        "y": 537
+      },
+      "pmo4ty3cwvfaj": {
+        "x": 2695,
+        "y": 934
+      },
+      "pmo4u0rpbm1wn": {
+        "x": 4190,
+        "y": 537
+      },
+      "pmo4u1b0rwt71": {
+        "x": 4075,
+        "y": 744
+      },
+      "pmo4u21q3m2zy": {
+        "x": 5110,
+        "y": 537
+      },
+      "pmo4u2pw7zjnf": {
+        "x": 4995,
+        "y": 744
+      },
+      "pmo4u647klb92": {
+        "x": 2465,
+        "y": 2962
+      },
+      "pmo4u96zph9n5": {
+        "x": 4305,
+        "y": 2962
+      },
+      "pmo4ucl28pqjj": {
+        "x": 2695,
+        "y": 2962
+      },
+      "pmo4uctew3mow": {
+        "x": 3155,
+        "y": 2962
+      },
+      "pmo4ud9jg0tmt": {
+        "x": 3615,
+        "y": 2962
+      },
+      "pmo4ufn9y0ahn": {
+        "x": 4075,
+        "y": 2962
+      },
+      "pmo4ufxpzbouu": {
+        "x": 4535,
+        "y": 2962
+      },
+      "pmo4uhm5mmib3": {
+        "x": 4995,
+        "y": 2962
+      },
+      "pmo4uhy1e7hvn": {
+        "x": 5685,
+        "y": 2962
+      },
+      "pmo4ui8vvr8db": {
+        "x": 6145,
+        "y": 2962
+      },
+      "pmo4uo5dgmtlx": {
+        "x": 1775,
+        "y": 3152
+      },
+      "pmo4uo5dgha11": {
+        "x": 2005,
+        "y": 3152
+      },
+      "pmo4uo5dgc3b8": {
+        "x": 2235,
+        "y": 3152
+      },
+      "pmo4uo5dglrux": {
+        "x": 2465,
+        "y": 3152
+      },
+      "pmo4uo5dgy46j": {
+        "x": 2695,
+        "y": 3152
+      },
+      "pmo4uo5dg4vji": {
+        "x": 2925,
+        "y": 3152
+      },
+      "pmo4uo5dgl0fe": {
+        "x": 3155,
+        "y": 3152
+      },
+      "pmo4uo5dgp42t": {
+        "x": 3385,
+        "y": 3152
+      },
+      "pmo4uou2dx2vf": {
+        "x": 4535,
+        "y": 3532
+      },
+      "pmo4uu2cqnft3": {
+        "x": 2925,
+        "y": 3342
+      },
+      "pmo4uu2cq2lpc": {
+        "x": 3155,
+        "y": 3342
+      },
+      "pmo4uu2cqsbf5": {
+        "x": 3385,
+        "y": 3342
+      },
+      "pmo4uu2cqoyhk": {
+        "x": 3615,
+        "y": 3342
+      },
+      "pmo4uu2cqp1pf": {
+        "x": 3845,
+        "y": 3342
+      },
+      "pmo4uu2cq5qe2": {
+        "x": 4075,
+        "y": 3342
+      },
+      "pmo4uvvnnu1ci": {
+        "x": 4190,
+        "y": 3912
+      },
+      "pmo4uvvnn3c4e": {
+        "x": 4420,
+        "y": 3912
+      },
+      "pmo4uvvnn5wxq": {
+        "x": 4650,
+        "y": 3912
+      },
+      "pmo4v10zvm6sl": {
+        "x": 4420,
+        "y": 4102
+      },
+      "pmo4v10zwor2y": {
+        "x": 4650,
+        "y": 4102
+      },
+      "pmo4v10zwmzpy": {
+        "x": 4880,
+        "y": 4102
+      },
+      "pmo4v10zwgs3c": {
+        "x": 5110,
+        "y": 4102
+      },
+      "pmo4v10zwtuom": {
+        "x": 5340,
+        "y": 4102
+      },
+      "pmo4v4r3i85jz": {
+        "x": 3615,
+        "y": 2068
+      },
+      "pmo4v6ag4btzt": {
+        "x": 2925,
+        "y": 2357
+      },
+      "pmo4v6ag5tbeg": {
+        "x": 3155,
+        "y": 2357
+      },
+      "pmo4v6ag5yshe": {
+        "x": 3385,
+        "y": 2357
+      },
+      "pmo4v6ag5y6kb": {
+        "x": 3615,
+        "y": 2357
+      },
+      "pmo4v6ag5kd8o": {
+        "x": 3845,
+        "y": 2357
+      },
+      "pmo4v6ag5b5bp": {
+        "x": 4075,
+        "y": 2357
+      },
+      "pmo4yhshfrk8r": {
+        "x": 2465,
+        "y": 3532
+      },
+      "pmo4yhshfg8bw": {
+        "x": 2695,
+        "y": 3532
+      },
+      "pmo4yhshfiqj9": {
+        "x": 2925,
+        "y": 3532
+      },
+      "pmo4yhshfnakz": {
+        "x": 3155,
+        "y": 3532
+      },
+      "pmo4yhshfchtu": {
+        "x": 3385,
+        "y": 3532
+      },
+      "pmo4yhshfqlrh": {
+        "x": 3615,
+        "y": 3532
+      },
+      "pmo4yhshfcij8": {
+        "x": 3845,
+        "y": 3532
+      },
+      "pmo4yhshf4aid": {
+        "x": 4305,
+        "y": 3532
+      },
+      "pmo8w5cf28zz1": {
+        "x": 4075,
+        "y": 3532
+      },
+      "pmob60ldonecw": {
+        "x": 11659,
+        "y": 430
+      },
+      "pmob61bpw07ps": {
+        "x": 12119,
+        "y": 430
+      },
+      "pmob6288k8ywo": {
+        "x": 10049,
+        "y": 1314
+      }
+    },
+    "ghosts": [
+      {
+        "id": "pmndwllk96xxz",
+        "x": 4420,
+        "y": 537,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndwllk8hld1",
+        "x": 5340,
+        "y": 537,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f13",
+        "x": 3730,
+        "y": 744,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn2984pmss",
+        "x": 5225,
+        "y": 3342,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndyjcripek7",
+        "x": 5685,
+        "y": 3342,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmo0h2kl0159h",
+        "x": 9250,
+        "y": 4671,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnfwl6r2gzuz",
+        "x": 7985,
+        "y": 5474,
+        "adjacentTo": ""
+      },
+      {
+        "id": "s06",
+        "x": 8445,
+        "y": 5474,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmnfwl6r2i0v6",
+        "x": 9825,
+        "y": 5474,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f14",
+        "x": 6835,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni01k22obxh",
+        "x": 7525,
+        "y": 6370,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni01k23erra",
+        "x": 7755,
+        "y": 6370,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni01k24zyhf",
+        "x": 7985,
+        "y": 6370,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni01k25pnza",
+        "x": 8215,
+        "y": 6370,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn30vhfz8r",
+        "x": 8100,
+        "y": 6693,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053i84su6",
+        "x": 9135,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053iamxzp",
+        "x": 9365,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053icew6m",
+        "x": 9595,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053ie8pn9",
+        "x": 9825,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053ifs7ju",
+        "x": 10055,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmni053ih3c7e",
+        "x": 10285,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn3i30g9js",
+        "x": 7870,
+        "y": 6929,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn3u2sqdff",
+        "x": 8100,
+        "y": 6929,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn4sw3j1fb",
+        "x": 5455,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndnrn9438x5",
+        "x": 7525,
+        "y": 5710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f16",
+        "x": 6950,
+        "y": 6180,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f03",
+        "x": 8560,
+        "y": 6694,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f05",
+        "x": 5225,
+        "y": 5900,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn7m9expkq",
+        "x": 5455,
+        "y": 5900,
+        "adjacentTo": ""
+      },
+      {
+        "id": "s07",
+        "x": 8790,
+        "y": 2074,
+        "adjacentTo": ""
+      },
+      {
+        "id": "s08",
+        "x": 8675,
+        "y": 2274,
+        "adjacentTo": ""
+      }
+    ]
+  },
+  "pmndnrdrc68lf": {
+    "label": "Sejad Rashid",
+    "cards": {
+      "pmndnrdrc68lf": {
+        "x": 50,
+        "y": 50
+      },
+      "pmndnticv1qox": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4x78d6od26": {
+    "label": "Shahmahmoed",
+    "cards": {
+      "pmni0xjxq42rt": {
+        "x": 293,
+        "y": 50
+      },
+      "pmo4x78d6od26": {
+        "x": 498,
+        "y": 50
+      },
+      "pmo4x88upl6ua": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4x88up7i7r": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4x88upxoul": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4x88up5ikb": {
+        "x": 740,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4t2s73j77q": {
+    "label": "Sharief",
+    "cards": {
+      "pmo4t2s73j77q": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo4uhm5mmib3": {
+        "x": 625,
+        "y": 50
+      },
+      "pmo4v10zvm6sl": {
+        "x": 50,
+        "y": 244
+      },
+      "pmo4v10zwor2y": {
+        "x": 280,
+        "y": 244
+      },
+      "pmo4v10zwmzpy": {
+        "x": 510,
+        "y": 244
+      },
+      "pmo4v10zwgs3c": {
+        "x": 740,
+        "y": 244
+      },
+      "pmo4v10zwtuom": {
+        "x": 970,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmndya3eip3zu": {
+    "label": "Sheerinagah",
+    "cards": {
+      "pmndya3eip3zu": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4su8c7xqg0": {
+        "x": 280,
+        "y": 50
+      },
+      "pmo4supk01lh5": {
+        "x": 165,
+        "y": 241
+      }
+    },
+    "ghosts": []
+  },
+  "pmni0byqqbuqw": {
+    "label": "Shirnagha",
+    "cards": {
+      "pmni0aw5mfovo": {
+        "x": 395,
+        "y": 50
+      },
+      "pmni0byqqbuqw": {
+        "x": 625,
+        "y": 50
+      },
+      "pmni0d7t09vcm": {
+        "x": 50,
+        "y": 244
+      },
+      "pmni0d7t6qrt0": {
+        "x": 510,
+        "y": 244
+      },
+      "pmni0d7t9876w": {
+        "x": 740,
+        "y": 244
+      },
+      "pmni0d7tck3oc": {
+        "x": 970,
+        "y": 244
+      },
+      "pmni0fiiiy1qs": {
+        "x": 280,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "pmnepmjsmeuk6": {
+    "label": "Sohail Durani",
+    "cards": {
+      "pmnd7hzc067x0": {
+        "x": 50,
+        "y": 50
+      },
+      "pmnepmjsmeuk6": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4wmwkisp4b": {
+    "label": "Subhanallah",
+    "cards": {
+      "pmni10qwsq7q9": {
+        "x": 165,
+        "y": 50
+      },
+      "pmo4wmwkisp4b": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo4wrv2hr3pk": {
+        "x": 50,
+        "y": 243
+      },
+      "pmo4wrv2hslwp": {
+        "x": 280,
+        "y": 243
+      },
+      "pmo4wrv2hxrd0": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4u21q3m2zy": {
+    "label": "Tufan",
+    "cards": {
+      "pmnfwpozxxrih": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4u21q3m2zy": {
+        "x": 280,
+        "y": 50
+      },
+      "pmo4u2pw7zjnf": {
+        "x": 165,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2niud": {
+    "label": "Waheed Saidi",
+    "cards": {
+      "pmnfwl6r2niud": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4txoa8ol14": {
+        "x": 280,
+        "y": 50
+      },
+      "pmo4ty3cwvfaj": {
+        "x": 165,
+        "y": 242
+      },
+      "pmob6288k8ywo": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "pmo4xy7vm7yae": {
+    "label": "Zahir",
+    "cards": {
+      "pmo4xxff5byvg": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo4xy7vm7yae": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo8w5cf28zz1": {
+    "label": "Zaki Mirzei",
+    "cards": {
+      "pmo4yhshfcij8": {
+        "x": 50,
+        "y": 50
+      },
+      "pmo8w5cf28zz1": {
+        "x": 255,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  },
+  "pmo357kjbhmd5": {
+    "label": "Zavar",
+    "cards": {
+      "pmo34ycrl4b8j": {
+        "x": 165,
+        "y": 50
+      },
+      "pmo357kjbhmd5": {
+        "x": 395,
+        "y": 50
+      },
+      "pmo358jhjmb83": {
+        "x": 50,
+        "y": 243
+      },
+      "pmo358jhpzptz": {
+        "x": 280,
+        "y": 243
+      },
+      "pmo4a1a67tuyw": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmo34ycrdz5uf": {
+    "label": "Zavar Rashid",
+    "cards": {
+      "pmo34ycrdz5uf": {
+        "x": 292,
+        "y": 50
+      },
+      "pmo353ouw5u1k": {
+        "x": 497,
+        "y": 50
+      },
+      "pmo354mcnbz26": {
+        "x": 50,
+        "y": 243
+      },
+      "pmo354mcujmgy": {
+        "x": 280,
+        "y": 243
+      },
+      "pmo354mczv982": {
+        "x": 510,
+        "y": 243
+      },
+      "pmo4a26jk7k5x": {
+        "x": 740,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2bl6p": {
+    "label": "Zergai Said Saidi",
+    "cards": {
+      "pmnfwl6r2bl6p": {
+        "x": 625,
+        "y": 50
+      },
+      "pmo4tlndgesy8": {
+        "x": 855,
+        "y": 50
+      },
+      "pmo4tnohqn8eh": {
+        "x": 50,
+        "y": 245
+      },
+      "pmo4tnohtq4o0": {
+        "x": 280,
+        "y": 245
+      },
+      "pmo4tnohv1bc0": {
+        "x": 510,
+        "y": 245
+      },
+      "pmo4tnohyzf86": {
+        "x": 740,
+        "y": 245
+      },
+      "pmo4tnoi01vyn": {
+        "x": 970,
+        "y": 245
+      },
+      "pmo4tnoi2nco0": {
+        "x": 1200,
+        "y": 245
+      },
+      "pmo4tnoi53dc8": {
+        "x": 1430,
+        "y": 245
+      }
+    },
+    "ghosts": []
+  },
+  "pmndwllk8hld1": {
+    "label": "Azghar Khan Rashid",
+    "cards": {
+      "pmndwllk8hld1": {
+        "x": 292,
+        "y": 50
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 497,
+        "y": 50
+      },
+      "pmni01k22obxh": {
+        "x": 50,
+        "y": 243
+      },
+      "pmni01k23erra": {
+        "x": 280,
+        "y": 243
+      },
+      "pmni01k24zyhf": {
+        "x": 510,
+        "y": 243
+      },
+      "pmni01k25pnza": {
+        "x": 740,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmnd7qhxj4baj": {
+    "label": "Bader Khan Rashid",
+    "cards": {
+      "pmnd7ej1rf33c": {
+        "x": 395,
+        "y": 50
+      },
+      "pmnd7qhxj4baj": {
+        "x": 625,
+        "y": 50
+      },
+      "pmnd7shvzi3c4": {
+        "x": 50,
+        "y": 244
+      },
+      "pmnd7t84wv60c": {
+        "x": 280,
+        "y": 244
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 510,
+        "y": 244
+      },
+      "pmnd7v4fly7vb": {
+        "x": 740,
+        "y": 244
+      },
+      "pmnfvopdootvl": {
+        "x": 970,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "f07": {
+    "label": "Emamuddin Salehi",
+    "cards": {
+      "f06": {
+        "x": 165,
+        "y": 50
+      },
+      "f07": {
+        "x": 395,
+        "y": 50
+      },
+      "f08": {
+        "x": 50,
+        "y": 243
+      },
+      "f09": {
+        "x": 280,
+        "y": 243
+      },
+      "pmnfv2r03xoij": {
+        "x": 510,
+        "y": 243
+      }
+    },
+    "ghosts": []
+  },
+  "pmnfwl6r2i0v6": {
+    "label": "Farid Saidi",
+    "cards": {
+      "pmndwllk96xxz": {
+        "x": 522,
+        "y": 50
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 727,
+        "y": 50
+      },
+      "pmni053i84su6": {
+        "x": 50,
+        "y": 244
+      },
+      "pmni053iamxzp": {
+        "x": 280,
+        "y": 244
+      },
+      "pmni053icew6m": {
+        "x": 510,
+        "y": 244
+      },
+      "pmni053ie8pn9": {
+        "x": 740,
+        "y": 244
+      },
+      "pmni053ifs7ju": {
+        "x": 970,
+        "y": 244
+      },
+      "pmni053ih3c7e": {
+        "x": 1200,
+        "y": 244
+      }
+    },
+    "ghosts": []
+  },
+  "s07": {
+    "label": "Gaffar Khan Rashid",
+    "cards": {
+      "s06": {
+        "x": 50,
+        "y": 50
+      },
+      "s07": {
+        "x": 280,
+        "y": 50
+      },
+      "s08": {
+        "x": 165,
+        "y": 241
+      }
+    },
+    "ghosts": []
+  },
+  "pmndo2vxafahz": {
+    "label": "Hagig Gull Durrani",
+    "cards": {
+      "s06": {
+        "x": 3270,
+        "y": 284
+      },
+      "s07": {
+        "x": 3040,
+        "y": 284
+      },
+      "s08": {
+        "x": 3155,
+        "y": 520
+      },
+      "f01": {
+        "x": 1430,
+        "y": 284
+      },
+      "f02": {
+        "x": 1200,
+        "y": 284
+      },
+      "f03": {
+        "x": 50,
+        "y": 520
+      },
+      "f05": {
+        "x": 3155,
+        "y": 1739
+      },
+      "f06": {
+        "x": 510,
+        "y": 520
+      },
+      "f07": {
+        "x": 740,
+        "y": 520
+      },
+      "f08": {
+        "x": 395,
+        "y": 1180
+      },
+      "f09": {
+        "x": 625,
+        "y": 1180
+      },
+      "f10": {
+        "x": 970,
+        "y": 520
+      },
+      "f11": {
+        "x": 1200,
+        "y": 520
+      },
+      "f12": {
+        "x": 970,
+        "y": 710
+      },
+      "f13": {
+        "x": 1430,
+        "y": 520
+      },
+      "f14": {
+        "x": 1660,
+        "y": 520
+      },
+      "f15": {
+        "x": 1890,
+        "y": 520
+      },
+      "f16": {
+        "x": 2120,
+        "y": 520
+      },
+      "f17": {
+        "x": 2580,
+        "y": 520
+      },
+      "r01": {
+        "x": 5110,
+        "y": 284
+      },
+      "r02": {
+        "x": 4880,
+        "y": 284
+      },
+      "r03": {
+        "x": 4880,
+        "y": 899
+      },
+      "r04": {
+        "x": 5110,
+        "y": 899
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 710
+      },
+      "pmnd7ej1rf33c": {
+        "x": 2350,
+        "y": 284
+      },
+      "pmnd7qhxj4baj": {
+        "x": 2120,
+        "y": 284
+      },
+      "pmnd7shvzi3c4": {
+        "x": 1775,
+        "y": 710
+      },
+      "pmnd7t84wv60c": {
+        "x": 2005,
+        "y": 710
+      },
+      "pmnd7u7dc1sv8": {
+        "x": 2235,
+        "y": 710
+      },
+      "pmnd7v4fly7vb": {
+        "x": 2465,
+        "y": 710
+      },
+      "pmndmv0pe6bnt": {
+        "x": 3730,
+        "y": 284
+      },
+      "pmndmvgb61us6": {
+        "x": 3500,
+        "y": 284
+      },
+      "pmndmw6tmszgx": {
+        "x": 3615,
+        "y": 1503
+      },
+      "pmndmwy22inp5": {
+        "x": 3845,
+        "y": 1503
+      },
+      "pmndmxo0wy25u": {
+        "x": 4075,
+        "y": 1503
+      },
+      "pmndn04a6kp3h": {
+        "x": 4305,
+        "y": 1503
+      },
+      "pmndn0xa5x3gg": {
+        "x": 4535,
+        "y": 1503
+      },
+      "pmndn2984pmss": {
+        "x": 2695,
+        "y": 1503
+      },
+      "pmndn30vhfz8r": {
+        "x": 2925,
+        "y": 1503
+      },
+      "pmndn3i30g9js": {
+        "x": 2695,
+        "y": 1739
+      },
+      "pmndn3u2sqdff": {
+        "x": 2925,
+        "y": 1739
+      },
+      "pmndn4sw3j1fb": {
+        "x": 3155,
+        "y": 1503
+      },
+      "pmndn7m9expkq": {
+        "x": 3385,
+        "y": 1739
+      },
+      "pmndnoxx6ndgz": {
+        "x": 1890,
+        "y": 284
+      },
+      "pmndnpzkp3vwu": {
+        "x": 1660,
+        "y": 284
+      },
+      "pmndnrdrc68lf": {
+        "x": 1085,
+        "y": 989
+      },
+      "pmndnrn9438x5": {
+        "x": 1545,
+        "y": 989
+      },
+      "pmndnryswhsem": {
+        "x": 2005,
+        "y": 989
+      },
+      "pmndns7ewdxvw": {
+        "x": 2235,
+        "y": 989
+      },
+      "pmndnsji2txom": {
+        "x": 2465,
+        "y": 989
+      },
+      "pmndnticv1qox": {
+        "x": 1315,
+        "y": 989
+      },
+      "pmndwllk8hld1": {
+        "x": 2580,
+        "y": 284
+      },
+      "pmndwllk9fukl": {
+        "x": 3960,
+        "y": 284
+      },
+      "pmndwllk96xxz": {
+        "x": 4420,
+        "y": 284
+      },
+      "pmneptum4xnzi": {
+        "x": 4190,
+        "y": 284
+      },
+      "pmnepytxdqi9y": {
+        "x": 3730,
+        "y": 989
+      },
+      "pmnepytxga1sz": {
+        "x": 3960,
+        "y": 989
+      },
+      "pmnepytxh5z3q": {
+        "x": 4190,
+        "y": 989
+      },
+      "pmnepytxiuzsg": {
+        "x": 4420,
+        "y": 989
+      },
+      "pmndo2vxafahz": {
+        "x": 2925,
+        "y": 50
+      },
+      "pmndo3i84yw8g": {
+        "x": 3155,
+        "y": 50
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 1180
+      },
+      "pmnfvopdootvl": {
+        "x": 2695,
+        "y": 710
+      },
+      "pmnfwl6r2i0v6": {
+        "x": 4650,
+        "y": 284
+      },
+      "pmnfwl6r2gzuz": {
+        "x": 2810,
+        "y": 284
+      },
+      "pmni01k22obxh": {
+        "x": 2350,
+        "y": 1180
+      },
+      "pmni01k23erra": {
+        "x": 2580,
+        "y": 1180
+      },
+      "pmni01k24zyhf": {
+        "x": 2810,
+        "y": 1180
+      },
+      "pmni01k25pnza": {
+        "x": 3040,
+        "y": 1180
+      },
+      "pmni053i84su6": {
+        "x": 3960,
+        "y": 520
+      },
+      "pmni053iamxzp": {
+        "x": 4190,
+        "y": 520
+      },
+      "pmni053icew6m": {
+        "x": 4420,
+        "y": 520
+      },
+      "pmni053ie8pn9": {
+        "x": 4650,
+        "y": 520
+      },
+      "pmni053ifs7ju": {
+        "x": 4880,
+        "y": 520
+      },
+      "pmni053ih3c7e": {
+        "x": 5110,
+        "y": 520
+      },
+      "pmo4adrr9bkk1": {
+        "x": 970,
+        "y": 284
+      }
+    },
+    "ghosts": [
+      {
+        "id": "pmndn4sw3j1fb",
+        "x": 280,
+        "y": 520,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndnrn9438x5",
+        "x": 2350,
+        "y": 520,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f16",
+        "x": 1775,
+        "y": 990,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f03",
+        "x": 3385,
+        "y": 1504,
+        "adjacentTo": ""
+      },
+      {
+        "id": "f05",
+        "x": 50,
+        "y": 710,
+        "adjacentTo": ""
+      },
+      {
+        "id": "pmndn7m9expkq",
+        "x": 280,
+        "y": 710,
+        "adjacentTo": ""
+      }
+    ]
+  },
+  "pmndydlr61are": {
+    "label": "Hekmatullah Salehi",
+    "cards": {
+      "pmndydlr61are": {
+        "x": 62,
+        "y": 50
+      },
+      "pmndyf12hx96x": {
+        "x": 50,
+        "y": 242
+      },
+      "pmni0xjxqy5q5": {
+        "x": 268,
+        "y": 50
+      },
+      "pmo007gyaqm2k": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "f03": {
+    "label": "Hemat Faizi",
+    "cards": {
+      "f03": {
+        "x": 62,
+        "y": 50
+      },
+      "f05": {
+        "x": 50,
+        "y": 242
+      },
+      "pmndn4sw3j1fb": {
+        "x": 267,
+        "y": 50
+      },
+      "pmndn7m9expkq": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "f01": {
+    "label": "Khanaga Faizi",
+    "cards": {
+      "f01": {
+        "x": 1200,
+        "y": 50
+      },
+      "f02": {
+        "x": 1430,
+        "y": 50
+      },
+      "f03": {
+        "x": 50,
+        "y": 252
+      },
+      "f05": {
+        "x": 50,
+        "y": 455
+      },
+      "f06": {
+        "x": 510,
+        "y": 252
+      },
+      "f07": {
+        "x": 740,
+        "y": 252
+      },
+      "f08": {
+        "x": 395,
+        "y": 657
+      },
+      "f09": {
+        "x": 625,
+        "y": 657
+      },
+      "f10": {
+        "x": 970,
+        "y": 252
+      },
+      "f11": {
+        "x": 1200,
+        "y": 252
+      },
+      "f12": {
+        "x": 970,
+        "y": 455
+      },
+      "f13": {
+        "x": 1430,
+        "y": 252
+      },
+      "f14": {
+        "x": 1660,
+        "y": 252
+      },
+      "f15": {
+        "x": 1890,
+        "y": 252
+      },
+      "f16": {
+        "x": 2120,
+        "y": 252
+      },
+      "f17": {
+        "x": 2580,
+        "y": 252
+      },
+      "pmnd6s4yespmb": {
+        "x": 1200,
+        "y": 455
+      },
+      "pmndn4sw3j1fb": {
+        "x": 280,
+        "y": 252
+      },
+      "pmndn7m9expkq": {
+        "x": 280,
+        "y": 455
+      },
+      "pmndnrn9438x5": {
+        "x": 2350,
+        "y": 252
+      },
+      "pmnfv2r03xoij": {
+        "x": 855,
+        "y": 657
+      }
+    },
+    "ghosts": []
+  },
+  "pmndn30vhfz8r": {
+    "label": "Rafi",
+    "cards": {
+      "pmndn2984pmss": {
+        "x": 62,
+        "y": 50
+      },
+      "pmndn30vhfz8r": {
+        "x": 267,
+        "y": 50
+      },
+      "pmndn3i30g9js": {
+        "x": 50,
+        "y": 242
+      },
+      "pmndn3u2sqdff": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "f11": {
+    "label": "Rahimgul Salehi",
+    "cards": {
+      "f10": {
+        "x": 62,
+        "y": 50
+      },
+      "f11": {
+        "x": 267,
+        "y": 50
+      },
+      "f12": {
+        "x": 50,
+        "y": 242
+      },
+      "pmnd6s4yespmb": {
+        "x": 280,
+        "y": 242
+      }
+    },
+    "ghosts": []
+  },
+  "s01": {
+    "label": "Wali Mohammad Sayedi",
+    "cards": {
+      "s01": {
+        "x": 970,
+        "y": 50
+      },
+      "s03": {
+        "x": 50,
+        "y": 250
+      },
+      "s04": {
+        "x": 280,
+        "y": 250
+      },
+      "s05": {
+        "x": 510,
+        "y": 250
+      },
+      "s06": {
+        "x": 740,
+        "y": 250
+      },
+      "s07": {
+        "x": 970,
+        "y": 250
+      },
+      "s08": {
+        "x": 855,
+        "y": 450
+      },
+      "s09": {
+        "x": 1200,
+        "y": 250
+      },
+      "s10": {
+        "x": 1430,
+        "y": 250
+      },
+      "s11": {
+        "x": 1660,
+        "y": 250
+      },
+      "s12": {
+        "x": 1890,
+        "y": 250
+      },
+      "s13": {
+        "x": 2120,
+        "y": 250
+      },
+      "s14": {
+        "x": 1890,
+        "y": 450
+      },
+      "s15": {
+        "x": 2120,
+        "y": 450
+      },
+      "pmncyghyo65ha": {
+        "x": 165,
+        "y": 450
+      },
+      "pmnczpeoyc4hd": {
+        "x": 1315,
+        "y": 450
+      },
+      "pmneq7p4udtvl": {
+        "x": 1200,
+        "y": 50
+      }
+    },
+    "ghosts": []
+  }
+}
