@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v648';
+const APP_VERSION = 'v649';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9548,7 +9548,10 @@ function computeLayout(overrideIds, headId) {
     });
     // Extra ruimte tussen Y-blokken van head-children — zodat blokken visueel
     // duidelijk gescheiden zijn (i.p.v. dezelfde gap als binnen blok).
-    const BLOCK_GAP = Y_STEP + 2 * V_GAP; // 190 + 180 = 370 px tussen blokken
+    // Fazelahmad: extra ruimte tussen gen1 Y-blocks (per Hakim request v648)
+    const BLOCK_GAP = (headId === 'pmni0mtna5vxw')
+      ? (2 * Y_STEP + V_GAP)  // 470 px voor Fazelahmad
+      : (Y_STEP + 2 * V_GAP); // 370 px default
     const headChildY = pos[headId] ? pos[headId].y + Y_STEP : PADDING + Y_STEP;
     // Voor Sayedahmed: eerste block start DIRECT onder gen1 (1-op-1 copy).
     // Voor Mahmadgul/Fazelahmad: extra BLOCK_GAP onder gen1 (bestaand gedrag).
@@ -9677,6 +9680,70 @@ function computeLayout(overrideIds, headId) {
           pos[id].y += yOffset;
           visitedAcrossOverlay.add(id);
         });
+        // Fazelahmad: voor gen1 kids zonder eigen snapshot, center direct-kids X
+        // onder head+partner midpoint (fallback path plaatste alleen Y).
+        if (headId === 'pmni0mtna5vxw' && pos[hcid]) {
+          const hcPartners = state.relationships
+            .filter(r => r.type === 'partner' && (r.person1Id === hcid || r.person2Id === hcid))
+            .map(r => r.person1Id === hcid ? r.person2Id : r.person1Id)
+            .filter(pid => pos[pid]);
+          const pxs = [pos[hcid].x, ...hcPartners.map(pid => pos[pid].x)];
+          const pairMidX = (Math.min(...pxs) + Math.max(...pxs) + NODE_W) / 2;
+          // Direct bio-kids (alleen level 1)
+          const directKids = state.relationships
+            .filter(r => r.type === 'parent-child' && r.parentId === hcid && pos[r.childId])
+            .map(r => r.childId);
+          // Sort by BO
+          directKids.sort((a, b) => {
+            const aBO = state.persons.find(p => p.id === a)?.birthOrder ?? 999;
+            const bBO = state.persons.find(p => p.id === b)?.birthOrder ?? 999;
+            return aBO - bBO;
+          });
+          if (directKids.length > 0) {
+            // Slots: per kid + evt partner adjacent
+            const units = directKids.map(kid => {
+              const kPartners = state.relationships
+                .filter(r => r.type === 'partner' && (r.person1Id === kid || r.person2Id === kid))
+                .map(r => r.person1Id === kid ? r.person2Id : r.person1Id)
+                .filter(pid => pos[pid] && !state.relationships.some(rr =>
+                  rr.type === 'parent-child' && rr.childId === pid && pos[rr.parentId]
+                )); // only inlaw (no bio-parents in tree)
+              return { kid, partner: kPartners[0] || null };
+            });
+            const slotCount = units.reduce((s, u) => s + (u.partner ? 2 : 1), 0);
+            const clusterW = slotCount * NODE_W + (slotCount - 1) * H_GAP;
+            const startX = pairMidX - clusterW / 2;
+            let slotX = startX;
+            const newKidY = pos[directKids[0]].y;
+            units.forEach(u => {
+              const deltaX = slotX - pos[u.kid].x;
+              if (Math.abs(deltaX) > 1) {
+                pos[u.kid].x = slotX;
+                // Shift descendants of this kid
+                const descQ = [u.kid];
+                const descSeen = new Set();
+                while (descQ.length) {
+                  const c = descQ.shift();
+                  state.relationships
+                    .filter(r => r.type === 'parent-child' && r.parentId === c)
+                    .forEach(r => {
+                      if (!descSeen.has(r.childId) && pos[r.childId]) {
+                        descSeen.add(r.childId);
+                        descQ.push(r.childId);
+                        pos[r.childId].x += deltaX;
+                      }
+                    });
+                }
+              }
+              slotX += NODE_W + H_GAP;
+              if (u.partner && pos[u.partner] && Math.abs(pos[u.partner].y - newKidY) < 20) {
+                pos[u.partner].x = slotX;
+                pos[u.partner].y = newKidY;
+                slotX += NODE_W + H_GAP;
+              }
+            });
+          }
+        }
         // Update nextSubTreeStartY alleen als we de stacked positie gebruikten
         if (targetStartY === nextSubTreeStartY) {
           nextSubTreeStartY = nextSubTreeStartY + (curMaxY - curMinY) + BLOCK_GAP;
