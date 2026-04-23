@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v635';
+const APP_VERSION = 'v638';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10335,6 +10335,82 @@ function computeLayout(overrideIds, headId) {
     }
   }
 
+  // ===== POST-SNAPSHOT INSERTION: nieuwe cards rondom snap-context =====
+  // Wanneer er nieuwe personen zijn die NIET in de snapshot staan (data
+  // veranderd na laatste approved snapshot), plaatst de pipeline ze los van
+  // de snap-cards. Resultaat: nieuwe cards op verkeerde X/Y t.o.v. context.
+  //
+  // Deze stap detecteert nieuwe cards en plaatst ze relatief tot ouder/partner
+  // die WEL in snap zitten:
+  //   - Bio-kind van paar in snap → onder ouder-midpoint, Y_STEP onder
+  //   - Bio-kind van enkele ouder in snap → onder die ouder, Y_STEP onder
+  //   - Inlaw partner van bio-spouse in snap → adjacent (rechts) op zelfde Y
+  //   - Geen anchors → blijf op pipeline-positie
+  if (headId && typeof window !== 'undefined' && window._loadedSnapshots && window._loadedSnapshots[headId]) {
+    const snap = window._loadedSnapshots[headId];
+    if (snap && snap.cards) {
+      const Y_STEP_INS = NODE_H + V_GAP;
+      const SLOT_W = NODE_W + H_GAP;
+      // Detecteer nieuwe cards (in pos, niet in snap, niet ghost-prefix)
+      const newCardIds = Object.keys(pos).filter(id =>
+        !snap.cards[id] && !id.startsWith(CROSS_GHOST_PREFIX)
+      );
+      if (newCardIds.length > 0) {
+        // Helper: vind vrije X-slot rond targetX op gegeven Y
+        const findFreeSlot = (targetX, y, excludeId) => {
+          const occupied = Object.entries(pos)
+            .filter(([id, p]) => id !== excludeId && Math.abs(p.y - y) < NODE_H - 5)
+            .map(([id, p]) => p.x);
+          // Probeer targetX, dan ±SLOT_W increments
+          for (let offset = 0; offset <= SLOT_W * 6; offset += SLOT_W) {
+            for (const dir of [0, 1, -1]) {
+              if (offset === 0 && dir !== 0) continue;
+              const tryX = targetX + dir * offset;
+              const conflicts = occupied.some(ox => Math.abs(ox - tryX) < SLOT_W - 5);
+              if (!conflicts) return tryX;
+            }
+          }
+          return targetX;
+        };
+
+        newCardIds.forEach(cid => {
+          const parents = state.relationships
+            .filter(r => r.type === 'parent-child' && r.childId === cid)
+            .map(r => r.parentId)
+            .filter(pid => pos[pid] && snap.cards[pid]);
+          const partners = state.relationships
+            .filter(r => r.type === 'partner' && (r.person1Id === cid || r.person2Id === cid))
+            .map(r => r.person1Id === cid ? r.person2Id : r.person1Id)
+            .filter(pid => pos[pid] && snap.cards[pid]);
+          let targetX = pos[cid].x;
+          let targetY = pos[cid].y;
+          if (parents.length >= 2) {
+            // Bio-kind van paar: center onder ouder-midpoint
+            const pxs = parents.map(pid => pos[pid].x);
+            const pys = parents.map(pid => pos[pid].y);
+            const pCenter = (Math.min(...pxs) + Math.max(...pxs) + NODE_W) / 2;
+            targetY = Math.max(...pys) + Y_STEP_INS;
+            targetX = findFreeSlot(pCenter - NODE_W / 2, targetY, cid);
+          } else if (parents.length === 1) {
+            // Enkele ouder: onder ouder
+            const par = pos[parents[0]];
+            targetY = par.y + Y_STEP_INS;
+            targetX = findFreeSlot(par.x, targetY, cid);
+          } else if (partners.length === 1) {
+            // Inlaw partner van bio-spouse
+            const sp = pos[partners[0]];
+            targetY = sp.y;
+            targetX = findFreeSlot(sp.x + SLOT_W, targetY, cid);
+          }
+          if (Math.abs(targetX - pos[cid].x) > 1 || Math.abs(targetY - pos[cid].y) > 1) {
+            pos[cid].x = targetX;
+            pos[cid].y = targetY;
+          }
+        });
+      }
+    }
+  }
+
   // ===== FINALE HEKMAT LEAF-KIDS CENTERING (alleen Agha Gol) =====
   // Hekmat+Shamila's kinderen (Khalil, Aqsa) staan 65px te links van
   // het ouderpaar-midpoint. Centreer ze expliciet.
@@ -15224,8 +15300,8 @@ function renderSmartView() {
   }
 
   // Pre-load snapshots voor sub-tree overlay (Mahmadgul/Sayedahmed gebruiken approved sub-trees)
-  // snapshots_v635.json bevat ALLE 93 stambomen (post Zakira merge + nieuwe profielen)
-  fetch('snapshots_v635.json?v=' + APP_VERSION)
+  // snapshots_v633.json bevat ALLE 91 GOEDGEKEURDE stambomen (laatste approved baseline)
+  fetch('snapshots_v633.json?v=' + APP_VERSION)
     .then(r => r.json())
     .then(snaps => {
       window._loadedSnapshots = snaps;
