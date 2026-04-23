@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v646';
+const APP_VERSION = 'v647';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10406,7 +10406,11 @@ function computeLayout(overrideIds, headId) {
   //   - Bio-kind van enkele ouder in snap → onder die ouder, Y_STEP onder
   //   - Inlaw partner van bio-spouse in snap → adjacent (rechts) op zelfde Y
   //   - Geen anchors → blijf op pipeline-positie
-  if (headId && typeof window !== 'undefined' && window._loadedSnapshots && window._loadedSnapshots[headId]) {
+  // SKIP voor Fazelahmad/Mahmadgul/Sayedahmed — die gebruiken SUB-TREE OVERLAY
+  // met head-children's eigen snapshots. Post-snapshot insertion zou
+  // die overlay-posities overschrijven met pipeline fallback.
+  const _skipPostInsert = (headId === 'pmni0mtna5vxw' || headId === 'pmndyxhre0zi1' || headId === 'pmndyrysy3eq7');
+  if (!_skipPostInsert && headId && typeof window !== 'undefined' && window._loadedSnapshots && window._loadedSnapshots[headId]) {
     const snap = window._loadedSnapshots[headId];
     if (snap && snap.cards) {
       const Y_STEP_INS = NODE_H + V_GAP;
