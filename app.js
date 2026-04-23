@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v643';
+const APP_VERSION = 'v646';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9443,6 +9443,60 @@ function computeLayout(overrideIds, headId) {
     });
   })();
 
+  // ===== FAZELAHMAD GEN1 PRE-POSITION (voor SUB-TREE OVERLAY) =====
+  // Plaats gen1 kids + partners + head op finale X VOOR overlay (zoals Sayedahmed).
+  // Zo gebruikt overlay's xOffset = pos[hcid].x - snapHeadX de juiste eindwaarde.
+  if (headId === 'pmni0mtna5vxw' && pos['pmni0mtna5vxw']) (function preGenOneFazelahmad() {
+    const fzId = 'pmni0mtna5vxw';
+    // Find Bibi Shazada (Fazelahmad partner)
+    const fzPartner = (state.relationships
+      .filter(r => r.type === 'partner' && (r.person1Id === fzId || r.person2Id === fzId))
+      .map(r => r.person1Id === fzId ? r.person2Id : r.person1Id))[0];
+    // Get gen1 kids in BO order, with their partners
+    const partnerOf = (id) => state.relationships
+      .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+      .map(r => r.person1Id === id ? r.person2Id : r.person1Id)
+      .filter(pid => pos[pid]);
+    const gen1 = state.relationships
+      .filter(r => r.type === 'parent-child' && r.parentId === fzId && pos[r.childId])
+      .map(r => {
+        const p = state.persons.find(x => x.id === r.childId);
+        return { id: r.childId, bo: (p && typeof p.birthOrder === 'number') ? p.birthOrder : 9999 };
+      });
+    gen1.sort((a, b) => a.bo - b.bo);
+    const slotW = NODE_W + H_GAP;
+    const newX = {};
+    let x = PADDING;
+    let totalSlots = 0;
+    gen1.forEach(g => {
+      const partners = partnerOf(g.id);
+      // Agha Gol heeft 2 vrouwen → surround pattern
+      if (partners.length === 2) {
+        newX[partners[0]] = x; x += slotW;
+        newX[g.id] = x; x += slotW;
+        newX[partners[1]] = x; x += slotW;
+        totalSlots += 3;
+      } else {
+        newX[g.id] = x; x += slotW;
+        partners.forEach(pid => { newX[pid] = x; x += slotW; });
+        totalSlots += 1 + partners.length;
+      }
+    });
+    const totalWidth = totalSlots * NODE_W + (totalSlots - 1) * H_GAP;
+    const gen1CenterX = PADDING + totalWidth / 2;
+    const headPairWidth = 2 * NODE_W + H_GAP;
+    newX[fzId] = gen1CenterX - headPairWidth / 2;
+    if (fzPartner) newX[fzPartner] = newX[fzId] + NODE_W + H_GAP;
+
+    Object.entries(newX).forEach(([id, tx]) => { if (pos[id]) pos[id].x = tx; });
+    if (pos[fzId]) pos[fzId].y = 50;
+    if (fzPartner && pos[fzPartner]) pos[fzPartner].y = 50;
+    gen1.forEach(g => {
+      if (pos[g.id]) pos[g.id].y = 240;
+      partnerOf(g.id).forEach(pid => { if (pos[pid]) pos[pid].y = 240; });
+    });
+  })();
+
   // ===== ABSOLUTE FINALE SUB-TREE OVERLAY (Mahmadgul) =====
   // STACK sub-trees verticaal per BO. Alleen BIO-descendants van head-child
   // worden geshift (geen cousin-pair ghosts van andere bomen).
@@ -9498,7 +9552,7 @@ function computeLayout(overrideIds, headId) {
     const headChildY = pos[headId] ? pos[headId].y + Y_STEP : PADDING + Y_STEP;
     // Voor Sayedahmed: eerste block start DIRECT onder gen1 (1-op-1 copy).
     // Voor Mahmadgul/Fazelahmad: extra BLOCK_GAP onder gen1 (bestaand gedrag).
-    const useHeadAnchor = (headId === 'pmndyrysy3eq7');
+    const useHeadAnchor = (headId === 'pmndyrysy3eq7' || headId === 'pmni0mtna5vxw');
     // Extra marge tussen gen1-rij en eerste descendants-rij (Sayedahmed-specifiek).
     // Visueel duidelijker onderscheid gen1 ↔ sub-tree (Hakim request v613).
     const SAYEDAHMED_GEN1_MARGIN = useHeadAnchor ? V_GAP : 0; // 90 px extra
@@ -9560,18 +9614,25 @@ function computeLayout(overrideIds, headId) {
     if (typeof window !== 'undefined') window._debugOverlay = { mahmadgulY: pos[headId]?.y, headChildY, initStart: nextSubTreeStartY, perChild: [] };
     sortedHC.forEach(hcid => {
       // Probeer eigen snapshot; anders partner's snapshot (bv. Malika → Wali Mohammad)
+      // BELANGRIJK: snap moet hcid als card hebben, anders fallback naar bio-descendants
       let snap = snapshots[hcid];
       let snapHeadId = hcid;
-      if (!snap || !snap.cards) {
+      if (!snap || !snap.cards || !snap.cards[hcid]) {
         const partnerIds = state.relationships
           .filter(r => r.type === 'partner' && (r.person1Id === hcid || r.person2Id === hcid))
           .map(r => r.person1Id === hcid ? r.person2Id : r.person1Id);
+        let found = null;
         for (const pid of partnerIds) {
           if (snapshots[pid] && snapshots[pid].cards && snapshots[pid].cards[hcid]) {
-            snap = snapshots[pid];
-            snapHeadId = pid;
+            found = { snap: snapshots[pid], headId: pid };
             break;
           }
+        }
+        if (found) {
+          snap = found.snap;
+          snapHeadId = found.headId;
+        } else {
+          snap = null; // expliciet fallback triggeren
         }
       }
       if (!snap || !snap.cards) {
@@ -9670,12 +9731,11 @@ function computeLayout(overrideIds, headId) {
       const snapMaxX = Math.max(...realSnapDescendants.map(([_, p]) => p.x)) + NODE_W;
       const xOffset = pos[hcid].x - snapHeadPos.x;
 
-      // Sayedahmed: probeer block op meerdere Y-posities te plaatsen.
-      // Prioriteit: laagste Y waar geen X-overlap is met eerder geplaatste blocks.
-      // Kandidaten: (1) direct onder gen1, (2) yMin van elk geplaatst block,
-      // (3) fallback naar nextSubTreeStartY.
+      // Sayedahmed: probeer block op meerdere Y-posities (compact).
+      // Fazelahmad: STRIKT BO-volgorde, geen 'fit higher'.
+      const strictBOOrder = (headId === 'pmni0mtna5vxw');
       let blockStartY = nextSubTreeStartY;
-      if (useHeadAnchor) {
+      if (useHeadAnchor && !strictBOOrder) {
         const candidateXMin = snapMinX + xOffset;
         const candidateXMax = snapMaxX + xOffset;
         const blockHeight = snapMaxY - snapHeadPos.y;
