@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v633';
+const APP_VERSION = 'v634';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -15224,8 +15224,8 @@ function renderSmartView() {
   }
 
   // Pre-load snapshots voor sub-tree overlay (Mahmadgul/Sayedahmed gebruiken approved sub-trees)
-  // snapshots_v606.json bevat ALLE 90 goedgekeurde stambomen (0 overlaps)
-  fetch('snapshots_v606.json?v=' + APP_VERSION)
+  // snapshots_v633.json bevat ALLE 91 goedgekeurde stambomen (incl. Sayedahmed)
+  fetch('snapshots_v633.json?v=' + APP_VERSION)
     .then(r => r.json())
     .then(snaps => {
       window._loadedSnapshots = snaps;
@@ -15233,8 +15233,8 @@ function renderSmartView() {
       if (typeof render === 'function') render();
     })
     .catch(() => {
-      // Fallback naar oude snapshots
-      fetch('snapshots_v470.json?v=' + APP_VERSION)
+      // Fallback naar oudere snapshots
+      fetch('snapshots_v606.json?v=' + APP_VERSION)
         .then(r => r.json())
         .then(snaps => { window._loadedSnapshots = snaps; if (typeof render === 'function') render(); })
         .catch(() => { window._loadedSnapshots = {}; });
