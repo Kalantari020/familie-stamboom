@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v632';
+const APP_VERSION = 'v633';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -12005,8 +12005,21 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
 
   // ── Lijnen tekenen ──
   if (activeTreeId === null && treePositions && Object.keys(treePositions).length) {
-    // Alle-families modus met per-boom posities: teken lijnen PER stamboom-eiland
-    Object.values(treePositions).forEach(treePos => drawLinesForPositions(treePos, duplicates));
+    // Alle-families modus: teken lijnen PER stamboom-eiland met enkel
+    // duplicates die bij die specifieke tree horen (voorkomt cross-tree
+    // T-bars die zich naar Nabila in andere hoofdtree uitstrekken).
+    Object.entries(treePositions).forEach(([treeHeadId, treePos]) => {
+      const treeDups = {};
+      if (duplicates) {
+        Object.entries(duplicates).forEach(([key, d]) => {
+          if (!d) return;
+          // Alleen dups die bij deze tree horen (treeHeadId markeert ownership)
+          if (d.treeHeadId && d.treeHeadId !== treeHeadId) return;
+          treeDups[key] = d;
+        });
+      }
+      drawLinesForPositions(treePos, treeDups);
+    });
   } else {
     // Enkele stamboom of unified alle-families modus: teken vanuit pos
     drawLinesForPositions(pos, duplicates);
@@ -12878,16 +12891,17 @@ function computeAllFamiliesLayout() {
           duplicates[dupKey] = {
             x: shifted.x, y: shifted.y,
             personId: id,
-            isAllFamReal: true // render als real card (geen dashed border, geen badge)
+            isAllFamReal: true, // render als real card (geen dashed border, geen badge)
+            treeHeadId: tree.headId // welke tree owns this dup (voor line filter)
           };
         } else {
           pos[id] = shifted;
         }
       });
 
-      // Ghost/cross-family posities per boom
+      // Ghost/cross-family posities per boom (markeer met treeHeadId voor scoping)
       Object.entries(tree.cfg).forEach(([key, g]) => {
-        const shifted = { ...g, x: g.x + dx, y: g.y + dy };
+        const shifted = { ...g, x: g.x + dx, y: g.y + dy, treeHeadId: tree.headId };
         duplicates[key] = shifted;
       });
 
