@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v656';
+const APP_VERSION = 'v657';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10533,10 +10533,49 @@ function computeLayout(overrideIds, headId) {
             targetY = par.y + Y_STEP_INS;
             targetX = findFreeSlot(par.x, targetY, cid);
           } else if (partners.length === 1) {
-            // Inlaw partner van bio-spouse
+            // Inlaw partner van bio-spouse: ALTIJD adjacent, schuif blokkerende
+            // cards (en hun descendants/partners) naar rechts.
             const sp = pos[partners[0]];
             targetY = sp.y;
-            targetX = findFreeSlot(sp.x + SLOT_W, targetY, cid);
+            targetX = sp.x + SLOT_W;
+            // Schuif blokkerende cards op zelfde Y >= targetX naar rechts met SLOT_W
+            const blockingIds = Object.keys(pos).filter(oid => {
+              if (oid === cid) return false;
+              const p = pos[oid];
+              if (!p) return false;
+              if (Math.abs(p.y - targetY) > NODE_H - 5) return false;
+              return p.x >= targetX - 5 && p.x < targetX + SLOT_W;
+            });
+            if (blockingIds.length > 0) {
+              // Verzamel alle te-shiften IDs (BFS: partners op zelfde Y + alle bio-descendants)
+              const toShift = new Set();
+              const bfs = [...blockingIds];
+              while (bfs.length) {
+                const id = bfs.shift();
+                if (toShift.has(id)) continue;
+                toShift.add(id);
+                // Bio-descendants (alle generaties)
+                state.relationships
+                  .filter(r => r.type === 'parent-child' && r.parentId === id)
+                  .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
+                // Partners op zelfde Y (inlaws)
+                state.relationships
+                  .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+                  .forEach(r => {
+                    const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
+                    if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
+                  });
+                // Andere cards op zelfde Y aan de rechterkant (siblings)
+                Object.keys(pos).forEach(oid => {
+                  if (toShift.has(oid) || oid === cid) return;
+                  const op = pos[oid];
+                  if (!op) return;
+                  if (Math.abs(op.y - pos[id].y) > 5) return;
+                  if (op.x > pos[id].x) bfs.push(oid);
+                });
+              }
+              toShift.forEach(id => { if (pos[id]) pos[id].x += SLOT_W; });
+            }
           }
           if (Math.abs(targetX - pos[cid].x) > 1 || Math.abs(targetY - pos[cid].y) > 1) {
             pos[cid].x = targetX;
