@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v666';
+const APP_VERSION = 'v667';
 if (typeof document !== 'undefined') document.title = 'Familie Stamboom (' + APP_VERSION + ')';
 console.log('%c[Stamboom] APP_VERSION = ' + APP_VERSION, 'background: #16a34a; color: white; padding: 4px 8px; font-size: 14px; font-weight: bold;');
 (function checkForUpdate() {
@@ -11678,6 +11678,72 @@ function computeLayout(overrideIds, headId) {
         }
       }
     }
+  }
+
+  // ===== GENERIEKE INLAW PARTNER-ADJACENCY (alle bomen) =====
+  // Pure inlaws (geen ouders in pos) wiens bio-spouse in pos staat moeten
+  // direct adjacent staan. Geldt voor ALLE bomen (Ilas, Mur'awey etc), niet
+  // alleen Fazelahmad. Skip head-children's partners (multi-partner cluster
+  // logica regelt die).
+  if (headId) {
+    const SLOT_W_GA = NODE_W + H_GAP;
+    const headChildSetGA = new Set((childrenOf[headId] || []));
+    state.persons.forEach(p => {
+      if (!pos[p.id]) return;
+      const hasParents = state.relationships.some(r =>
+        r.type === 'parent-child' && r.childId === p.id && pos[r.parentId]
+      );
+      if (hasParents) return;
+      const partners = state.relationships
+        .filter(r => r.type === 'partner' && (r.person1Id === p.id || r.person2Id === p.id))
+        .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id)
+        .filter(pid => pos[pid]);
+      if (partners.length !== 1) return;
+      const spouse = partners[0];
+      if (headChildSetGA.has(spouse)) return;
+      const sp = pos[spouse];
+      const me = pos[p.id];
+      const currentDx = me.x - sp.x;
+      const isAdjacent = Math.abs(Math.abs(currentDx) - SLOT_W_GA) < 5 && Math.abs(me.y - sp.y) < 5;
+      if (isAdjacent) return;
+      const correctX = sp.x + SLOT_W_GA;
+      const correctY = sp.y;
+      const blockingIds = Object.keys(pos).filter(oid => {
+        if (oid === p.id) return false;
+        const op = pos[oid];
+        if (!op) return false;
+        if (Math.abs(op.y - correctY) > NODE_H - 5) return false;
+        return op.x >= correctX - 5 && op.x < correctX + SLOT_W_GA;
+      });
+      if (blockingIds.length > 0) {
+        const toShift = new Set();
+        const bfs = [...blockingIds];
+        while (bfs.length) {
+          const id = bfs.shift();
+          if (toShift.has(id)) continue;
+          toShift.add(id);
+          state.relationships
+            .filter(r => r.type === 'parent-child' && r.parentId === id)
+            .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
+          state.relationships
+            .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+            .forEach(r => {
+              const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
+              if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
+            });
+          Object.keys(pos).forEach(oid => {
+            if (toShift.has(oid) || oid === p.id) return;
+            const op = pos[oid];
+            if (!op) return;
+            if (Math.abs(op.y - pos[id].y) > 5) return;
+            if (op.x > pos[id].x) bfs.push(oid);
+          });
+        }
+        toShift.forEach(id => { if (pos[id]) pos[id].x += SLOT_W_GA; });
+      }
+      me.x = correctX;
+      me.y = correctY;
+    });
   }
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
