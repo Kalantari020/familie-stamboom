@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v662';
+const APP_VERSION = 'v663';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11559,14 +11559,16 @@ function computeLayout(overrideIds, headId) {
         if (!yToCards.has(yKey)) yToCards.set(yKey, []);
         yToCards.get(yKey).push({ id, x: p.x });
       });
-      const sortedYs = [...yToCards.keys()].sort((a, b) => a - b);
-      for (let i = 1; i < sortedYs.length; i++) {
-        const prevY = sortedYs[i - 1];
-        const curY = sortedYs[i];
+      const origYs = [...yToCards.keys()].sort((a, b) => a - b);
+      const shifted = origYs.slice();
+      for (let i = 1; i < origYs.length; i++) {
+        const prevY = shifted[i - 1];
+        const curY = shifted[i];
         const gap = curY - prevY;
         if (gap >= Y_STEP_C) continue;
-        const prevCards = yToCards.get(prevY);
-        const curCards = yToCards.get(curY);
+        const prevCards = yToCards.get(origYs[i - 1]);
+        const curCards = yToCards.get(origYs[i]);
+        if (!prevCards || !curCards || prevCards.length === 0 || curCards.length === 0) continue;
         const prevMinX = Math.min(...prevCards.map(c => c.x));
         const prevMaxX = Math.max(...prevCards.map(c => c.x)) + NODE_W;
         const curMinX = Math.min(...curCards.map(c => c.x));
@@ -11576,8 +11578,7 @@ function computeLayout(overrideIds, headId) {
         const pushDown = Y_STEP_C - gap;
         Object.values(pos).forEach(p => { if (p && Math.round(p.y) >= curY - 1) p.y += pushDown; });
         Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= curY - 1) g.y += pushDown; });
-        // Update sortedYs voor verdere iteraties
-        for (let j = i; j < sortedYs.length; j++) sortedYs[j] += pushDown;
+        for (let j = i; j < shifted.length; j++) shifted[j] += pushDown;
       }
     }
     // Inlaw partner-adjacency: scan alle inlaw partners (geen ouders in tree)
