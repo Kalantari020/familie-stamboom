@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v658';
+const APP_VERSION = 'v660';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11548,23 +11548,122 @@ function computeLayout(overrideIds, headId) {
       }
       toShift.forEach(id => { if (pos[id]) pos[id].y += dy; });
     });
-    // Na T-LINE SHORTENING: vul lege Y-gaps tussen blokken op zodat blokken
-    // strak achter elkaar gestackt blijven (BLOCK_GAP=470 ipv multi-1000px gaten).
+    // Na T-LINE SHORTENING: enforce minimum Y_STEP gap tussen X-overlappende rijen
+    // (push down rijen die te dicht op vorige rij staan).
     {
       const Y_STEP_C = NODE_H + V_GAP; // 190
-      const BLOCK_GAP_C = 2 * Y_STEP_C + V_GAP; // 470 (Fazelahmad)
+      const yToCards = new Map();
+      Object.entries(pos).forEach(([id, p]) => {
+        if (!p) return;
+        const yKey = Math.round(p.y);
+        if (!yToCards.has(yKey)) yToCards.set(yKey, []);
+        yToCards.get(yKey).push({ id, x: p.x });
+      });
+      const sortedYs = [...yToCards.keys()].sort((a, b) => a - b);
+      for (let i = 1; i < sortedYs.length; i++) {
+        const prevY = sortedYs[i - 1];
+        const curY = sortedYs[i];
+        const gap = curY - prevY;
+        if (gap >= Y_STEP_C) continue;
+        const prevCards = yToCards.get(prevY);
+        const curCards = yToCards.get(curY);
+        const prevMinX = Math.min(...prevCards.map(c => c.x));
+        const prevMaxX = Math.max(...prevCards.map(c => c.x)) + NODE_W;
+        const curMinX = Math.min(...curCards.map(c => c.x));
+        const curMaxX = Math.max(...curCards.map(c => c.x)) + NODE_W;
+        const xOverlap = prevMaxX > curMinX && prevMinX < curMaxX;
+        if (!xOverlap) continue;
+        const pushDown = Y_STEP_C - gap;
+        Object.values(pos).forEach(p => { if (p && Math.round(p.y) >= curY - 1) p.y += pushDown; });
+        Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= curY - 1) g.y += pushDown; });
+        // Update sortedYs voor verdere iteraties
+        for (let j = i; j < sortedYs.length; j++) sortedYs[j] += pushDown;
+      }
+    }
+    // Inlaw partner-adjacency: scan alle inlaw partners (geen ouders in tree)
+    // wiens bio-spouse in pos staat. Plaats hen direct rechts van spouse,
+    // shift blokkerende cards naar rechts (+SLOT_W).
+    // SKIP partners van head-children — die zitten al in multi-partner cluster
+    // logica en mogen niet door dit algo verstoord worden.
+    {
+      const SLOT_W_PA = NODE_W + H_GAP;
+      const headChildSet = new Set((childrenOf[headId] || []));
+      state.persons.forEach(p => {
+        if (!pos[p.id]) return;
+        // Pure inlaw: geen ouders in pos
+        const hasParents = state.relationships.some(r =>
+          r.type === 'parent-child' && r.childId === p.id && pos[r.parentId]
+        );
+        if (hasParents) return;
+        // Vind bio-spouse in pos
+        const partners = state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === p.id || r.person2Id === p.id))
+          .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id)
+          .filter(pid => pos[pid]);
+        if (partners.length !== 1) return;
+        const spouse = partners[0];
+        // Skip als spouse een head-child is (multi-partner cluster regelt dit)
+        if (headChildSet.has(spouse)) return;
+        const sp = pos[spouse];
+        const me = pos[p.id];
+        // Bereken correcte X: BIO-spouse moet visueel als "linker partner" staan,
+        // inlaw als "rechter partner". Maar als ze al adjacent zijn (links of rechts), respecteer dat.
+        const currentDx = me.x - sp.x;
+        const isAdjacent = Math.abs(Math.abs(currentDx) - SLOT_W_PA) < 5 && Math.abs(me.y - sp.y) < 5;
+        if (isAdjacent) return; // al naast elkaar (links of rechts), OK
+        const correctX = sp.x + SLOT_W_PA;
+        const correctY = sp.y;
+        // Check of "correctX" beschikbaar is, anders shift blokkerende cards rechts
+        const blockingIds = Object.keys(pos).filter(oid => {
+          if (oid === p.id) return false;
+          const op = pos[oid];
+          if (!op) return false;
+          if (Math.abs(op.y - correctY) > NODE_H - 5) return false;
+          return op.x >= correctX - 5 && op.x < correctX + SLOT_W_PA;
+        });
+        if (blockingIds.length > 0) {
+          const toShift = new Set();
+          const bfs = [...blockingIds];
+          while (bfs.length) {
+            const id = bfs.shift();
+            if (toShift.has(id)) continue;
+            toShift.add(id);
+            state.relationships
+              .filter(r => r.type === 'parent-child' && r.parentId === id)
+              .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
+            state.relationships
+              .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+              .forEach(r => {
+                const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
+                if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
+              });
+            // Siblings rechts van id op zelfde Y
+            Object.keys(pos).forEach(oid => {
+              if (toShift.has(oid) || oid === p.id) return;
+              const op = pos[oid];
+              if (!op) return;
+              if (Math.abs(op.y - pos[id].y) > 5) return;
+              if (op.x > pos[id].x) bfs.push(oid);
+            });
+          }
+          toShift.forEach(id => { if (pos[id]) pos[id].x += SLOT_W_PA; });
+        }
+        me.x = correctX;
+        me.y = correctY;
+      });
+    }
+    // Vul opnieuw lege Y-gaps tussen blokken op (na shifts)
+    {
+      const Y_STEP_C = NODE_H + V_GAP;
+      const BLOCK_GAP_C = 2 * Y_STEP_C + V_GAP; // 470
       const allY = [...new Set(Object.values(pos).map(p => Math.round(p.y)))].sort((a, b) => a - b);
       for (let i = 1; i < allY.length; i++) {
         const gap = allY[i] - allY[i - 1];
         if (gap > BLOCK_GAP_C + 50) {
           const excess = gap - BLOCK_GAP_C;
           const threshold = allY[i] - 1;
-          Object.values(pos).forEach(p => {
-            if (p && Math.round(p.y) >= threshold) p.y -= excess;
-          });
-          Object.values(crossFamilyGhosts).forEach(g => {
-            if (g && Math.round(g.y) >= threshold) g.y -= excess;
-          });
+          Object.values(pos).forEach(p => { if (p && Math.round(p.y) >= threshold) p.y -= excess; });
+          Object.values(crossFamilyGhosts).forEach(g => { if (g && Math.round(g.y) >= threshold) g.y -= excess; });
           for (let j = i; j < allY.length; j++) allY[j] -= excess;
         }
       }
