@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v668';
+const APP_VERSION = 'v669';
 if (typeof document !== 'undefined') document.title = 'Familie Stamboom (' + APP_VERSION + ')';
 console.log('%c[Stamboom] APP_VERSION = ' + APP_VERSION, 'background: #16a34a; color: white; padding: 4px 8px; font-size: 14px; font-weight: bold;');
 (function checkForUpdate() {
@@ -11715,67 +11715,6 @@ function computeLayout(overrideIds, headId) {
     }
   }
 
-  // ===== GENERIEKE KIDS-CENTERING ONDER OUDER-PAAR (alle bomen) =====
-  // Voor elk ouder-paar met kids cluster: center cluster onder ouder-midpoint
-  // als de shift geen X-collision veroorzaakt met andere cards op kids-Y.
-  // Lost issues op zoals Firoz Khan's kids 230px links van couple-mid.
-  if (headId) {
-    const SLOT_KC = NODE_W + H_GAP;
-    state.persons.forEach(p => {
-      if (!pos[p.id]) return;
-      const kids = state.relationships
-        .filter(r => r.type === 'parent-child' && r.parentId === p.id)
-        .map(r => r.childId)
-        .filter(cid => pos[cid]);
-      if (kids.length < 2) return;
-      // Alle kids op zelfde Y?
-      const kidYs = kids.map(cid => Math.round(pos[cid].y));
-      const kidY = kidYs[0];
-      if (!kidYs.every(y => Math.abs(y - kidY) < 5)) return;
-      // Bereken parent-pair midpoint (parent + alle partners op zelfde Y als parent)
-      const partners = state.relationships
-        .filter(r => r.type === 'partner' && (r.person1Id === p.id || r.person2Id === p.id))
-        .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id)
-        .filter(pid => pos[pid] && Math.abs(pos[pid].y - pos[p.id].y) < 5);
-      const couplePos = [pos[p.id].x, ...partners.map(pid => pos[pid].x)];
-      const coupleMid = (Math.min(...couplePos) + Math.max(...couplePos) + NODE_W) / 2;
-      // Sort kids on X (link → rechts)
-      const sortedKids = kids.slice().sort((a, b) => pos[a].x - pos[b].x);
-      const kidsMinX = pos[sortedKids[0]].x;
-      const kidsMaxX = pos[sortedKids[sortedKids.length - 1]].x + NODE_W;
-      const kidsMid = (kidsMinX + kidsMaxX) / 2;
-      const dx = coupleMid - kidsMid;
-      if (Math.abs(dx) < 5) return; // al gecentreerd
-      // Check X-collision op kidY met nieuwe positie
-      const newKidsMinX = kidsMinX + dx;
-      const newKidsMaxX = kidsMaxX + dx;
-      const blocked = Object.entries(pos).some(([oid, op]) => {
-        if (kids.includes(oid)) return false;
-        if (!op || Math.abs(op.y - kidY) > NODE_H - 5) return false;
-        return op.x + NODE_W > newKidsMinX - H_GAP && op.x < newKidsMaxX + H_GAP;
-      });
-      if (blocked) return;
-      // Shift alle kids + hun descendants + partners op zelfde Y
-      const toShift = new Set();
-      const bfs = sortedKids.slice();
-      while (bfs.length) {
-        const id = bfs.shift();
-        if (toShift.has(id)) continue;
-        toShift.add(id);
-        state.relationships
-          .filter(r => r.type === 'parent-child' && r.parentId === id)
-          .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
-        state.relationships
-          .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
-          .forEach(r => {
-            const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
-            if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
-          });
-      }
-      toShift.forEach(id => { if (pos[id]) pos[id].x += dx; });
-    });
-  }
-
   // ===== GENERIEKE INLAW PARTNER-ADJACENCY (alle bomen) =====
   // Pure inlaws (geen ouders in pos) wiens bio-spouse in pos staat moeten
   // direct adjacent staan. Geldt voor ALLE bomen (Ilas, Mur'awey etc), niet
@@ -11839,6 +11778,68 @@ function computeLayout(overrideIds, headId) {
       }
       me.x = correctX;
       me.y = correctY;
+    });
+  }
+
+  // ===== GENERIEKE KIDS-CENTERING ONDER OUDER-PAAR (alle bomen) =====
+  // Voor elk ouder-paar met kids cluster: center cluster onder ouder-midpoint
+  // als de shift geen X-collision veroorzaakt met andere cards op kids-Y.
+  // Lost issues op zoals Firoz Khan's kids 230px links van couple-mid.
+  if (headId) {
+    const SLOT_KC = NODE_W + H_GAP;
+    state.persons.forEach(p => {
+      if (!pos[p.id]) return;
+      const kids = state.relationships
+        .filter(r => r.type === 'parent-child' && r.parentId === p.id)
+        .map(r => r.childId)
+        .filter(cid => pos[cid]);
+      if (kids.length < 2) return;
+      // Alle kids op zelfde Y?
+      const kidYs = kids.map(cid => Math.round(pos[cid].y));
+      const kidY = kidYs[0];
+      if (!kidYs.every(y => Math.abs(y - kidY) < 5)) return;
+      // Bereken parent-pair midpoint (parent + alle partners op zelfde Y als parent)
+      const partners = state.relationships
+        .filter(r => r.type === 'partner' && (r.person1Id === p.id || r.person2Id === p.id))
+        .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id)
+        .filter(pid => pos[pid] && Math.abs(pos[pid].y - pos[p.id].y) < 5);
+      const couplePos = [pos[p.id].x, ...partners.map(pid => pos[pid].x)];
+      const coupleMid = (Math.min(...couplePos) + Math.max(...couplePos) + NODE_W) / 2;
+      // Sort kids on X (link → rechts)
+      const sortedKids = kids.slice().sort((a, b) => pos[a].x - pos[b].x);
+      const kidsMinX = pos[sortedKids[0]].x;
+      const kidsMaxX = pos[sortedKids[sortedKids.length - 1]].x + NODE_W;
+      const kidsMid = (kidsMinX + kidsMaxX) / 2;
+      const dx = coupleMid - kidsMid;
+      if (Math.abs(dx) < 5) return; // al gecentreerd
+      // Check X-collision op kidY met nieuwe positie
+      const newKidsMinX = kidsMinX + dx;
+      const newKidsMaxX = kidsMaxX + dx;
+      const blocked = Object.entries(pos).some(([oid, op]) => {
+        if (kids.includes(oid)) return false;
+        if (!op || Math.abs(op.y - kidY) > NODE_H - 5) return false;
+        return op.x + NODE_W > newKidsMinX - H_GAP && op.x < newKidsMaxX + H_GAP;
+      });
+      if (blocked) return;
+      // Shift alle kids + hun descendants + partners op zelfde Y
+      const toShift = new Set();
+      const bfs = sortedKids.slice();
+      while (bfs.length) {
+        const id = bfs.shift();
+        if (toShift.has(id)) continue;
+        toShift.add(id);
+        state.relationships
+          .filter(r => r.type === 'parent-child' && r.parentId === id)
+          .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+          .forEach(r => {
+            const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
+            if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
+          });
+      }
+      toShift.forEach(id => { if (pos[id]) pos[id].x += dx; });
+      if (typeof window !== 'undefined' && window._debugCenter) window._debugCenter.push({ p: p.id, dx, kids: kids.length });
     });
   }
 
