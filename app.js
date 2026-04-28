@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v670';
+const APP_VERSION = 'v671';
 if (typeof document !== 'undefined') document.title = 'Familie Stamboom (' + APP_VERSION + ')';
 console.log('%c[Stamboom] APP_VERSION = ' + APP_VERSION, 'background: #16a34a; color: white; padding: 4px 8px; font-size: 14px; font-weight: bold;');
 (function checkForUpdate() {
@@ -11826,13 +11826,28 @@ function computeLayout(overrideIds, headId) {
       const kidsMinX = pos[sortedKids[0]].x;
       const kidsMaxX = pos[sortedKids[sortedKids.length - 1]].x + NODE_W;
       const kidsMid = (kidsMinX + kidsMaxX) / 2;
-      const dx = coupleMid - kidsMid;
+      // Verzamel cluster: kids + hun inlaw partners op zelfde Y
+      const clusterMembers = new Set(kids);
+      kids.forEach(kid => {
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === kid || r.person2Id === kid))
+          .forEach(r => {
+            const ppid = r.person1Id === kid ? r.person2Id : r.person1Id;
+            if (pos[ppid] && Math.abs(pos[ppid].y - pos[kid].y) < 5) clusterMembers.add(ppid);
+          });
+      });
+      // Herbereken cluster bounds incl. partners
+      const clusterArr = [...clusterMembers];
+      const clusterMinX = Math.min(...clusterArr.map(id => pos[id].x));
+      const clusterMaxX = Math.max(...clusterArr.map(id => pos[id].x)) + NODE_W;
+      const clusterMid = (clusterMinX + clusterMaxX) / 2;
+      const dx = coupleMid - clusterMid;
       if (Math.abs(dx) < 5) return; // al gecentreerd
       // Check X-collision op kidY met nieuwe positie
-      const newKidsMinX = kidsMinX + dx;
-      const newKidsMaxX = kidsMaxX + dx;
+      const newKidsMinX = clusterMinX + dx;
+      const newKidsMaxX = clusterMaxX + dx;
       const blocked = Object.entries(pos).some(([oid, op]) => {
-        if (kids.includes(oid)) return false;
+        if (clusterMembers.has(oid)) return false;
         if (!op || Math.abs(op.y - kidY) > NODE_H - 5) return false;
         return op.x + NODE_W > newKidsMinX - H_GAP && op.x < newKidsMaxX + H_GAP;
       });
