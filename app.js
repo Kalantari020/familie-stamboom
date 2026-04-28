@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v649';
+const APP_VERSION = 'v656';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -9614,7 +9614,12 @@ function computeLayout(overrideIds, headId) {
       });
     });
 
-    if (typeof window !== 'undefined') window._debugOverlay = { mahmadgulY: pos[headId]?.y, headChildY, initStart: nextSubTreeStartY, perChild: [] };
+    if (typeof window !== 'undefined') {
+      window._debugOverlay = { mahmadgulY: pos[headId]?.y, headChildY, initStart: nextSubTreeStartY, perChild: [] };
+      // Expose bio-owner-map zodat renderLines inlaw→inlaw cross-block lijnen kan onderdrukken
+      window._subTreeBioOwner = bioOwnerMap;
+      window._subTreeBioOwnerFor = headId;
+    }
     sortedHC.forEach(hcid => {
       // Probeer eigen snapshot; anders partner's snapshot (bv. Malika → Wali Mohammad)
       // BELANGRIJK: snap moet hcid als card hebben, anders fallback naar bio-descendants
@@ -11425,6 +11430,87 @@ function computeLayout(overrideIds, headId) {
     });
   })();
 
+  // ===== FAZELAHMAD T-LINE SHORTENING =====
+  // Voor elk parent-kids paar (parent niet een head-child zelf): verkort Y-gap
+  // naar parent.y + Y_STEP als dat geen X-collision veroorzaakt met andere cards.
+  // Lost "te lange T-lijnen" op bij head-children met stale snap (Akhamier→Subhanallah,
+  // Nazifa, Nader) waar kinderen in pipeline ver onder de parents terechtkomen.
+  if (headId === 'pmni0mtna5vxw') {
+    const Y_STEP_S = NODE_H + V_GAP; // 190
+    const headChildrenSet = new Set((childrenOf[headId] || []));
+    headChildrenSet.add(headId); // head zelf ook skippen
+    // Partners van head-children (inlaws op gen1-rij) ook skippen — anders zouden
+    // hun gemeenschappelijke kinderen (= Akhamier's kinderen) verplaatst worden
+    // via die partner-parent, wat de stacked-block structuur breekt.
+    state.relationships
+      .filter(r => r.type === 'partner')
+      .forEach(r => {
+        if (headChildrenSet.has(r.person1Id)) headChildrenSet.add(r.person2Id);
+        if (headChildrenSet.has(r.person2Id)) headChildrenSet.add(r.person1Id);
+      });
+    // Verzamel parents in volgorde (diepste eerst voor bottom-up reduction)
+    const candidates = Object.keys(pos)
+      .filter(pid => !headChildrenSet.has(pid) && pos[pid])
+      .sort((a, b) => pos[b].y - pos[a].y); // diepste eerst
+    candidates.forEach(pid => {
+      const kids = state.relationships
+        .filter(r => r.type === 'parent-child' && r.parentId === pid)
+        .map(r => r.childId)
+        .filter(cid => pos[cid]);
+      if (kids.length === 0) return;
+      // Alle kids op zelfde Y?
+      const kidYs = kids.map(cid => Math.round(pos[cid].y));
+      const curY = Math.min(...kidYs);
+      if (!kidYs.every(y => Math.abs(y - curY) < 5)) return;
+      const parentY = pos[pid].y;
+      const targetY = parentY + Y_STEP_S;
+      if (curY <= targetY + 5) return; // al compact
+      // X-range kids + hun inlaw partners op zelfde Y
+      const kidsWithPartners = new Set(kids);
+      kids.forEach(kid => {
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === kid || r.person2Id === kid))
+          .forEach(r => {
+            const ppid = r.person1Id === kid ? r.person2Id : r.person1Id;
+            if (pos[ppid] && Math.abs(pos[ppid].y - pos[kid].y) < 5) kidsWithPartners.add(ppid);
+          });
+      });
+      const kidsArr = [...kidsWithPartners];
+      const kidsMinX = Math.min(...kidsArr.map(cid => pos[cid].x));
+      const kidsMaxX = Math.max(...kidsArr.map(cid => pos[cid].x)) + NODE_W;
+      // Zoek laagste Y >= targetY zonder X-collision
+      let newY = null;
+      for (let y = targetY; y < curY; y += Y_STEP_S) {
+        const collision = Object.entries(pos).some(([oid, p]) => {
+          if (kidsWithPartners.has(oid)) return false;
+          if (Math.abs(p.y - y) > NODE_H - 5) return false;
+          return !(p.x + NODE_W <= kidsMinX - H_GAP || p.x >= kidsMaxX + H_GAP);
+        });
+        if (!collision) { newY = y; break; }
+      }
+      if (newY === null || newY >= curY) return;
+      const dy = newY - curY;
+      // Shift kids + partners + descendants
+      const toShift = new Set();
+      const bfs = [...kidsWithPartners];
+      while (bfs.length) {
+        const id = bfs.shift();
+        if (toShift.has(id)) continue;
+        toShift.add(id);
+        state.relationships
+          .filter(r => r.type === 'parent-child' && r.parentId === id)
+          .forEach(r => { if (pos[r.childId]) bfs.push(r.childId); });
+        state.relationships
+          .filter(r => r.type === 'partner' && (r.person1Id === id || r.person2Id === id))
+          .forEach(r => {
+            const ppid = r.person1Id === id ? r.person2Id : r.person1Id;
+            if (pos[ppid] && Math.abs(pos[ppid].y - pos[id].y) < 5) bfs.push(ppid);
+          });
+      }
+      toShift.forEach(id => { if (pos[id]) pos[id].y += dy; });
+    });
+  }
+
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
   // SUB-TREE OVERLAY en SNAPSHOT-DIRECT OVERRIDE kunnen negatieve X creeeren.
   // Force minX = PADDING zodat geen kaarten links van canvas-rand vallen.
@@ -11812,11 +11898,31 @@ function renderLines(pos, treeRanges, treePositions, duplicates) {
     // bio-ouder). Mina (bio van Mastora, sociaal van Mahmad=stiefvader) hoort
     // bij siblings Matiullah+Nasrat onder Mahmad+Mastora T-bar.
     const skipFullSocialParent = (typeof activeTreeId !== 'undefined' && activeTreeId === 'pmndyrysy3eq7');
+    // In SUB-TREE OVERLAY trees (Fazelahmad/Sayedahmed/Mahmadgul): onderdruk parent-child
+    // lijnen waar ZOWEL parent als child inlaw zijn (geen bio-afstammeling van enige gen1).
+    // Bv. Ali Ahmad (inlaw via Zakira in Ilas-blok) → Hekmat (inlaw via Shamila in Agha Gol-blok):
+    // lijn steekt meerdere gen1-blokken over en is visueel misleidend.
+    // LET OP: head zelf en head-children (BO sortedHC) MOETEN in de bio-set zitten,
+    // anders wordt de T-lijn van stamhoofd naar zijn eigen kinderen ook weggefilterd.
+    const subTreeOwner = (typeof window !== 'undefined' && window._subTreeBioOwnerFor === activeTreeId)
+      ? window._subTreeBioOwner : null;
+    let subTreeBioSet = null;
+    if (subTreeOwner) {
+      subTreeBioSet = new Set(subTreeOwner.keys());
+      subTreeBioSet.add(activeTreeId); // head
+      // head-children (directe kinderen van head) toevoegen
+      state.relationships.forEach(rel => {
+        if (rel.type === 'parent-child' && rel.parentId === activeTreeId) {
+          subTreeBioSet.add(rel.childId);
+        }
+      });
+    }
     const familyGroups = new Map();
     state.relationships.forEach(r => {
       if (r.type !== 'parent-child') return;
       if (!pids.has(r.parentId) || !pids.has(r.childId)) return;
       if (reclassifiedMovers.has(r.childId)) return; // skip reclassified movers
+      if (subTreeBioSet && !subTreeBioSet.has(r.parentId) && !subTreeBioSet.has(r.childId)) return;
       const childId = r.childId;
       const bioParents = state.relationships
         .filter(rel => rel.type === 'parent-child' && rel.childId === childId && pids.has(rel.parentId))
