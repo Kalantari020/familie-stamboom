@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v663';
+const APP_VERSION = 'v664';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -10426,7 +10426,14 @@ function computeLayout(overrideIds, headId) {
       // Lager dan 80% omdat bomen als Fazelahmad 75 nieuwe personen kunnen hebben
       // gekregen sinds snapshot — de snapshot dekt dan de basis maar nieuwe personen
       // krijgen pipeline-positie. Beter dan helemaal geen snapshot toepassen.
-      if (posIds.length > 0 && inBoth.length / posIds.length >= 0.3) {
+      // EXTRA SAFETY: skip als snap >> tree (corrupt snap-data, bv. Asif Khan
+      // had 173-card snap onder zijn key terwijl zijn tree maar 2 cards heeft).
+      const snapTooBig = Object.keys(snap.cards).length > posIds.length * 3;
+      // EXTRA SAFETY: skip als snap.cards[headId] niet bestaat OF op vreemde Y staat
+      // (head moet altijd in PADDING-area = y=50, niet y=4000+)
+      const headSnapPos = snap.cards[headId];
+      const headPosBad = !headSnapPos || headSnapPos.y > 500;
+      if (posIds.length > 0 && inBoth.length / posIds.length >= 0.3 && !snapTooBig && !headPosBad) {
         _snapshotDirectApplied = true;
         // Pas snapshot card posities toe
         Object.entries(snap.cards).forEach(([id, snapPos]) => {
