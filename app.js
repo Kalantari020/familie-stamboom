@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v671';
+const APP_VERSION = 'v673';
 if (typeof document !== 'undefined') document.title = 'Familie Stamboom (' + APP_VERSION + ')';
 console.log('%c[Stamboom] APP_VERSION = ' + APP_VERSION, 'background: #16a34a; color: white; padding: 4px 8px; font-size: 14px; font-weight: bold;');
 (function checkForUpdate() {
