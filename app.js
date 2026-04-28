@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v669';
+const APP_VERSION = 'v670';
 if (typeof document !== 'undefined') document.title = 'Familie Stamboom (' + APP_VERSION + ')';
 console.log('%c[Stamboom] APP_VERSION = ' + APP_VERSION, 'background: #16a34a; color: white; padding: 4px 8px; font-size: 14px; font-weight: bold;');
 (function checkForUpdate() {
@@ -11799,11 +11799,27 @@ function computeLayout(overrideIds, headId) {
       const kidY = kidYs[0];
       if (!kidYs.every(y => Math.abs(y - kidY) < 5)) return;
       // Bereken parent-pair midpoint (parent + alle partners op zelfde Y als parent)
-      const partners = state.relationships
+      // Inclusief partners die alleen via GHOST naast parent staan (cousin-pair scenarios)
+      const myY = pos[p.id].y;
+      const allPartnerIds = state.relationships
         .filter(r => r.type === 'partner' && (r.person1Id === p.id || r.person2Id === p.id))
-        .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id)
-        .filter(pid => pos[pid] && Math.abs(pos[pid].y - pos[p.id].y) < 5);
-      const couplePos = [pos[p.id].x, ...partners.map(pid => pos[pid].x)];
+        .map(r => r.person1Id === p.id ? r.person2Id : r.person1Id);
+      const partnerXAtMyY = [];
+      allPartnerIds.forEach(pid => {
+        if (pos[pid] && Math.abs(pos[pid].y - myY) < 5) {
+          partnerXAtMyY.push(pos[pid].x);
+          return;
+        }
+        // Check ghost van partner op zelfde Y als p
+        for (const gKey in crossFamilyGhosts) {
+          const g = crossFamilyGhosts[gKey];
+          if (g && g.personId === pid && Math.abs(g.y - myY) < 5) {
+            partnerXAtMyY.push(g.x);
+            return;
+          }
+        }
+      });
+      const couplePos = [pos[p.id].x, ...partnerXAtMyY];
       const coupleMid = (Math.min(...couplePos) + Math.max(...couplePos) + NODE_W) / 2;
       // Sort kids on X (link → rechts)
       const sortedKids = kids.slice().sort((a, b) => pos[a].x - pos[b].x);
