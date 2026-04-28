@@ -3,7 +3,7 @@
 // ============================================================
 // Versie van deze build. Wordt vergeleken met live index.html om te
 // detecteren of de mobiele browser een verouderde versie cached.
-const APP_VERSION = 'v657';
+const APP_VERSION = 'v658';
 (function checkForUpdate() {
   // Op pageload: vergelijk geladen versie met index.html van server
   // Als index.html een nieuwere ?v=X bevat, herlaad automatisch
@@ -11548,6 +11548,27 @@ function computeLayout(overrideIds, headId) {
       }
       toShift.forEach(id => { if (pos[id]) pos[id].y += dy; });
     });
+    // Na T-LINE SHORTENING: vul lege Y-gaps tussen blokken op zodat blokken
+    // strak achter elkaar gestackt blijven (BLOCK_GAP=470 ipv multi-1000px gaten).
+    {
+      const Y_STEP_C = NODE_H + V_GAP; // 190
+      const BLOCK_GAP_C = 2 * Y_STEP_C + V_GAP; // 470 (Fazelahmad)
+      const allY = [...new Set(Object.values(pos).map(p => Math.round(p.y)))].sort((a, b) => a - b);
+      for (let i = 1; i < allY.length; i++) {
+        const gap = allY[i] - allY[i - 1];
+        if (gap > BLOCK_GAP_C + 50) {
+          const excess = gap - BLOCK_GAP_C;
+          const threshold = allY[i] - 1;
+          Object.values(pos).forEach(p => {
+            if (p && Math.round(p.y) >= threshold) p.y -= excess;
+          });
+          Object.values(crossFamilyGhosts).forEach(g => {
+            if (g && Math.round(g.y) >= threshold) g.y -= excess;
+          });
+          for (let j = i; j < allY.length; j++) allY[j] -= excess;
+        }
+      }
+    }
   }
 
   // ===== ABSOLUTE LAATSTE X-NORMALISATIE (na alle overlays) =====
