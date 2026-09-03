@@ -1,6 +1,7 @@
 /* Coaching Platform — prototype UI
-   Vanilla JS, geen build tools. Rendert intake, startscore, klantdashboard en coachomgeving.
-   Alle scoringlogica zit in scoring.js; dit bestand rekent niets zelf uit. */
+   Rendert intake, klantdashboard (§25) en coachomgeving (§18–§20, §31)
+   volgens COACH SCORING FRAMEWORK V1.0.
+   Alle scoringlogica zit in scoring.js; dit bestand rekent niets zelf uit (§30). */
 
 (function () {
   'use strict';
@@ -12,27 +13,24 @@
 
   let state = load();
 
+  function blank() {
+    return { answers: {}, coach: { dimensions: {}, components: {}, structureModifier: {}, focusOverride: '' },
+             notes: '', history: [], actions: [], step: 0, view: 'intake', submitted: false };
+  }
   function load() {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) { /* eerste keer of geblokkeerde storage */ }
-    return { answers: {}, coach: {}, notes: '', history: [], step: 0, view: 'intake', submitted: false };
+    try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(blank(), JSON.parse(raw)); }
+    catch (e) { /* eerste keer of geblokkeerde storage */ }
+    return blank();
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
-
-  function result() {
-    const a = Object.assign({}, state.answers, { __coach: state.coach });
-    return Scoring.computeScore(a);
-  }
+  function result() { return Scoring.computeScore(state.answers, state.coach); }
 
   /* ================================================================ INTAKE */
 
   function renderIntake() {
-    const root = $('#view');
-    root.innerHTML = '';
+    const root = $('#view'); root.innerHTML = '';
     const cats = INTAKE.categories;
-    const step = Math.min(state.step, cats.length);   // stap 0..n-1 = categorie, n = afronden
+    const step = Math.min(state.step, cats.length);
 
     const pr = el('div', 'progress');
     pr.appendChild(el('i')).style.width = (step / cats.length * 100) + '%';
@@ -61,7 +59,7 @@
       root.appendChild(card);
 
       const nav = el('div', 'nav-btns');
-      if (step > 0) { const b = el('button', 'ghost', 'Vorige'); b.onclick = () => { state.step--; save(); render(); }; nav.appendChild(b); }
+      if (step > 0) { const bk = el('button', 'ghost', 'Vorige'); bk.onclick = () => { state.step--; save(); render(); }; nav.appendChild(bk); }
       const nx = el('button', 'primary', step === cats.length - 1 ? 'Intake afronden' : 'Volgende');
       nx.onclick = () => { state.step++; save(); render(); window.scrollTo(0, 0); };
       nav.appendChild(nx);
@@ -74,16 +72,19 @@
       INTAKE.outro.forEach((p) => card.appendChild(el('p', null, esc(p))));
       root.appendChild(card);
       const nav = el('div', 'nav-btns');
-      const b = el('button', 'ghost', 'Terug'); b.onclick = () => { state.step--; save(); render(); };
+      const bk = el('button', 'ghost', 'Terug'); bk.onclick = () => { state.step--; save(); render(); };
       const go = el('button', 'primary', 'Bekijk mijn startpunt');
-      go.onclick = () => {
-        state.submitted = true;
-        if (!state.history.length) state.history.push({ label: 'Start', date: new Date().toISOString().slice(0, 10), total: result().total });
-        state.view = 'client'; save(); render(); window.scrollTo(0, 0);
-      };
-      nav.appendChild(b); nav.appendChild(go);
+      go.onclick = () => { state.submitted = true; meting('Start'); state.view = 'client'; save(); render(); window.scrollTo(0, 0); };
+      nav.appendChild(bk); nav.appendChild(go);
       root.appendChild(nav);
     }
+  }
+
+  function meting(label) {
+    const r = result();
+    if (state.history.some((m) => m.label === label)) return;
+    state.history.push({ label, date: r.scoreDate, total: r.total, fi: r.foundationIndex,
+                         status: r.foundationStatus ? r.foundationStatus.code : null, version: r.frameworkVersion });
   }
 
   function answeredCount() {
@@ -94,7 +95,6 @@
     }));
     return n;
   }
-
   function setAns(id, v) { state.answers[id] = v; save(); }
 
   function renderQuestion(q) {
@@ -108,9 +108,9 @@
       const lo = isDays ? 0 : 1, hi = isDays ? 7 : 10;
       const sc = el('div', 'scale');
       for (let i = lo; i <= hi; i++) {
-        const b = el('b', String(state.answers[q.id]) === String(i) ? 'on' : '', String(i));
-        b.onclick = () => { setAns(q.id, i); render(); };
-        sc.appendChild(b);
+        const bt = el('b', String(state.answers[q.id]) === String(i) ? 'on' : '', String(i));
+        bt.onclick = () => { setAns(q.id, i); render(); };
+        sc.appendChild(bt);
       }
       box.appendChild(sc);
       const lg = el('div', 'scale-legend');
@@ -123,8 +123,8 @@
       q.options.forEach((o) => {
         const on = q.type === 'multi' ? cur.indexOf(o) >= 0 : cur === o;
         const full = q.max && q.type === 'multi' && !on && cur.length >= q.max;
-        const b = el('div', 'opt' + (on ? ' on' : '') + (full ? ' off' : ''), esc(o));
-        b.onclick = () => {
+        const bt = el('div', 'opt' + (on ? ' on' : '') + (full ? ' off' : ''), esc(o));
+        bt.onclick = () => {
           if (q.type === 'multi') {
             const list = (state.answers[q.id] || []).slice();
             const i = list.indexOf(o);
@@ -134,12 +134,13 @@
           } else setAns(q.id, cur === o ? '' : o);
           render();
         };
-        opts.appendChild(b);
+        opts.appendChild(bt);
       });
       box.appendChild(opts);
       if (q.max) box.appendChild(el('div', 'muted', 'Maximaal ' + q.max + ' — nu ' + (cur.length || 0) + ' gekozen'));
       const other = q.type === 'multi' ? (cur.indexOf(q.otherOn) >= 0) : cur === q.otherOn;
       if (q.otherId && other) box.appendChild(input(q.otherId, 'text', 'Namelijk…'));
+      if (q.id === 'q21') box.appendChild(area('q21_t'));
     } else if (q.type === 'triple') {
       q.ids.forEach((id, i) => box.appendChild(input(id, 'text', (i + 1) + '.')));
     } else if (q.type === 'number') {
@@ -158,100 +159,137 @@
     }
     return box;
   }
-
   function input(id, type, ph) {
-    const i = el('input');
-    i.type = type; i.placeholder = ph || ''; i.value = state.answers[id] || '';
-    i.oninput = () => setAns(id, i.value);
-    return i;
+    const i = el('input'); i.type = type; i.placeholder = ph || ''; i.value = state.answers[id] || '';
+    i.oninput = () => setAns(id, i.value); return i;
   }
   function area(id) {
-    const t = el('textarea');
-    t.value = state.answers[id] || '';
-    t.oninput = () => setAns(id, t.value);
-    return t;
+    const t = el('textarea'); t.value = state.answers[id] || '';
+    t.oninput = () => setAns(id, t.value); return t;
   }
 
-  /* ================================================================ KLANTDASHBOARD */
+  /* ================================================================ KLANTDASHBOARD (§25) */
 
-  function barClass(v) { return v < 45 ? 'low' : v < 70 ? 'mid' : 'high'; }
+  const barClass = (v) => v < 40 ? 'low' : v < 60 ? 'mid' : v < 75 ? 'ok' : 'high';
 
   function renderClient() {
     const r = result();
-    const root = $('#view');
-    root.innerHTML = '';
+    const root = $('#view'); root.innerHTML = '';
 
     if (!state.submitted) {
       root.appendChild(el('div', 'card', '<p>Rond eerst de intake af. Je startpunt verschijnt daarna hier.</p>'));
       return;
     }
 
+    // Jouw startpunt + foundation status
     const hero = el('div', 'card score-hero');
     hero.appendChild(el('div', 'eyebrow', 'Jouw startpunt'));
     hero.appendChild(el('div', 'score-big', r.total + '<small> / 100</small>'));
-    hero.appendChild(el('div', 'level-pill', 'Level ' + r.level.level + ' — ' + esc(r.level.name)));
-    hero.appendChild(el('p', 'muted', 'Dit is een momentopname van waar je vandaag staat. Geen oordeel, geen eindstand — een nulmeting.'));
+    if (r.foundationStatus) {
+      hero.appendChild(el('div', 'status-pill status-' + r.foundationStatus.code,
+        r.foundationStatus.icon + ' Foundation Status — ' + esc(r.foundationStatus.label)));
+      hero.appendChild(el('p', 'muted', esc(r.foundationStatus.text) + ' ' + esc(r.foundationStatus.focus)));
+    }
+    hero.appendChild(el('p', 'muted', '<b>' + esc(r.scoreBand.label) + '.</b> ' + esc(r.scoreBand.text) +
+      '<br>Dit is je huidige startpunt — een momentopname, geen eindstand.'));
     root.appendChild(hero);
 
+    // Dimensies
     const bars = el('div', 'card');
-    bars.appendChild(el('div', 'eyebrow', 'Jouw zes dimensies'));
-    const bl = el('div', 'bars');
+    bars.appendChild(el('div', 'eyebrow', 'Jouw dimensies'));
     Scoring.DIM_ORDER.forEach((k) => {
       const d = r.dims[k];
-      const b = el('div', 'bar');
+      const bx = el('div', 'bar');
       const top = el('div', 'bar-top');
-      top.appendChild(el('span', null, esc(d.label)));
+      top.appendChild(el('span', null, d.icon + ' ' + esc(d.label)));
       top.appendChild(el('span', null, d.score === null ? '<em>niet ingevuld</em>' : d.score));
-      b.appendChild(top);
+      bx.appendChild(top);
       const tr = el('div', 'bar-track');
-      const fi = el('i', 'bar-fill ' + barClass(d.score || 0)); fi.style.display = 'block';
-      fi.style.width = (d.score || 0) + '%'; fi.style.height = '100%';
-      tr.appendChild(fi); b.appendChild(tr);
-      bl.appendChild(b);
+      const fi = el('i', 'bar-fill ' + barClass(d.score || 0));
+      fi.style.width = (d.score || 0) + '%';
+      tr.appendChild(fi); bx.appendChild(tr);
+      bars.appendChild(bx);
     });
-    bars.appendChild(bl);
     root.appendChild(bars);
 
+    // Eerste focus (§25/§26 taal)
     if (r.focus) {
       const f = el('div', 'card');
       const fb = el('div', 'focus-box');
-      fb.appendChild(el('div', 'eyebrow', 'Eerste focus'));
-      fb.appendChild(el('h2', null, esc(r.focus.component || r.focus.dimLabel)));
-      fb.appendChild(el('p', null, 'Je hoeft niet alles tegelijk te veranderen. We beginnen waar de grootste hefboom zit: ' +
-        esc(r.focus.dimLabel.toLowerCase()) + '.'));
+      fb.appendChild(el('div', 'eyebrow', 'Jouw eerste focus'));
+      fb.appendChild(el('h2', null, esc(r.focus.label) +
+        (r.focus.secondary ? ' &amp; ' + esc(r.focus.secondary.label.split(' ')[0].toLowerCase()) : '')));
+      fb.appendChild(el('p', null, Scoring.LANGUAGE.focusZin +
+        ' Je eerste stap is het stabieler maken van ' + esc(focusZin(r.focus)) + '. Vanuit daar bouwen we verder.'));
       f.appendChild(fb);
       root.appendChild(f);
     }
 
+    // Doel (uit Q12)
+    if ((state.answers.q12 || '').trim()) {
+      const g = el('div', 'card tight');
+      g.appendChild(el('div', 'eyebrow', 'Jouw doel'));
+      g.appendChild(el('p', null, esc(state.answers.q12)));
+      root.appendChild(g);
+    }
+
+    // Deze week — acties (§24: score en acties zijn twee systemen)
+    const act = el('div', 'card');
+    act.appendChild(el('div', 'eyebrow', 'Deze week'));
+    if (!state.actions.length) {
+      act.appendChild(el('p', 'muted', 'Je coach zet hier maximaal drie concrete acties klaar.'));
+    } else {
+      state.actions.forEach((a, i) => {
+        const row = el('label', 'action');
+        const cb = el('input'); cb.type = 'checkbox'; cb.checked = !!a.done;
+        cb.onchange = () => { state.actions[i].done = cb.checked; save(); render(); };
+        row.appendChild(cb); row.appendChild(el('span', a.done ? 'done' : '', esc(a.text)));
+        act.appendChild(row);
+      });
+      const done = state.actions.filter((a) => a.done).length;
+      const pct = Math.round(done / state.actions.length * 100);
+      act.appendChild(el('div', 'muted', '<br>Completion deze week: <b>' + pct + '%</b>'));
+      if (pct >= 80 && r.total < 60) {
+        act.appendChild(el('div', 'note', 'Je staat nog niet waar je wilt staan, maar je gedrag laat zien dat je daadwerkelijk aan het veranderen bent.'));
+      }
+    }
+    root.appendChild(act);
+
+    // Progressie
     if (state.history.length > 1) root.appendChild(historyCard());
 
-    const g = el('div', 'card');
-    g.appendChild(el('div', 'eyebrow', 'Jouw traject'));
+    // Mijlpalen
+    const g2 = el('div', 'card');
+    g2.appendChild(el('div', 'eyebrow', 'Jouw traject'));
     const badges = el('div', 'badges');
+    const delta = state.history.length ? r.total - state.history[0].total : 0;
     [['Intake afgerond', true], ['Eerste week afgerond', state.history.length > 1],
-     ['7 dagen consistent', false], ['Eerste maand afgerond', state.history.length > 3],
-     ['+10 punten', state.history.length > 1 && (r.total - state.history[0].total) >= 10],
-     ['Fundament opgebouwd', r.foundationIndex >= 60], ['Eerste doel behaald', false],
-     ['Zelfstandig traject afgerond', r.level.level >= 4]
+     ['7 dagen consistent', state.actions.length > 0 && state.actions.every((a) => a.done)],
+     ['Eerste maand afgerond', state.history.length > 3], ['+10 punten', delta >= 10],
+     ['Fundament opgebouwd', r.foundationIndex !== null && r.foundationIndex >= 60],
+     ['Eerste doel behaald', false], ['Zelfstandig traject afgerond', false]
     ].forEach(([t, on]) => badges.appendChild(el('div', 'badge' + (on ? ' earned' : ''), esc(t))));
-    g.appendChild(badges);
-    g.appendChild(el('p', 'muted', '<br>Levels: 1 Fundament → 2 Stabiliteit → 3 Groei → 4 Zelfstandigheid. ' +
-      'Een level schuift pas op als je fundament het draagt, niet alleen je motivatie.'));
-    root.appendChild(g);
+    g2.appendChild(badges);
+    root.appendChild(g2);
 
+    const nav = el('div', 'nav-btns');
     const nm = el('button', 'ghost', 'Nieuwe meting vastleggen');
-    nm.onclick = () => {
-      state.history.push({ label: 'Meting ' + (state.history.length + 1), date: new Date().toISOString().slice(0, 10), total: r.total });
-      save(); render();
-    };
-    const nav = el('div', 'nav-btns'); nav.appendChild(nm);
-    nav.appendChild(el('div', 'muted', 'Interne coachnotities en hypotheses zijn hier bewust niet zichtbaar.'));
+    nm.onclick = () => { meting('Meting ' + (state.history.length + 1)); save(); render(); };
+    nav.appendChild(nm);
+    nav.appendChild(el('div', 'muted', 'Interne coachnotities, hypotheses en signalen zijn hier bewust niet zichtbaar.'));
     root.appendChild(nav);
+  }
+
+  function focusZin(f) {
+    const map = { F: 'je gezondheid, energie en herstel', S: 'je dagelijkse structuur',
+                  R: 'je richting en je doel', D: 'het nakomen van je eigen afspraken',
+                  O: 'het pakken van je eigen verantwoordelijkheid', C: 'je concrete bereidheid om iets anders te doen' };
+    return map[f.key] || f.label.toLowerCase();
   }
 
   function historyCard() {
     const c = el('div', 'card');
-    c.appendChild(el('div', 'eyebrow', 'Hoe ben ik veranderd'));
+    c.appendChild(el('div', 'eyebrow', 'Jouw progressie'));
     const h = el('div', 'hist');
     state.history.forEach((m) => {
       const d = el('div');
@@ -271,145 +309,209 @@
 
   function renderCoach() {
     const r = result();
-    const root = $('#view');
-    root.innerHTML = '';
+    const root = $('#view'); root.innerHTML = '';
 
+    // Kop + §31 samenvatting
     const head = el('div', 'card');
-    head.appendChild(el('div', 'eyebrow', 'Coachomgeving'));
+    head.appendChild(el('div', 'eyebrow', 'Coachomgeving · Scoring Framework v' + r.frameworkVersion));
     head.appendChild(el('h1', null, 'Assessment'));
-    head.appendChild(el('p', null, 'Deze weergave is niet zichtbaar voor de klant. Hypotheses zijn geen conclusies.'));
+    head.appendChild(el('p', null, 'Niet zichtbaar voor de klant. Signalen zijn geen conclusies; scores zijn AI-baselines tot je ze valideert.'));
     const dl = el('dl', 'fsh');
     const add = (k, v) => { dl.appendChild(el('dt', null, k)); dl.appendChild(el('dd', null, v)); };
-    add('Ruwe score', r.totalRaw);
-    add('Fundamentindex', r.foundationIndex + ' <span class="muted">(0,45·F + 0,35·S + 0,20·D)</span>');
-    add('Plafond', r.capValue + ' <span class="muted">(FI + ' + Scoring.CAP_MARGIN + ')</span>');
-    add('Eindscore', '<b>' + r.total + '</b>' + (r.capApplied ? ' <span class="tag prov">floor toegepast</span>' : ''));
-    add('Level', r.level.level + ' — ' + esc(r.level.name));
-    add('Status', r.provisional ? '<span class="tag prov">voorlopig</span> bevat niet-gevalideerde rubrieken' : 'volledig gevalideerd');
+    add('Startscore', '<b>' + r.total + '</b> / 100 · ' + esc(r.scoreBand.label));
+    add('Foundation Index', r.foundationIndex === null ? '—' : r.foundationIndex + ' <span class="muted">(F + S) / 2</span>');
+    add('Foundation Status', r.foundationStatus ? r.foundationStatus.icon + ' ' + esc(r.foundationStatus.label) : '—');
+    add('Sterkste dimensie', r.strongest ? esc(r.strongest.label) + ' — ' + r.strongest.score : '—');
+    add('Grootste ontwikkelpunt', r.weakest ? esc(r.weakest.label) + ' — ' + r.weakest.score : '—');
+    add('Eerste focus', r.focus ? esc(r.focus.label) + (r.focus.component ? ' <span class="muted">· ' + esc(r.focus.component) + '</span>' : '') : '—');
+    add('Confidence', r.confidence.icon + ' ' + esc(r.confidence.label));
+    add('Coach validation', r.coachValidated ? 'bevestigd' : '<span class="tag prov">nog niet gevalideerd</span>');
     head.appendChild(dl);
+    if (r.focus) head.appendChild(el('div', 'note', esc(r.focus.reden)));
+    if (r.minFoundationRule.active) head.appendChild(el('div', 'note warn',
+      'Minimum foundation regel actief: ' + esc(r.minFoundationRule.hits.join(' · ')) +
+      '. Geen groeifocus als eerste aanbeveling, tenzij je bewust overrulet.'));
     root.appendChild(head);
 
-    // klant vs. coach
-    const cv = r.clientView;
-    const kc = el('div', 'card');
-    kc.appendChild(el('div', 'eyebrow', 'Klant vs. coach'));
-    kc.appendChild(el('p', null, '<b>Klant zegt:</b> ' + (esc(cv.claimed) || '—')));
-    kc.appendChild(el('p', null, '<b>Model wijst naar:</b> ' + (esc(cv.modelLabel) || '—') +
-      (r.focus && r.focus.component ? ' → ' + esc(r.focus.component) : '')));
-    kc.appendChild(el('p', null, cv.aligned === true
-      ? 'Klant en model wijzen dezelfde kant op. Bevestigen en direct starten.'
-      : cv.aligned === false
-        ? 'Verschil gedetecteerd. Dit is geen correctie van de klant maar een hypothese om samen te toetsen: “Laten we de komende weken testen of dit klopt.”'
-        : 'Onvoldoende data om te vergelijken.'));
-    root.appendChild(kc);
-
-    // signalen
-    if (r.flags.length) {
-      const fl = el('div', 'card');
-      fl.appendChild(el('div', 'eyebrow', 'Signalen'));
-      r.flags.forEach((f) => fl.appendChild(el('div', 'flag ' + f.level, esc(f.text))));
-      root.appendChild(fl);
+    if (r.warnings.length) {
+      const w = el('div', 'card tight');
+      r.warnings.forEach((x) => w.appendChild(el('div', 'note warn', esc(x))));
+      root.appendChild(w);
     }
 
-    // FACT / SIGNAL / HYPOTHESE / VERIFICATION / COACHING DECISION
-    const as = el('div', 'card');
-    as.appendChild(el('div', 'eyebrow', 'Coach assessment'));
-    const rows = assessment(r);
-    const dl2 = el('dl', 'fsh');
-    rows.forEach(([k, v]) => { dl2.appendChild(el('dt', null, k)); dl2.appendChild(el('dd', null, v)); });
-    as.appendChild(dl2);
-    root.appendChild(as);
+    // Coach checks (§19)
+    const ck = el('div', 'card');
+    ck.appendChild(el('div', 'eyebrow', 'Coach checks — inconsistenties en validatiesignalen'));
+    if (!r.checks.length) ck.appendChild(el('p', 'muted', 'Geen tegenstrijdigheden gedetecteerd.'));
+    r.checks.forEach((c) => {
+      const d = el('div', 'flag hoog');
+      d.appendChild(el('b', null, c.icon + ' ' + esc(c.titel) + (c.dim ? ' · ' + esc(Scoring.DIMENSIONS[c.dim].label) : '')));
+      d.appendChild(el('div', null, esc(c.detail)));
+      ck.appendChild(d);
+    });
+    ck.appendChild(el('p', 'muted', '<br>Signalen verlagen de score nooit automatisch. Corrigeren doe je hieronder, met een reden.'));
+    root.appendChild(ck);
 
-    // componenten + override
-    const tb = el('div', 'card');
-    tb.appendChild(el('div', 'eyebrow', 'Score-opbouw en validatie'));
-    tb.appendChild(el('p', 'muted', 'Vul een waarde 0–100 in om een component vast te stellen. Een coachwaarde vervangt de automatische schatting.'));
-    const t = el('table', 'assess');
-    t.innerHTML = '<tr><th>Dimensie</th><th>Component</th><th>Bron</th><th>Type</th><th>Score</th><th>Coach</th></tr>';
+    // Klant vs. coach
+    const kc = el('div', 'card');
+    kc.appendChild(el('div', 'eyebrow', 'Klant vs. coach'));
+    kc.appendChild(el('p', null, '<b>Klant noemt als blokkade (V23):</b> ' + (esc(state.answers.q23) || '—')));
+    kc.appendChild(el('p', null, '<b>Model wijst als eerste focus:</b> ' + (r.focus ? esc(r.focus.label) : '—')));
+    kc.appendChild(el('p', null, '<b>Coachinghypotheses:</b>'));
+    const ul = el('ul', 'plain');
+    r.hypotheses.forEach((h) => ul.appendChild(el('li', null, esc(h))));
+    kc.appendChild(ul);
+    root.appendChild(kc);
+
+    // Tijdsbesteding (§6)
+    if (r.timeSignal) {
+      const ts = el('div', 'card');
+      ts.appendChild(el('div', 'eyebrow', 'Tijdsbesteding (V21) — modifier op structuur'));
+      ts.appendChild(el('p', null, r.timeSignal.icon + ' <b>' + esc(r.timeSignal.level) + '</b> — ' + esc(r.timeSignal.note) +
+        (r.timeSignal.selected.length ? '<br><span class="muted">' + esc(r.timeSignal.selected.join(', ')) + '</span>' : '')));
+      const cur = state.coach.structureModifier || {};
+      const row = el('div', 'mod-row');
+      const sel = el('select');
+      [0, -5, -10, 5, 10].forEach((v) => {
+        const o = el('option', null, v > 0 ? '+' + v : String(v)); o.value = v;
+        if (String(cur.value || 0) === String(v)) o.selected = true;
+        sel.appendChild(o);
+      });
+      const rsn = el('input'); rsn.type = 'text'; rsn.placeholder = 'Reden (verplicht bij een correctie)'; rsn.value = cur.reason || '';
+      const apply = el('button', 'ghost', 'Toepassen');
+      apply.onclick = () => {
+        state.coach.structureModifier = { value: Number(sel.value), reason: rsn.value };
+        save(); render();
+      };
+      row.appendChild(sel); row.appendChild(rsn); row.appendChild(apply);
+      ts.appendChild(row);
+      if (r.timeSignal.suggest !== 0) ts.appendChild(el('div', 'muted', 'Voorstel op basis van de antwoorden: ' + r.timeSignal.suggest + ' punten.'));
+      if (r.structureAdjust) ts.appendChild(el('div', 'note',
+        'Toegepast: ' + r.structureAdjust.from + ' → ' + r.structureAdjust.to + ' — ' + esc(r.structureAdjust.reason)));
+      root.appendChild(ts);
+    }
+
+    // Dimensies: AI baseline → coach validated (§20)
+    const dv = el('div', 'card');
+    dv.appendChild(el('div', 'eyebrow', 'Dimensiescores — AI baseline → coach validated'));
+    dv.appendChild(el('p', 'muted', 'Een override vereist een nieuwe score én een korte reden. De oorspronkelijke AI-score blijft bewaard.'));
+    const dt = el('table', 'assess');
+    dt.innerHTML = '<tr><th>Dimensie</th><th>Gewicht</th><th>AI</th><th>Definitief</th><th>Confidence</th><th>Coachscore</th><th>Reden</th></tr>';
     Scoring.DIM_ORDER.forEach((k) => {
-      const d = r.dims[k];
-      d.components.forEach((c, i) => {
+      const d = r.dims[k], ov = (state.coach.dimensions || {})[k] || {};
+      const tr = el('tr');
+      tr.appendChild(el('td', null, d.icon + ' ' + esc(d.label)));
+      tr.appendChild(el('td', null, Math.round(d.weight * 100) + '%'));
+      tr.appendChild(el('td', null, d.aiScore === null ? '—' : d.aiScore));
+      tr.appendChild(el('td', null, '<b>' + (d.score === null ? '—' : d.score) + '</b>' + (d.coachAdjusted ? '<span class="tag">coach</span>' : '')));
+      tr.appendChild(el('td', null, d.confidence.icon + ' ' + esc(d.confidence.label)));
+      const tdS = el('td'); const inS = el('input', 'ovr'); inS.type = 'number'; inS.min = 0; inS.max = 100;
+      inS.value = ov.score === undefined ? '' : ov.score;
+      const tdR = el('td'); const inR = el('input'); inR.type = 'text'; inR.placeholder = 'reden'; inR.value = ov.reason || '';
+      const commit = () => {
+        if (inS.value === '') delete state.coach.dimensions[k];
+        else state.coach.dimensions[k] = { score: Number(inS.value), reason: inR.value };
+        save(); render();
+      };
+      inS.onchange = commit; inR.onchange = commit;
+      tdS.appendChild(inS); tdR.appendChild(inR); tr.appendChild(tdS); tr.appendChild(tdR);
+      dt.appendChild(tr);
+      if (d.coachAdjusted) {
+        const nr = el('tr'); const td = el('td'); td.colSpan = 7;
+        td.appendChild(el('div', 'note', esc(d.label) + ': ' + d.aiScore + ' → ' + d.score + ' — ' + esc(d.coachReason)));
+        nr.appendChild(td); dt.appendChild(nr);
+      }
+    });
+    const dsc = el('div', 'tscroll'); dsc.appendChild(dt); dv.appendChild(dsc);
+    root.appendChild(dv);
+
+    // Componenten
+    const tb = el('div', 'card');
+    tb.appendChild(el('div', 'eyebrow', 'Score-opbouw per vraag'));
+    const t = el('table', 'assess');
+    t.innerHTML = '<tr><th>Dimensie</th><th>Vraag</th><th>Component</th><th>Gewicht</th><th>Score</th><th>AI-observatie</th><th>Coach</th></tr>';
+    Scoring.DIM_ORDER.forEach((k) => {
+      r.dims[k].components.forEach((c, i) => {
+        const ov = (state.coach.components || {})[c.id] || {};
         const tr = el('tr');
-        tr.appendChild(el('td', null, i === 0 ? esc(d.label) + '<br><span class="muted">' + Math.round(d.weight * 100) + '% · ' + (d.score === null ? '—' : d.score) + '</span>' : ''));
-        tr.appendChild(el('td', null, esc(c.label) + '<span class="muted"> · ' + Math.round(c.w * 100) + '%</span>' +
-          (c.note ? '<br><span class="muted">' + esc(c.note) + '</span>' : '')));
-        tr.appendChild(el('td', null, esc(c.src)));
-        tr.appendChild(el('td', null, esc(c.kind) + (c.provisional ? '<span class="tag prov">voorlopig</span>' : '')));
-        tr.appendChild(el('td', null, c.value === null ? '—' : c.value));
-        const td = el('td');
-        const inp = el('input', 'ovr'); inp.type = 'number'; inp.min = 0; inp.max = 100;
-        inp.value = state.coach[c.id] === undefined ? '' : state.coach[c.id];
-        inp.onchange = () => {
-          const v = inp.value === '' ? undefined : Math.max(0, Math.min(100, Number(inp.value)));
-          if (v === undefined) delete state.coach[c.id]; else state.coach[c.id] = v;
+        tr.appendChild(el('td', null, i === 0 ? r.dims[k].icon + ' ' + esc(r.dims[k].label) : ''));
+        tr.appendChild(el('td', null, esc(c.qid)));
+        tr.appendChild(el('td', null, esc(c.label)));
+        tr.appendChild(el('td', null, Math.round(c.weight * 100) + '%'));
+        tr.appendChild(el('td', null, (c.value === null ? '—' : c.value) +
+          (c.estimated && !c.coachAdjusted ? '<span class="tag prov">AI</span>' : '') +
+          (c.coachAdjusted ? '<span class="tag">coach</span>' : '')));
+        tr.appendChild(el('td', null, '<span class="muted">' + esc(c.observation ||
+          (c.estimated ? '' : 'directe conversie')) + '</span>' +
+          (c.bandName ? '<br><span class="muted">band ' + c.bandLo + '–' + c.bandHi + '</span>' : '')));
+        const td = el('td', 'nowrap');
+        const iv = el('input', 'ovr'); iv.type = 'number'; iv.min = 0; iv.max = 100;
+        iv.value = ov.value === undefined ? '' : ov.value;
+        const ir = el('input', 'ovr-r'); ir.type = 'text'; ir.placeholder = 'reden'; ir.value = ov.reason || '';
+        const commit = () => {
+          if (iv.value === '') delete state.coach.components[c.id];
+          else state.coach.components[c.id] = { value: Number(iv.value), reason: ir.value };
           save(); render();
         };
-        td.appendChild(inp); tr.appendChild(td);
+        iv.onchange = commit; ir.onchange = commit;
+        td.appendChild(iv); td.appendChild(ir); tr.appendChild(td);
         t.appendChild(tr);
       });
     });
-    const sc = el('div', 'tscroll'); sc.appendChild(t);
-    tb.appendChild(sc);
+    const sc = el('div', 'tscroll'); sc.appendChild(t); tb.appendChild(sc);
     root.appendChild(tb);
 
-    // contextvragen
+    // Contextvragen (§4)
     const ctx = el('div', 'card tight');
-    ctx.appendChild(el('div', 'eyebrow', 'Contextvragen — bewust zonder punten'));
-    const ul = el('ul'); ul.style.margin = '0'; ul.style.paddingLeft = '18px'; ul.style.color = 'var(--ink-2)';
-    Scoring.CONTEXT_QUESTIONS.forEach((c) => ul.appendChild(el('li', null, '<b>' + esc(c.src) + '</b> — ' + esc(c.use))));
-    ctx.appendChild(ul);
+    ctx.appendChild(el('div', 'eyebrow', 'Contextvragen — bewust zonder directe score (§4)'));
+    const cu = el('ul', 'plain');
+    [['V1', 'Leeftijd'], ['V2', 'Woonsituatie'], ['V3', 'Werk/studie en normale week'],
+     ['V4', 'Algemene levenswaardering — contextuele indicator, niet hetzelfde als coachingkwaliteit'],
+     ['V5', 'Wat gaat goed — sterktes en context'], ['V6', 'Wat wil je verbeteren — context'],
+     ['V21', 'Tijdsbesteding — modifier op structuur, geen eigen score'],
+     ['V23', 'Wat houdt je tegen — coachingprioriteit, geen automatische score']
+    ].forEach(([q, u]) => cu.appendChild(el('li', null, '<b>' + q + '</b> — ' + esc(u))));
+    ctx.appendChild(cu);
     root.appendChild(ctx);
 
-    // notities
+    // Acties beheren (§24)
+    const ac = el('div', 'card');
+    ac.appendChild(el('div', 'eyebrow', 'Acties deze week (maximaal 3)'));
+    state.actions.forEach((a, i) => {
+      const row = el('div', 'mod-row');
+      const inp = el('input'); inp.type = 'text'; inp.value = a.text;
+      inp.onchange = () => { state.actions[i].text = inp.value; save(); };
+      const del = el('button', 'ghost', 'Verwijder');
+      del.onclick = () => { state.actions.splice(i, 1); save(); render(); };
+      row.appendChild(inp); row.appendChild(del); ac.appendChild(row);
+    });
+    if (state.actions.length < 3) {
+      const addb = el('button', 'ghost', '+ Actie toevoegen');
+      addb.onclick = () => { state.actions.push({ text: 'Nieuwe actie', done: false }); save(); render(); };
+      ac.appendChild(addb);
+    }
+    ac.appendChild(el('p', 'muted', '<br>Score en acties zijn twee gescheiden systemen. Een lage score met hoge completion is een goed teken.'));
+    root.appendChild(ac);
+
+    // Notities
     const nt = el('div', 'card');
     nt.appendChild(el('div', 'eyebrow', 'Sessienotities'));
-    const ta = el('textarea'); ta.style.minHeight = '120px'; ta.value = state.notes || '';
+    const ta = el('textarea'); ta.style.minHeight = '110px'; ta.value = state.notes || '';
     ta.oninput = () => { state.notes = ta.value; save(); };
     nt.appendChild(ta);
     root.appendChild(nt);
-  }
 
-  function assessment(r) {
-    const a = state.answers;
-    const low = [];
-    Scoring.DIM_ORDER.forEach((k) => { const d = r.dims[k]; if (d.score !== null && d.score < 50) low.push(d.label.toLowerCase() + ' ' + d.score); });
-    const fact = [];
-    if (a.q23) fact.push('Noemt zelf “' + esc(a.q23) + '” als grootste blokkade.');
-    if (a.q25_s) fact.push('Bereidheid ' + esc(a.q25_s) + '/10.');
-    if (a.q4_s) fact.push('Geeft het eigen leven een ' + esc(a.q4_s) + '/10.');
-    if (a.q17_n !== undefined) fact.push('Beweegt ' + esc(a.q17_n) + ' dag(en) per week.');
-
-    const signal = [];
-    if (low.length) signal.push('Onder de 50: ' + low.join(', ') + '.');
-    if (r.capApplied) signal.push('Motivatie ligt hoger dan draagvermogen (ruw ' + r.totalRaw + ' → ' + r.total + ').');
-    r.flags.filter((f) => f.level === 'hoog').forEach((f) => signal.push(f.text));
-
-    const hyp = [];
-    if (r.clientView.aligned === false) hyp.push('Wat de klant als oorzaak benoemt (' + esc(r.clientView.claimed) +
-      ') is mogelijk een gevolg. Het model wijst naar ' + esc(r.clientView.modelLabel).toLowerCase() + '.');
-    if (r.dims.S.score !== null && r.dims.D.score !== null && r.dims.S.score + 10 < r.dims.D.score)
-      hyp.push('Mogelijk geen disciplineprobleem maar een inrichtingsprobleem.');
-    if (r.foundationIndex < 45 && r.dims.C.score >= 75) hyp.push('Risico op te veel tegelijk starten.');
-    if (!hyp.length) hyp.push('Geen scherpe tegenstrijdigheid in de data. Beeld lijkt intern consistent.');
-
-    const ver = [];
-    r.components.filter((c) => c.answered && c.provisional).slice(0, 5)
-      .forEach((c) => ver.push(esc(c.label) + ' (' + esc(c.src) + ')'));
-    const verTxt = ver.length ? 'Nog te valideren in de eerste sessie: ' + ver.join(', ') + '.'
-      : 'Alle componenten zijn gevalideerd.';
-
-    const dec = r.focus
-      ? 'Start bij <b>' + esc(r.focus.component || r.focus.dimLabel) + '</b> (' + esc(r.focus.dimLabel).toLowerCase() + '). ' +
-        esc(r.focus.reason) + ' Eén spoor, twee weken, daarna herijken.'
-      : 'Onvoldoende data voor een focusbepaling.';
-
-    return [
-      ['1. Fact', fact.length ? fact.join(' ') : '—'],
-      ['2. Signal', signal.length ? signal.join(' ') : 'Geen opvallende uitschieters.'],
-      ['3. Hypothese', hyp.join(' ')],
-      ['4. Verification', verTxt],
-      ['5. Decision', dec]
-    ];
+    // Record (§30)
+    const rc = el('div', 'card');
+    rc.appendChild(el('div', 'eyebrow', 'Opslagrecord (§30) — Scoring Framework v' + r.frameworkVersion));
+    const pre = el('pre', 'rec', esc(JSON.stringify({
+      score_version: r.record.score_version, score_date: r.record.score_date,
+      total_score: r.record.total_score, foundation_index: r.record.foundation_index,
+      foundation_status: r.record.foundation_status, confidence: r.record.confidence,
+      dimensions: r.record.dimensions, answers: r.record.answers.slice(0, 3).concat([{ '…': (r.record.answers.length - 3) + ' rijen ingekort' }])
+    }, null, 2)));
+    rc.appendChild(pre);
+    root.appendChild(rc);
   }
 
   /* ================================================================ ROUTER */
@@ -426,27 +528,28 @@
       if (b.dataset.view) b.onclick = () => { state.view = b.dataset.view; save(); render(); window.scrollTo(0, 0); };
     });
     $('#demo').onclick = () => {
-      state.answers = demoAnswers(); state.coach = {}; state.submitted = true; state.step = 4;
-      state.history = [{ label: 'Start', date: new Date().toISOString().slice(0, 10), total: result().total }];
-      state.view = 'client'; save(); render();
+      state = blank();
+      state.answers = demoAnswers(); state.submitted = true; state.step = 4;
+      state.actions = [{ text: 'Elke werkdag om 23:00 telefoon weg en licht uit', done: true },
+                       { text: 'Elke ochtend 10 minuten dagplanning maken', done: true },
+                       { text: 'Zondagavond week vooruit plannen', done: false }];
+      meting('Start'); state.view = 'client'; save(); render();
     };
     $('#reset').onclick = () => {
       if (!confirm('Alle ingevulde antwoorden wissen?')) return;
-      state = { answers: {}, coach: {}, notes: '', history: [], step: 0, view: 'intake', submitted: false };
-      save(); render();
+      state = blank(); save(); render();
     };
     render();
   });
 
-  /* Demoprofiel = het voorbeeld uit sectie 15 van de briefing:
-     klant zegt "discipline", data wijst naar structuur. */
+  /* Demoprofiel: klant noemt discipline, de data wijst naar structuur en fundament. */
   function demoAnswers() {
     return {
       q1: 29, q2: 'Alleen', q3: 'Fulltime IT-consultant, 45 uur per week, veel reistijd.',
       q4_s: 6, q4_t: 'Op papier gaat het prima maar ik voel me niet in controle.',
       q5_1: 'Mijn werk gaat goed', q5_2: 'Ik ben er voor mijn familie', q5_3: 'Ik geef niet snel op',
       q6_1: 'Mijn slaap', q6_2: 'Sporten', q6_3: 'Minder op mijn telefoon',
-      q7: 'Mijn discipline', q8: 'Op tijd naar bed en s ochtends sporten',
+      q7: 'Mijn discipline', q8: 'Op tijd naar bed gaan en s ochtends sporten, dat lukt me al jaren niet en dat geldt eigenlijk voor alles',
       q9: 'Ik wil over drie jaar in de beste vorm van mijn leven zijn en een eigen bedrijf hebben.',
       q10: ['Gezondheid & lichaam', 'Mentale kracht & discipline', 'Werk & carrière', 'Geld & financiële vrijheid'],
       q11: 'Omdat ik het gevoel heb dat ik onder mijn niveau leef en dat vreet aan me.',
@@ -459,9 +562,10 @@
       q19_s: 5, q19_t: 'Administratie en post blijven liggen.',
       q20_s: 6, q20_t: 'Sporten en vroeg opstaan houd ik nooit vol.',
       q21: ['Social media', 'YouTube', 'Telefoon algemeen'],
+      q21_t: 'Ik zit vaak 4 tot 5 uur per dag op mijn telefoon en game soms tot diep in de nacht.',
       q22: 'Mijn gezondheid serieuzer nemen.',
       q23: 'Discipline & volhouden',
-      q24: 'Ik word bijna 30 en ik wil niet over vijf jaar nog op dit punt staan.',
+      q24: 'Ik word bijna 30 en ik wil niet over een jaar nog steeds op dit punt staan.',
       q25_s: 8, q25_t: 'Ik wil er echt voor gaan en meer discipline opbrengen.'
     };
   }

@@ -89,10 +89,9 @@ Zes dimensies, gewogen: gezond fundament 25%, structuur & organisatie 20%, richt
 
 De score is nulmeting, bewustwording, gamification en voortgangsindicator. Uitdrukkelijk **geen** psychologische meting en geen oordeel over iemands waarde. Het doel is niet een hoge startscore, maar weten waar je staat en aantoonbaar vooruitgaan.
 
-Twee mechanismen maken *fundament-first* structureel in plaats van retorisch:
+*Fundament-first* zit niet in een kunstmatige afstraffing van de totaalscore. De totaalscore blijft een echte totaalscore; de **Foundation Index** — het gemiddelde van gezond fundament en structuur — draagt de tweede helft van de boodschap. Zo kan het dashboard tegelijk laten zien: *startscore 66* én *Foundation Status 🔴 Stabiliseren*. Dat is eerlijker dan één cijfer dat beide dingen probeert te zeggen.
 
-- een **foundation floor** die het totaal plafonneert op de fundamentindex + 15;
-- een **dubbele levelpoort**: level 3 en 4 vereisen naast een score ook een minimale fundamentindex.
+Ligt gezond fundament óf structuur onder 40, dan mag de eerste aanbeveling geen groeifocus zijn (**minimum foundation regel**). Het groeidoel wordt niet afgewezen — de route ernaartoe wordt aangepast.
 
 Volledige uitwerking: [`SCORING.md`](SCORING.md).
 
@@ -110,9 +109,11 @@ Het model kiest daarom niet het laagste cijfer, maar de grootste hefboom: achter
 
 ## 10. Gamification
 
-Volwassen, niet infantiel. Levels 1 Fundament → 2 Stabiliteit → 3 Groei → 4 Zelfstandigheid, met mijlpalen (eerste week, 7 dagen consistent, eerste maand, +10 punten, eerste doel behaald, fundament opgebouwd, zelfstandig traject afgerond).
+Volwassen, niet infantiel. De progressie loopt via de Foundation Status (Stabiliseren → Opbouwen → Stevig → Sterk) en mijlpalen: eerste week, 7 dagen consistent, eerste maand, +10 punten, eerste doel behaald, fundament opgebouwd, zelfstandig traject afgerond.
 
-Gamification moet gedrag versterken, niet het coachingproces verkleuteren.
+Gamification moet gedrag versterken, niet het coachingproces verkleuteren. De score is het dashboardlampje, niet de bestemming — en verandert in trendstappen, niet in dagelijkse decimalen.
+
+**Score en acties zijn twee gescheiden systemen.** Een lage startscore met hoge weekcompletion is een goed teken, en wordt ook zo benoemd.
 
 ## 11. UX-principes
 

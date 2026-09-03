@@ -18,12 +18,12 @@ Klik **Demoprofiel** om het scenario uit sectie 15 van de briefing te laden: de 
 | Bestand | Inhoud |
 |---|---|
 | `CONCEPT.md` | Het concept, aangescherpt en gestructureerd. |
-| **`SCORING.md`** | **De ontwerpspecificatie van het scoremodel** — de openstaande stap uit sectie 36 van de briefing. |
+| **`SCORING.md`** | **Implementatie van COACH SCORING FRAMEWORK V1.0** — vraagmapping, conversies, Foundation Index, confidence, signalen, override en opslagstructuur. |
 | `intake.js` | De 25 vragen als data, inclusief introducties en slottekst. |
 | `scoring.js` | De scoring-engine. Pure functies, geen DOM. Draait in browser en node. |
 | `app.js` | De prototype-UI: intake, klantdashboard, coachomgeving. |
 | `style.css` | Styling volgens de UX-principes uit sectie 34. |
-| `test/scoring.test.js` | 54 tests op het scoremodel. Geen dependencies. |
+| `test/scoring.test.js` | 111 tests, getoetst aan de rekenvoorbeelden in het framework. Geen dependencies. |
 
 ## Tests draaien
 
@@ -31,31 +31,34 @@ Klik **Demoprofiel** om het scenario uit sectie 15 van de briefing te laden: de 
 cd coaching-platform && node test/scoring.test.js
 ```
 
-De tests borgen onder meer:
+De tests toetsen rechtstreeks aan de rekenvoorbeelden in het framework:
 
-- gewichten per dimensie tellen op tot 1,00;
-- de foundation floor grijpt in bij het voorbeeld uit sectie 19 (ruw 46 → 36, level 1);
-- hoge commitment op een zwak fundament levert geen hoog level op;
-- contextvragen (V1, V2, V3, V4, V6) beïnvloeden de score aantoonbaar niet;
-- de eerste focus wijst altijd naar een knop, nooit naar een indicator;
-- een slecht slapende klant krijgt slaap als startpunt, niet het laagste losse cijfer;
-- niet ingevuld levert geen punten én geen voordeel.
+- §5 conversies: `score × 10`, en de volledige bewegingstabel (0/20/35/50/65/80/90/100);
+- §5 fundament: 70 + 60 + 50 + 60 + 65 → 61;
+- §6 structuur: (40 + 60) / 2 = 50, met coachcorrectie 50 → 45 en begrenzing op ±10;
+- §12 totaal: 60/50/80/55/75/90 → 65,5 → 66;
+- §13/§14 Foundation Index 55 → 🟡 Opbouwen, en alle acht statusgrenzen;
+- §15 geen harde cap: fundament 35 met readiness 100 geeft totaal 66 náást 🔴 Stabiliseren;
+- §16 prioriteit: 72/42/80/48/70/90 → eerste focus Structuur, tweede spoor Discipline;
+- §17 minimum foundation regel grijpt in zodra F of S onder 40 ligt;
+- §19 alle vier inconsistentievoorbeelden, met de controle dat de score níét daalt;
+- §20 override zonder reden wordt geweigerd; de AI-baseline blijft bewaard;
+- §30 het opslagrecord bevat alle voorgeschreven velden.
 
 ## Wat werkt
 
-- Volledige intake over 4 delen, met tussentijds opslaan in `localStorage`.
-- Startscore, zes dimensiebalken, level, eerste focus, badges, scorehistorie (`Nieuwe meting vastleggen`).
-- Coachomgeving: fundamentindex en plafond zichtbaar, klant-vs-coachvergelijking, signalen, het vijflagige assessment (fact / signal / hypothese / verification / decision), volledige score-opbouw per component en een override-veld per component.
-- Coachnotities.
+**Klant (§25):** volledige intake over 4 delen met tussentijds opslaan · startscore · Foundation Status · zes dimensies · eerste focus · doel · acties deze week met completion · mijlpalen · progressie over metingen.
+
+**Coach:** §31-samenvatting (sterkste dimensie, grootste ontwikkelpunt, eerste focus, confidence, coach validation) · coach checks met inconsistentiesignalen · coachinghypotheses · tijdsbestedingsmodifier met voorstel en toepassing · dimensiescores als AI baseline → coach validated met verplichte reden · score-opbouw per vraag met AI-observatie en band · contextvragenoverzicht · acties beheren · sessienotities · het volledige opslagrecord.
 
 ## Wat nog niet
 
 Accounts en authenticatie, betaling, backend/database (alles staat nu in `localStorage`), meerdere klanten in het coachoverzicht, acties en reflecties als eigen objecten met completion, geplande reflecties per trajectfase, e-mail/notificaties.
 
-## Belangrijkste openstaande ontwerpkeuzes
+## Belangrijkste openstaande keuzes
 
-Zie `SCORING.md` §12. Kort:
+Zie `SCORING.md` §13. Kort:
 
-1. Overgang van zelfrapportage naar gedragsdata bij vervolgmetingen (sectie 23 van de briefing).
-2. Hertoetsfrequentie — voorstel: elke 4 weken, alleen de 13 metric-vragen.
-3. Kalibratie van rubriekgrenzen en de plafondmarge van 15 punten op echte intakes.
+1. Vervolgmetingen op gedragsdata in plaats van zelfrapportage (framework §21/§22).
+2. Hermeetfrequentie — voorstel: elke 4 weken, alleen de cijfervragen (§23).
+3. Kalibratie van de AI-banden op echte intakes, aan de hand van de coachcorrecties die daadwerkelijk zijn toegepast.

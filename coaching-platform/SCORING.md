@@ -1,239 +1,242 @@
-# Scoremodel — ontwerpspecificatie v1.0
+# Coach Scoring Framework v1.0 — implementatiedocument
 
-> Dit document werkt sectie 18, 19 en 36 van de conceptbriefing uit:
-> **vraag 1–25 → dimensie → punten → dimensiescore → totaalscore → foundation floor → klantweergave.**
-> De implementatie staat in `scoring.js`, de bewijsvoering in `test/scoring.test.js` (54 tests).
+Dit document beschrijft hoe **COACH SCORING FRAMEWORK V1.0** is geïmplementeerd in `scoring.js`, en welke keuzes zijn gemaakt waar het framework ruimte liet. De rekenvoorbeelden uit het framework zijn als tests vastgelegd in `test/scoring.test.js` (111 tests, 0 gefaald).
+
+> Elke berekende score draagt `score_version: "1.0"`. Wijzigt de methodiek, dan wijzigt de versie — oude scores blijven berekend met de versie waaronder ze zijn ontstaan (§30).
 
 ---
 
-## 1. Ontwerpprincipes
+## 1. De drie soorten vragen (§3)
 
-Zes regels bepalen elke keuze hieronder.
-
-| # | Principe | Consequentie in het model |
+| Soort | Aantal | Gedrag |
 |---|---|---|
-| 1 | **Niet alle 25 vragen zijn scorevragen.** | 6 vragen zijn expliciet contextvragen zonder punten. |
-| 2 | **Ambitie maskeert geen zwak fundament.** | Foundation floor: het totaal wordt geplafonneerd op de fundamentindex + 15. |
-| 3 | **Zelfrapportage is geen meting.** | Elke automatisch geschatte waarde is `voorlopig` tot de coach hem valideert. |
-| 4 | **Niet ingevuld is niet hetzelfde als slecht.** | Onbeantwoord = `null`; de dimensie herweegt over wat er wél is. |
-| 5 | **De score wijst een startpunt aan, geen rangorde.** | De hefboom komt uit achterstand × gewicht × fundamentprioriteit, niet uit het laagste cijfer. |
-| 6 | **Het model stelt geen diagnose.** | Uitkomsten heten signaal en hypothese, nooit conclusie. |
+| **Scorevragen** | 17 | Leveren direct punten via een vaste conversie. |
+| **Contextvragen** | 7 | Beïnvloeden de score aantoonbaar niet (getest). |
+| **Validatie / modifier** | 1 | Q21 corrigeert structuur via de coach, met maximaal ±10. |
+
+De 17 scorevragen leveren **20 componenten**, omdat drie vragen in twee dimensies laden: Q19 (Structuur + Ownership), Q25 (Discipline + Readiness) en Q12 (Richting + Readiness). Dat is geen dubbeltelling per ongeluk — het framework schrijft die kruisverbanden expliciet voor in §6, §8, §9 en §10.
+
+### Contextvragen — geen punten
+
+Q1 leeftijd · Q2 woonsituatie · Q3 werk/week · Q4 levenswaardering · Q5 wat gaat goed · Q6 wat verbeteren · Q23 wat houdt je tegen.
+
+Q4 en Q23 doen wel werk: Q4 voedt een **self-image check** (afwijking ≥ 25 punten van de Foundation Index), Q23 voedt de klant-vs-coachvergelijking en de coachingprioriteit. Punten leveren ze niet.
+
+### Eén opgeloste dubbelzinnigheid
+
+§4 noemt Q7, Q9, Q11 en Q24 bij de vragen "die geen directe score krijgen", terwijl §7, §9 en §10 er gewichten aan toekennen. Dit is opgelost volgens §3: ze krijgen **geen directe numerieke conversie**, maar een **AI-baseline in een band** die de coach kan bevestigen of aanpassen. In de UI zijn ze gemarkeerd met `AI` plus de band waarin ze vallen. Q23 en Q5 krijgen wél helemaal geen score — die staan in geen enkele dimensielijst.
 
 ---
 
-## 2. Van cijfer naar punten
+## 2. Conversies (§5)
 
-**Schaalvragen (1–10):** `punten = (x − 1) / 9 × 100`
+**Schaalvragen 1–10:** `punten = score × 10`. Een 7 wordt 70.
 
-Bewust niet `x × 10`. Een 1 betekent "dit werkt niet", niet "10 punten waard". Zo is de schaal ook aan de onderkant informatief: het verschil tussen 1 en 3 is even zwaar als tussen 8 en 10.
+**Beweging (Q17)** — bewust niet lineair, zodat 7 dagen sporten niet als norm wordt gepresenteerd:
 
-**Rubrieken (open vragen), 0–3 → 0–100:** `punten = r / 3 × 100`
+| Dagen | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| Score | 0 | 20 | 35 | 50 | 65 | 80 | 90 | 100 |
 
-Drie verwerkingsmodi voor open vragen:
+**Open vragen** krijgen een AI-baseline in een van vier banden (§7/§8), met de middenwaarde als score:
 
-| Modus | Wanneer | Gedrag |
+| Band | Bereik | Baseline |
 |---|---|---|
-| `rubric-auto` | Helderheid en concreetheid zijn in de tekst zelf zichtbaar (V9, V11, V12, V22, V24, V25b) | Automatische schatting op basis van lengte, concrete tijd-/aantalmarkers en richtingwoorden. Ondergrens 0,3 — een onbruikbaar antwoord scoort laag, maar nooit gelijk aan niets. Altijd `voorlopig`. |
-| `rubric-coach` | Betekenis vereist interpretatie (V8, uitstelgedrag) | Geen automatische schatting. Neutraal 50, gemarkeerd `vereist coachvalidatie`. |
-| `derived` | Keuzevragen met een afleidbare betekenis (V5, V10, V21, V23, coherentie) | Deterministische regel, geen tekstinterpretatie. |
+| Geen / niet benoembaar | 0–25 | 15 |
+| Aanwezig maar vaag | 26–50 | 40 |
+| Duidelijk | 51–75 | 65 |
+| Duidelijk, concreet en persoonlijk | 76–100 | 85 |
 
-Dat V8 níet automatisch wordt gescoord is een bewuste keuze: woordaantal meet geen uitstelgedrag. Doen alsof dat wel zo is, zou het model precies zo onbetrouwbaar maken als het optellen-en-delen-door-25 dat sectie 18 verwerpt.
+De beoordeling gebruikt kenmerken die in de tekst zelf zichtbaar zijn: lengte, concrete tijd- en aantalmarkers, vaagheidswoorden, onzekerheid ("weet niet"), interne versus externe attributie, ernstmarkers ("altijd", "al jaren"), urgentie en persoonlijke verankering. Per vraag geldt een eigen regel — Q8 is bijvoorbeeld een **negatieve** indicator: hoe sterker het uitstelpatroon, hoe lager de score.
+
+Elke AI-baseline levert een `ai_observation` die in de coachomgeving zichtbaar is, bijvoorbeeld: *"Ownership-signaal: verantwoordelijkheid vooral buiten zichzelf gelegd."* Nooit: *"deze persoon neemt geen verantwoordelijkheid"* (§9).
 
 ---
 
-## 3. De mapping: 25 vragen → 22 scorecomponenten
+## 3. De zes dimensies
 
-Gewichten binnen elke dimensie tellen op tot 1,00 (bewaakt door test 1).
+### 🧱 Gezond fundament — 25% (§5)
 
-### Gezond fundament — 25%
+Ongewogen gemiddelde van vijf vragen: `(Q13 + Q14 + Q15 + Q16 + Q17) / 5`.
 
-| Component | Bron | Gewicht | Type | Knop? |
-|---|---|---|---|---|
-| Lichamelijke gezondheid | V13 | 20% | metric | indicator |
-| Energie | V14 | 25% | metric | indicator |
-| Slaap | V15 | 25% | metric | **knop** (upstream 1,40) |
-| Voeding | V16 | 15% | metric | knop (0,95) |
-| Beweging | V17 | 15% | behaviour | knop (1,00) |
+Rekenvoorbeeld uit het framework: 70 + 60 + 50 + 60 + 65 → **61**. ✔ getest.
 
-**Slaap** combineert tevredenheid (70%) met feitelijke bedduur uit bedtijd/opstaantijd (30%): 7–9 uur = 100, 6–7 uur = 65, 9–10 uur = 75, daarbuiten = 30. Zijn de tijden niet ingevuld, dan telt alleen de tevredenheid.
+Slaapduur en slaapritme worden **niet** in de score verwerkt. Ze valideren de zelfscore: bij 8/10 met structureel 4–5 uur slaap blijft de score 80 en verschijnt een ⚠️ Sleep validation signal. Zo trekt het systeem geen medische conclusie.
 
-**Beweging** is de enige vraag in de hele intake die feitelijk gedrag meet in plaats van een gevoel. 0 dagen = 0, 1 = 25, 2 = 45, 3 = 65, 4 = 80, 5 = 90, 6 = 97, 7 = 100.
+### 📅 Structuur & organisatie — 20% (§6)
 
-### Structuur & organisatie — 20%
+`(Q18 + Q19) / 2`. Q20 hoort hier bewust niet — die zit bij discipline.
 
-| Component | Bron | Gewicht | Type |
-|---|---|---|---|
-| Dag- en weekstructuur | V18 | 45% | metric (upstream 1,35) |
-| Eigen zaken op orde (self-reliance) | V19 | 35% | metric |
-| Tijdbesteding | V21 | 20% | derived (1,20) |
+Rekenvoorbeeld: (40 + 60) / 2 = **50**. ✔ getest.
 
-**Tijdbesteding**: 0 tijdlekken benoemd = 90 (niet 100 — onbenoemd is niet bewezen afwezig), 1 = 72, 2 = 52, 3 = 36, 4 = 24, 5+ = 15.
+**Q21 is een modifier, geen component.** Het systeem beoordeelt de tijdsbesteding op laag / gemiddeld / hoog en stelt een correctie voor van 0, −5 of −10. Die correctie wordt **niet automatisch toegepast**: de coach past hem toe en moet een reden opgeven. Correcties zijn begrensd op ±10 en zichtbaar als `50 → 45 — veel digitale afleiding`.
 
-V19 en V20 zijn strikt gescheiden gehouden, zoals de briefing eist: V19 (eigen zaken op orde) laadt op **Structuur**, V20 (afspraken met jezelf nakomen) op **Discipline**. Ze delen geen enkele component.
+### 🧭 Richting — 15% (§7)
 
-### Richting — 15%
-
-| Component | Bron | Gewicht | Type |
-|---|---|---|---|
-| Helderheid toekomstbeeld | V9 | 30% | rubric-auto |
-| Concreetheid 3-maandendoel | V12 | 30% | rubric-auto (1,20) |
-| Verankering van het waarom | V11 | 25% | rubric-auto (0,90) |
-| Focus in levensdomeinen | V10 | 15% | derived (1,10) |
-
-**Focus**: 2–3 domeinen = 100 (scherp), 4 = 85, 1 = 75 (scherp maar smal), 0 of >4 = 40. Meer belangrijk vinden is hier geen betere score.
-
-### Discipline & consistentie — 15%
-
-| Component | Bron | Gewicht | Type |
-|---|---|---|---|
-| Afspraken met jezelf nakomen | V20 | 50% | metric |
-| Uitstelgedrag | V8 | 25% | rubric-coach (1,10) |
-| Bewezen consistentie (beweging) | V17 | 25% | behaviour |
-
-V17 laadt bewust op twee dimensies. Reden: het is het enige gedragsbewijs in de intake. In *Fundament* telt het als gezondheid, in *Discipline* als aantoonbare consistentie. Dubbeltelling is hier gewenst — zonder deze koppeling bestaat discipline in het model uitsluitend uit een cijfer dat de klant zichzelf geeft.
-
-### Ownership & verantwoordelijkheid — 15%
-
-| Component | Bron | Gewicht | Type |
-|---|---|---|---|
-| Benoemt eigen verantwoordelijkheid | V22 | 35% | rubric-auto (1,20) |
-| Waar legt hij de oorzaak | V23 | 25% | derived |
-| Coherentie wens / doel / blokkade | V7 + V12 + V23 | 25% | derived (1,10) |
-| Kan eigen sterke punten benoemen | V5 | 15% | derived, indicator |
-
-**Attributie (V23)**: discipline 95, dagstructuur/planning 90, slaap/voeding/beweging 85, geld/werk 70, anders 60, **mijn omgeving 35**, ik weet het niet 25. De oorzaak buiten jezelf leggen is geen fout, maar wel een lagere ownership-score — precies wat deze dimensie hoort te meten.
-
-**Coherentie** vergelijkt drie antwoorden via een grove domeinclassificatie (slaap, voeding, beweging, structuur, planning, discipline, geld, werk, omgeving, scherm): alle drie hetzelfde domein = 100, 2 van 3 = 70, doel en blokkade uiteen = 45, alle drie verschillend = 35. Dit meet of iemand zijn wens, zijn doel en zijn zelfgenoemde blokkade op één lijn heeft staan.
-
-### Readiness & commitment — 10%
-
-| Component | Bron | Gewicht | Type |
-|---|---|---|---|
-| Bereidheid (cijfer) | V25 | 40% | metric, indicator |
-| Concreet bereid anders te doen | V25b | 35% | rubric-auto (1,20) |
-| Waarom nu (urgentie) | V24 | 25% | rubric-auto (0,90) |
-
-V25 is bewust gesplitst. Het cijfer is intentie; het tweede deel is de prijs die iemand bereid is te betalen. "Ik ga er echt voor" en "mijn telefoon gaat om 22:00 de kamer uit" horen niet dezelfde score te krijgen.
-
-### Contextvragen — bewust nul punten
-
-| Vraag | Waarvoor dan wel |
+| Vraag | Gewicht |
 |---|---|
-| V1 leeftijd | Levensfase en haalbaarheid. |
-| V2 woonsituatie | Omgevingsdruk en beschikbare ruimte. |
-| V3 werk/week | Tijdsbudget en belasting. |
-| V4 cijfer voor je leven | **Zelfbeeld-kalibratie** — zie §6. |
-| V6 drie verbeterpunten | Grondstof voor het focusgesprek. |
-| V7 één ding veranderen | Klantperceptie; telt uitsluitend indirect via coherentie. |
-| Alle toelichtingen bij V13–V20 | Signalen voor de coach, geen punten. |
+| Q9 — 3-jaarsbeeld | 30% |
+| Q10 — prioritering levensgebieden | 15% |
+| Q11 — waarom / betekenis | 25% |
+| Q12 — doel voor 3 maanden | 30% |
 
-Zes van de 25 vragen leveren dus geen directe punten. Dat is geen verspilling: ze doen het werk dat sectie 18 ze toebedeelt — context leveren zonder de score te vervuilen.
+Q10 meet prioritering, niet ambitie: 1–2 kernprioriteiten → 100, 3–4 → 90, 5+ → 70, geen keuze → 40. Meer belangrijk vinden levert geen hogere score op.
+
+### 🔥 Discipline & consistentie — 15% (§8)
+
+Q8 30% · Q20 45% · Q25 25%.
+
+Q25 levert hier het cijfer; de open toelichting valideert het. Een 9/10 naast "ik wil eigenlijk niets veranderen" verlaagt de score niet, maar levert een ⚠️ Commitment inconsistency.
+
+### 🛡️ Ownership & verantwoordelijkheid — 15% (§9)
+
+Q19 40% · Q22 40% · Q7 20%.
+
+### 🚀 Readiness & commitment — 10% (§10)
+
+Q24 35% · Q25 50% · Q12 15%.
 
 ---
 
-## 4. Dimensiescore
+## 4. Totaalscore (§11)
 
 ```
-dimensiescore = Σ(componentwaarde × componentgewicht) / Σ(gewicht van beantwoorde componenten)
+Startscore = F×0,25 + S×0,20 + R×0,15 + D×0,15 + O×0,15 + C×0,10
 ```
 
-Herweging over de beantwoorde componenten voorkomt dat een overgeslagen vraag als een nul telt. De dekking (`coverage`) wordt meegeleverd; onder de 60% krijgt de coach een `dunne dekking`-signaal.
+Rekenvoorbeeld §12: 60 / 50 / 80 / 55 / 75 / 90 → 15 + 10 + 12 + 8,25 + 11,25 + 9 = **65,5 → 66**. ✔ getest.
 
-## 5. Totaalscore en foundation floor
+### Geen harde score-cap (§15)
 
-```
-ruwe totaalscore   = Σ(dimensiescore × dimensiegewicht)
+De totaalscore wordt **niet** geplafonneerd. Een klant met een zwak fundament maar sterke richting, discipline, ownership en readiness houdt een reële totaalscore; de Foundation Status draagt het andere deel van de boodschap.
 
-fundamentindex FI  = 0,45·F + 0,35·S + 0,20·D
-plafond            = FI + 15
-eindscore          = min(ruwe totaalscore, plafond)
-```
+Rekenvoorbeeld §15: fundament 35, structuur 35, richting 95, discipline 85, ownership 90, readiness 100 → **totaal 66** naast **Foundation Status 🔴 Stabiliseren**. Beide staan tegelijk op het dashboard. ✔ getest.
 
-Alleen **F**, **S** en **D** vormen de fundamentindex. Richting, ownership en commitment zeggen iets over waar iemand heen wil en hoe graag — niet over of hij zichzelf kan dragen.
+---
 
-Het plafond werkt **asymmetrisch**: een sterk fundament kan de score nooit omhoog trekken, een zwak fundament wel omlaag. De marge van 15 punten laat ruimte voor iemand die zijn basis grotendeels op orde heeft, maar sluit het geval uit dat sectie 19 beschrijft.
-
-**Voorbeeld uit de briefing** (commitment 9, richting hoog, slaap/structuur/discipline 3):
+## 5. Foundation Index en Status (§13/§14)
 
 ```
-ruw 46  →  FI 21  →  plafond 36  →  eindscore 36  →  Level 1
+Foundation Index = (Gezond Fundament + Structuur) / 2
 ```
 
-De klant ziet 36, geen 46. De commitment-dimensie blijft in de uitsplitsing zichtbaar hoog — de coach heeft die informatie nodig, en de klant verdient te zien dat zijn motivatie wél telt.
-
-## 6. Levels — dubbele poort
-
-| Level | Naam | Score ≥ | Fundamentindex ≥ |
-|---|---|---|---|
-| 1 | Fundament | 0 | — |
-| 2 | Stabiliteit | 45 | — |
-| 3 | Groei | 65 | **60** |
-| 4 | Zelfstandigheid | 85 | **75** |
-
-Vanaf level 3 geldt een tweede poort op de fundamentindex. Zo kan niemand naar "Groei" doorschuiven op basis van richting en motivatie alleen. Dit is de tweede plek waar *fundament-first* structureel in het systeem zit in plaats van in de tekst.
-
-## 7. Hefboombepaling
-
-Twee stappen, plus één override.
-
-**Stap 1 — welke dimensie?**
-
-```
-hefboomwaarde = (100 − dimensiescore) × dimensiegewicht × fundamentprioriteit
-fundamentprioriteit:  F 1,30 · S 1,25 · D 1,15 · O 1,00 · R 0,90 · C 0,80
-```
-
-**Stap 2 — welke component binnen die dimensie?** Niet simpelweg de laagste. Twee correcties:
-
-- **Indicatoren zijn geen knoppen.** Energie, lichamelijke gezondheid, bereidheid en "kan sterke punten benoemen" zijn uitkomsten, geen handelingen. Ze worden nooit als startpunt gekozen.
-- **Stroomopwaarts weegt zwaarder.** `(100 − waarde) × upstream`, met slaap 1,40 en dagstructuur 1,35 bovenaan.
-
-**Override:** slaap onder 40 wint altijd. Slaap werkt door in energie, discipline én structuur; elke andere interventie kost meer en levert minder op zolang iemand structureel te kort slaapt.
-
-Zonder deze correcties koos het model bij het demoprofiel *beweging* (score 25) boven *slaap* (score 40) — het laagste cijfer, maar de verkeerde eerste stap. Sectie 30 van de briefing schrijft precies het tegenovergestelde voor: begin bij slaap en ochtendstructuur. Test 9 borgt dit.
-
-## 8. Klant vs. coach
-
-V23 (zelfgenoemde blokkade) wordt naar een dimensie vertaald en vergeleken met de dimensie die het model aanwijst.
-
-| Uitkomst | Betekenis voor de eerste sessie |
-|---|---|
-| `aligned: true` | Bevestigen en direct starten. |
-| `aligned: false` | Hypothese om samen te toetsen — geen correctie van de klant. |
-| `aligned: null` | Onvoldoende data ("ik weet het niet", "anders"). |
-
-Het demoprofiel is het voorbeeld uit sectie 15: de klant zegt *discipline*, het model wijst naar *gezond fundament → slaap*, terwijl structuur (38) onder discipline (47) ligt. De coachingzin die daaruit volgt is niet "je hebt ongelijk" maar "laten we dat de komende weken testen".
-
-## 9. Signalen voor de coach
-
-| Signaal | Trigger | Niveau |
+| Index | Status | Focus |
 |---|---|---|
-| `foundation-floor` | Plafond heeft ingegrepen | hoog |
-| `commitment-gap` | Commitment ≥ 75 bij FI < 45 | hoog |
-| `kritiek` | Fundament- of structuurcomponent onder 30 | hoog |
-| `zelfbeeld` | V4 wijkt ≥ 20 punten af van de eindscore | midden |
-| `structuur-vs-discipline` | Structuur ligt ≥ 10 punten onder discipline | midden |
-| `spreiding` | 4 domeinen belangrijk bij FI < 50 | midden |
-| `data` | Dimensie zonder data of dekking < 60% | laag |
+| 0–39 | 🔴 Stabiliseren | Eerst functioneren en stabiliseren. |
+| 40–59 | 🟡 Opbouwen | Structuur en consistentie opbouwen. |
+| 60–74 | 🟢 Stevig | Fundament onderhouden en gericht groeien. |
+| 75–100 | 🔵 Sterk | Groei, prestaties en verdere ontwikkeling. |
 
-**Zelfbeeld-kalibratie** is de reden dat V4 in de intake staat zonder punten op te leveren. Boven de score = mogelijk onderschat hij wat er structureel misgaat. Onder de score = mogelijk te streng voor zichzelf; check op schaamte of perfectionisme. Beide zijn gespreksmateriaal, geen oordeel.
+Alle acht grenswaarden zijn getest.
 
-## 10. Coachvalidatie
+### Scorebanden (§27)
 
-Elke component kan door de coach worden overschreven met een waarde 0–100. Een coachwaarde vervangt de automatische schatting en haalt de `voorlopig`-markering weg. Zolang er niet-gevalideerde rubrieken in het profiel zitten, staat het hele assessment op `voorlopig`.
+0–39 Instabiel · 40–59 In opbouw · 60–74 Stevige basis · 75–89 Sterk niveau · 90–100 Zeer sterk. Beschrijvend, niet normatief.
 
-Dit is de brug naar sectie 23 van de briefing: de startscore is zelfrapportage, latere metingen worden steeds meer gedrag. De componenten zijn daarvoor al voorbereid — `kind: 'behaviour'` markeert nu al welke component op feitelijk gedrag rust in plaats van op een gevoel.
+---
 
-## 11. Wat dit model bewust níet doet
+## 6. Prioriteitslogica (§16) en minimum foundation regel (§17)
 
-- Geen diagnose, geen classificatie, geen medische of psychologische uitspraak.
-- Geen ranglijst tussen klanten. De score is alleen vergelijkbaar met de eigen vorige meting.
-- Geen automatische conclusie uit open tekst. Tekstschattingen zijn altijd voorlopig en altijd overschrijfbaar.
-- Geen beloning voor leeglaten: een onbeantwoorde vraag levert geen punten én geen voordeel (test 10).
+**Stap 1 — hefboom:** `(100 − dimensiescore) × dimensiegewicht`, aflopend gesorteerd; bij gelijke hefboom wint de laagste score.
 
-## 12. Openstaand voor v2
+Rekenvoorbeeld §16: 72 / 42 / 80 / 48 / 70 / 90 → eerste focus **Structuur**, tweede spoor **Discipline**. ✔ getest.
 
-1. **Gedragsdata** (sectie 23): actiecompletion en streaks als vervanging van `rubric-auto` bij vervolgmetingen.
-2. **Hertoetsfrequentie**: hoe vaak hermeten? Voorstel: elke 4 weken, met alleen de metric-vragen (13 vragen, ~3 minuten).
-3. **Kalibratie op echte intakes**: de rubriekgrenzen en de plafondmarge van 15 zijn beredeneerd, niet empirisch. Na ~20 intakes bijstellen.
-4. **Gewicht van V17-dubbeltelling** valideren zodra er beweegdata uit het traject zelf beschikbaar is.
+**Stap 2 — minimum foundation regel:** ligt Gezond fundament óf Structuur onder 40, dan mag de eerste aanbeveling geen groeifocus zijn. Twee uitkomsten:
+
+| Situatie | `focus.rule` |
+|---|---|
+| Hefboom wees al naar F of S | `minimum-foundation` — de regel bevestigt de keuze |
+| Hefboom wees elders | `minimum-foundation-override` — de focus verschuift naar de laagste van F/S |
+
+Het groeidoel wordt nooit afgewezen. Alleen de route ernaartoe verandert: *"Doel: bedrijf opbouwen. Eerste focus: fundament/structuur."*
+
+De coach kan de eerste focus altijd handmatig overrulen (`focus.rule: coach-override`).
+
+---
+
+## 7. Confidence (§18)
+
+Elke dimensie krijgt naast een score een betrouwbaarheid: 🟢 Hoog · 🟡 Medium · 🔴 Laag.
+
+De rang begint op basis van het aandeel van de dimensie dat op AI-schattingen rust:
+
+| Aandeel AI-geschat | Startrang |
+|---|---|
+| 0% (alleen cijfers) | Hoog |
+| ≤ 50% | Medium |
+| > 50% | Laag |
+
+Daarna één stap omlaag per onvolledige component, en één stap omlaag bij een openstaande coach check. Een door de coach vastgestelde dimensiescore staat altijd op **Hoog**.
+
+In de praktijk: Gezond fundament en Structuur starten hoog (puur cijfermatig), Richting en Ownership starten lager (grotendeels open vragen). Dat is de bedoeling — het vertelt de coach precies waar de score nog een indicatie is en geen conclusie.
+
+---
+
+## 8. Inconsistentiesignalen (§19)
+
+Zes detectoren. **Geen enkele verlaagt automatisch een score.** Alle zes produceren een ⚠️ Coach Check.
+
+| Signaal | Trigger |
+|---|---|
+| Commitment inconsistency | Q25 ≥ 8 terwijl de toelichting geen concrete verandering benoemt |
+| Self-assessment inconsistency | Q20 ≥ 8 terwijl de toelichting een structureel patroon beschrijft |
+| Direction inconsistency | Richting ≥ 70 terwijl toekomstbeeld of doel niet benoembaar is |
+| Health validation signal | Q13 ≥ 8 terwijl concrete klachten worden genoemd |
+| Sleep validation signal | Zelfscore hoog bij korte slaapduur, of structureel < 6 uur |
+| Self-image check | Q4 ligt ≥ 25 punten boven de Foundation Index |
+
+Alle vier de voorbeelden uit §19 zijn als test opgenomen, inclusief de controle dat de onderliggende score onveranderd blijft.
+
+---
+
+## 9. Coach override (§20)
+
+Een override — op dimensieniveau of op componentniveau — vereist **een nieuwe score én een reden**. Zonder reden wordt de override geweigerd en verschijnt een waarschuwing; de score blijft ongewijzigd. Getest in beide richtingen.
+
+De AI-baseline blijft bewaard naast de coachscore:
+
+```
+Discipline: 52 → 40
+Reden: concrete voorbeelden tonen structureel niet nakomen
+```
+
+Zo ontstaat het spoor **AI baseline → Coach validated score** dat §20 voorschrijft.
+
+---
+
+## 10. Opslagstructuur (§30)
+
+De scoring zit niet hardcoded in de frontend. `computeScore()` levert een `record` met exact de velden uit §30:
+
+```
+score_version · score_date · question_id · raw_value · normalized_value ·
+score_dimension · dimension_score · confidence · ai_observation ·
+inconsistency_flag · coach_adjusted_score · coach_adjustment_reason
+```
+
+Plus een dimensieniveau met `ai_dimension_score` naast `dimension_score`, zodat de baseline en de gevalideerde score gescheiden opgeslagen kunnen worden. Het volledige record is zichtbaar onderin de coachomgeving en is direct geschikt als database-payload.
+
+---
+
+## 11. Score versus acties (§24)
+
+Twee gescheiden systemen. De score zegt *waar sta je*, de acties zeggen *wat doe je*. Bij hoge completion en een nog lage score toont het klantdashboard expliciet:
+
+> Je staat nog niet waar je wilt staan, maar je gedrag laat zien dat je daadwerkelijk aan het veranderen bent.
+
+Conform §22 mag een score niet stijgen omdat iemand zegt dat het beter gaat: een nieuwe meting legt een nieuw meetmoment vast, gebaseerd op opnieuw ingevulde antwoorden en coachvalidatie.
+
+---
+
+## 12. Taal (§26)
+
+De verboden formuleringen staan expliciet in de code vastgelegd (`Scoring.LANGUAGE.verboden`), zodat ze in reviews en tests herkenbaar blijven. Alle klantgerichte teksten in het prototype gebruiken de goedgekeurde vorm: *"Je huidige discipline-score is 55/100"*, *"Dit is je huidige startpunt"*, *"Je hoeft niet alles tegelijk te veranderen"*.
+
+---
+
+## 13. Openstaand voor v1.1
+
+1. **Gedragsdata (§21/§22).** De componenten zijn voorbereid, maar vervolgmetingen draaien nu nog op dezelfde zelfrapportage. Volgende stap: actiecompletion en consistentie als eigen invoer.
+2. **Scoremagnitude (§23).** Het framework wil trend, geen dagelijkse ruis. Voorstel: hermeten per 4 weken, alleen de cijfervragen.
+3. **Kalibratie van de AI-banden.** De regels per open vraag zijn beredeneerd, niet empirisch. Na ~20 echte intakes vergelijken met de coachcorrecties die daadwerkelijk zijn toegepast — dat levert precies de data om de banden bij te stellen.
+4. **Q21-modifier.** Nu maximaal ±10 op structuur. Zodra er schermtijddata beschikbaar is, kan dit een echte component worden in plaats van een coachcorrectie.
