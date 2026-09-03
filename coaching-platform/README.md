@@ -19,17 +19,25 @@ Klik **Demoprofiel** om het scenario uit sectie 15 van de briefing te laden: de 
 |---|---|
 | `CONCEPT.md` | Het concept, aangescherpt en gestructureerd. |
 | **`SCORING.md`** | **Implementatie van COACH SCORING FRAMEWORK V1.0** — vraagmapping, conversies, Foundation Index, confidence, signalen, override en opslagstructuur. |
+| **`ENGINE.md`** | **Coaching Engine V1.0** — Priority Engine (5 stappen), validatie op 8 profielen, sessie 1, wekelijkse check-in en Progress Score. |
 | `intake.js` | De 25 vragen als data, inclusief introducties en slottekst. |
-| `scoring.js` | De scoring-engine. Pure functies, geen DOM. Draait in browser en node. |
+| `scoring.js` | Startscore-engine. Pure functies, geen DOM. Draait in browser en node. |
+| `priority.js` | Priority Engine v1.0 — foundation check, bottleneck, contradicties, leverage, coachvalidatie. |
+| `coaching.js` | Sessie 1-gids, wekelijkse check-in-analyse en Progress Score v1.0. |
 | `app.js` | De prototype-UI: intake, klantdashboard, coachomgeving. |
 | `style.css` | Styling volgens de UX-principes uit sectie 34. |
-| `test/scoring.test.js` | 111 tests, getoetst aan de rekenvoorbeelden in het framework. Geen dependencies. |
+| `test/scoring.test.js` | 111 tests op de Startscore, getoetst aan de rekenvoorbeelden in het framework. |
+| `test/priority.test.js` | 56 tests op de Priority Engine, inclusief de 8 validatieprofielen. |
+| `test/coaching.test.js` | 51 tests op sessie 1, check-in en Progress Score. |
 
 ## Tests draaien
 
 ```
-cd coaching-platform && node test/scoring.test.js
+cd coaching-platform
+node test/scoring.test.js && node test/priority.test.js && node test/coaching.test.js
 ```
+
+218 tests, geen dependencies.
 
 De tests toetsen rechtstreeks aan de rekenvoorbeelden in het framework:
 

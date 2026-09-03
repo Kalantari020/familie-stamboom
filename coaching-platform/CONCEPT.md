@@ -59,6 +59,14 @@ Gewenste beleving na afloop: *"Deze coach wil me serieus begrijpen"* → *"Ik be
 
 De volledige vragenset staat in [`intake.js`](intake.js); de introducties en slottekst zijn woordelijk overgenomen uit de briefing.
 
+## 4b. Waar beginnen we — de Priority Engine
+
+De eerste focus komt niet uit de laagste score. Vijf stappen bepalen hem: **Foundation Check** (basis onder 40 gaat voor), **Bottleneck Score** (achterstand × doorwerking op andere dimensies), **Contradictie Check**, **Leverage Check** (welke ene verandering verbetert meerdere problemen tegelijk) en **Coach Validation**.
+
+Die laatste stap is geen formaliteit: de AI-focus is voorlopig en **niet zichtbaar voor de klant** tot de coach hem bevestigt. De klant leest tot dat moment: *"Wordt bepaald in je eerste sessie."*
+
+Volledige uitwerking: [`ENGINE.md`](ENGINE.md).
+
 ## 5. Klant versus coach
 
 Het platform onderscheidt structureel twee dingen:
@@ -127,7 +135,26 @@ Volwassen, premium, rustig, overzichtelijk. Lage cognitieve belasting. Duidelijk
 
 Wat in dit prototype al werkt en wat nog niet: zie [`README.md`](README.md).
 
-## 13. Het model in negen stappen
+## 13. Coaching Journey V1.0
+
+| Fase | Wat er gebeurt |
+|---|---|
+| **1 — Inzicht** | Intake, 25 vragen, Startscore, Foundation Status, eerste coachanalyse. |
+| **2 — Fundament** | Eerste coachsessie, één primaire focus, 1–3 acties per week, wekelijkse check-in, gedrag en patronen observeren. |
+| **3 — Stabiliteit** | Consistente routines, betere structuur, afspraken nakomen, energie en gezondheid verbeteren, terugkerende patronen begrijpen. |
+| **4 — Groei** | Pas als het fundament stabiel genoeg is: fitness, carrière, financiën, relaties, persoonlijke ontwikkeling, lifestyle, grotere doelen. |
+| **5 — Ownership** | Zelf prioriteiten bepalen, eigen problemen herkennen, eigen acties formuleren, eigen gedrag evalueren, bijsturen zonder coach. |
+| **6 — Zelfstandigheid** | Niet *"ik heb een goede coach nodig"*, maar *"ik weet hoe ik mezelf moet sturen"*. |
+
+### De volledige coachingloop
+
+```
+INTAKE → STARTSCORE → COACHANALYSE → SESSIE → FOCUS → ACTIES
+   → WEKELIJKSE CHECK-IN → REFLECTIE → COACHANALYSE → AANPASSEN
+   → PROGRESS SCORE → NIEUWE FOCUS → GROEI → ZELFSTANDIGHEID
+```
+
+Het model in negen stappen:
 
 ```
 UNDERSTAND  →  ASSESS  →  FOCUS  →  ACT  →  REFLECT

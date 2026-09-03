@@ -21,7 +21,7 @@
     R: { key: 'R', icon: '🧭', label: 'Richting',                        weight: 0.15 },
     D: { key: 'D', icon: '🔥', label: 'Discipline & consistentie',       weight: 0.15 },
     O: { key: 'O', icon: '🛡️', label: 'Ownership & verantwoordelijkheid', weight: 0.15 },
-    C: { key: 'C', icon: '🚀', label: 'Readiness & commitment',          weight: 0.10 }
+    C: { key: 'C', icon: '🚀', label: 'Commitment & Readiness',           weight: 0.10 }
   };
   const DIM_ORDER = ['F', 'S', 'R', 'D', 'O', 'C'];
 
@@ -296,7 +296,7 @@
     return { comps, score: weighted(comps) };
   }
 
-  /* --- 6. Readiness & commitment (10%) — Q24 35 / Q25 50 / Q12 15 (§10) --- */
+  /* --- 6. Commitment & Readiness (10%) — Q24 35 / Q25 50 / Q12 15 (§10) --- */
   function dimReadiness(a) {
     const e24 = estimateOpen('q24', a.q24), e12 = estimateOpen('q12', a.q12);
     const comps = [

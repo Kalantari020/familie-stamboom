@@ -98,7 +98,7 @@ ok('§12 dashboard toont 66', v12.total === 66, v12.total);
 ok('§13 Foundation Index = (60 + 50) / 2 = 55', v12.foundationIndex === 55, v12.foundationIndex);
 ok('§14 status bij 55 = 🟡 Opbouwen', v12.foundationStatus.code === 'opbouwen', v12.foundationStatus.label);
 ok('§27 band bij 66 = Stevige basis', v12.scoreBand.label === 'Stevige basis', v12.scoreBand.label);
-ok('§31 sterkste dimensie = Readiness 90', v12.strongest.key === 'C' && v12.strongest.score === 90);
+ok('§31 sterkste dimensie = Commitment & Readiness 90', v12.strongest.key === 'C' && v12.strongest.score === 90);
 ok('§31 grootste ontwikkelpunt = Structuur 50', v12.weakest.key === 'S' && v12.weakest.score === 50);
 
 /* ============================================================ §15 geen harde cap */

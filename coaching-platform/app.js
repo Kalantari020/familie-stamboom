@@ -14,8 +14,12 @@
   let state = load();
 
   function blank() {
-    return { answers: {}, coach: { dimensions: {}, components: {}, structureModifier: {}, focusOverride: '' },
-             notes: '', history: [], actions: [], step: 0, view: 'intake', submitted: false };
+    return { answers: {},
+             coach: { dimensions: {}, components: {}, structureModifier: {}, focusOverride: '',
+                      focusValidation: { status: 'voorlopig', focus: null, reason: '' } },
+             notes: '', history: [], actions: [], checkins: [],
+             goalProgress: null, coachRating: { score: null, reason: '' },
+             step: 0, view: 'intake', submitted: false };
   }
   function load() {
     try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(blank(), JSON.parse(raw)); }
@@ -24,6 +28,14 @@
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
   function result() { return Scoring.computeScore(state.answers, state.coach); }
+  function prio(r) { return Priority.computePriority(r || result(), state.coach); }
+  function progress(r) {
+    return Coaching.computeProgress({
+      startScore: state.history.length ? state.history[0].total : (r || result()).total,
+      previousScore: state.history.length ? state.history[state.history.length - 1].total : null,
+      checkins: state.checkins, goalProgress: state.goalProgress, coachRating: state.coachRating
+    });
+  }
 
   /* ================================================================ INTAKE */
 
@@ -212,18 +224,24 @@
     });
     root.appendChild(bars);
 
-    // Eerste focus (§25/§26 taal)
-    if (r.focus) {
-      const f = el('div', 'card');
-      const fb = el('div', 'focus-box');
-      fb.appendChild(el('div', 'eyebrow', 'Jouw eerste focus'));
-      fb.appendChild(el('h2', null, esc(r.focus.label) +
-        (r.focus.secondary ? ' &amp; ' + esc(r.focus.secondary.label.split(' ')[0].toLowerCase()) : '')));
+    // Eerste focus — pas zichtbaar nadat de coach hem heeft gevalideerd (Priority Engine stap 5)
+    const pr = prio(r);
+    const f = el('div', 'card');
+    const fb = el('div', 'focus-box');
+    fb.appendChild(el('div', 'eyebrow', 'Jouw eerste focus'));
+    if (pr.visibleToClient && pr.primaryFocus) {
+      fb.appendChild(el('h2', null, esc(pr.primaryFocusLabel) +
+        (pr.secondaryLabel && pr.secondary !== pr.primaryFocus ? ' &amp; ' + esc(pr.secondaryLabel.split(' ')[0].toLowerCase()) : '')));
       fb.appendChild(el('p', null, Scoring.LANGUAGE.focusZin +
-        ' Je eerste stap is het stabieler maken van ' + esc(focusZin(r.focus)) + '. Vanuit daar bouwen we verder.'));
-      f.appendChild(fb);
-      root.appendChild(f);
+        ' We beginnen bij het onderdeel waar op dit moment waarschijnlijk de grootste hefboom zit: ' +
+        esc(focusZin({ key: pr.primaryFocus, label: pr.primaryFocusLabel })) + '.'));
+    } else {
+      fb.appendChild(el('h2', 'wachten', 'Wordt bepaald in je eerste sessie'));
+      fb.appendChild(el('p', null, 'Je coach kijkt je antwoorden door en bepaalt samen met jou waar je begint. ' +
+        'Dat gebeurt in het gesprek, niet automatisch op basis van een cijfer.'));
     }
+    f.appendChild(fb);
+    root.appendChild(f);
 
     // Doel (uit Q12)
     if ((state.answers.q12 || '').trim()) {
@@ -254,6 +272,33 @@
       }
     }
     root.appendChild(act);
+
+    // Reflectie
+    const laatste = state.checkins[state.checkins.length - 1];
+    if (laatste && (laatste.reflection || {}).geleerd) {
+      const rf = el('div', 'card tight');
+      rf.appendChild(el('div', 'eyebrow', 'Jouw reflectie'));
+      rf.appendChild(el('p', null, '“' + esc(laatste.reflection.geleerd) + '”'));
+      root.appendChild(rf);
+    }
+
+    // Progress Score
+    const pg = progress(r);
+    const pc = el('div', 'card');
+    pc.appendChild(el('div', 'eyebrow', 'Jouw voortgang'));
+    if (!pg.ready) {
+      pc.appendChild(el('p', 'muted', esc(pg.note) +
+        (pg.weekenNodig ? ' Nog ' + pg.weekenNodig + ' check-in(s) te gaan.' : '')));
+      if (pg.completion !== null) pc.appendChild(el('p', null, 'Action completion tot nu toe: <b>' + pg.completion + '%</b>'));
+    } else {
+      pc.appendChild(el('p', null, '<span class="score-mid">' + pg.basis + ' → ' + pg.score + '</span>' +
+        ' <span class="muted">over ' + pg.weken + ' weken</span>'));
+      const ul = el('ul', 'plain');
+      ul.appendChild(el('li', null, '<b>Deze periode heb je:</b>'));
+      pg.bewijs.forEach((b) => ul.appendChild(el('li', null, esc(b))));
+      pc.appendChild(ul);
+    }
+    root.appendChild(pc);
 
     // Progressie
     if (state.history.length > 1) root.appendChild(historyCard());
@@ -305,6 +350,96 @@
     return c;
   }
 
+  /* ================================================================ CHECK-IN (klant) */
+
+  function renderCheckin() {
+    const root = $('#view'); root.innerHTML = '';
+    if (!state.submitted) { root.appendChild(el('div', 'card', '<p>Rond eerst de intake af.</p>')); return; }
+
+    const head = el('div', 'card');
+    head.appendChild(el('div', 'eyebrow', 'Wekelijkse check-in · maximaal 5 minuten'));
+    head.appendChild(el('h1', null, 'Week ' + (state.checkins.length + 1)));
+    head.appendChild(el('p', null, 'Wat heb je gedaan? → Wat gebeurde er? → Wat heb je geleerd? → Wat doen we nu?'));
+    root.appendChild(head);
+
+    if (!state.actions.length) {
+      root.appendChild(el('div', 'card', '<p class="muted">Je coach heeft nog geen acties klaargezet voor deze week.</p>'));
+      return;
+    }
+
+    const ac = el('div', 'card');
+    ac.appendChild(el('div', 'eyebrow', 'Je acties'));
+    state.actions.forEach((a, i) => {
+      const row = el('div', 'checkin-row');
+      row.appendChild(el('div', 'checkin-text', esc(a.text)));
+      const opts = el('div', 'opts');
+      Object.keys(Coaching.STATUS).forEach((k) => {
+        const st = Coaching.STATUS[k];
+        const b = el('div', 'opt' + (a.status === k ? ' on' : ''), st.icon + ' ' + esc(st.label));
+        b.onclick = () => { state.actions[i].status = k; state.actions[i].done = (k === 'done'); save(); render(); };
+        opts.appendChild(b);
+      });
+      row.appendChild(opts);
+      ac.appendChild(row);
+    });
+    const gedaan = state.actions.filter((a) => a.status).length;
+    const comp = Coaching.actionCompletion({ actions: state.actions.filter((a) => a.status) });
+    ac.appendChild(el('div', 'muted', '<br>' + gedaan + ' van ' + state.actions.length + ' beoordeeld' +
+      (comp !== null ? ' · action completion <b>' + comp + '%</b>' : '')));
+    root.appendChild(ac);
+
+    const rf = el('div', 'card');
+    rf.appendChild(el('div', 'eyebrow', 'Reflectie'));
+    state.draft = state.draft || { reflection: {}, ratings: {} };
+    Coaching.CHECKIN_VRAGEN.forEach((q) => {
+      rf.appendChild(el('div', 'q-label', esc(q.label)));
+      const ta = el('textarea'); ta.value = state.draft.reflection[q.id] || '';
+      ta.oninput = () => { state.draft.reflection[q.id] = ta.value; save(); };
+      rf.appendChild(ta);
+    });
+    root.appendChild(rf);
+
+    const rt = el('div', 'card');
+    rt.appendChild(el('div', 'eyebrow', 'Zelfbeoordeling'));
+    Coaching.CHECKIN_CIJFERS.forEach((q) => {
+      rt.appendChild(el('div', 'q-label', esc(q.label)));
+      const sc = el('div', 'scale');
+      for (let i = 1; i <= 10; i++) {
+        const b = el('b', String(state.draft.ratings[q.id]) === String(i) ? 'on' : '', String(i));
+        b.onclick = () => { state.draft.ratings[q.id] = i; save(); render(); };
+        sc.appendChild(b);
+      }
+      rt.appendChild(sc);
+    });
+    rt.appendChild(el('p', 'muted', '<br>Deze cijfers zijn signalen voor je coach, geen automatische scoreverhoging.'));
+    root.appendChild(rt);
+
+    const nav = el('div', 'nav-btns');
+    const go = el('button', 'primary', 'Check-in versturen');
+    go.disabled = state.actions.some((a) => !a.status);
+    go.onclick = () => {
+      state.checkins.push({
+        week: state.checkins.length + 1, date: new Date().toISOString().slice(0, 10),
+        actions: state.actions.map((a) => ({ text: a.text, status: a.status })),
+        reflection: Object.assign({}, state.draft.reflection), ratings: Object.assign({}, state.draft.ratings)
+      });
+      state.actions.forEach((a) => { a.status = null; a.done = false; });
+      state.draft = { reflection: {}, ratings: {} };
+      state.view = 'client'; save(); render(); window.scrollTo(0, 0);
+    };
+    nav.appendChild(go);
+    if (go.disabled) nav.appendChild(el('div', 'muted', 'Beoordeel eerst al je acties.'));
+    root.appendChild(nav);
+
+    if (state.checkins.length) {
+      const hist = el('div', 'card tight');
+      hist.appendChild(el('div', 'eyebrow', 'Eerdere check-ins'));
+      state.checkins.forEach((c) => hist.appendChild(el('div', 'muted',
+        'Week ' + c.week + ' · ' + esc(c.date) + ' · completion ' + Coaching.actionCompletion(c) + '%')));
+      root.appendChild(hist);
+    }
+  }
+
   /* ================================================================ COACHOMGEVING */
 
   function renderCoach() {
@@ -351,6 +486,167 @@
     });
     ck.appendChild(el('p', 'muted', '<br>Signalen verlagen de score nooit automatisch. Corrigeren doe je hieronder, met een reden.'));
     root.appendChild(ck);
+
+    // ---------- PRIORITY ENGINE V1.0 ----------
+    const pr = prio(r);
+    const pe = el('div', 'card');
+    pe.appendChild(el('div', 'eyebrow', 'Priority Engine v' + pr.engineVersion));
+    pe.appendChild(el('h2', null, 'Waar beginnen we?'));
+    pe.appendChild(el('div', 'note', '<b>AI-hypothese:</b> ' + esc(pr.hypothese)));
+    const pdl = el('dl', 'fsh');
+    const padd = (k, v) => { pdl.appendChild(el('dt', null, k)); pdl.appendChild(el('dd', null, v)); };
+    padd('Modus', esc(pr.mode) + ' <span class="muted">' + esc(pr.reden) + '</span>');
+    padd('Primary focus', pr.aiPrimaryLabel ? esc(pr.aiPrimaryLabel) : '—');
+    padd('Secondary focus', pr.secondaryLabel ? esc(pr.secondaryLabel) : '—');
+    padd('Ingang', pr.entry ? esc(pr.entry) : '—');
+    padd('Hefboomketen', pr.chain ? esc(pr.chain.keten) : 'geen');
+    pe.appendChild(pdl);
+
+    // de vijf stappen, transparant
+    pr.steps.forEach((st) => {
+      const box = el('div', 'stepbox');
+      box.appendChild(el('div', 'stepnr', 'Stap ' + st.step));
+      const body = el('div', 'stepbody');
+      body.appendChild(el('b', null, esc(st.name)));
+      body.appendChild(el('div', 'muted', esc(st.note || '')));
+      if (st.step === 2 && st.rows) {
+        const t2 = el('table', 'assess mini');
+        t2.innerHTML = '<tr><th>Dimensie</th><th>Score</th><th>Gap</th><th>Impact</th><th>Bottleneck</th><th>Blokkeert</th></tr>';
+        st.rows.forEach((x) => {
+          const tr = el('tr');
+          [esc(x.label), x.score, x.gap, '×' + x.impact, '<b>' + x.bottleneck + '</b>', '<span class="muted">' + esc(x.detail || '—') + '</span>']
+            .forEach((c) => tr.appendChild(el('td', null, String(c))));
+          t2.appendChild(tr);
+        });
+        const w = el('div', 'tscroll'); w.appendChild(t2); body.appendChild(w);
+      }
+      if (st.step === 3 && st.items) st.items.forEach((i) => {
+        body.appendChild(el('div', 'flag hoog', '<b>⚠️ ' + esc(i.titel) + '</b><br>' + esc(i.detail) +
+          '<br><span class="muted">Coachvraag: ' + esc(i.vraag) + '</span>'));
+      });
+      if (st.step === 4 && st.kandidaten) st.kandidaten.forEach((k) => {
+        body.appendChild(el('div', 'note', '<b>' + esc(k.label) + '</b> (' + esc(k.entry) + ' · ' + k.entryScore + ') → ' +
+          esc(k.unlocks.join(', ')) + '<br><span class="muted">' + esc(k.keten) + '</span>'));
+      });
+      if (st.step === 5) {
+        const v = state.coach.focusValidation || {};
+        const row = el('div', 'mod-row');
+        const sel = el('select');
+        [['voorlopig', 'Voorlopig (niet zichtbaar voor klant)'], ['bevestigd', 'Bevestigd'],
+         ['gewijzigd', 'Gewijzigd'], ['verworpen', 'Verworpen']].forEach(([k, lab]) => {
+          const o = el('option', null, lab); o.value = k; if ((v.status || 'voorlopig') === k) o.selected = true; sel.appendChild(o);
+        });
+        const dim = el('select');
+        const oe = el('option', null, '(AI-voorstel: ' + (pr.aiPrimaryLabel || '—') + ')'); oe.value = ''; dim.appendChild(oe);
+        Scoring.DIM_ORDER.forEach((k) => {
+          const o = el('option', null, Scoring.DIMENSIONS[k].label); o.value = k;
+          if (v.focus === k) o.selected = true; dim.appendChild(o);
+        });
+        const rsn = el('input'); rsn.type = 'text'; rsn.placeholder = 'reden / notitie'; rsn.value = v.reason || '';
+        const btn = el('button', 'primary', 'Vastleggen');
+        btn.onclick = () => {
+          state.coach.focusValidation = { status: sel.value, focus: dim.value || pr.aiPrimary, reason: rsn.value };
+          save(); render();
+        };
+        row.appendChild(sel); row.appendChild(dim); row.appendChild(rsn); row.appendChild(btn);
+        body.appendChild(row);
+        body.appendChild(el('div', pr.visibleToClient ? 'note' : 'note warn',
+          pr.visibleToClient
+            ? 'Focus is gevalideerd en zichtbaar voor de klant: ' + esc(pr.primaryFocusLabel) +
+              (pr.focusSource === 'coach' ? ' (coachkeuze, AI stelde ' + esc(pr.aiPrimaryLabel) + ' voor)' : '')
+            : 'Nog niet gevalideerd — de klant ziet nog geen focus.'));
+      }
+      box.appendChild(body);
+      pe.appendChild(box);
+    });
+    root.appendChild(pe);
+
+    // ---------- SESSIE 1 ----------
+    const gids = Coaching.sessieGids(state.answers, r, pr);
+    const sg = el('div', 'card');
+    sg.appendChild(el('div', 'eyebrow', 'Sessie 1 — van inzicht naar focus · ' + gids.duur + ' minuten'));
+    gids.blokken.forEach((b) => {
+      const box = el('div', 'stepbox');
+      box.appendChild(el('div', 'stepnr', b.min + "'"));
+      const body = el('div', 'stepbody');
+      body.appendChild(el('b', null, esc(b.titel)));
+      body.appendChild(el('div', 'muted', esc(b.doel)));
+      const ul = el('ul', 'plain');
+      b.vragen.forEach((v) => ul.appendChild(el('li', null, esc(v))));
+      body.appendChild(ul);
+      box.appendChild(body); sg.appendChild(box);
+    });
+    if (gids.actievoorstellen.length) {
+      sg.appendChild(el('div', 'eyebrow', 'Actievoorstellen bij deze focus'));
+      const ul = el('ul', 'plain');
+      gids.actievoorstellen.forEach((a) => {
+        const li = el('li');
+        li.appendChild(el('span', null, esc(a)));
+        const add = el('button', 'ghost tiny', 'overnemen');
+        add.onclick = () => { if (state.actions.length < 3) { state.actions.push({ text: a, status: null, done: false }); save(); render(); } };
+        li.appendChild(add); ul.appendChild(li);
+      });
+      sg.appendChild(ul);
+    }
+    root.appendChild(sg);
+
+    // ---------- CHECK-INS + PROGRESS ----------
+    const pg = progress(r);
+    const cc = el('div', 'card');
+    cc.appendChild(el('div', 'eyebrow', 'Check-ins & Progress Score v' + Coaching.VERSION));
+    if (state.checkins.length) {
+      const last = state.checkins[state.checkins.length - 1];
+      const an = Coaching.analyseCheckin(last, state.answers, state.checkins);
+      cc.appendChild(el('p', null, '<b>Week ' + last.week + '</b> · action completion <b>' + an.completion +
+        '%</b> · consistentie ' + esc(an.consistentie) + ' · gemiddeld ' + an.gemiddelde + '%'));
+      if (an.patronen.length) cc.appendChild(el('div', 'note', '<b>Positief patroon:</b> ' + esc(an.patronen.join(' · '))));
+      if (an.obstakels.length) cc.appendChild(el('div', 'note', '<b>Obstakel:</b> ' + esc(an.obstakels.join(' · '))));
+      an.checks.forEach((c) => cc.appendChild(el('div', 'flag hoog', '⚠️ ' + esc(c))));
+      if (an.coachvragen.length) {
+        cc.appendChild(el('div', 'eyebrow', 'Coachvragen voor het gesprek'));
+        const ul = el('ul', 'plain');
+        an.coachvragen.forEach((v) => ul.appendChild(el('li', null, esc(v))));
+        cc.appendChild(ul);
+      }
+    } else {
+      cc.appendChild(el('p', 'muted', 'Nog geen check-ins ontvangen.'));
+    }
+
+    cc.appendChild(el('hr', 'sep'));
+    const grow = el('div', 'mod-row');
+    grow.appendChild(el('span', 'muted', 'Doelvoortgang 0–100'));
+    const gi = el('input', 'ovr'); gi.type = 'number'; gi.min = 0; gi.max = 100;
+    gi.value = state.goalProgress === null ? '' : state.goalProgress;
+    gi.onchange = () => { state.goalProgress = gi.value === '' ? null : Number(gi.value); save(); render(); };
+    grow.appendChild(gi);
+    grow.appendChild(el('span', 'muted', 'Coachbeoordeling'));
+    const ci2 = el('input', 'ovr'); ci2.type = 'number'; ci2.min = 0; ci2.max = 100;
+    ci2.value = (state.coachRating || {}).score === null || (state.coachRating || {}).score === undefined ? '' : state.coachRating.score;
+    const cr = el('input'); cr.type = 'text'; cr.placeholder = 'onderbouwing'; cr.value = (state.coachRating || {}).reason || '';
+    const commitCR = () => { state.coachRating = { score: ci2.value === '' ? null : Number(ci2.value), reason: cr.value }; save(); render(); };
+    ci2.onchange = commitCR; cr.onchange = commitCR;
+    grow.appendChild(ci2); grow.appendChild(cr);
+    cc.appendChild(grow);
+
+    if (!pg.ready) {
+      cc.appendChild(el('div', 'note warn', esc(pg.note) + (pg.weekenNodig ? ' Nog ' + pg.weekenNodig + ' check-in(s).' : '')));
+    } else {
+      const t3 = el('table', 'assess mini');
+      t3.innerHTML = '<tr><th>Signaal</th><th>Gewicht</th><th>Score</th></tr>';
+      pg.signalen.forEach((x) => {
+        const tr = el('tr');
+        tr.appendChild(el('td', null, esc(x.label)));
+        tr.appendChild(el('td', null, Math.round(x.weight * 100) + '%'));
+        tr.appendChild(el('td', null, x.score === null ? '<span class="muted">geen data</span>' : x.score));
+        t3.appendChild(tr);
+      });
+      const w3 = el('div', 'tscroll'); w3.appendChild(t3); cc.appendChild(w3);
+      cc.appendChild(el('div', 'note', 'Ontwikkelingsindex ' + pg.ontwikkelingsindex +
+        ' → Progress Score <b>' + pg.basis + ' → ' + pg.score + '</b> (' + (pg.delta >= 0 ? '+' : '') + pg.delta + ')' +
+        '<br><span class="muted">Startscore ' + (state.history.length ? state.history[0].total : r.total) +
+        ' · Action completion ' + pg.completion + '% · Progress ' + pg.score + ' — drie verschillende dingen.</span>'));
+    }
+    root.appendChild(cc);
 
     // Klant vs. coach
     const kc = el('div', 'card');
@@ -520,6 +816,7 @@
     document.querySelectorAll('.top-nav button').forEach((b) => b.classList.toggle('on', b.dataset.view === state.view));
     if (state.view === 'intake') renderIntake();
     else if (state.view === 'client') renderClient();
+    else if (state.view === 'checkin') renderCheckin();
     else renderCoach();
   }
 
@@ -530,9 +827,13 @@
     $('#demo').onclick = () => {
       state = blank();
       state.answers = demoAnswers(); state.submitted = true; state.step = 4;
-      state.actions = [{ text: 'Elke werkdag om 23:00 telefoon weg en licht uit', done: true },
-                       { text: 'Elke ochtend 10 minuten dagplanning maken', done: true },
-                       { text: 'Zondagavond week vooruit plannen', done: false }];
+      state.actions = [{ text: 'Elke werkdag om 23:00 telefoon weg en licht uit', status: null, done: false },
+                       { text: 'Elke ochtend 10 minuten dagplanning maken', status: null, done: false },
+                       { text: 'Zondagavond week vooruit plannen', status: null, done: false }];
+      state.checkins = demoCheckins();
+      state.goalProgress = 55;
+      state.coachRating = { score: 60, reason: 'uitvoering is sterk, inzicht groeit' };
+      state.coach.focusValidation = { status: 'bevestigd', focus: null, reason: 'bevestigd in sessie 1' };
       meting('Start'); state.view = 'client'; save(); render();
     };
     $('#reset').onclick = () => {
@@ -541,6 +842,24 @@
     };
     render();
   });
+
+  function demoCheckins() {
+    const R = [
+      { goed: 'Mijn ochtendroutine werkt', obstakel: 'Ik had geen tijd, mijn avonden blijven chaotisch',
+        geleerd: 'Ik merk dat mijn avonden het grootste probleem zijn' },
+      { goed: 'Drie keer op tijd naar bed', obstakel: 'Vrijdag toch weer laat geworden',
+        geleerd: 'Als ik mijn telefoon wegleg lukt het bijna vanzelf' },
+      { goed: 'Elke ochtend gepland', obstakel: 'Werk liep uit', geleerd: 'Ik plan mijn avonden niet, alleen mijn ochtenden' },
+      { goed: 'Voor het eerst een hele week volgehouden', obstakel: 'Weinig',
+        geleerd: 'Ik heb minder discipline nodig dan ik dacht, ik had vooral structuur nodig' }
+    ];
+    const P = [['done', 'done', 'done'], ['done', 'done', 'done'], ['done', 'done', 'done'], ['done', 'done', 'none']];
+    return P.map((st, i) => ({
+      week: i + 1, date: new Date(Date.now() - (4 - i) * 7 * 864e5).toISOString().slice(0, 10),
+      actions: st.map((x, j) => ({ text: 'actie ' + (j + 1), status: x })),
+      reflection: R[i], ratings: { zorg: 6 + i % 2, afspraken: 6 + i % 3 }
+    }));
+  }
 
   /* Demoprofiel: klant noemt discipline, de data wijst naar structuur en fundament. */
   function demoAnswers() {
