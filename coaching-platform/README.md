@@ -1,6 +1,8 @@
-# Coaching Platform — prototype
+# Coaching Platform — MVP v1.0 prototype
 
-Werkend prototype van het coachingconcept **"Eerst het fundament, daarna groei"**: intake van 25 vragen → startscore over 6 dimensies → klantdashboard → coachomgeving met assessment en scorevalidatie.
+Klikbaar prototype van het coachingconcept **"Eerst het fundament, daarna groei"**.
+
+De volledige loop werkt: intake van 25 vragen (één per scherm) → startscore → Foundation Status → Priority Engine → coachvalidatie → focus → acties → wekelijkse check-in → reflectie → Progress Score.
 
 Vanilla JS, geen frameworks, geen build tools — in lijn met de rest van deze repository.
 
@@ -11,7 +13,15 @@ open coaching-platform/index.html          # werkt rechtstreeks vanaf het bestan
 python3 -m http.server 3457                # of via een server
 ```
 
-Klik **Demoprofiel** om het scenario uit sectie 15 van de briefing te laden: de klant zegt *"mijn probleem is discipline"*, terwijl de data naar slaap en structuur wijst.
+Kies een rol. Drie fictieve cliënten staan klaar:
+
+| Cliënt | Laat zien |
+|---|---|
+| **Ahmed** | De normale loop: focus gevalideerd, vier check-ins, eerste Progress Score. |
+| **Mark** | Instabiele basis: de minimum foundation regel dwingt een fundamentfocus af. |
+| **David** | Sterke basis, maar de focus is nog niet gevalideerd — de klant ziet nog niets. |
+
+Of start **+ Nieuwe cliënt** om de intake vanaf nul te doorlopen.
 
 ## Bestanden
 
@@ -20,24 +30,27 @@ Klik **Demoprofiel** om het scenario uit sectie 15 van de briefing te laden: de 
 | `CONCEPT.md` | Het concept, aangescherpt en gestructureerd. |
 | **`SCORING.md`** | **Implementatie van COACH SCORING FRAMEWORK V1.0** — vraagmapping, conversies, Foundation Index, confidence, signalen, override en opslagstructuur. |
 | **`ENGINE.md`** | **Coaching Engine V1.0** — Priority Engine (5 stappen), validatie op 8 profielen, sessie 1, wekelijkse check-in en Progress Score. |
+| **`MVP.md`** | **Datamodel en schermenplan** — entiteiten, de snapshot-regel, alle routes en de MVP-scope. |
 | `intake.js` | De 25 vragen als data, inclusief introducties en slottekst. |
 | `scoring.js` | Startscore-engine. Pure functies, geen DOM. Draait in browser en node. |
 | `priority.js` | Priority Engine v1.0 — foundation check, bottleneck, contradicties, leverage, coachvalidatie. |
 | `coaching.js` | Sessie 1-gids, wekelijkse check-in-analyse en Progress Score v1.0. |
-| `app.js` | De prototype-UI: intake, klantdashboard, coachomgeving. |
+| `model.js` | Datamodel: entiteiten, opslag, snapshots en seed. |
+| `app.js` | De prototype-UI: routing en alle klant- en coachschermen. |
 | `style.css` | Styling volgens de UX-principes uit sectie 34. |
 | `test/scoring.test.js` | 111 tests op de Startscore, getoetst aan de rekenvoorbeelden in het framework. |
 | `test/priority.test.js` | 56 tests op de Priority Engine, inclusief de 8 validatieprofielen. |
 | `test/coaching.test.js` | 51 tests op sessie 1, check-in en Progress Score. |
+| `test/model.test.js` | 44 tests op het datamodel, inclusief de snapshot-regel. |
 
 ## Tests draaien
 
 ```
 cd coaching-platform
-node test/scoring.test.js && node test/priority.test.js && node test/coaching.test.js
+for t in scoring priority coaching model; do node test/$t.test.js || break; done
 ```
 
-218 tests, geen dependencies.
+262 tests, geen dependencies.
 
 De tests toetsen rechtstreeks aan de rekenvoorbeelden in het framework:
 
@@ -61,7 +74,7 @@ De tests toetsen rechtstreeks aan de rekenvoorbeelden in het framework:
 
 ## Wat nog niet
 
-Accounts en authenticatie, betaling, backend/database (alles staat nu in `localStorage`), meerdere klanten in het coachoverzicht, acties en reflecties als eigen objecten met completion, geplande reflecties per trajectfase, e-mail/notificaties.
+Echte authenticatie en betaling, een server-backend (alle data staat in `localStorage`), e-mail en notificaties, en alles wat bewust buiten de MVP-scope valt: community, chat, badgesysteem, kalender, voedingsdatabase, workoutbibliotheek, AI-chatbot en abonnementen.
 
 ## Belangrijkste openstaande keuzes
 
