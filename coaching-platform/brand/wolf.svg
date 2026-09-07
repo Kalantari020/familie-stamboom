@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="Sayedi wolf">
+  <g fill="currentColor">
+    <!-- kop: silhouet, oorholtes en gezicht in één pad -->
+    <path fill-rule="evenodd" d="
+      M248 104 L200 330 L166 428 L216 458 L188 552 L242 582 L230 668 L300 704 L392 790
+      L456 838 L480 862 L520 862 L544 838
+      L608 790 L700 704 L770 668 L758 582 L812 552 L784 458 L834 428 L800 330 L752 104
+      L604 322 L500 292 L396 322 Z
+      M254 182 L236 316 L356 320 Z
+      M746 182 L764 316 L644 320 Z
+      M500 340 L380 364 L288 414 L320 468 L292 560 L344 592 L336 664 L396 704 L452 758 L478 782
+      L522 782 L548 758 L604 704 L664 664 L656 592 L708 560 L680 468 L712 414 L620 364 Z
+    "/>
+    <!-- wenkbrauwen: 6° — gericht, geen frons -->
+    <path d="M326 402 L458 418 L454 448 L324 432 Z"/>
+    <path d="M674 402 L542 418 L546 448 L676 432 Z"/>
+    <!-- ogen: open amandel met ronde pupil -->
+    <path fill-rule="evenodd" d="M316 518 L358 488 L418 494 L450 520 L406 552 L350 552 Z
+                                 M366 510 L402 514 L400 542 L368 536 Z"/>
+    <path fill-rule="evenodd" d="M684 518 L642 488 L582 494 L550 520 L594 552 L650 552 Z
+                                 M634 510 L598 514 L600 542 L632 536 Z"/>
+    <!-- snuit met breed, vlak neusblok -->
+    <path fill-rule="evenodd" d="
+      M468 440 L452 590 L428 656 L446 696 L478 722 L522 722 L554 696 L572 656 L548 590 L532 440
+      L512 448 L534 590 L540 614 L500 628 L460 614 L466 590 L488 448 Z"/>
+  </g>
+</svg>
