@@ -1,6 +1,8 @@
 # SAYEDI — beeldmerk
 
-Herteken van het wolfslogo als schone vector. Zelfde idee, andere constructie.
+Herteken van het wolfslogo als schone vector. Zelfde idee, andere constructie — en bewust **kalm in plaats van agressief**.
+
+> Kalm is niet zwak. De kracht komt uit massa, symmetrie en stilstand, niet uit spikes en een frons.
 
 ## Wat er anders is
 
@@ -12,6 +14,25 @@ Herteken van het wolfslogo als schone vector. Zelfde idee, andere constructie.
 | Snuit | smal, verloopt in de kop | eigen U-vorm die onderin uitloopt in een breed, vlak neusblok |
 | Ogen | klein, weinig contrast | scherpe amandelvorm met donkere pupil |
 | Kleinste leesbare maat | ± 90 px | **40 px** met `wolf.svg`, **24 px** met `wolf-icon.svg` |
+
+## Kalme uitstraling
+
+Geen open bek, geen tanden, geen woeste blik, geen tribal vormentaal. Drie dingen veroorzaakten de agressie in het eerste herteken, en die zijn gericht aangepakt:
+
+| Signaal | Was | Nu |
+|---|---|---|
+| Wenkbrauwen | 26° naar de neus toe — dat *is* een frons | **6°** — gericht, geen frons |
+| Ogen | 20° schuine wig, smal | **3°** open amandel met pupil |
+| Ruff | 3 scherpe punten van ± 60 px | 3 ondiepe stappen van ± 30 px |
+| Kin | scherpe V-punt | vlakke, brede basis |
+
+Onderweg zijn drie doodlopende wegen verworpen, elk zichtbaar gerenderd voordat ze afvielen:
+
+- **vlakke wenkbrauw (0°)** — leest robotachtig in plaats van rustig;
+- **massief oog zonder pupil** — leest blind;
+- **grote iris met dunne witte rand** — leest als holle oogkassen, bijna een masker.
+
+De open amandel met een kleine pupil is de enige variant die tegelijk kalm én aanwezig leest. `vergelijking-agressief-vs-rustig.png` zet beide naast elkaar.
 
 De kop is ook smaller en langer gemaakt (verhouding 0,80 in plaats van 0,93). De oorspronkelijke versie liep breed uit onderaan, waardoor hij eerder als kat dan als wolf las.
 
@@ -26,6 +47,7 @@ De kop is ook smaller en langer gemaakt (verhouding 0,80 in plaats van 0,93). De
 | `icon-512.png` | Export van het icoon. |
 | `logo-1200-dark.png` · `logo-1200-light.png` | Export van de lockup. |
 | `wolf.png` · `wolf-icon.png` · `logo.png` | Contactvellen op meerdere maten en achtergronden. Alleen ter controle. |
+| `vergelijking-agressief-vs-rustig.png` | De vorige, strengere versie naast de definitieve. |
 
 ## Gebruik
 
