@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 860" role="img" aria-label="Sayedi — eerst het fundament, daarna groei">
+  <g fill="currentColor">
+    <!-- beeldmerk -->
+    <g transform="translate(270,40) scale(0.46)">
+      <path fill-rule="evenodd" d="
+        M240 90 L196 326 L150 424 L212 456 L176 558 L242 592 L226 690 L302 700
+        L388 790 L472 852 L500 876
+        L528 852 L612 790 L698 700 L774 690 L758 592 L824 558 L788 456 L850 424 L804 326 L760 90
+        L608 320 L500 288 L392 320 Z
+        M248 168 L232 312 L340 316 Z
+        M752 168 L768 312 L660 316 Z
+        M500 336 L388 366 L288 412 L308 466 L276 556 L336 594 L326 662 L384 700 L462 762 L500 790
+        L538 762 L616 700 L674 662 L664 594 L724 556 L692 466 L712 412 L612 366 Z
+      "/>
+      <path d="M316 388 L458 456 L448 492 L312 430 Z"/>
+      <path d="M684 388 L542 456 L552 492 L688 430 Z"/>
+      <path fill-rule="evenodd" d="M322 496 L440 540 L414 578 L330 540 Z
+                                   M354 522 L412 546 L398 564 L358 542 Z"/>
+      <path fill-rule="evenodd" d="M678 496 L560 540 L586 578 L670 540 Z
+                                   M646 522 L588 546 L602 564 L642 542 Z"/>
+      <path fill-rule="evenodd" d="
+        M466 418 L448 586 L424 654 L442 694 L476 724 L524 724 L558 694 L576 654 L552 586 L534 418
+        L510 424 L532 588 L540 612 L500 624 L460 612 L468 588 L490 424 Z"/>
+    </g>
+
+    <!-- woordmerk -->
+    <text x="521" y="600" text-anchor="middle" font-size="128" letter-spacing="42"
+          font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="400">SAYEDI</text>
+
+    <!-- streep -->
+    <rect x="440" y="666" width="120" height="4"/>
+
+    <!-- tagline -->
+    <text x="503" y="744" text-anchor="middle" font-size="30" letter-spacing="6" fill-opacity="0.72"
+          font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">EERST HET FUNDAMENT. DAARNA GROEI.</text>
+    <text x="503" y="792" text-anchor="middle" font-size="30" letter-spacing="6" fill-opacity="0.72"
+          font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">WORD IEMAND OP WIE JEZELF KUNT REKENEN.</text>
+  </g>
+</svg>
